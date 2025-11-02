@@ -95,6 +95,7 @@ in
             "-/var/run/nscd"
           ] ++ services.mkEtcPaths [
             "nsswitch.conf"
+            "fstab"
           ];
         };
       }));
