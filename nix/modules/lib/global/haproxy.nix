@@ -37,7 +37,7 @@ let
     global
       #uid# 980
       #gid# 980
-      log stdout format raw local0 warn
+      log stdout format raw local0 warning
 
     defaults
       log global
