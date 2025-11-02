@@ -159,6 +159,7 @@ in
   mkOptions = (inputs@{ ... }: with nixpkgs.lib.types; {
     tls = nixpkgs.lib.mkEnableOption "TLS";
     customReadyz = nixpkgs.lib.mkEnableOption "Don't handle /readyz endpoint for custom health checks";
+    quic = nixpkgs.lib.mkEnableOption "Enable QUIC (HTTP/3) support";
     oAuth = {
       enable = nixpkgs.lib.mkEnableOption "OAuth2 Proxy";
       bypassInternal = nixpkgs.lib.mkEnableOption "Bypass OAuth for internal requests";
@@ -184,7 +185,7 @@ in
     let
       name = inputs.name;
 
-      package = pkgs.nginx.override {
+      package = (if svcConfig.quic then pkgs.nginxQuic else pkgs.nginx).override {
         modules = nixpkgs.lib.lists.unique ([
           pkgs.nginxModules.njs
         ] ++ modules);
@@ -258,6 +259,10 @@ in
       baseHttpsConfig = readyz: ''
         listen 443;
         listen [::]:443;
+        ${if svcConfig.quic then ''
+        listen 443 quic;
+        listen [::]:443 quic;
+        '' else ""}
         listen 444;
         listen [::]:444;
         http2 on;
@@ -336,6 +341,10 @@ in
                   server_name _;
                   listen 443 ssl default_server;
                   listen [::]:443 ssl default_server;
+                  ${if svcConfig.quic then ''
+                  listen 443 quic reuseport;
+                  listen [::]:443 quic reuseport;
+                  '' else ""}
                   listen 444 ssl default_server proxy_protocol;
                   listen [::]:444 ssl default_server proxy_protocol;
                   http2 on;
@@ -359,7 +368,10 @@ in
             mode = "0600";
           };
 
-          foxDen.hosts.hosts.${svcConfig.host}.webservice.enable = true;
+          foxDen.hosts.hosts.${svcConfig.host}.webservice = {
+            enable = true;
+            quicPort = if svcConfig.quic then 443 else null;
+          };
 
           systemd.services.${name} = {
             restartTriggers = [ config.environment.etc.${confFileEtc}.text ];
