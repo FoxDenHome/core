@@ -89,16 +89,6 @@ let
     ]);
   });
 
-  mkNginxInternalBypass = (handler: svcConfig: if svcConfig.oAuth.bypassInternal then ''
-    #@internal {
-    #  client_ip private_ranges
-    #}
-
-    #handle @internal {
-    #  $_{handler}
-    #}
-  '' else "");
-
   mkNginxHandler = (handler: svcConfig: if (svcConfig.oAuth.enable && (!svcConfig.oAuth.overrideService)) then ''
     location /oauth2/ {
       proxy_pass http://127.0.0.1:4180;
@@ -115,9 +105,18 @@ let
       proxy_set_header Content-Length "";
       proxy_pass_request_body off;
     }
-    ${mkNginxInternalBypass handler svcConfig}
 
     location / {
+      ${if svcConfig.oAuth.bypassInternal then ''
+      satisfy any;
+      allow 192.168.0.0/16;
+      allow 172.16.0.0/12;
+      allow 10.0.0.0/8;
+      allow 127.0.0.0/8;
+      allow fd00::/8;
+      allow ::1/128;
+      deny all;
+      '' else ""}
       auth_request /oauth2/auth;
       error_page 401 =307 /oauth2/sign_in;
 

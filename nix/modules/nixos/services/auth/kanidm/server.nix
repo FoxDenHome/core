@@ -7,6 +7,11 @@ let
   hostCfg = foxDenLib.hosts.getByName config svcConfig.host;
   primaryInterface = lib.lists.head (lib.attrsets.attrValues hostCfg.interfaces);
   hostName = foxDenLib.global.dns.mkHost primaryInterface.dns;
+
+  proxyTarget = ''
+    proxy_pass https://127.0.0.1:8443;
+    proxy_ssl_verify off;
+  '';
 in
 {
   options.foxDen.services.kanidm = with lib.types; {
@@ -70,16 +75,25 @@ in
       inherit svcConfig pkgs config;
       name = "http-kanidm";
       dynamicUser = false;
-      target = ''
-        #@denied {
-        #  path /v1/*
-        #  not client_ip private_ranges ${lib.concatStringsSep " " kanidmExternalIPs}
-        #  not path /v1/auth /v1/auth/* /v1/self /v1/self/* /v1/credential /v1/credential/* /v1/jwk /v1/jwk/* /v1/reauth /v1/reauth/* /v1/oauth2 /v1/oauth2/*
-        #}
-        #respond @denied "foxden.network intranet only" 403
-        proxy_pass https://127.0.0.1:8443;
-        proxy_ssl_verify off;
+      extraConfig = ''
+        location ~ ^/v1/(auth|self|credential|jwk|reauth|oauth2)(/|$) {
+          ${proxyTarget}
+        }
+
+        location /v1/ {
+          allow 192.168.0.0/16;
+          allow 172.16.0.0/12;
+          allow 10.0.0.0/8;
+          allow 127.0.0.0/8;
+          allow fd00::/8;
+          allow ::1/128;
+          ${lib.concatStringsSep "\n" (map (ip: "allow ${ip};") kanidmExternalIPs)}
+          deny all;
+
+          ${proxyTarget}
+        }
       '';
+      target = proxyTarget;
     }).config
     {
       sops.secrets."kanidm-admin-password" = config.lib.foxDen.sops.mkIfAvailable {
