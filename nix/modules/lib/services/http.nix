@@ -213,6 +213,8 @@ in
         # Normal /readyz handling disabled
       '';
 
+      configFuncData = { inherit package defaultTarget baseWebConfig proxyConfig proxyConfigNoHost; };
+
       proxyConfigNoHost = ''
         proxy_http_version 1.1;
         proxy_request_buffering off;
@@ -235,7 +237,7 @@ in
       '';
       hostConfig = ''
         # Custom config can be injected here
-        ${inputs.extraConfig or ""}
+        ${if inputs.extraConfig or "" != "" then inputs.extraConfig configFuncData else ""}
         # Auto generated config below
         ${mkNginxHandler defaultTarget svcConfig}
       '';
@@ -361,7 +363,7 @@ in
                 }
                 '' else ""}
 
-              ${if rawConfig != null then rawConfig { inherit package baseWebConfig proxyConfig proxyConfigNoHost; } else normalConfig}
+              ${if rawConfig != null then rawConfig configFuncData else normalConfig}
               }
             '';
             mode = "0600";

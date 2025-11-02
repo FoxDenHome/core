@@ -7,11 +7,6 @@ let
   hostCfg = foxDenLib.hosts.getByName config svcConfig.host;
   primaryInterface = lib.lists.head (lib.attrsets.attrValues hostCfg.interfaces);
   hostName = foxDenLib.global.dns.mkHost primaryInterface.dns;
-
-  proxyTarget = ''
-    proxy_pass https://127.0.0.1:8443;
-    proxy_ssl_verify off;
-  '';
 in
 {
   options.foxDen.services.kanidm = with lib.types; {
@@ -75,9 +70,9 @@ in
       inherit svcConfig pkgs config;
       name = "http-kanidm";
       dynamicUser = false;
-      extraConfig = ''
+      extraConfig = { defaultTarget, ... }: ''
         location ~ ^/v1/(auth|self|credential|jwk|reauth|oauth2)(/|$) {
-          ${proxyTarget}
+          ${defaultTarget}
         }
 
         location /v1/ {
@@ -90,10 +85,13 @@ in
           ${lib.concatStringsSep "\n" (map (ip: "allow ${ip};") kanidmExternalIPs)}
           deny all;
 
-          ${proxyTarget}
+          ${defaultTarget}
         }
       '';
-      target = proxyTarget;
+      target = ''
+        proxy_pass https://127.0.0.1:8443;
+        proxy_ssl_verify off;
+      '';
     }).config
     {
       sops.secrets."kanidm-admin-password" = config.lib.foxDen.sops.mkIfAvailable {
