@@ -239,13 +239,11 @@ in
         # Auto generated config below
         ${mkNginxHandler defaultTarget svcConfig}
       '';
-      baseHttpConfig = readyz: first: let
-        proxyOpts = if first then "proxy_protocol" else "";
-      in ''
+      baseHttpConfig = readyz: ''
         listen 80;
         listen [::]:80;
-        listen 81 ${proxyOpts};
-        listen [::]:81 ${proxyOpts};
+        listen 81;
+        listen [::]:81;
 
         location @acmePeriodicAuto {
           js_periodic acme.clientAutoMode interval=1m;
@@ -257,14 +255,11 @@ in
 
         ${readyzConf readyz}
       '';
-      baseHttpsConfig = readyz: first: let
-        proxyOpts = if first then "proxy_protocol" else "";
-        sslOpts = if first then "ssl" else "";
-      in ''
-        listen 443 ${sslOpts};
-        listen [::]:443 ${sslOpts};
-        listen 444 ${sslOpts} ${proxyOpts};
-        listen [::]:444 ${sslOpts} ${proxyOpts};
+      baseHttpsConfig = readyz: ''
+        listen 443;
+        listen [::]:443;
+        listen 444;
+        listen [::]:444;
         http2 on;
 
         js_set $dynamic_ssl_cert acme.js_cert;
@@ -279,11 +274,11 @@ in
         ${readyzConf readyz}
       '';
       useStockReadyz = !svcConfig.customReadyz;
-      baseWebConfig = first: if svcConfig.tls then baseHttpsConfig useStockReadyz first else baseHttpConfig useStockReadyz first;
+      baseWebConfig = if svcConfig.tls then baseHttpsConfig useStockReadyz else baseHttpConfig useStockReadyz;
 
       normalConfig = ''server {
         server_name ${builtins.concatStringsSep " " hostMatchers};
-        ${baseWebConfig true}
+        ${baseWebConfig}
         ${hostConfig}
       }'';
     in
@@ -329,8 +324,23 @@ in
                 js_import acme from acme.js;
 
                 server {
+                  server_name _;
+                  listen 80 default_server;
+                  listen [::]:80 default_server;
+                  listen 443 ssl default_server;
+                  listen [::]:443 ssl default_server;
+                  listen 81 default_server proxy_protocol;
+                  listen [::]:81 default_server proxy_protocol;
+                  listen 444 ssl default_server proxy_protocol;
+                  listen [::]:444 ssl default_server proxy_protocol;
+                  http2 on;
+                  ssl_reject_handshake on;
+                  return 444;
+                }
+
+                server {
                   server_name ${builtins.concatStringsSep " " hostMatchers};
-                  ${baseHttpConfig true true}
+                  ${baseHttpConfig true}
 
                   location / {
                     return 301 https://$http_host$request_uri;

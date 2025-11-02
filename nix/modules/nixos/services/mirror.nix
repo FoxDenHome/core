@@ -103,7 +103,7 @@ in
 
         server {
           server_name mirror.${svcRootName};
-          ${ baseWebConfig true }
+          ${baseWebConfig}
           root /data;
 
           set $jsindex_ignore "/archlinux /cachyos";
@@ -124,7 +124,7 @@ in
 
         server {
           server_name archlinux.${svcRootName};
-          ${ baseWebConfig false }
+          ${baseWebConfig}
           root /data/archlinux;
 
           set $jsindex_ignore "";
@@ -137,7 +137,7 @@ in
 
         server {
           server_name cachyos.${svcRootName};
-          ${ baseWebConfig false }
+          ${baseWebConfig}
           root /data/cachyos;
 
           location / {

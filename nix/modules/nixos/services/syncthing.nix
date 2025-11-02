@@ -39,7 +39,7 @@ in
       rawConfig = { baseWebConfig, proxyConfigNoHost, ... }: ''
         server {
           server_name ${svcConfig.syncthingHost};
-          ${baseWebConfig true}
+          ${baseWebConfig}
           location / {
             proxy_pass http://127.0.0.1:8384;
             ${proxyConfigNoHost}
@@ -48,7 +48,7 @@ in
         }
         server {
           server_name ${svcConfig.webdavHost};
-          ${baseWebConfig false}
+          ${baseWebConfig}
 
           auth_basic "Syncthing WebDAV";
           auth_basic_user_file ${if config.foxDen.sops.available then config.sops.secrets.http-syncthing.path else "/dev/null"};
