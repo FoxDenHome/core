@@ -96,6 +96,7 @@ in
           ] ++ services.mkEtcPaths [
             "nsswitch.conf"
             "fstab"
+            "mtab"
           ];
         };
       }));
