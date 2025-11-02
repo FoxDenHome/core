@@ -16,7 +16,7 @@ let
   rootInterface = "enp1s0";
 in
 {
-  foxDen.sops.available = true;
+  foxDen.sops.available = false;
 
   system.stateVersion = "25.05";
 
