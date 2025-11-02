@@ -315,6 +315,15 @@ in
                 js_path "/njs/lib/";
                 js_fetch_trusted_certificate /etc/ssl/certs/ca-certificates.crt;
 
+                server {
+                  server_name _;
+                  listen 80 default_server;
+                  listen [::]:80 default_server;
+                  listen 81 default_server proxy_protocol;
+                  listen [::]:81 default_server proxy_protocol;
+                  return 444;
+                }
+
                 ${if svcConfig.tls then ''
                 js_var $njs_acme_server_names "${builtins.concatStringsSep " " hostMatchers}";
                 js_var $njs_acme_account_email "ssl@foxden.network";
@@ -325,12 +334,8 @@ in
 
                 server {
                   server_name _;
-                  listen 80 default_server;
-                  listen [::]:80 default_server;
                   listen 443 ssl default_server;
                   listen [::]:443 ssl default_server;
-                  listen 81 default_server proxy_protocol;
-                  listen [::]:81 default_server proxy_protocol;
                   listen 444 ssl default_server proxy_protocol;
                   listen [::]:444 ssl default_server proxy_protocol;
                   http2 on;
