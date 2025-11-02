@@ -186,7 +186,7 @@ in
           };
           quicPort = nixpkgs.lib.mkOption {
             type = ints.u16;
-            default = 443;
+            default = 0;
           };
           readyUrl = nixpkgs.lib.mkOption {
             type = str;

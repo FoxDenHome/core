@@ -184,7 +184,7 @@ in
     let
       name = inputs.name;
 
-      package = pkgs.nginxQuic.override {
+      package = pkgs.nginx.override {
         modules = nixpkgs.lib.lists.unique ([
           pkgs.nginxModules.njs
         ] ++ modules);
@@ -259,13 +259,10 @@ in
       '';
       baseHttpsConfig = readyz: first: let
         proxyOpts = if first then "proxy_protocol" else "";
-        reuseportOpts = if first then "reuseport" else "";
         sslOpts = if first then "ssl" else "";
       in ''
         listen 443 ${sslOpts};
         listen [::]:443 ${sslOpts};
-        listen 443 quic ${reuseportOpts};
-        listen [::]:443 quic ${reuseportOpts};
         listen 444 ${sslOpts} ${proxyOpts};
         listen [::]:444 ${sslOpts} ${proxyOpts};
         http2 on;
