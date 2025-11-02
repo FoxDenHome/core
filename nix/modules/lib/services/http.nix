@@ -370,7 +370,7 @@ in
 
           foxDen.hosts.hosts.${svcConfig.host}.webservice = {
             enable = true;
-            quicPort = if svcConfig.quic then 443 else null;
+            quicPort = if svcConfig.quic then 443 else 0;
           };
 
           systemd.services.${name} = {
