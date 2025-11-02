@@ -58,6 +58,7 @@ let
           BindReadOnlyPaths = [
             "/run/systemd/notify"
             "${resolvConf}:/etc/resolv.conf"
+            pkgs.cacert
           ] ++ gpuPaths ++ mkEtcPaths [
             "hosts"
             "localtime"
