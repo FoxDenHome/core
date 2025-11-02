@@ -719,11 +719,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1762103956,
-        "narHash": "sha256-rdiSg+YwtrUjLv9JwfzxTHw7AEA1vWr4Wpc9jak7Xfk=",
+        "lastModified": 1762104298,
+        "narHash": "sha256-bD6oqI6J7fzJxrhJX7r1U5KD2sS2CAY6YqtrQeTos7g=",
         "owner": "SpaceAgeMP",
         "repo": "space_age_api",
-        "rev": "fb606b34f5cfffd7f4305736dea0538151fb6904",
+        "rev": "dabb3c1ab7071efafff8fd3fa606550946770565",
         "type": "github"
       },
       "original": {
