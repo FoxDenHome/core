@@ -37,7 +37,3 @@ creation_rules:
       - age:
         - *admin_doridian_keepassxc
         - *server_icefox
-  - path_regex: '^secrets/'
-    key_groups:
-      - age:
-        - *admin_doridian_keepassxc
