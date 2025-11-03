@@ -87,7 +87,7 @@ in
   in lib.mkIf ipmiconfig.enable {
     foxDen.hosts.hosts.${netconfig.hostName} = {
       interfaces.default = {
-        driver = "null";
+        driver.name = "null";
         useDHCP = false;
         dns = {
           name = "${netconfig.hostName}.${netconfig.hostZone}";
