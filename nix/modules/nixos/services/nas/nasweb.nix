@@ -20,12 +20,15 @@ in
         root /nas;
         autoindex on;
       '';
-      # TODO: extraConfig = ''
-      #   handle /guest/* {
-      #     root * /nas
-      #     file_server
-      #   }
-      # '';
+      extraConfig = { defaultTarget, ... }: ''
+        location ~ ^/guest/.*[^/]$ {
+          satisfy any;
+          allow 0.0.0.0/0;
+          allow ::0/0;
+          root /nas;
+          autoindex off;
+        }
+      '';
     }).config
     {
       systemd.services.nasweb.serviceConfig = {
