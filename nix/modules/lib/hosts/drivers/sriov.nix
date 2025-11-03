@@ -3,19 +3,21 @@ let
   eSA = nixpkgs.lib.strings.escapeShellArg;
 in
 {
-  driverOptsType = with nixpkgs.lib.types; submodule {
-    vlan = nixpkgs.lib.mkOption {
-      type = ints.unsigned;
-    };
-    rootPvid = nixpkgs.lib.mkOption {
-      type = ints.unsigned;
-    };
-    root = nixpkgs.lib.mkOption {
-      type = str;
-    };
-    mtu = nixpkgs.lib.mkOption {
-      type = ints.u16;
-      default = 1500;
+  driverConfigType = with nixpkgs.lib.types; submodule {
+    options = {
+      vlan = nixpkgs.lib.mkOption {
+        type = ints.unsigned;
+      };
+      rootPvid = nixpkgs.lib.mkOption {
+        type = ints.unsigned;
+      };
+      root = nixpkgs.lib.mkOption {
+        type = str;
+      };
+      mtu = nixpkgs.lib.mkOption {
+        type = ints.u16;
+        default = 1500;
+      };
     };
   };
 
@@ -24,9 +26,9 @@ in
   };
 
   hooks = ({ pkgs, ipCmd, serviceInterface, interface, ... }: let
-    root = interface.driverOpts.root;
+    root = interface.driver.sriov.root;
 
-    vlan = if interface.driverOpts.vlan == interface.driverOpts.rootPvid then 0 else interface.driverOpts.vlan;
+    vlan = if interface.driver.sriov.vlan == interface.driver.sriov.rootPvid then 0 else interface.driver.sriov.vlan;
 
     allocSriovScript = pkgs.writeShellScript "allocate-sriov" ''
       set -euox pipefail
@@ -80,7 +82,7 @@ in
   {
     start = [
       "${pkgs.util-linux}/bin/flock -x /run/foxden-sriov.lock '${allocSriovScript}' '${root}'"
-      "${ipCmd} link set dev ${eSA serviceInterface} mtu ${toString interface.driverOpts.mtu}"
+      "${ipCmd} link set dev ${eSA serviceInterface} mtu ${toString interface.driver.sriov.mtu}"
     ];
     serviceInterface = "";
     stop = [

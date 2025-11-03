@@ -47,12 +47,14 @@ let
         "net.ipv6.conf.INTERFACE.accept_ra" = "0";
       } // (iface.sysctls or {});
       addresses = lib.filter (ip: !(foxDenLib.util.isPrivateIP ip)) iface.addresses;
-      driver = "bridge";
       webservice.enable = false;
-      driverOpts = {
-        bridge = ifcfg.interface;
-        vlan = 0;
-        mtu = ifcfg.mtu;
+      driver = {
+        name = "bridge";
+        bridge = {
+          bridge = ifcfg.interface;
+          vlan = 0;
+          mtu = ifcfg.mtu;
+        };
       };
       routes = [ ];
     };
@@ -62,11 +64,13 @@ let
       } // (iface.sysctls or {});
       mac = null;
       addresses = lib.filter (foxDenLib.util.isPrivateIP) iface.addresses;
-      driver = "bridge";
-      driverOpts = {
-        bridge = ifcfg-foxden.interface;
-        vlan = 0;
-        mtu = ifcfg-foxden.mtu;
+      driver = {
+        name = "bridge";
+        bridge = {
+          bridge = ifcfg-foxden.interface;
+          vlan = 0;
+          mtu = ifcfg-foxden.mtu;
+        };
       };
       routes = [
         { Destination = "10.0.0.0/8"; Gateway = "10.99.12.1"; }
@@ -96,7 +100,7 @@ in
           routes = [
             { Destination = "::/0"; Gateway = "2a01:4f9:2b:1a42::1:1"; }
           ];
-          driverOpts = {
+          driver.bridge = {
             bridge = lib.mkForce ifcfg-routed.interface;
             mtu = ifcfg-routed.mtu;
           };
@@ -286,7 +290,7 @@ in
   foxDen.hosts.hosts = {
     icefox = let
       mkIntf = subifcfg: {
-        driver = "null";
+        driver.name = "null";
         dns = {
           name = "icefox.foxden.network";
         };
@@ -302,7 +306,7 @@ in
       interfaces.default = mkIntf ifcfg;
       interfaces.foxden = mkIntf ifcfg-foxden;
       interfaces.routed = {
-        driver = "null";
+        driver.name = "null";
         inherit (ifcfg-routed) mac addresses;
         dns.name = "";
       };

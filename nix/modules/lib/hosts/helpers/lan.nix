@@ -11,18 +11,22 @@ rec {
 
   mkVlanHost = (ifcfg: vlan: cfg: let
     driver = ifcfg.defaultDriver or "bridge";
+    commonConfig = {
+      mtu = ifcfg.mtu;
+      vlan = vlan;
+    };
   in {
     nameservers = mkNameservers vlan;
     interfaces.default = {
-      inherit driver;
-      driverOpts = (if driver == "sriov" then {
-        root = ifcfg.phyIface;
-        rootPvid = ifcfg.phyPvid;
-      } else if driver == "bridge" then {
-        bridge = ifcfg.interface;
-      } else {}) // {
-        mtu = ifcfg.mtu;
-        vlan = vlan;
+      driver = {
+        name = driver;
+        sriov = {
+          root = ifcfg.phyIface;
+          rootPvid = ifcfg.phyPvid;
+        } // commonConfig;
+        bridge = {
+          bridge = ifcfg.interface;
+        } // commonConfig;
       };
       routes = mkRoutes vlan;
     } // cfg;

@@ -5,7 +5,7 @@
 
   foxDen.hosts.hosts = let
     mkIntf = (intf: {
-      interfaces.default = { driver = "null"; } // intf;
+      interfaces.default = { driver.name = "null"; } // intf;
     });
   in {
     redfox = mkIntf {

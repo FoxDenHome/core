@@ -79,7 +79,7 @@ in
   foxDen.hosts.hosts = {
     islandfox = {
       interfaces.default = {
-        driver = "null";
+        driver.name = "null";
         dns = {
           name = "islandfox.foxden.network";
         };

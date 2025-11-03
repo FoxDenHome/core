@@ -56,13 +56,14 @@ in
 
     interfaceType = with nixpkgs.lib.types; submodule {
       options = {
-        driver = nixpkgs.lib.mkOption {
-          type = enum (nixpkgs.lib.attrsets.attrNames foxDenLib.hosts.drivers);
-        };
-        driverOpts = nixpkgs.lib.mkOption {
-          type = attrsOf anything; # TODO: Host driver schema
-          default = {};
-        };
+        driver = {
+          name = nixpkgs.lib.mkOption {
+            type = enum (nixpkgs.lib.attrsets.attrNames foxDenLib.hosts.drivers);
+          };
+        } // (nixpkgs.lib.attrsets.genAttrs (nixpkgs.lib.attrsets.attrNames foxDenLib.hosts.drivers) (name: nixpkgs.lib.mkOption {
+          type = foxDenLib.hosts.drivers.${name}.driverConfigType;
+          default = foxDenLib.hosts.drivers.${name}.driverConfigDefault or {};
+        }));
         mac = nixpkgs.lib.mkOption {
           type = nullOr str;
           default = null;
@@ -315,7 +316,7 @@ in
 
       systemd = nixpkgs.lib.mkMerge (
         (map ({ name, value }: (value.build {
-          interfaces = (nixpkgs.lib.filter (iface: iface.driver == name) interfaces);
+          interfaces = (nixpkgs.lib.filter (iface: iface.driver.name == name) interfaces);
         }).config.systemd) (nixpkgs.lib.attrsets.attrsToList foxDenLib.hosts.drivers))
         ++ [{
           # Configure each host's NetNS
@@ -327,7 +328,7 @@ in
             renderRoute = (dev: route: "${ipInNsCmd} route add " + (if route.Destination != null then eSA route.Destination else "default") + (if route.Gateway != null then " via ${eSA route.Gateway}" else " dev ${eSA dev}"));
 
             mkHooks = (interface: let
-              ifaceDriver = foxDenLib.hosts.drivers.${interface.driver};
+              ifaceDriver = foxDenLib.hosts.drivers.${interface.driver.name};
 
               serviceInterface = "host${interface.suffix}";
               driverRunParams = { inherit ipCmd ipInNsCmd netnsExecCmd interface pkgs serviceInterface; };

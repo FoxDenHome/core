@@ -80,7 +80,7 @@ in
   foxDen.hosts.hosts = {
     bengalfox = {
       interfaces.default = {
-        driver = "null";
+        driver.name = "null";
         dns = {
           name = "bengalfox.foxden.network";
         };

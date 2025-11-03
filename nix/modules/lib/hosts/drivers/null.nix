@@ -1,6 +1,6 @@
 { nixpkgs, ... }:
 {
-  driverOptsType = with nixpkgs.lib.types; submodule {};
+  driverConfigType = with nixpkgs.lib.types; submodule { options = {}; };
   build = { ... }: { config.systemd = {}; };
   hooks = { ... }: { start = [ ]; stop = [ ]; };
 }

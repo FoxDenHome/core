@@ -2,7 +2,7 @@
 {
   config.foxDen.hosts.hosts = let
     mkIntf = (intf: {
-      interfaces.default = { driver = "null"; } // intf;
+      interfaces.default = { driver.name = "null"; } // intf;
     });
   in {
     capefox = mkIntf {
