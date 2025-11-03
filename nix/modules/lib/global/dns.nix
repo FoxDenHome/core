@@ -52,17 +52,81 @@ let
         type = str;
         default = "doridian.net";
       };
-      email = lib.mkOption {
+      fastmail = lib.mkOption {
+        type = bool;
+        default = true;
+      };
+      ses = lib.mkOption {
         type = bool;
         default = true;
       };
     };
   };
+
+  mkAuxRecords = name: zone: (if zone.fastmail or zone.ses then [
+    {
+      inherit name;
+      type = "TXT";
+      ttl = 3600;
+      value = nixpkgs.lib.concatStringsSep " " (
+        ["v=spf1"]
+        ++ (if zone.fastmail then ["include:spf.messagingengine.com"] else [])
+        ++ (if zone.ses then ["include:amazonses.com"] else [])
+        ++ ["mx" "~all"]
+      );
+      horizon = "*";
+    }
+    {
+      name = "_dmarc.${name}";
+      type = "TXT";
+      ttl = 3600;
+      value = "v=DMARC1;p=quarantine;pct=100";
+      horizon = "*";
+    }
+  ] else []) ++ (if zone.fastmail then [
+    {
+      inherit name;
+      type = "MX";
+      ttl = 3600;
+      value = "in1-smtp.messagingengine.com.";
+      priority = 10;
+      horizon = "*";
+    }
+    {
+      inherit name;
+      type = "MX";
+      ttl = 3600;
+      value = "in2-smtp.messagingengine.com.";
+      priority = 20;
+      horizon = "*";
+    }
+    {
+      name  = "fm1._domainkey.${name}";
+      type  = "CNAME";
+      ttl   = 3600;
+      value = "fm1.${name}.dkim.fmhosted.com";
+      horizon = "*";
+    }
+    {
+      name  = "fm2._domainkey.${name}";
+      type  = "CNAME";
+      ttl   = 3600;
+      value = "fm2.${name}.dkim.fmhosted.com";
+      horizon = "*";
+    }
+    {
+      name  = "fm3._domainkey.${name}";
+      type  = "CNAME";
+      ttl   = 3600;
+      value = "fm3.${name}.dkim.fmhosted.com";
+      horizon = "*";
+    }
+  ] else []);
 in
 {
   defaultTtl = defaultTtl;
 
-  nixosModule = { ... }: {
+  nixosModule = { config, ... }: {
     options.foxDen.dns.records = with lib.types; lib.mkOption {
       type = listOf dnsRecordType;
       default = [];
@@ -92,11 +156,13 @@ in
 
         "c.1.2.2.0.f.8.e.0.a.2.ip6.arpa" = {
           registrar = "ripe";
-          email = false;
+          fastmail = false;
+          ses = false;
         };
         "0.f.4.4.d.7.e.0.a.2.ip6.arpa" = {
           registrar = "ripe";
-          email = false;
+          fastmail = false;
+          ses = false;
         };
 
         "e.b.3.6.b.c.4.f.c.2.d.f.ip6.arpa" = {
@@ -115,11 +181,13 @@ in
   mkHost = record: record.name;
 
   mkConfig = (nixosConfigurations: let
-    records = globalConfig.getList ["foxDen" "dns" "records"] nixosConfigurations;
+    zones = globalConfig.getAttrSet ["foxDen" "dns" "zones"] nixosConfigurations;
+    records = (globalConfig.getList ["foxDen" "dns" "records"] nixosConfigurations) ++ nixpkgs.lib.flatten (
+      map ({ name, value }: mkAuxRecords name value) (lib.attrsets.attrsToList zones)
+    );
     # TODO: Go back to uniqueStrings once next NixOS stable
     horizons = lib.filter (h: h != "*")
         (lib.lists.unique (map (record: record.horizon) records));
-    zones = globalConfig.getAttrSet ["foxDen" "dns" "zones"] nixosConfigurations;
 
     zoneNames = lib.attrsets.attrNames zones;
 

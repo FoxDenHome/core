@@ -3,7 +3,7 @@ locals {
 }
 
 module "arcticfox_ses" {
-  source = "../modules/domain/ses"
+  source = "./domain/ses"
 
   zone      = local.doridian_net_zone
   domain    = "doridian.net"

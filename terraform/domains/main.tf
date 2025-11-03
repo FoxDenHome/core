@@ -11,12 +11,12 @@ data "external" "nix_dns_json" {
 }
 
 module "domain" {
-  source   = "../modules/domain"
+  source   = "./domain"
   for_each = { for k, v in local.zones_json : k => v if v.registrar != "local" }
 
   domain            = each.key
-  fastmail          = each.value["email"]
-  ses               = each.value["email"]
+  fastmail          = each.value["fastmail"]
+  ses               = each.value["ses"]
   vanity_nameserver = local.vanity_nameservers[each.value["vanityNameserver"]]
   registrar         = each.value["registrar"]
 }
