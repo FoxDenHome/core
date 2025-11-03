@@ -24,11 +24,8 @@ module "domain" {
 
   domain = each.key
 
-  root_aname     = "arcticfox.doridian.net"
-  root_aname_ttl = 3600
-  fastmail       = false
-  ses            = true
-  add_www_cname  = true
+  fastmail = false
+  ses      = true
 
   registrar = each.value.registrar
 }

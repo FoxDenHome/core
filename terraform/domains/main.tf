@@ -15,10 +15,8 @@ module "domain" {
   for_each = { for k, v in local.zones_json : k => v if v.registrar != "local" }
 
   domain            = each.key
-  fastmail          = !endswith(each.key, ".arpa")
-  ses               = !endswith(each.key, ".arpa")
-  root_aname        = null
-  add_www_cname     = false
+  fastmail          = each.value["email"]
+  ses               = each.value["email"]
   vanity_nameserver = local.vanity_nameservers[each.value["vanityNameserver"]]
   registrar         = each.value["registrar"]
 }

@@ -33,3 +33,21 @@ resource "cloudns_dns_record" "mx" {
   value    = var.server
   priority = 1
 }
+
+resource "cloudns_dns_record" "root" {
+  zone = var.zone
+
+  name  = ""
+  type  = "ALIAS"
+  ttl   = 3600
+  value = var.server
+}
+
+resource "cloudns_dns_record" "www" {
+  zone = var.zone
+
+  name  = "www"
+  type  = "CNAME"
+  ttl   = 3600
+  value = var.domain
+}

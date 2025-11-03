@@ -1,23 +1,3 @@
-resource "cloudns_dns_record" "root" {
-  count = var.root_aname != null ? 1 : 0
-  zone  = cloudns_dns_zone.domain.id
-
-  name  = ""
-  type  = "ALIAS"
-  ttl   = var.root_aname_ttl
-  value = var.root_aname
-}
-
-resource "cloudns_dns_record" "www" {
-  count = var.add_www_cname ? 1 : 0
-  zone  = cloudns_dns_zone.domain.id
-
-  name  = "www"
-  type  = "CNAME"
-  ttl   = 3600
-  value = var.domain
-}
-
 resource "cloudns_dns_record" "spf" {
   count = (var.ses || var.fastmail) ? 1 : 0
   zone  = cloudns_dns_zone.domain.id

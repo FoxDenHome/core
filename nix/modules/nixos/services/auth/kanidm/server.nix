@@ -1,4 +1,4 @@
-{ pkgs, lib, config, options, kanidmOauth2, kanidmExternalIPs, foxDenLib, ... }:
+{ pkgs, lib, config, options, kanidm, foxDenLib, ... }:
 let
   services = foxDenLib.services;
 
@@ -82,7 +82,7 @@ in
           allow 127.0.0.0/8;
           allow fd00::/8;
           allow ::1/128;
-          ${lib.concatStringsSep "\n" (map (ip: "allow ${ip};") kanidmExternalIPs)}
+          ${lib.concatStringsSep "\n" (map (ip: "allow ${ip};") kanidm.externalIPs)}
           deny all;
 
           ${defaultTarget}
@@ -116,7 +116,7 @@ in
 
           autoRemove = true;
 
-          systems.oauth2 = kanidmOauth2;
+          systems.oauth2 = kanidm.oauth2;
           groups = {
             login-users = {
               present = true;
