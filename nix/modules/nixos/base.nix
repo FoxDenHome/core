@@ -39,9 +39,9 @@
   ];
 
   security.wrappers = {
-    pkexec = {};
-    su = {};
-    sg = {};
+    pkexec.enable = false;
+    su.enable = false;
+    sg.enable = false;
   };
 
   programs.fish.enable = true;
