@@ -38,18 +38,31 @@
     xfsprogs
   ];
 
-  security.wrappers = {
-    pkexec.enable = false;
-    su.enable = false;
-    sg.enable = false;
+  security = {
+    wrappers = {
+      pkexec.enable = false;
+      su.enable = false;
+      sg.enable = false;
+    };
+    sudo.enable = false;
+    polkit.enable = true;
   };
-
-  programs.fish.enable = true;
-  programs.zsh.enable = true;
-  programs.git.enable = true;
-  programs.htop.enable = true;
-  programs.tcpdump.enable = true;
-  programs.ssh.package = pkgs.openssh_hpn;
+  programs = {
+    fish.enable = true;
+    zsh.enable = true;
+    git.enable = true;
+    htop.enable = true;
+    tcpdump.enable = true;
+    ssh.package = pkgs.openssh_hpn;
+  };
+  services.openssh = {
+    enable = true;
+    settings = {
+      PasswordAuthentication = false;
+      KbdInteractiveAuthentication = false;
+      PermitRootLogin = "no";
+    };
+  };
 
   environment.shellAliases = {
     "sudo" = "run0 --background=''";
@@ -57,23 +70,18 @@
 
   nix.settings.allowed-users = [ "root" "@wheel" ];
 
-  security.sudo.enable = false;
-  security.polkit.enable = true;
   users.users.root.shell = "${pkgs.fish}/bin/fish";
-
   users.groups.share.gid = 1001;
 
-  networking.hostId = lib.mkDefault (foxDenLib.util.mkShortHash 8 config.networking.hostName);
-  networking.wireguard.useNetworkd = false;
-  networking.firewall.logRefusedConnections = false;
-  networking.nftables.enable = true;
+  networking = {
+    hostId = lib.mkDefault (foxDenLib.util.mkShortHash 8 config.networking.hostName);
+    wireguard.useNetworkd = false;
+    firewall.logRefusedConnections = false;
+    nftables.enable = true;
+  };
 
   boot.kernel.sysctl = {
     "net.ipv4.ip_unprivileged_port_start" = "80";
-  };
-
-  services.openssh = {
-    enable = true;
   };
 
   environment.persistence."/nix/persist/system" = {
