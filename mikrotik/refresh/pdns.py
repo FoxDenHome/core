@@ -54,9 +54,9 @@ RECORD_TYPE_HANDLERS["ALIAS"] = lambda record: [find_record(record["value"], "A"
 def refresh_pdns():
     global INTERNAL_RECORDS
     unlink_safe("result")
-    check_call(["nix", "build", f"{NIX_DIR}#dnsRecords.json"])
+    check_call(["nix", "build", f"{NIX_DIR}#dns.json"])
     with open("result", "r") as file:
-        all_records = json_load(file)
+        all_records = json_load(file)["records"]
     unlink_safe("result")
 
     bind_conf = []

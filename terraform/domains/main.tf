@@ -1,63 +1,35 @@
 locals {
-  domains = {
-    "doridian.de" = {
-      vanity_nameserver = "doridian.de",
-      registrar         = "inwx",
-    },
-    "doridian.net" = {},
-    "dori.fyi" = {
-      registrar = "inwx",
-    },
-    "f0x.es"              = {},
-    "foxcav.es"           = {},
-    "darksignsonline.com" = {},
-    "foxden.network" = {
-      vanity_nameserver = "foxden.network",
-    },
-    "spaceage.mp" = {
-      registrar = "getmp",
-    },
+  dns_json = jsondecode(data.external.nix_dns_json.result.json)
 
-    // RIPE /40
-    "0.f.4.4.d.7.e.0.a.2.ip6.arpa" = {
-      registrar = "ripe",
-    },
-    // RIPE /44
-    "c.1.2.2.0.f.8.e.0.a.2.ip6.arpa" = {
-      registrar = "ripe",
-    },
-  }
-
-  default_vanity_nameserver = "doridian.net"
-
-  records_json = jsondecode(data.external.nix_records_json.result.json)
+  zones_json   = local.dns_json["zones"]
+  records_json = local.dns_json["records"]["external"]
 }
 
-data "external" "nix_records_json" {
+data "external" "nix_dns_json" {
   program = ["${path.module}/nix.sh"]
   query   = {}
 }
 
 module "domain" {
   source   = "../modules/domain"
-  for_each = local.domains
+  for_each = { for k, v in local.zones_json : k => v if v.registrar != "local" }
 
   domain            = each.key
   fastmail          = !endswith(each.key, ".arpa")
   ses               = !endswith(each.key, ".arpa")
   root_aname        = null
   add_www_cname     = false
-  vanity_nameserver = local.vanity_nameservers[try(each.value.vanity_nameserver, local.default_vanity_nameserver)]
-  registrar         = try(each.value.registrar, "aws")
+  vanity_nameserver = local.vanity_nameservers[each.value["vanityNameserver"]]
+  registrar         = each.value["registrar"]
 }
 
 module "domain_jsonrecords" {
   source   = "./jsonrecords"
-  for_each = local.domains
+  for_each = { for k, v in local.records_json : k => v if local.zones_json[k].registrar != "local" }
 
   domain  = each.key
   zone    = module.domain[each.key].zone
-  records = try(local.records_json[each.key], [])
+  records = each.value
 }
 
 output "dynamic_urls" {

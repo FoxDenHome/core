@@ -6,6 +6,6 @@ nixdir="$(realpath "$rdir/../../nix")"
 
 cd "$rdir"
 rm -f result
-nix build "$nixdir#dnsRecords.json"
-jq -n --arg json "$(jq .external result)" '{"json":$json}'
+nix build "$nixdir#dns.json"
+jq '{json: . | tojson}' result
 rm -f result

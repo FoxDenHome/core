@@ -41,6 +41,19 @@ let
       };
     };
   };
+
+  zoneType = with lib.types; submodule {
+    options = {
+      registrar = lib.mkOption {
+        type = str;
+        default = "aws";
+      };
+      vanityNameserver = lib.mkOption {
+        type = str;
+        default = "doridian.net";
+      };
+    };
+  };
 in
 {
   defaultTtl = defaultTtl;
@@ -53,44 +66,70 @@ in
     # NOTE: We do NOT support nested zones here, as that would complicate things
     # significantly. So don't add things like "sub.example.com" if "example.com" is already present.
     options.foxDen.dns.zones = with lib.types; lib.mkOption {
-      type = uniq (listOf str);
-      default = [
-        "foxden.network"
-        "doridian.de"
-        "doridian.net"
-        "darksignsonline.com"
-        "f0x.es"
-        "foxcav.es"
-        "spaceage.mp"
+      type = attrsOf zoneType;
+      default = {
+        "foxden.network" = {
+          vanityNameserver = "foxden.network";
+        };
+        "doridian.de" = {
+          registrar = "inwx";
+          vanityNameserver = "doridian.de";
+        };
+        "dori.fyi" = {
+          registrar = "inwx";
+        };
+        "doridian.net" = {};
+        "darksignsonline.com" = {};
+        "f0x.es" = {};
+        "foxcav.es" = {};
+        "spaceage.mp" = {
+          registrar = "getmp";
+        };
 
-        "c.1.2.2.0.f.8.e.0.a.2.ip6.arpa"
-        "0.f.4.4.d.7.e.0.a.2.ip6.arpa"
-        "e.b.3.6.b.c.4.f.c.2.d.f.ip6.arpa"
-        "10.in-addr.arpa"
-        "41.96.100.in-addr.arpa"
-      ];
+        "c.1.2.2.0.f.8.e.0.a.2.ip6.arpa" = {
+          registrar = "ripe";
+        };
+        "0.f.4.4.d.7.e.0.a.2.ip6.arpa" = {
+          registrar = "ripe";
+        };
+        "e.b.3.6.b.c.4.f.c.2.d.f.ip6.arpa" = {
+          registrar = "local";
+        };
+        "10.in-addr.arpa" = {
+          registrar = "local";
+        };
+        "41.96.100.in-addr.arpa" = {
+          registrar = "local";
+        };
+      };
     };
   };
 
   mkHost = record: record.name;
 
-  mkRecords = (nixosConfigurations: let
+  mkConfig = (nixosConfigurations: let
     records = globalConfig.getList ["foxDen" "dns" "records"] nixosConfigurations;
     # TODO: Go back to uniqueStrings once next NixOS stable
     horizons = lib.filter (h: h != "*")
         (lib.lists.unique (map (record: record.horizon) records));
-    zones = lib.lists.unique (globalConfig.getList ["foxDen" "dns" "zones"] nixosConfigurations);
+    zones = globalConfig.getAttrSet ["foxDen" "dns" "zones"] nixosConfigurations;
+
+    zoneNames = lib.attrsets.attrNames zones;
 
     zonedRecords = map (record: record // rec {
-      zone = lib.findFirst (zone: (zone == record.name) || (lib.strings.hasSuffix ".${zone}" record.name)) "" zones;
+      zone = lib.findFirst (zone: (zone == record.name) || (lib.strings.hasSuffix ".${zone}" record.name)) "" zoneNames;
       name = if (record.name == zone) then "@" else (lib.strings.removeSuffix ".${zone}" record.name);
     }) records;
   in
-    (lib.attrsets.genAttrs horizons (horizon:
-      lib.attrsets.genAttrs zones (zone:
+  {
+    inherit zones;
+
+    records = (lib.attrsets.genAttrs horizons (horizon:
+      lib.attrsets.genAttrs zoneNames (zone:
         lib.filter (record:
           (record.horizon == horizon || record.horizon == "*") && record.zone == zone)
           zonedRecords
       )
-    )));
+    ));
+  });
 }

@@ -61,7 +61,7 @@ let
       systemModules;
   }) systemInfos;
 
-  dnsRecords = foxDenLib.global.dns.mkRecords nixosConfigurations;
+  dns = foxDenLib.global.dns.mkConfig nixosConfigurations;
   dhcp = foxDenLib.global.dhcp.make nixosConfigurations;
   firewall = foxDenLib.global.firewall.make nixosConfigurations;
   haproxy = foxDenLib.global.haproxy.make nixosConfigurations;
@@ -75,7 +75,7 @@ let
       specialArgs = allLibs // {
         systemArch = system.system;
         hostName = system.name;
-        inherit dnsRecords dhcp firewall haproxy kanidmOauth2 kanidmExternalIPs;
+        inherit  dhcp firewall haproxy kanidmOauth2 kanidmExternalIPs dns;
       };
       modules = [
         ({ ... }: {
@@ -90,9 +90,9 @@ in
 {
   nixosConfigurations = nixosConfigurations;
 
-  dnsRecords = {
-    attrset = dnsRecords;
-    json = builtins.toFile "dns-records.json" (builtins.toJSON dnsRecords);
+  dns = {
+    attrset = dns;
+    json = builtins.toFile "dns.json" (builtins.toJSON dns);
   };
   haproxy = {
     source = haproxy;
