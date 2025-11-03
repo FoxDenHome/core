@@ -9,7 +9,7 @@
       dns = {
         name = "capefox.foxden.network";
       };
-      mac = "00:30:93:12:12:38";
+      mac = "7c:e7:12:81:29:9b";
       dhcpv6 = {
         duid = "0x000100012d6265636c7e67bcff75";
         iaid = 0;
@@ -23,7 +23,7 @@
       dns = {
         name = "capefox-wired.foxden.network";
       };
-      mac = "00:30:93:12:12:39"; # TODO: Update MAC
+      mac = "00:30:93:12:12:38";
       addresses = [
         "10.2.10.4/16"
       ];
