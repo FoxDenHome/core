@@ -44,11 +44,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1761878306,
-        "narHash": "sha256-mZNCziB8xpw2V596LgV7uKlQu8V3mPZOQ+R2jv+Vm60=",
+        "lastModified": 1762191981,
+        "narHash": "sha256-ZXb/VckyE7tpishYFQMDB9IsnB5rxP7SS+H1JUzAPIE=",
         "owner": "FoxDenHome",
         "repo": "e621dumper",
-        "rev": "7570f219ec6126cb0411d23c7e7ee7784f3d59dc",
+        "rev": "17b3c0724763388a16c9a1adc00c057f5ab71ee9",
         "type": "github"
       },
       "original": {
@@ -65,11 +65,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1761878508,
-        "narHash": "sha256-j/7rz7KcKYggWWGsg6Q95ULaRmbFJ2KjSGqmKzeecq0=",
+        "lastModified": 1762192250,
+        "narHash": "sha256-BFCWnNXHrlnmlTlcBFe6CUZV0a212KjFD2AZC7FKfHM=",
         "owner": "Doridian",
         "repo": "fadumper",
-        "rev": "5a017532ef97d56b715a5694779cb725720e496b",
+        "rev": "c2375e0d440613df5fded5b02a7e9c2556c84a94",
         "type": "github"
       },
       "original": {
@@ -422,11 +422,11 @@
         "rust-overlay": "rust-overlay"
       },
       "locked": {
-        "lastModified": 1756744479,
-        "narHash": "sha256-EyZXusK/wRD3V9vDh00W2Re3Eg8UQ+LjVBQrrH9dq1U=",
+        "lastModified": 1762179568,
+        "narHash": "sha256-sv6YY19xIweeRwos41cvT92+SZcF6d6o4BcSuPnrPwQ=",
         "owner": "nix-community",
         "repo": "lanzaboote",
-        "rev": "747b7912f49e2885090c83364d88cf853a020ac1",
+        "rev": "cbe4178bf694a9081d51e8ac55e5baadc1d4fa40",
         "type": "github"
       },
       "original": {
@@ -678,11 +678,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1754189623,
-        "narHash": "sha256-fstu5eb30UYwsxow0aQqkzxNxGn80UZjyehQVNVHuBk=",
+        "lastModified": 1761791894,
+        "narHash": "sha256-myRIDh+PxaREz+z9LzbqBJF+SnTFJwkthKDX9zMyddY=",
         "owner": "oxalica",
         "repo": "rust-overlay",
-        "rev": "c582ff7f0d8a7ea689ae836dfb1773f1814f472a",
+        "rev": "59c45eb69d9222a4362673141e00ff77842cd219",
         "type": "github"
       },
       "original": {
@@ -719,11 +719,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1762104298,
-        "narHash": "sha256-bD6oqI6J7fzJxrhJX7r1U5KD2sS2CAY6YqtrQeTos7g=",
+        "lastModified": 1762192632,
+        "narHash": "sha256-r2+SC+AF+reYfclMpVTxn3cQtP8Uqb9gIGHEIzrF2C8=",
         "owner": "SpaceAgeMP",
         "repo": "space_age_api",
-        "rev": "dabb3c1ab7071efafff8fd3fa606550946770565",
+        "rev": "6b8c92706c4fcf2bfc5cdd97d3f00f6e9caed284",
         "type": "github"
       },
       "original": {
