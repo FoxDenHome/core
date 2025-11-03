@@ -49,7 +49,10 @@
   };
   programs = {
     fish.enable = true;
-    zsh.enable = true;
+    zsh = {
+      enable = true;
+      oh-my-zsh.enable = true;
+    };
     git.enable = true;
     htop.enable = true;
     tcpdump.enable = true;
