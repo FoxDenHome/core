@@ -38,6 +38,12 @@
     xfsprogs
   ];
 
+  security.wrappers = {
+    pkexec = {};
+    su = {};
+    sg = {};
+  };
+
   programs.fish.enable = true;
   programs.zsh.enable = true;
   programs.git.enable = true;
