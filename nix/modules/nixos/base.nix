@@ -51,7 +51,7 @@
     fish.enable = true;
     zsh = {
       enable = true;
-      oh-my-zsh.enable = true;
+      ohMyZsh.enable = true;
     };
     git.enable = true;
     htop.enable = true;
