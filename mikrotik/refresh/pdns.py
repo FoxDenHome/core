@@ -16,10 +16,6 @@ def foreach_vlan(records: list[str]) -> list[str]:
 SPECIAL_ZONES = {}
 SPECIAL_ZONES["foxden.network"] = lambda: [
     "$INCLUDE /etc/pdns/foxden.network.local.db",
-    "ns1 IN A 10.2.0.53",
-    "ns2 IN A 10.2.0.53",
-    "ns3 IN A 10.2.0.53",
-    "ns4 IN A 10.2.0.53",
 ]
 SPECIAL_ZONES["10.in-addr.arpa"] = lambda: foreach_vlan([
     "1.0.%d IN PTR gateway.foxden.network.",
@@ -56,7 +52,7 @@ def refresh_pdns():
     unlink_safe("result")
     check_call(["nix", "build", f"{NIX_DIR}#dns.json"])
     with open("result", "r") as file:
-        all_records = json_load(file)["records"]
+        INTERNAL_RECORDS = json_load(file)["records"]["internal"]
     unlink_safe("result")
 
     bind_conf = []
@@ -72,7 +68,6 @@ def refresh_pdns():
         recursor_data["recursor"]["forward_zones"] = []
 
     print("## Writing zone files")
-    INTERNAL_RECORDS = all_records["internal"]
     for zone in sorted(INTERNAL_RECORDS.keys()):
         print(f"### Processing zone {zone}")
         records = INTERNAL_RECORDS[zone]
