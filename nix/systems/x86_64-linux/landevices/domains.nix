@@ -1,4 +1,86 @@
-{ ... }:
+{ lib, config, ... }:
+let
+  mkAuxRecords = name: zone: (map (ns: {
+    inherit name;
+    type = "NS";
+    ttl = 86400;
+    value = ns;
+    horizon = "*";
+  }) config.foxDen.dns.nameservers.${zone.nameservers}) ++ (if zone.fastmail or zone.ses then [
+    {
+      inherit name;
+      type = "TXT";
+      ttl = 3600;
+      value = lib.concatStringsSep " " (
+        ["v=spf1"]
+        ++ (if zone.fastmail then ["include:spf.messagingengine.com"] else [])
+        ++ (if zone.ses then ["include:amazonses.com"] else [])
+        ++ ["mx" "~all"]
+      );
+      horizon = "*";
+    }
+    {
+      name = "_dmarc.${name}";
+      type = "TXT";
+      ttl = 3600;
+      value = "v=DMARC1;p=quarantine;pct=100";
+      horizon = "*";
+    }
+  ] else []) ++ (if zone.fastmail then [
+    {
+      inherit name;
+      type = "MX";
+      ttl = 3600;
+      value = "in1-smtp.messagingengine.com.";
+      priority = 10;
+      horizon = "*";
+    }
+    {
+      inherit name;
+      type = "MX";
+      ttl = 3600;
+      value = "in2-smtp.messagingengine.com.";
+      priority = 20;
+      horizon = "*";
+    }
+    {
+      name  = "fm1._domainkey.${name}";
+      type  = "CNAME";
+      ttl   = 3600;
+      value = "fm1.${name}.dkim.fmhosted.com";
+      horizon = "*";
+    }
+    {
+      name  = "fm2._domainkey.${name}";
+      type  = "CNAME";
+      ttl   = 3600;
+      value = "fm2.${name}.dkim.fmhosted.com";
+      horizon = "*";
+    }
+    {
+      name  = "fm3._domainkey.${name}";
+      type  = "CNAME";
+      ttl   = 3600;
+      value = "fm3.${name}.dkim.fmhosted.com";
+      horizon = "*";
+    }
+  ] else []) ++ (lib.flatten (if zone.generateNSRecords then (builtins.genList (idx: [
+    {
+      name  = "ns${builtins.toString (idx+1)}.${name}";
+      type  = "ALIAS";
+      ttl   = 86400;
+      value = builtins.elemAt config.foxDen.dns.nameservers.default idx;
+      horizon = "external";
+    }
+    {
+      name  = "ns${builtins.toString (idx+1)}.${name}";
+      type  = "A";
+      ttl   = 86400;
+      value = "10.2.0.53";
+      horizon = "internal";
+    }
+  ]) (lib.lists.length config.foxDen.dns.nameservers.default)) else []));
+in
 {
   config.foxDen.dns.zones = {
     "foxden.network" = {
@@ -44,6 +126,9 @@
       registrar = "local";
     };
   };
+
+  config.foxDen.dns.records = lib.flatten (map ({ name, value }: mkAuxRecords name value) (lib.attrsets.attrsToList config.foxDen.dns.zones));
+
   config.foxDen.dns.nameservers = {
     "doridian.de" = ["ns1.doridian.de." "ns2.doridian.de." "ns3.doridian.de." "ns4.doridian.de."];
     "doridian.net" = ["ns1.doridian.net." "ns2.doridian.net." "ns3.doridian.net." "ns4.doridian.net."];
