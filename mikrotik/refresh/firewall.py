@@ -1,8 +1,10 @@
 from subprocess import check_call
 from json import load as json_load
-from refresh.util import unlink_safe, NIX_DIR, mtik_path, get_ipv4_netname
+from refresh.util import unlink_safe, NIX_DIR, mtik_path
 
 FILENAME = mtik_path("scripts/gen-firewall.rsc")
+
+# TODO: Use API and diff in Python and then synchronize stuff instead of generating a big script (use comment as id)
 
 def is_ipv6(addr: str) -> bool:
     return "." not in addr

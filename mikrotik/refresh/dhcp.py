@@ -4,6 +4,8 @@ from refresh.util import unlink_safe, NIX_DIR, mtik_path, get_ipv4_netname
 
 FILENAME = mtik_path("scripts/gen-dhcp.rsc")
 
+# TODO: Use API and diff in Python and then synchronize stuff instead of generating a big script (use comment as id)
+
 def refresh_dhcp():
     unlink_safe("result")
     check_call(["nix", "build", f"{NIX_DIR}#dhcp.json.router"])
