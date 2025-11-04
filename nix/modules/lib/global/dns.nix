@@ -5,10 +5,8 @@ let
 
   defaultTtl = 3600;
 
-  # TODO: Reset counter on date barriers
-  currentDate = flakeInputs.self.lastModifiedDate;
-  currentRevToday = "00${builtins.toString (flakeInputs.self.revCount or 0)}";
-  dnsSerial = "${builtins.substring 0 8 currentDate}${builtins.substring ((builtins.stringLength currentRevToday) - 2) 2 currentRevToday}";
+  # This is 10 digits long, the exact length we need!
+  dnsSerial = builtins.toString flakeInputs.self.lastModified;
 
   dnsRecordType = with lib.types; submodule {
     options = {
