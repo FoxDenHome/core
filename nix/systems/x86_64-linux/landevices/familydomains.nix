@@ -1,7 +1,12 @@
 { ... }:
 let
-  rootServer = "arcticfox.doridian.net.";
-
+  serverDomain = "arcticfox.doridian.net";
+  familyZoneCfg = {
+    registrar = "inwx";
+    fastmail = false;
+    ses = true;
+    nameservers = "default";
+  };
   subCnamesRaw = [
     "ftp"
     "mail"
@@ -14,7 +19,7 @@ let
   mkFamilyRecords = domain: (map (name: {
     name = "${name}.${domain}";
     type = "CNAME";
-    value = "@" ;
+    value = "${domain}.";
     horizon = "*";
   }) subCnames) ++ [
     {
@@ -22,24 +27,17 @@ let
       type = "MX";
       priority = 1;
       ttl = 3600;
-      value = rootServer;
+      value = "${serverDomain}.";
       horizon = "*";
     }
     {
       name = domain;
       type = "ALIAS";
       ttl = 3600;
-      value = rootServer;
+      value = "${serverDomain}.";
       horizon = "*";
     }
   ];
-
-  familyZoneCfg = {
-    registrar = "inwx";
-    fastmail = false;
-    ses = true;
-    nameservers = "default";
-  };
 in
 {
   config.foxDen.dns.zones = {
