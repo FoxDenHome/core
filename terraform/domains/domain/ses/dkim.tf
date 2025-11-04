@@ -1,14 +1,13 @@
 resource "aws_ses_domain_dkim" "ses" {
-  domain = local.full_domain
+  domain = var.domain
 }
 
 resource "cloudns_dns_record" "ses_dkim_record" {
-  count = 3
-
   zone = var.zone
+  for_each = toset(aws_ses_domain_dkim.ses.dkim_tokens)
 
   type  = "CNAME"
-  name  = "${aws_ses_domain_dkim.ses.dkim_tokens[count.index]}._domainkey${local.subdomain_dotstart}"
+  name  = "${each.value}._domainkey"
   ttl   = 3600
-  value = "${aws_ses_domain_dkim.ses.dkim_tokens[count.index]}.dkim.amazonses.com"
+  value = "${each.value}.dkim.amazonses.com"
 }

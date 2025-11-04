@@ -8,5 +8,4 @@ module "ses" {
   source    = "./ses"
   zone      = cloudns_dns_zone.domain.id
   domain    = var.domain
-  subdomain = ""
 }

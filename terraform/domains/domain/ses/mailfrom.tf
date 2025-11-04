@@ -1,17 +1,12 @@
-locals {
-  mail_from_host   = "${var.mail_from_subdomain}${local.subdomain_dotstart}"
-  mail_from_domain = "${var.mail_from_subdomain}.${local.full_domain}"
-}
-
 resource "aws_ses_domain_mail_from" "ses_mailfrom" {
-  domain           = local.full_domain
-  mail_from_domain = local.mail_from_domain
+  domain           = var.domain
+  mail_from_domain = "ses-bounce.${var.domain}"
 }
 
 resource "cloudns_dns_record" "ses_mailfrom_mx" {
   zone = var.zone
 
-  name     = local.mail_from_host
+  name     = "ses-bounce"
   type     = "MX"
   ttl      = 3600
   value    = "feedback-smtp.${data.aws_region.current.region}.amazonses.com"
@@ -21,7 +16,7 @@ resource "cloudns_dns_record" "ses_mailfrom_mx" {
 resource "cloudns_dns_record" "ses_mailfrom_txt" {
   zone = var.zone
 
-  name  = local.mail_from_host
+  name  = "ses-bounce"
   type  = "TXT"
   ttl   = 3600
   value = "v=spf1 include:amazonses.com -all"
