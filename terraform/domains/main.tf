@@ -24,3 +24,7 @@ module "domain" {
 output "dynamic_urls" {
   value = { for zone, domain in module.domain : zone => domain.dynamic_urls }
 }
+
+output "dnskey_records" {
+  value = { for zone, domain in module.domain : zone => domain.dnskey_records }
+}
