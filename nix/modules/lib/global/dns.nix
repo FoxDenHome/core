@@ -66,6 +66,87 @@ let
       };
     };
   };
+
+  mkAuxRecords = name: zone: nameservers: (map (ns: {
+    inherit name;
+    type = "NS";
+    ttl = 86400;
+    value = ns;
+    horizon = "*";
+  }) nameservers.${zone.nameservers}) ++ (if zone.fastmail or zone.ses then [
+    {
+      inherit name;
+      type = "TXT";
+      ttl = 3600;
+      value = nixpkgs.lib.concatStringsSep " " (
+        ["v=spf1"]
+        ++ (if zone.fastmail then ["include:spf.messagingengine.com"] else [])
+        ++ (if zone.ses then ["include:amazonses.com"] else [])
+        ++ ["mx" "~all"]
+      );
+      horizon = "*";
+    }
+    {
+      name = "_dmarc.${name}";
+      type = "TXT";
+      ttl = 3600;
+      value = "v=DMARC1;p=quarantine;pct=100";
+      horizon = "*";
+    }
+  ] else []) ++ (if zone.fastmail then [
+    {
+      inherit name;
+      type = "MX";
+      ttl = 3600;
+      value = "in1-smtp.messagingengine.com.";
+      priority = 10;
+      horizon = "*";
+    }
+    {
+      inherit name;
+      type = "MX";
+      ttl = 3600;
+      value = "in2-smtp.messagingengine.com.";
+      priority = 20;
+      horizon = "*";
+    }
+    {
+      name  = "fm1._domainkey.${name}";
+      type  = "CNAME";
+      ttl   = 3600;
+      value = "fm1.${name}.dkim.fmhosted.com";
+      horizon = "*";
+    }
+    {
+      name  = "fm2._domainkey.${name}";
+      type  = "CNAME";
+      ttl   = 3600;
+      value = "fm2.${name}.dkim.fmhosted.com";
+      horizon = "*";
+    }
+    {
+      name  = "fm3._domainkey.${name}";
+      type  = "CNAME";
+      ttl   = 3600;
+      value = "fm3.${name}.dkim.fmhosted.com";
+      horizon = "*";
+    }
+  ] else []) ++ (nixpkgs.lib.flatten (if zone.generateNSRecords then (builtins.genList (idx: [
+    {
+      name  = "ns${builtins.toString (idx+1)}.${name}";
+      type  = "ALIAS";
+      ttl   = 86400;
+      value = builtins.elemAt nameservers.default idx;
+      horizon = "external";
+    }
+    {
+      name  = "ns${builtins.toString (idx+1)}.${name}";
+      type  = "A";
+      ttl   = 86400;
+      value = "10.2.0.53";
+      horizon = "internal";
+    }
+  ]) (nixpkgs.lib.lists.length nameservers.default)) else []));
 in
 {
   defaultTtl = defaultTtl;
@@ -94,7 +175,9 @@ in
     zones = nixpkgs.lib.mapAttrs (name: zone: zone // {
       nameserverList = nameservers.${zone.nameservers};
     }) (globalConfig.getAttrSet ["foxDen" "dns" "zones"] nixosConfigurations);
-    records = globalConfig.getList ["foxDen" "dns" "records"] nixosConfigurations;
+    records = (globalConfig.getList ["foxDen" "dns" "records"] nixosConfigurations) ++ nixpkgs.lib.flatten (
+      map ({ name, value }: mkAuxRecords name value nameservers) (lib.attrsets.attrsToList zones)
+    );
     # TODO: Go back to uniqueStrings once next NixOS stable
     horizons = lib.filter (h: h != "*")
         (lib.lists.unique (map (record: record.horizon) records));
