@@ -1,42 +1,55 @@
-# VanityNS
-resource "cloudns_dns_record" "ns_ns" {
-  count = length(local.used_ns_list)
-  zone  = cloudns_dns_zone.domain.id
+locals {
+  records_uppercase_type = [for r in var.records : merge(r, { type = upper(r.type) })]
 
-  name  = ""
-  type  = "NS"
-  ttl   = 86400
-  value = local.used_ns_list[count.index]
+  record_map = zipmap([for r in local.records_uppercase_type : "${r.type};${r.name};${r.value}"], local.records_uppercase_type)
+
+  static_hosts = { for name, record in local.record_map : name => record if !record.dynDns }
+  dyndns_hosts = { for name, record in local.record_map : name => record if record.dynDns }
+
+  dotname_refer_types = toset(["CNAME", "ALIAS", "NS", "SRV", "MX"])
+
+  dyndns_value_map = {
+    A    = "127.0.0.1"
+    AAAA = "::1"
+  }
 }
 
-data "dns_a_record_set" "ns" {
-  count = local.ns_same_domain ? length(local.vanity_ns_list) : 0
+resource "cloudns_dns_record" "static" {
+  zone     = cloudns_dns_zone.domain.id
+  for_each = local.static_hosts
 
-  host = local.cloudns_ns_list[count.index]
+  type     = each.value.type
+  name     = each.value.name == "@" ? "" : each.value.name
+  ttl      = each.value.ttl
+  priority = each.value.priority
+  port     = each.value.port
+  weight   = each.value.weight
+  value    = contains(local.dotname_refer_types, each.value.type) ? trimsuffix(each.value.value, ".") : each.value.value
 }
 
-data "dns_aaaa_record_set" "ns" {
-  count = local.ns_same_domain ? length(local.vanity_ns_list) : 0
+resource "cloudns_dns_record" "dynamic" {
+  zone     = cloudns_dns_zone.domain.id
+  for_each = local.dyndns_hosts
 
-  host = local.cloudns_ns_list[count.index]
+  type  = each.value.type
+  name  = each.value.name == "@" ? "" : each.value.name
+  ttl   = each.value.ttl
+  value = local.dyndns_value_map[each.value.type]
+
+  lifecycle {
+    ignore_changes = [value]
+  }
 }
 
-resource "cloudns_dns_record" "ns_a" {
-  count = local.ns_same_domain ? length(local.vanity_ns_list) : 0
-  zone  = cloudns_dns_zone.domain.id
+resource "cloudns_dynamic_url" "dynamic" {
+  domain   = var.domain
+  for_each = local.dyndns_hosts
 
-  name  = "ns${count.index + 1}"
-  type  = "A"
-  ttl   = 86400
-  value = data.dns_a_record_set.ns[count.index].addrs[0]
+  recordid = cloudns_dns_record.dynamic[each.key].id
 }
 
-resource "cloudns_dns_record" "ns_aaaa" {
-  count = local.ns_same_domain ? length(local.vanity_ns_list) : 0
-  zone  = cloudns_dns_zone.domain.id
-
-  name  = "ns${count.index + 1}"
-  type  = "AAAA"
-  ttl   = 86400
-  value = data.dns_aaaa_record_set.ns[count.index].addrs[0]
+output "dynamic_urls" {
+  value = [for id, value in local.dyndns_hosts : (merge({
+    url = cloudns_dynamic_url.dynamic[id].url,
+  }, value))]
 }

@@ -14,22 +14,13 @@ module "domain" {
   source   = "./domain"
   for_each = { for k, v in local.zones_json : k => v if v.registrar != "local" }
 
-  domain            = each.key
-  fastmail          = each.value["fastmail"]
-  ses               = each.value["ses"]
-  vanity_nameserver = local.vanity_nameservers[each.value["vanityNameserver"]]
-  registrar         = each.value["registrar"]
-}
-
-module "domain_jsonrecords" {
-  source   = "./jsonrecords"
-  for_each = { for k, v in local.records_json : k => v if local.zones_json[k].registrar != "local" }
-
-  domain  = each.key
-  zone    = module.domain[each.key].zone
-  records = each.value
+  domain      = each.key
+  ses         = each.value["ses"]
+  registrar   = each.value["registrar"]
+  nameservers = toset(each.value["nameserverList"])
+  records     = local.records_json[each.key]
 }
 
 output "dynamic_urls" {
-  value = flatten([for domain in module.domain_jsonrecords : domain.dynamic_urls])
+  value = flatten([for domain in module.domain : domain.dynamic_urls])
 }

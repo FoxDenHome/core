@@ -18,14 +18,10 @@ module "records" {
 }
 
 module "domain" {
-  source = "../modules/domain"
-
   for_each = local.domains
+  source   = "../modules/domain"
 
-  domain = each.key
-
-  fastmail = false
-  ses      = true
-
+  domain    = each.key
+  ses       = true
   registrar = each.value.registrar
 }

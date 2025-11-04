@@ -48,9 +48,13 @@ let
         type = str;
         default = "aws";
       };
-      vanityNameserver = lib.mkOption {
+      nameservers = lib.mkOption {
         type = str;
         default = "doridian.net";
+      };
+      generateNSRecords = lib.mkOption {
+        type = bool;
+        default = false;
       };
       fastmail = lib.mkOption {
         type = bool;
@@ -63,7 +67,13 @@ let
     };
   };
 
-  mkAuxRecords = name: zone: (if zone.fastmail or zone.ses then [
+  mkAuxRecords = name: zone: nameservers: (map (ns: {
+    inherit name;
+    type = "NS";
+    ttl = 86400;
+    value = ns;
+    horizon = "*";
+  }) nameservers.${zone.nameservers}) ++ (if zone.fastmail or zone.ses then [
     {
       inherit name;
       type = "TXT";
@@ -121,7 +131,22 @@ let
       value = "fm3.${name}.dkim.fmhosted.com";
       horizon = "*";
     }
-  ] else []);
+  ] else []) ++ (nixpkgs.lib.flatten (if zone.generateNSRecords then (builtins.genList (idx: [
+    {
+      name  = "ns${builtins.toString (idx+1)}.${name}";
+      type  = "ALIAS";
+      ttl   = 86400;
+      value = builtins.elemAt nameservers.default idx;
+      horizon = "external";
+    }
+    {
+      name  = "ns${builtins.toString (idx+1)}.${name}";
+      type  = "A";
+      ttl   = 86400;
+      value = "10.2.0.53";
+      horizon = "internal";
+    }
+  ]) (nixpkgs.lib.lists.length nameservers.default)) else []));
 in
 {
   defaultTtl = defaultTtl;
@@ -135,55 +160,23 @@ in
     # significantly. So don't add things like "sub.example.com" if "example.com" is already present.
     options.foxDen.dns.zones = with lib.types; lib.mkOption {
       type = attrsOf zoneType;
-      default = {
-        "foxden.network" = {
-          vanityNameserver = "foxden.network";
-        };
-        "doridian.de" = {
-          registrar = "inwx";
-          vanityNameserver = "doridian.de";
-        };
-        "dori.fyi" = {
-          registrar = "inwx";
-        };
-        "doridian.net" = {};
-        "darksignsonline.com" = {};
-        "f0x.es" = {};
-        "foxcav.es" = {};
-        "spaceage.mp" = {
-          registrar = "getmp";
-        };
-
-        "c.1.2.2.0.f.8.e.0.a.2.ip6.arpa" = {
-          registrar = "ripe";
-          fastmail = false;
-          ses = false;
-        };
-        "0.f.4.4.d.7.e.0.a.2.ip6.arpa" = {
-          registrar = "ripe";
-          fastmail = false;
-          ses = false;
-        };
-
-        "e.b.3.6.b.c.4.f.c.2.d.f.ip6.arpa" = {
-          registrar = "local";
-        };
-        "10.in-addr.arpa" = {
-          registrar = "local";
-        };
-        "41.96.100.in-addr.arpa" = {
-          registrar = "local";
-        };
-      };
+      default = {};
+    };
+    options.foxDen.dns.nameservers = with lib.types; lib.mkOption {
+      type = attrsOf (uniq (listOf str));
+      default = {};
     };
   };
 
   mkHost = record: record.name;
 
   mkConfig = (nixosConfigurations: let
-    zones = globalConfig.getAttrSet ["foxDen" "dns" "zones"] nixosConfigurations;
+    nameservers = globalConfig.getAttrSet ["foxDen" "dns" "nameservers"] nixosConfigurations;
+    zones = nixpkgs.lib.mapAttrs (name: zone: zone // {
+      nameserverList = nameservers.${zone.nameservers};
+    }) (globalConfig.getAttrSet ["foxDen" "dns" "zones"] nixosConfigurations);
     records = (globalConfig.getList ["foxDen" "dns" "records"] nixosConfigurations) ++ nixpkgs.lib.flatten (
-      map ({ name, value }: mkAuxRecords name value) (lib.attrsets.attrsToList zones)
+      map ({ name, value }: mkAuxRecords name value nameservers) (lib.attrsets.attrsToList zones)
     );
     # TODO: Go back to uniqueStrings once next NixOS stable
     horizons = lib.filter (h: h != "*")

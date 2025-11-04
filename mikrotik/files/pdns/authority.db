@@ -1,5 +1,1 @@
 @ 3600 IN SOA ns1.foxden.network. dns.foxden.network. 2025042069 7200 1800 1209600 3600
-@ 3600 IN NS ns1.foxden.network.
-@ 3600 IN NS ns2.foxden.network.
-@ 3600 IN NS ns3.foxden.network.
-@ 3600 IN NS ns4.foxden.network.

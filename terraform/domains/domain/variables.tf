@@ -2,23 +2,31 @@ variable "domain" {
   type = string
 }
 
-variable "fastmail" {
-  type = bool
-}
-
 variable "ses" {
   type = bool
 }
 
-variable "vanity_nameserver" {
-  type = object({
-    name = string
-    list = list(string)
-  })
+variable "nameservers" {
+  type    = set(string)
   default = null
 }
 
 variable "registrar" {
   type    = string
   default = ""
+}
+
+variable "records" {
+  type = list(object({
+    dynDns   = optional(bool, false)
+    horizon  = string
+    name     = string
+    ttl      = number
+    type     = string
+    value    = string
+    zone     = string
+    priority = optional(number)
+    port     = optional(number)
+    weight   = optional(number)
+  }))
 }
