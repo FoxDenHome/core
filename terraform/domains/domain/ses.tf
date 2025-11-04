@@ -20,18 +20,14 @@ resource "aws_ses_domain_dkim" "ses" {
   domain   = var.domain
 }
 
-locals {
-  all_dkim_tokens = flatten([for dkim in aws_ses_domain_dkim.ses : dkim.dkim_tokens])
-}
-
 resource "cloudns_dns_record" "ses_dkim_record" {
-  count = length(local.all_dkim_tokens)
+  count = var.ses ? 3 : 0 # TODO: FIXME: This should be dynamic, but Terraform doesn't like that
   zone  = cloudns_dns_zone.domain.id
 
   type  = "CNAME"
-  name  = "${local.all_dkim_tokens[count.index]}._domainkey"
+  name  = "${aws_ses_domain_dkim.ses["main"].dkim_tokens[count.index]}._domainkey"
   ttl   = 3600
-  value = "${local.all_dkim_tokens[count.index]}.dkim.amazonses.com"
+  value = "${aws_ses_domain_dkim.ses["main"].dkim_tokens[count.index]}.dkim.amazonses.com"
 }
 
 resource "aws_ses_domain_mail_from" "ses" {

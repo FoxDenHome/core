@@ -63,7 +63,7 @@ in
 
     configScript = ''
       set -x
-      echo 'FIXME: Disabled for now'
+      echo 'TODO: FIXME: Disabled for now'
       exit 0
 
       ipmitool lan set 1 ipsrc static
