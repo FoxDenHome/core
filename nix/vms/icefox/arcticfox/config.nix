@@ -60,5 +60,12 @@
       value = "2a01:4f9:2b:1a42::0:ff01";
       horizon = "internal";
     }
+    {
+      name = "www.arcticfox.doridian.net";
+      type = "CNAME";
+      ttl = 3600;
+      value = "arcticfox.doridian.net.";
+      horizon = "*";
+    }
   ];
 }
