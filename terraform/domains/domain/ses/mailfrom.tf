@@ -14,7 +14,7 @@ resource "cloudns_dns_record" "ses_mailfrom_mx" {
   name     = local.mail_from_host
   type     = "MX"
   ttl      = 3600
-  value    = "feedback-smtp.${data.aws_region.current.name}.amazonses.com"
+  value    = "feedback-smtp.${data.aws_region.current.region}.amazonses.com"
   priority = 10
 }
 

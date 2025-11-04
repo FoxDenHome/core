@@ -3,10 +3,11 @@ locals {
 
   record_map = zipmap([for r in local.records_uppercase_type : "${r.type};${r.name};${r.value}"], local.records_uppercase_type)
 
-  static_hosts = { for name, record in local.record_map : name => record if !record.dynDns }
-  dyndns_hosts = { for name, record in local.record_map : name => record if record.dynDns }
+  static_hosts = { for name, record in local.record_map : name => record if !record.dynDns && !contains(local.ignore_record_types, upper(record.type)) }
+  dyndns_hosts = { for name, record in local.record_map : name => record if record.dynDns && !contains(local.ignore_record_types, upper(record.type)) }
 
   dotname_refer_types = toset(["CNAME", "ALIAS", "NS", "SRV", "MX"])
+  ignore_record_types = toset(["SOA"])
 
   dyndns_value_map = {
     A    = "127.0.0.1"
@@ -24,7 +25,7 @@ resource "cloudns_dns_record" "static" {
   priority = each.value.priority
   port     = each.value.port
   weight   = each.value.weight
-  value    = contains(local.dotname_refer_types, each.value.type) ? trimsuffix(each.value.value, ".") : each.value.value
+  value    = contains(local.dotname_refer_types, upper(each.value.type)) ? trimsuffix(each.value.value, ".") : each.value.value
 }
 
 resource "cloudns_dns_record" "dynamic" {
@@ -34,7 +35,7 @@ resource "cloudns_dns_record" "dynamic" {
   type  = each.value.type
   name  = each.value.name == "@" ? "" : each.value.name
   ttl   = each.value.ttl
-  value = local.dyndns_value_map[each.value.type]
+  value = local.dyndns_value_map[upper(each.value.type)]
 
   lifecycle {
     ignore_changes = [value]
