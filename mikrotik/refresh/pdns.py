@@ -43,6 +43,7 @@ def find_record(name: str, type: str) -> dict:
                 return record
     return None
 RECORD_TYPE_HANDLERS = {}
+RECORD_TYPE_HANDLERS["MX"] = lambda record: f"{record['priority']} {record['value']}"
 RECORD_TYPE_HANDLERS["SRV"] = lambda record: f"{record['priority']} {record['weight']} {record['port']} {record['value']}"
 RECORD_TYPE_HANDLERS["TXT"] = lambda record: f'"{record["value"]}"'
 RECORD_TYPE_HANDLERS["ALIAS"] = lambda record: [find_record(record["value"], "A"), find_record(record["value"], "AAAA")]
