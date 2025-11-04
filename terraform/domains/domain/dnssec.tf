@@ -1,6 +1,6 @@
 data "external" "dnssec_json" {
   program = ["${path.module}/dnssec.sh"]
-  query   = {
+  query = {
     "domain" = var.domain,
   }
 }
