@@ -75,7 +75,7 @@ def refresh_pdns():
         if zone in SPECIAL_ZONES:
             lines += SPECIAL_ZONES[zone]()
         if exists(mtik_path(f"files/pdns/{zone}.local.db")):
-            lines += [f"$INCLUDE /etc/pdns/{zone}.local.db"]
+            lines.append(f"$INCLUDE /etc/pdns/{zone}.local.db")
         for record in records:
             value = record["value"]
             if record["type"] in RECORD_TYPE_HANDLERS:
