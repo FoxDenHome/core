@@ -3,8 +3,6 @@ let
   lib = nixpkgs.lib;
   globalConfig = foxDenLib.global.config;
 
-  defaultTtl = 3600;
-
   # This is 10 digits long, the exact length we need!
   dnsSerial = builtins.toString flakeInputs.self.lastModified;
 
@@ -21,7 +19,7 @@ let
       };
       ttl = lib.mkOption {
         type = ints.positive;
-        default = defaultTtl;
+        default = 3600;
       };
       priority = lib.mkOption {
         type = nullOr ints.unsigned;
@@ -174,8 +172,6 @@ let
   );
 in
 {
-  defaultTtl = defaultTtl;
-
   nixosModule = { config, ... }: {
     options.foxDen.dns.records = with lib.types; lib.mkOption {
       type = listOf dnsRecordType;
