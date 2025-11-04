@@ -2,12 +2,12 @@ locals {
   nameservers = toset([for ns in var.nameservers : trimsuffix(ns, ".")])
 
   ns_records    = [for rec in var.records : rec if rec["type"] == "NS"]
-  alias_records = { for rec in var.records : rec["name"] => rec if rec["type"] == "ALIAS" }
+  alias_records = { for rec in var.records : "${rec["name"]}.${var.domain}" => rec if rec["type"] == "ALIAS" }
 
   ns_same_domain = endswith(tolist(local.nameservers)[0], ".${var.domain}")
   ns_to_upstream = local.ns_same_domain ? { for rec in local.ns_records :
-    "${trimsuffix(rec["value"], ".")}.${var.domain}" =>
-    trimsuffix(local.alias_records["${trimsuffix(rec["value"], ".")}.${var.domain}"]["value"], ".")
+    trimsuffix(rec["value"], ".") =>
+    trimsuffix(local.alias_records[trimsuffix(rec["value"], ".")]["value"], ".")
   } : {}
 }
 
