@@ -3,8 +3,6 @@ locals {
   mail_from_domain = "${var.mail_from_subdomain}.${local.full_domain}"
 }
 
-data "aws_region" "current" {}
-
 resource "aws_ses_domain_mail_from" "ses_mailfrom" {
   domain           = local.full_domain
   mail_from_domain = local.mail_from_domain
