@@ -1,6 +1,6 @@
 from subprocess import check_call
 from json import load as json_load
-from os.path import join as path_join
+from os.path import join as path_join, exists
 from refresh.util import unlink_safe, NIX_DIR, mtik_path
 from yaml import safe_load as yaml_load, dump as yaml_dump
 
@@ -14,24 +14,21 @@ def foreach_vlan(records: list[str]) -> list[str]:
             lines.append(record % vlan)
     return lines
 SPECIAL_ZONES = {}
-SPECIAL_ZONES["foxden.network"] = lambda: [
-    "$INCLUDE /etc/pdns/foxden.network.local.db",
-]
 SPECIAL_ZONES["10.in-addr.arpa"] = lambda: foreach_vlan([
-    "1.0.%d IN PTR gateway.foxden.network.",
-    "53.0.%d IN PTR dns.foxden.network.",
-    "123.0.%d IN PTR ntp.foxden.network.",
-    "1.1.%d IN PTR router.foxden.network.",
-    "2.1.%d IN PTR router-backup.foxden.network.",
-    "123.1.%d IN PTR ntpi.foxden.network.",
+    "1.0.%d 3600 IN PTR gateway.foxden.network.",
+    "53.0.%d 3600 IN PTR dns.foxden.network.",
+    "123.0.%d 3600 IN PTR ntp.foxden.network.",
+    "1.1.%d 3600 IN PTR router.foxden.network.",
+    "2.1.%d 3600 IN PTR router-backup.foxden.network.",
+    "123.1.%d 3600 IN PTR ntpi.foxden.network.",
 ])
 SPECIAL_ZONES["e.b.3.6.b.c.4.f.c.2.d.f.ip6.arpa"] = lambda: foreach_vlan([
-    "1.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.%x.0.0.0 IN PTR gateway.foxden.network.",
-    "5.3.0.0.0.0.0.0.0.0.0.0.0.0.0.0.%x.0.0.0 IN PTR dns.foxden.network.",
-    "b.7.0.0.0.0.0.0.0.0.0.0.0.0.0.0.%x.0.0.0 IN PTR ntp.foxden.network.",
-    "1.0.1.0.0.0.0.0.0.0.0.0.0.0.0.0.%x.0.0.0 IN PTR router.foxden.network.",
-    "2.0.1.0.0.0.0.0.0.0.0.0.0.0.0.0.%x.0.0.0 IN PTR router-backup.foxden.network.",
-    "b.7.0.0.0.0.0.0.0.0.0.0.0.0.0.0.%x.0.0.0 IN PTR ntpi.foxden.network.",
+    "1.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.%x.0.0.0 3600 IN PTR gateway.foxden.network.",
+    "5.3.0.0.0.0.0.0.0.0.0.0.0.0.0.0.%x.0.0.0 3600 IN PTR dns.foxden.network.",
+    "b.7.0.0.0.0.0.0.0.0.0.0.0.0.0.0.%x.0.0.0 3600 IN PTR ntp.foxden.network.",
+    "1.0.1.0.0.0.0.0.0.0.0.0.0.0.0.0.%x.0.0.0 3600 IN PTR router.foxden.network.",
+    "2.0.1.0.0.0.0.0.0.0.0.0.0.0.0.0.%x.0.0.0 3600 IN PTR router-backup.foxden.network.",
+    "b.7.0.0.0.0.0.0.0.0.0.0.0.0.0.0.%x.0.0.0 3600 IN PTR ntpi.foxden.network.",
 ])
 def find_record(name: str, type: str) -> dict:
     global INTERNAL_RECORDS
@@ -74,14 +71,11 @@ def refresh_pdns():
         records = INTERNAL_RECORDS[zone]
         zone_file = path_join(ZONE_DIR, f"gen-{zone}.db")
 
-        fixed_lines = [
-            "$TTL 300",
-        ]
-
-        if zone in SPECIAL_ZONES:
-            fixed_lines += SPECIAL_ZONES[zone]()
-
         lines = []
+        if zone in SPECIAL_ZONES:
+            lines += SPECIAL_ZONES[zone]()
+        if exists(mtik_path(f"files/pdns/{zone}.local.db")):
+            lines += [f"$INCLUDE /etc/pdns/{zone}.local.db"]
         for record in records:
             value = record["value"]
             if record["type"] in RECORD_TYPE_HANDLERS:
@@ -93,7 +87,7 @@ def refresh_pdns():
                     lines.append(f"{record['name']} {record['ttl']} IN {val['type']} {val['value']}")
                 else:
                     lines.append(f"{record['name']} {record['ttl']} IN {record['type']} {val}")
-        data = "\n".join(fixed_lines + sorted(list(set(lines)))) + "\n"
+        data = "\n".join(sorted(list(set(lines)))) + "\n"
 
         with open(zone_file, "w") as file:
             file.write(data)
