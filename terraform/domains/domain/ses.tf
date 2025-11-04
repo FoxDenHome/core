@@ -1,8 +1,8 @@
 data "aws_region" "current" {}
 
 resource "aws_ses_domain_identity" "ses" {
-  count  = var.ses ? 1 : 0
-  domain = var.domain
+  for_each = toset(var.ses ? ["main"] : [])
+  domain   = var.domain
 }
 
 resource "cloudns_dns_record" "ses_verification_record" {
@@ -12,33 +12,38 @@ resource "cloudns_dns_record" "ses_verification_record" {
   type  = "TXT"
   name  = "_amazonses"
   ttl   = 3600
-  value = each.value.ses.verification_token
+  value = each.value.verification_token
 }
 
 resource "aws_ses_domain_dkim" "ses" {
-  count  = var.ses ? 1 : 0
-  domain = var.domain
+  for_each = aws_ses_domain_identity.ses
+  domain   = var.domain
+}
+
+locals {
+  all_dkim_tokens = flatten([for dkim in aws_ses_domain_dkim.ses : dkim.dkim_tokens])
 }
 
 resource "cloudns_dns_record" "ses_dkim_record" {
-  for_each = toset(aws_ses_domain_dkim.ses.dkim_tokens)
-  zone     = cloudns_dns_zone.domain.id
+  count = length(local.all_dkim_tokens)
+  zone  = cloudns_dns_zone.domain.id
 
   type  = "CNAME"
-  name  = "${each.value}._domainkey"
+  name  = "${local.all_dkim_tokens[count.index]}._domainkey"
   ttl   = 3600
-  value = "${each.value}.dkim.amazonses.com"
+  value = "${local.all_dkim_tokens[count.index]}.dkim.amazonses.com"
 }
 
 resource "aws_ses_domain_mail_from" "ses" {
-  count            = var.ses ? 1 : 0
-  domain           = var.domain
+  for_each = aws_ses_domain_identity.ses
+  domain   = var.domain
+
   mail_from_domain = "ses-bounce.${var.domain}"
 }
 
 resource "cloudns_dns_record" "ses_mailfrom_mx" {
-  count = var.ses ? 1 : 0
-  zone  = cloudns_dns_zone.domain.id
+  for_each = aws_ses_domain_mail_from.ses
+  zone     = cloudns_dns_zone.domain.id
 
   name     = "ses-bounce"
   type     = "MX"
@@ -48,8 +53,8 @@ resource "cloudns_dns_record" "ses_mailfrom_mx" {
 }
 
 resource "cloudns_dns_record" "ses_mailfrom_txt" {
-  count = var.ses ? 1 : 0
-  zone  = cloudns_dns_zone.domain.id
+  for_each = aws_ses_domain_mail_from.ses
+  zone     = cloudns_dns_zone.domain.id
 
   name  = "ses-bounce"
   type  = "TXT"
