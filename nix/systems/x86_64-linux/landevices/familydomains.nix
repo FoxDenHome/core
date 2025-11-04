@@ -20,7 +20,7 @@ let
     {
       name = domain;
       type = "MX";
-      priorirty = 1;
+      priority = 1;
       ttl = 3600;
       value = rootServer;
       horizon = "*";
