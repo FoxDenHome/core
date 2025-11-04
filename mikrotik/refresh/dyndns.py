@@ -23,14 +23,15 @@ def load_dyndns_hosts():
     raw_value = raw_output["dynamic_urls"]["value"]
 
     value = {}
-    for rec in raw_value:
-        rec_host = rec["name"] + "." + rec["zone"]
-        if rec["name"] == "@":
-            rec_host = rec["zone"]
+    for zone, records in raw_value.items():
+        for rec in records:
+            rec_host = rec["name"] + "." + zone
+            if rec["name"] == "@":
+                rec_host = zone
 
-        if rec_host not in value:
-            value[rec_host] = {}
-        value[rec_host][rec["type"]] = rec
+            if rec_host not in value:
+                value[rec_host] = {}
+            value[rec_host][rec["type"]] = rec
     _dyndns_hosts_value = value
 
     return _dyndns_hosts_value

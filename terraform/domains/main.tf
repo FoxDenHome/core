@@ -22,5 +22,5 @@ module "domain" {
 }
 
 output "dynamic_urls" {
-  value = flatten([for domain in module.domain : domain.dynamic_urls])
+  value = { for zone, domain in module.domain : zone => domain.dynamic_urls }
 }
