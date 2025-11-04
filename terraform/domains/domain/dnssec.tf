@@ -10,5 +10,5 @@ data "external" "dnssec_json" {
 }
 
 output "dnskey_records" {
-  value = local.dnskeys
+  value = toset(local.dnskeys)
 }
