@@ -1,7 +1,3 @@
-locals {
-  dnskeys = jsondecode(data.external.dnssec_json.result.dnskeys)
-}
-
 data "external" "dnssec_json" {
   program = ["${path.module}/dnssec.sh"]
   query   = {
@@ -10,5 +6,5 @@ data "external" "dnssec_json" {
 }
 
 output "dnskey_records" {
-  value = toset(local.dnskeys)
+  value = toset(jsondecode(data.external.dnssec_json.result.dnskeys))
 }
