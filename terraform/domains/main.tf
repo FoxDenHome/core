@@ -10,6 +10,8 @@ data "external" "nix_dns_json" {
   query   = {}
 }
 
+# function izone -a zone; tofu import "module.domain[\"$zone\"].cloudns_dns_zone.domain" "$zone"; end
+
 module "domain" {
   source   = "./domain"
   for_each = { for k, v in local.zones_json : k => v if v.registrar != "local" }

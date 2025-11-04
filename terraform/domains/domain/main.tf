@@ -3,12 +3,6 @@ resource "cloudns_dns_zone" "domain" {
   type   = "master"
 }
 
-/*
-function izone -a zone
-  tofu import "module.domain[\"$zone\"].cloudns_dns_zone.domain" "$zone"
-end
-*/
-
 module "ses" {
   count     = var.ses ? 1 : 0
   source    = "./ses"
