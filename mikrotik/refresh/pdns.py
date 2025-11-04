@@ -76,7 +76,6 @@ def refresh_pdns():
 
         fixed_lines = [
             "$TTL 300",
-            "$INCLUDE /etc/pdns/authority.db"
         ]
 
         if zone in SPECIAL_ZONES:
