@@ -16,12 +16,14 @@ def refresh_dhcp():
     header_lines = [
         "/ip/dhcp-server/lease/set [find dynamic=no] comment=__REFRESHING__",
         "/ipv6/dhcp-server/binding/set [find dynamic=no] comment=__REFRESHING__",
+        ":local prev",
     ]
     trailer_lines = [
         "/ip/dhcp-server/lease/remove [find comment=__REFRESHING__]",
         "/ipv6/dhcp-server/binding/remove [find comment=__REFRESHING__]"
     ]
-    lines = []
+    v4lines = []
+    v6lines = []
     for lease in dhcp_leases:
         netname = get_ipv4_netname(lease["ipv4"])
         if "ipv4" not in lease:
@@ -30,11 +32,10 @@ def refresh_dhcp():
         addr_attrib = f'address={lease["ipv4"]}'
         id_attrib = f'mac-address={lease["mac"].upper()}'
         attribs = f'{id_attrib} {addr_attrib} comment="{lease["name"]}" lease-time=1d server=dhcp-{netname}'
-        lines.append('/ip/dhcp-server/lease\n' + \
-                    f'remove [find dynamic {id_attrib}]\n' + \
-                    f':if ([:len [find {addr_attrib}]] > 0)' + \
-                    f' do={{\n  set [find {addr_attrib}] {attribs}\n}}' + \
-                    f' else={{\n  remove [find {id_attrib}]\n  remove [find {addr_attrib}]\n  add {attribs}\n}}')
+        v4lines.append(f':set prev [find {addr_attrib}]\n' + \
+                    f':if ([:len $prev] > 0)' + \
+                    f' do={{\n  set $prev {attribs}\n}}' + \
+                    f' else={{\n  remove [find ({addr_attrib} || {id_attrib})]\n  add {attribs}\n}}')
 
         if "ipv6" in lease:
             duid = lease["dhcpv6"]["duid"]
@@ -44,11 +45,10 @@ def refresh_dhcp():
             addr_attrib = f'address={lease["ipv6"]}'
             id_attrib = f'duid={duid} iaid={iaid}'
             attribs = f'{id_attrib} {addr_attrib} ia-type=na comment="{lease["name"]}" life-time=1d prefix-pool="" server=dhcp-{netname}'
-            lines.append('/ipv6/dhcp-server/binding\n' + \
-                        f'remove [find dynamic {id_attrib}]\n' + \
-                        f':if ([:len [find {addr_attrib}]] > 0)' + \
-                        f' do={{\n  set [find {addr_attrib}] {attribs}\n}}' + \
-                        f' else={{\n  remove [find {id_attrib}]\n  remove [find {addr_attrib}]\n  add {attribs}\n}}')
+            v6lines.append(f':set prev [find {addr_attrib}]\n' + \
+                        f':if ([:len $prev] > 0)' + \
+                        f' do={{\n  set $prev {attribs}\n}}' + \
+                        f' else={{\n  remove [find ({addr_attrib} || {id_attrib})]\n  add {attribs}\n}}')
 
     with open(FILENAME, "w") as file:
-        file.write(("\n".join(header_lines + sorted(lines) + trailer_lines)) + "\n")
+        file.write(("\n".join(header_lines + ["/ip/dhcp-server/lease"] + sorted(v4lines) + ["/ipv6/dhcp-server/binding"] + sorted(v6lines) + trailer_lines)) + "\n")
