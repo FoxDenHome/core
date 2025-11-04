@@ -7,29 +7,6 @@ from yaml import safe_load as yaml_load, dump as yaml_dump
 INTERNAL_RECORDS = None
 ZONE_DIR = mtik_path("files/pdns")
 
-def foreach_vlan(records: list[str]) -> list[str]:
-    lines = []
-    for vlan in range(0, 10):
-        for record in records:
-            lines.append(record % vlan)
-    return lines
-SPECIAL_ZONES = {}
-SPECIAL_ZONES["10.in-addr.arpa"] = lambda: foreach_vlan([
-    "1.0.%d 3600 IN PTR gateway.foxden.network.",
-    "53.0.%d 3600 IN PTR dns.foxden.network.",
-    "123.0.%d 3600 IN PTR ntp.foxden.network.",
-    "1.1.%d 3600 IN PTR router.foxden.network.",
-    "2.1.%d 3600 IN PTR router-backup.foxden.network.",
-    "123.1.%d 3600 IN PTR ntpi.foxden.network.",
-])
-SPECIAL_ZONES["e.b.3.6.b.c.4.f.c.2.d.f.ip6.arpa"] = lambda: foreach_vlan([
-    "1.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.%x.0.0.0 3600 IN PTR gateway.foxden.network.",
-    "5.3.0.0.0.0.0.0.0.0.0.0.0.0.0.0.%x.0.0.0 3600 IN PTR dns.foxden.network.",
-    "b.7.0.0.0.0.0.0.0.0.0.0.0.0.0.0.%x.0.0.0 3600 IN PTR ntp.foxden.network.",
-    "1.0.1.0.0.0.0.0.0.0.0.0.0.0.0.0.%x.0.0.0 3600 IN PTR router.foxden.network.",
-    "2.0.1.0.0.0.0.0.0.0.0.0.0.0.0.0.%x.0.0.0 3600 IN PTR router-backup.foxden.network.",
-    "b.7.0.0.0.0.0.0.0.0.0.0.0.0.0.0.%x.0.0.0 3600 IN PTR ntpi.foxden.network.",
-])
 def find_record(name: str, type: str) -> dict:
     global INTERNAL_RECORDS
     name = name.removesuffix(".")
@@ -72,8 +49,6 @@ def refresh_pdns():
         zone_file = path_join(ZONE_DIR, f"gen-{zone}.db")
 
         lines = []
-        if zone in SPECIAL_ZONES:
-            lines += SPECIAL_ZONES[zone]()
         if exists(mtik_path(f"files/pdns/{zone}.local.db")):
             lines.append(f"$INCLUDE /etc/pdns/{zone}.local.db")
         for record in records:
