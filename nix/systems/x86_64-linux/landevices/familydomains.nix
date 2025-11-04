@@ -33,21 +33,18 @@ let
       horizon = "*";
     }
   ];
+
+  familyZoneCfg = {
+    registrar = "inwx";
+    fastmail = false;
+    ses = true;
+    nameservers = "default";
+  };
 in
 {
   config.foxDen.dns.zones = {
-    "zoofaeth.de" = {
-      registrar = "inwx";
-      fastmail = false;
-      ses = true;
-      nameservers = "default";
-    };
-    "candy-girl.net" = {
-      registrar = "inwx";
-      fastmail = false;
-      ses = true;
-      nameservers = "default";
-    };
+    "zoofaeth.de" = familyZoneCfg;
+    "candy-girl.net" = familyZoneCfg;
   };
 
   config.foxDen.dns.records = 
