@@ -1,43 +1,14 @@
-{ nixpkgs, foxDenLib, ... }:
+{ nixpkgs, foxDenLib, flakeInputs, ... }:
 let
   lib = nixpkgs.lib;
   globalConfig = foxDenLib.global.config;
 
   defaultTtl = 3600;
 
-
-  pkgsLocal = import nixpkgs {
-    # TODO: Determine proper system
-    system = "x86_64-linux";
-  };
-  dnsSerialPkg = pkgsLocal.stdenv.mkDerivation {
-    name = "dns-serial";
-    version = "1.0.0";
-    srcs = [
-      ../../../../.git/packed-refs
-      ./dns-serial.sh
-    ];
-
-    nativeBuildInputs = [
-      pkgsLocal.bash
-      pkgsLocal.git
-    ];
-
-    unpackPhase = ''
-      for src in $srcs; do
-        echo "Copying from $src"
-        if [ -d $src ]; then
-          cp -vr $src ./.git
-        else
-          cp -v "$src" ./dns-serial.sh
-        fi
-      fi
-    '';
-    installPhase = ''
-      bash ./dns-serial.sh
-    '';
-  };
-  dnsSerial = builtins.readFile "${dnsSerialPkg}/bin/dns-serial.sh";
+  # currentRev = flakeInputs.self.rev or (nixpkgs.lib.strings.removeSuffix "-dirty" flakeInputs.self.dirtyRev);
+  currentDate = flakeInputs.self.lastModifiedDate;
+  currentRevToday = "00${builtins.toString (flakeInputs.self.revCount or 0)}";
+  dnsSerial = "${builtins.substring 0 8 currentDate}${builtins.substring 0 2 currentRevToday}";
 
   dnsRecordType = with lib.types; submodule {
     options = {
