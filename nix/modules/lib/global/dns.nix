@@ -5,6 +5,40 @@ let
 
   defaultTtl = 3600;
 
+
+  pkgsLocal = import nixpkgs {
+    # TODO: Determine proper system
+    system = "x86_64-linux";
+  };
+  dnsSerialPkg = pkgsLocal.stdenv.mkDerivation {
+    name = "dns-serial";
+    version = "1.0.0";
+    srcs = [
+      ../../../../.git/packed-refs
+      ./dns-serial.sh
+    ];
+
+    nativeBuildInputs = [
+      pkgsLocal.bash
+      pkgsLocal.git
+    ];
+
+    unpackPhase = ''
+      for src in $srcs; do
+        echo "Copying from $src"
+        if [ -d $src ]; then
+          cp -vr $src ./.git
+        else
+          cp -v "$src" ./dns-serial.sh
+        fi
+      fi
+    '';
+    installPhase = ''
+      bash ./dns-serial.sh
+    '';
+  };
+  dnsSerial = builtins.readFile "${dnsSerialPkg}/bin/dns-serial.sh";
+
   dnsRecordType = with lib.types; submodule {
     options = {
       name = lib.mkOption {
@@ -164,7 +198,7 @@ let
         ttl = 86400;
         type = "SOA";
         # TODO: Serial should be updated automatically
-        value = "${builtins.elemAt authorities.${zone.nameservers}.nameservers 0} ${lib.replaceString "@" "." authorities.${zone.nameservers}.admin}. 2025042069 7200 1800 1209600 3600";
+        value = "${builtins.elemAt authorities.${zone.nameservers}.nameservers 0} ${lib.replaceString "@" "." authorities.${zone.nameservers}.admin}. ${dnsSerial} 7200 1800 1209600 3600";
         horizon = "*";
       }
     ]

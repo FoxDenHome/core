@@ -1,4 +1,4 @@
-inputs@{ nixpkgs, ... }:
+inputs@{ nixpkgs, self, ... }:
 let
   isNixFile = path: nixpkgs.lib.filesystem.pathIsRegularFile path && nixpkgs.lib.strings.hasSuffix ".nix" path;
 
@@ -7,7 +7,7 @@ let
   mkModuleList = (dir: (nixpkgs.lib.filter isNixFile
                         (nixpkgs.lib.filesystem.listFilesRecursive dir)));
 
-  allLibs = { inherit foxDenLib; flakeInputs = inputs; } // (nixpkgs.lib.filterAttrs (name: value: name != "self") inputs);
+  allLibs = { inherit foxDenLib; flakeInputs = inputs; hostSystem = builtins.currentSystem; } // (nixpkgs.lib.filterAttrs (name: value: name != "self") inputs);
 
   tryEvalOrEmpty = (val: let
     eval = (builtins.tryEval val);
@@ -106,4 +106,5 @@ in
   };
 
   foxDenLib = foxDenLib;
+  self = self;
 }
