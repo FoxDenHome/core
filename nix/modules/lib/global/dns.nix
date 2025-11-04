@@ -67,13 +67,24 @@ let
     };
   };
 
-  mkAuxRecords = name: zone: nameservers: (map (ns: {
+  authorityType = with lib.types; submodule {
+    options = {
+      nameservers = lib.mkOption {
+        type = uniq (listOf str);
+      };
+      admin = lib.mkOption {
+        type = str;
+      };
+    };
+  };
+
+  mkAuxRecords = name: zone: authorities: (map (ns: {
     inherit name;
     type = "NS";
     ttl = 86400;
     value = ns;
     horizon = "*";
-  }) nameservers.${zone.nameservers}) ++ (if zone.fastmail or zone.ses then [
+  }) authorities.${zone.nameservers}.nameservers) ++ (if zone.fastmail or zone.ses then [
     {
       inherit name;
       type = "TXT";
@@ -136,7 +147,7 @@ let
       name  = "ns${builtins.toString (idx+1)}.${name}";
       type  = "ALIAS";
       ttl   = 86400;
-      value = builtins.elemAt nameservers.default idx;
+      value = builtins.elemAt authorities.default.nameservers idx;
       horizon = "external";
     }
     {
@@ -146,7 +157,18 @@ let
       value = "10.2.0.53";
       horizon = "internal";
     }
-  ]) (nixpkgs.lib.lists.length nameservers.default)) else []));
+  ]) (nixpkgs.lib.lists.length authorities.default.nameservers)) else [])) ++ (
+    [
+      {
+        inherit name;
+        ttl = 86400;
+        type = "SOA";
+        # TODO: Serial should be updated automatically
+        value = "${builtins.elemAt authorities.${zone.nameservers}.nameservers 0} ${lib.replaceString "@" "." authorities.${zone.nameservers}.admin}. 2025042069 7200 1800 1209600 3600";
+        horizon = "*";
+      }
+    ]
+  );
 in
 {
   defaultTtl = defaultTtl;
@@ -154,29 +176,29 @@ in
   nixosModule = { config, ... }: {
     options.foxDen.dns.records = with lib.types; lib.mkOption {
       type = listOf dnsRecordType;
-      default = [];
+      default = [ ];
     };
     # NOTE: We do NOT support nested zones here, as that would complicate things
     # significantly. So don't add things like "sub.example.com" if "example.com" is already present.
     options.foxDen.dns.zones = with lib.types; lib.mkOption {
       type = attrsOf zoneType;
-      default = {};
+      default = { };
     };
-    options.foxDen.dns.nameservers = with lib.types; lib.mkOption {
-      type = attrsOf (uniq (listOf str));
-      default = {};
+    options.foxDen.dns.authorities = with lib.types; lib.mkOption {
+      type = attrsOf authorityType;
+      default = { };
     };
   };
 
   mkHost = record: record.name;
 
   mkConfig = (nixosConfigurations: let
-    nameservers = globalConfig.getAttrSet ["foxDen" "dns" "nameservers"] nixosConfigurations;
+    authorities = globalConfig.getAttrSet ["foxDen" "dns" "authorities"] nixosConfigurations;
     zones = nixpkgs.lib.mapAttrs (name: zone: zone // {
-      nameserverList = nameservers.${zone.nameservers};
+      nameserverList = authorities.${zone.nameservers}.nameservers;
     }) (globalConfig.getAttrSet ["foxDen" "dns" "zones"] nixosConfigurations);
     records = (globalConfig.getList ["foxDen" "dns" "records"] nixosConfigurations) ++ nixpkgs.lib.flatten (
-      map ({ name, value }: mkAuxRecords name value nameservers) (lib.attrsets.attrsToList zones)
+      map ({ name, value }: mkAuxRecords name value authorities) (lib.attrsets.attrsToList zones)
     );
     # TODO: Go back to uniqueStrings once next NixOS stable
     horizons = lib.filter (h: h != "*")
