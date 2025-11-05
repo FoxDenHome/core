@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 import re
 from subprocess import check_output
 from json import loads as json_loads
