@@ -1,6 +1,6 @@
 from subprocess import check_call
 from json import load as json_load
-from refresh.util import unlink_safe, NIX_DIR, mtik_path, get_ipv4_netname
+from refresh.util import unlink_safe, NIX_DIR, mtik_path, get_ipv4_netname, MTikUser
 
 FILENAME = mtik_path("scripts/gen-dhcp.rsc")
 
@@ -9,7 +9,7 @@ FILENAME = mtik_path("scripts/gen-dhcp.rsc")
 def print_lines(header: str, lines: list[str]) -> list[str]:
     return [header, "set [find dynamic=no] comment=__REFRESHING__"] + sorted(lines) + ["remove [find comment=__REFRESHING__]"]
 
-def refresh_dhcp():
+def refresh_dhcp(user: MTikUser) -> None:
     unlink_safe("result")
     check_call(["nix", "build", f"{NIX_DIR}#dhcp.json.router"])
     with open("result", "r") as file:

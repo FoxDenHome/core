@@ -1,6 +1,6 @@
 from subprocess import check_call
 from json import load as json_load
-from refresh.util import unlink_safe, NIX_DIR, mtik_path
+from refresh.util import unlink_safe, NIX_DIR, mtik_path, MTikUser
 
 FILENAME = mtik_path("scripts/gen-firewall.rsc")
 
@@ -9,7 +9,7 @@ FILENAME = mtik_path("scripts/gen-firewall.rsc")
 def is_ipv6(addr: str) -> bool:
     return "." not in addr
 
-def refresh_firewall() -> None:
+def refresh_firewall(user: MTikUser) -> None:
     unlink_safe("result")
     check_call(["nix", "build", f"{NIX_DIR}#firewall.json.router"])
     with open("result", "r") as file:
