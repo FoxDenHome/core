@@ -19,9 +19,10 @@ def refresh_dhcp():
     v4lines = []
     v6lines = []
     for lease in dhcp_leases:
-        netname = get_ipv4_netname(lease["ipv4"])
         if "ipv4" not in lease:
-            raise ValueError(f"Lease {lease} has no ipv4 address")
+            raise ValueError(f"Lease {lease} has no IPv4 address")
+
+        netname = get_ipv4_netname(lease["ipv4"])
 
         addr_attrib = f'address={lease["ipv4"]}'
         id_attrib = f'mac-address={lease["mac"].upper()}'
