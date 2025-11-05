@@ -21,7 +21,7 @@ resource "aws_ses_domain_dkim" "ses" {
 }
 
 resource "cloudns_dns_record" "ses_dkim_record" {
-  count = var.ses ? 3 : 0 # TODO: FIXME: This should be dynamic, but Terraform doesn't like that
+  count = var.ses ? 3 : 0 # AWS official guidance suggests count = 3 in their own Terraform module, so
   zone  = cloudns_dns_zone.domain.id
 
   type  = "CNAME"

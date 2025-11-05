@@ -164,7 +164,6 @@ let
         inherit name;
         ttl = 86400;
         type = "SOA";
-        # TODO: Serial should be updated automatically
         value = "${builtins.elemAt authorities.${zone.nameservers}.nameservers 0} ${lib.replaceString "@" "." authorities.${zone.nameservers}.admin}. ${dnsSerial} 7200 1800 1209600 3600";
         horizon = "*";
       }
