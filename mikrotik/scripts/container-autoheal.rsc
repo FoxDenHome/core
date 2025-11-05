@@ -1,5 +1,5 @@
 # policy=read,write,policy,test
-# schedule=00:01:00
+# schedule=1m
 
 :global logputinfo
 :global logputerror

@@ -1,12 +1,12 @@
 from subprocess import check_call
 from json import load as json_load
-from refresh.util import unlink_safe, NIX_DIR, get_ipv4_netname, MTikUser, ROUTERS, parse_mtik_bool, format_mtik_bool, format_weird_mtik_ip
+from refresh.util import unlink_safe, NIX_DIR, get_ipv4_netname, MTikUser, MTikRouter, ROUTERS, parse_mtik_bool, format_mtik_bool, format_weird_mtik_ip
 from typing import Any
 
 IGNORE_CHANGES = {"id", "active-server", "active-address", "class-id", "host-name", "active-client-id", "expires-after", "last-seen", "status", "client-address", "active-mac-address", "dynamic", "invalid", "radius", "blocked"}
 
-def refresh_dhcp_router(dhcp_leases: list[dict[str, Any]], user: MTikUser, router: str) -> None:
-    print(f"## {router}")
+def refresh_dhcp_router(dhcp_leases: list[dict[str, Any]], user: MTikUser, router: MTikRouter) -> None:
+    print(f"## {router.host}")
     connection = user.connection(router)
     api = connection.get_api()
     api_dhcpv4 = api.get_resource('/ip/dhcp-server/lease')
@@ -43,7 +43,7 @@ def refresh_dhcp_router(dhcp_leases: list[dict[str, Any]], user: MTikUser, route
                 (mtik_lease["mac-address"].upper() == attribs["mac-address"]) or \
                 (mtik_lease.get("comment", "") == attribs["comment"]):
                 matches.append(mtik_lease)
-                stray_dhcpv4_leases.remove(mtik_lease["id"])
+                stray_dhcpv4_leases.discard(mtik_lease["id"])
 
         match = None
         if len(matches) == 1:
@@ -61,7 +61,7 @@ def refresh_dhcp_router(dhcp_leases: list[dict[str, Any]], user: MTikUser, route
             all_keys = set(match.keys()).union(set(attribs.keys()))
 
             for match_key in all_keys:
-                if match_key in IGNORE_CHANGES:
+                if match_key in IGNORE_CHANGES or match_key[0] == ".":
                     continue
 
                 if match.get(match_key, "") == attribs.get(match_key, ""):
@@ -94,7 +94,7 @@ def refresh_dhcp_router(dhcp_leases: list[dict[str, Any]], user: MTikUser, route
                 ((mtik_binding["duid"].lower() == attribs["duid"]) and (mtik_binding["iaid"] == attribs["iaid"])) or \
                 (mtik_binding.get("comment", "") == attribs["comment"]):
                 matches.append(mtik_binding)
-                stray_dhcpv6_bindings.remove(mtik_binding["id"])
+                stray_dhcpv6_bindings.discard(mtik_binding["id"])
 
         match = None
         if len(matches) == 1:
@@ -111,7 +111,7 @@ def refresh_dhcp_router(dhcp_leases: list[dict[str, Any]], user: MTikUser, route
         else:
             all_keys = set(match.keys()).union(set(attribs.keys()))
             for match_key in all_keys:
-                if match_key in IGNORE_CHANGES:
+                if match_key in IGNORE_CHANGES or match_key[0] == ".":
                     continue
                 if match.get(match_key, "") == attribs.get(match_key, ""):
                     continue

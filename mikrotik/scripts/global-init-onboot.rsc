@@ -1,4 +1,4 @@
-# dontrequireperms=yes
+# dont-require-permissions=true
 # policy=read,write,policy,test
 # schedule=startup
 
@@ -29,5 +29,3 @@
     :put "Host: $host; MAC: $macaddr; Interface: $iface"
     /tool/wol mac=$macaddr interface=$iface
 }
-
-/system/script/run local-init-onboot

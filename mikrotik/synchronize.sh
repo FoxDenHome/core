@@ -8,7 +8,6 @@ transfer_files() {
 }
 
 uv run refresh.py
-./scripts.sh
 
 transfer_files router.foxden.network
 ssh router.foxden.network '/file/add name=container-restart-all'

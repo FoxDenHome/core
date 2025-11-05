@@ -46,7 +46,6 @@ def refresh_pdns():
 
     print("## Writing zone files")
     for zone in sorted(INTERNAL_RECORDS.keys()):
-        print(f"### Processing zone {zone}")
         records = INTERNAL_RECORDS[zone]
         zone_file = path_join(ZONE_DIR, f"gen-{zone}.db")
 

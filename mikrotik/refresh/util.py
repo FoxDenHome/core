@@ -1,16 +1,12 @@
 from os.path import dirname, realpath, join
 from os import unlink
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from subprocess import check_call
 from routeros_api import RouterOsApiPool
 
 MTIK_DIR = realpath(dirname(__file__) + "/../")
 NIX_DIR = realpath(dirname(__file__) + "/../../nix/")
 
-ROUTERS = {
-    "router.foxden.network",
-    "router-backup.foxden.network",
-}
 
 def unlink_safe(path: str):
     try:
@@ -30,6 +26,23 @@ def get_ipv4_netname(ip: str) -> str:
         return "cghmn"
     raise ValueError(f"Unknown net for IP {ip}")
 
+@dataclass(frozen=True, eq=True, kw_only=True)
+class MTikScript:
+    name: str
+    source: str
+    policy: str = "read,write,policy,test"
+    dontRequirePermissions: bool = True
+    schedule: str | None = None
+    runOnChange: bool = False
+
+@dataclass(frozen=True, eq=True, kw_only=True)
+class MTikRouter:
+    host: str
+    vrrpPriorityOnline: int
+    vrrpPriorityOffline: int
+    dynDNSSuffix6: str
+    scripts: set[MTikScript] = field(default_factory=set)
+
 @dataclass(frozen=True, kw_only=True)
 class MTikUser:
     username: str
@@ -37,7 +50,8 @@ class MTikUser:
 
     connections: dict[str, RouterOsApiPool] = None
 
-    def connection(self, target: str) -> RouterOsApiPool:
+    def connection(self, router: MTikRouter) -> RouterOsApiPool:
+        target = router.host
         if target not in self.connections:
             pool = RouterOsApiPool(
                 target,
@@ -49,7 +63,8 @@ class MTikUser:
             self.connections[target] = pool
         return self.connections[target]
 
-    def ensure(self, target: str) -> None:
+    def ensure(self, router: MTikRouter) -> None:
+        target = router.host
         print("Ensuring user", self.username, "on", target)
         cmd = f"""
             /user ;
@@ -61,8 +76,9 @@ class MTikUser:
             }}
         """
         check_call(["ssh", target, cmd.replace("\n", "")])
-            
-    def disable(self, target: str) -> None:
+
+    def disable(self, router: MTikRouter) -> None:
+        target = router.host
         print("Disabling user", self.username, "on", target)
         check_call(["ssh", target, f'/user/disable [ find name="{self.username}"]'])
 
@@ -84,3 +100,8 @@ def format_weird_mtik_ip(addr: str) -> str:
         return addr + "/128"
     else:
         return addr.removesuffix("/32")
+
+ROUTERS = [
+    #MTikRouter(host="router.foxden.network", vrrpPriorityOnline=50, vrrpPriorityOffline=10, dynDNSSuffix6="::1"),
+    MTikRouter(host="router-backup.foxden.network", vrrpPriorityOnline=25, vrrpPriorityOffline=5, dynDNSSuffix6="::2"),
+]

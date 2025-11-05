@@ -1,6 +1,6 @@
 from subprocess import check_call
 from json import load as json_load
-from refresh.util import unlink_safe, NIX_DIR, MTikUser, ROUTERS, format_mtik_bool, is_ipv6, format_weird_mtik_ip
+from refresh.util import unlink_safe, NIX_DIR, MTikUser, ROUTERS, format_mtik_bool, is_ipv6, format_weird_mtik_ip, MTikRouter
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -11,7 +11,7 @@ class FirewallRule:
     attribs: dict[str, str]
     ignoreChanges: set[str] = field(default_factory=set)
 
-ALWAYS_IGNORE_CHANGES = {"id", "invalid", "packets", "bytes", "dynamic"}
+IGNORE_CHANGES = {"id", "invalid", "packets", "bytes", "dynamic"}
 
 DEFAULT_RULES_HEAD: list[FirewallRule] = [
     FirewallRule(
@@ -477,8 +477,8 @@ DEFAULT_RULES_TAIL: list[FirewallRule] = [
 ]
 
 
-def refresh_firewall_router(firewall_rules: list[FirewallRule], user: MTikUser, router: str) -> None:
-    print(f"## {router}")
+def refresh_firewall_router(firewall_rules: list[FirewallRule], user: MTikUser, router: MTikRouter) -> None:
+    print(f"## {router.host}")
     connection = user.connection(router)
     api = connection.get_api()
     resources: dict[str, Any] = {}
@@ -500,7 +500,7 @@ def refresh_firewall_router(firewall_rules: list[FirewallRule], user: MTikUser, 
                 all_keys = set(current_rule.keys()).union(set(rule.attribs.keys()))
 
                 for match_key in all_keys:
-                    if match_key in rule.ignoreChanges or match_key in ALWAYS_IGNORE_CHANGES:
+                    if match_key in rule.ignoreChanges or match_key in IGNORE_CHANGES or match_key[0] == ".":
                         continue
 
                     if current_rule.get(match_key, "") == rule.attribs.get(match_key, ""):

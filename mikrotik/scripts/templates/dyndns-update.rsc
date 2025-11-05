@@ -1,4 +1,4 @@
-# dontrequireperms=yes
+# dont-require-permissions=true
 # policy=ftp,read,write,policy,test
 # schedule=00:05:00
 

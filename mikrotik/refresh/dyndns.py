@@ -2,12 +2,13 @@ import re
 from subprocess import check_output
 from json import loads as json_loads
 from urllib.parse import parse_qs, urlparse
-from refresh.util import mtik_path, ROUTERS
+from refresh.util import mtik_path, ROUTERS, MTikUser, MTikRouter, MTikScript, format_mtik_bool
 
-TEMPLATE = mtik_path("scripts/templates/dyndns-update.rsc")
-FILENAME = mtik_path("scripts/dyndns-update.rsc")
+MAIN_SCRIPT = "dyndns-update"
+TEMPLATE = mtik_path(f"scripts/templates/{MAIN_SCRIPT}.rsc")
 
-SPECIAL_HOSTS = list(ROUTERS) + [f"v4-{router}" for router in ROUTERS]
+router_hosts = [router.host for router in ROUTERS]
+SPECIAL_HOSTS = router_hosts + [f"v4-{router}" for router in router_hosts]
 
 _dyndns_hosts_value = None
 def load_dyndns_hosts():
@@ -58,7 +59,7 @@ def write_all_hosts(indent: str) -> list[str]:
             lines.append(f'{indent}$dyndnsUpdate host="{host}" key="{key4}" ip6addr=$ip6addr ipaddr=$ipaddr\n')
     return lines
 
-def write_dyndns_script():
+def make_dyndns_script() -> MTikScript:
     with open(TEMPLATE, "r") as file:
         lines = file.readlines()
     
@@ -78,22 +79,36 @@ def write_dyndns_script():
     if not found_hosts:
         raise RuntimeError("No # BEGIN HOSTS found in script")
 
-    with open(FILENAME, "w") as file:
-        file.writelines(outlines)
+    return MTikScript(
+        name=MAIN_SCRIPT,
+        source="\n".join(outlines),
+        schedule="5m",
+    )
 
-def print_local_dyndns_settings(host: str):
-    host_4 = f"v4-{host}"
+def make_local_onboot(router: MTikRouter) -> None:
+    host = router.host
+    host_v4 = f"v4-{router.host}"
 
-    print(f":global DynDNSHost \"{host}\"")
-    print(f":global DynDNSKey \"{get_dyndns_key(host, 'A')}\"")
-    print(f":global DynDNSKey6 \"{get_dyndns_key(host, 'AAAA')}\"")
+    result: list[str] = []
 
-    print(f":global DynDNSHost4 \"{host_4}\"")
-    print(f":global DynDNSKey4 \"{get_dyndns_key(host_4, 'A')}\"")
+    result.append(f":global DynDNSSuffix6 \"{router.dynDNSSuffix6}\"")
+    result.append(f":global DynDNSHost \"{host}\"")
+    result.append(f":global DynDNSKey \"{get_dyndns_key(host, 'A')}\"")
+    result.append(f":global DynDNSKey6 \"{get_dyndns_key(host, 'AAAA')}\"")
+    result.append(f":global DynDNSHost4 \"{host_v4}\"")
+    result.append(f":global DynDNSKey4 \"{get_dyndns_key(host_v4, 'A')}\"")
+
+    script = MTikScript(
+        name="onboot-dyndns-config",
+        source="\n".join(result),
+        runOnChange=True,
+        schedule="startup",
+    )
+    router.scripts.add(script)
 
 def refresh_dyndns():
-    write_dyndns_script()
+    main_script = make_dyndns_script()
     for router in ROUTERS:
-        print(f"## {router}")
-        print_local_dyndns_settings(router)
-        print()
+        print(f"## {router.host}")
+        router.scripts.add(main_script)
+        make_local_onboot(router)
