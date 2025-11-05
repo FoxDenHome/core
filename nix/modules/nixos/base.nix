@@ -83,8 +83,12 @@
     nftables.enable = true;
   };
 
-  boot.kernel.sysctl = {
-    "net.ipv4.ip_unprivileged_port_start" = "80";
+  boot = {
+    kernel.sysctl = {
+      "net.ipv4.ip_unprivileged_port_start" = "80";
+      "net.ipv4.tcp_congestion_control" = "bbr";
+    };
+    kernelModules = [ "tcp_bbr" ];
   };
 
   environment.persistence."/nix/persist/system" = {

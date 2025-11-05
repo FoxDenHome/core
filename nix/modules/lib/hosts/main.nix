@@ -337,6 +337,7 @@ in
               sysctlsRaw = {
                 "net.ipv6.conf.INTERFACE.accept_ra" = "1";
                 "net.ipv4.ip_unprivileged_port_start" = "1";
+                "net.ipv4.tcp_congestion_control" = "bbr";
               } // interface.sysctls;
 
               sysctls = nixpkgs.lib.concatStringsSep "\n" (map
