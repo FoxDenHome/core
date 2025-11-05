@@ -3,7 +3,7 @@ if not foxden_local then
   function foxden_local(suffix)
     local loc = cache[suffix]
     if loc then
-      return loc
+      return view(loc)
     end
     loc = {}
     local ipv6 = not suffix:find('.', 1, true)
@@ -27,6 +27,6 @@ if not foxden_local then
     end
     table.insert(loc, {{'0.0.0.0/0', '::/0'}, defDest})
     cache[suffix] = loc
-    return loc
+    return view(loc)
   end
 end
