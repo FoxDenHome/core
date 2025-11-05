@@ -16,7 +16,7 @@
       };
       addresses = [
         "10.1.13.2/16"
-        "fd2c:f4cb:63be:1::0d02/64"
+        "fd2c:f4cb:63be:1::d02/64"
       ];
     };
     tape-library = mkIntf {
@@ -30,7 +30,7 @@
       };
       addresses = [
         "10.1.13.1/16"
-        "fd2c:f4cb:63be:1::0d01/64"
+        "fd2c:f4cb:63be:1::d01/64"
       ];
     };
     ups-rack = mkIntf {
@@ -44,7 +44,7 @@
       mac = "00:C0:B7:E8:B2:A0";
       addresses = [
         "10.1.11.2/16"
-        "fd2c:f4cb:63be:1::0b02/64"
+        "fd2c:f4cb:63be:1::b02/64"
       ];
     };
   };

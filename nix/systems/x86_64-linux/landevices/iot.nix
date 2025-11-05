@@ -34,7 +34,7 @@
       };
       addresses = [
         "10.2.12.1/16"
-        "fd2c:f4cb:63be:2::0c01/64"
+        "fd2c:f4cb:63be:2::c01/64"
       ];
     };
     hue-sync-box = mkIntf {
@@ -66,7 +66,7 @@
       };
       addresses = [
         "10.2.12.28/16"
-        "fd2c:f4cb:63be:2::0c1c/64"
+        "fd2c:f4cb:63be:2::c1c/64"
       ];
     };
     nanoleaf-lines-wizzy = mkIntf {
@@ -80,7 +80,7 @@
       };
       addresses = [
         "10.2.12.19/16"
-        "fd2c:f4cb:63be:2::0c13/64"
+        "fd2c:f4cb:63be:2::c13/64"
       ];
     };
     printer = mkIntf {
@@ -121,7 +121,7 @@
       };
       addresses = [
         "10.1.11.3/16"
-        "fd2c:f4cb:63be:1::0b03/64"
+        "fd2c:f4cb:63be:1::b03/64"
       ];
     };
   };

@@ -35,7 +35,7 @@
       };
       addresses = [
         "10.4.10.2/16"
-        "fd2c:f4cb:63be:4::0a02/64"
+        "fd2c:f4cb:63be:4::a02/64"
       ];
     };
     laser-controller = mkIntf {

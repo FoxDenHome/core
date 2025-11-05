@@ -133,7 +133,7 @@
       };
       addresses = [
         "10.5.10.1/16"
-        "fd2c:f4cb:63be:5::0a01/64"
+        "fd2c:f4cb:63be:5::a01/64"
       ];
       firewall.ingressAcceptRules = foxDenLib.firewall.templates.trusted "nvr";
     };
@@ -211,7 +211,7 @@
       };
       addresses = [
         "10.1.10.13/16"
-        "fd2c:f4cb:63be:1::0a0d/64"
+        "fd2c:f4cb:63be:1::a0d/64"
       ];
     };
     switch-rack = mkIntf {

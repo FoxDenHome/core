@@ -1,4 +1,3 @@
-/system/script/run gen-firewall
 /system/script/run firewall-update
 :put Done
 

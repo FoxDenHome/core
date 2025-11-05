@@ -73,6 +73,6 @@ in
     }
   ]
   ++ (mkWanRecs "wan" "10.2.0.1" "fd2c:f4cb:63be:2::1")
-  ++ (mkWanRecs "router" "10.2.1.1" "fd2c:f4cb:63be:2::0101")
-  ++ (mkWanRecs "router-backup" "10.2.1.2" "fd2c:f4cb:63be:2::0102");
+  ++ (mkWanRecs "router" "10.2.1.1" "fd2c:f4cb:63be:2::101")
+  ++ (mkWanRecs "router-backup" "10.2.1.2" "fd2c:f4cb:63be:2::102");
 }

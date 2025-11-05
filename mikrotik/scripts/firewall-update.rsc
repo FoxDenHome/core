@@ -22,7 +22,7 @@
 :local ip6ptaddr ([:toip6 $ip6addr] & ffff:ffff:ffff:ffff:fff0::)
 :local ip6ptnet "$ip6ptaddr/60"
 
-:local ip6vpnaddr ($ip6ptaddr | ::0a64:ffff)
+:local ip6vpnaddr ($ip6ptaddr | ::a64:ffff)
 :local ip6vpnnet "$ip6vpnaddr/128"
 
 /ipv6/firewall/nat/set [ find comment="Ingress PT" dst-address!=$ip6ptnet ] dst-address=$ip6ptnet

@@ -1,6 +1,6 @@
 from os.path import dirname, realpath, join
 from os import unlink
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from subprocess import check_call
 from routeros_api import RouterOsApiPool
 
@@ -8,7 +8,7 @@ MTIK_DIR = realpath(dirname(__file__) + "/../")
 NIX_DIR = realpath(dirname(__file__) + "/../../nix/")
 
 ROUTERS = {
-    "router.foxden.network",
+    #"router.foxden.network",
     "router-backup.foxden.network",
 }
 
@@ -67,11 +67,20 @@ class MTikUser:
         check_call(["ssh", target, f'/user/disable [ find name="{self.username}"]'])
 
 def parse_mtik_bool(val: str | bool) -> bool:
-    if val == "true" or val == "yes" or val == True:
+    if val == "true" or val == True:
         return True
-    if val == "false" or val == "no" or val == False:
+    if val == "false" or val == False:
         return False
     raise ValueError(f"Invalid Mikrotik boolean value: {val}")
 
 def format_mtik_bool(val: bool) -> str:
     return "true" if val else "false"
+
+def is_ipv6(addr: str) -> bool:
+    return "." not in addr
+
+def format_weird_mtik_ip(addr: str) -> str:
+    if is_ipv6(addr) and "/" not in addr:
+        return addr + "/128"
+    else:
+        return addr.removesuffix("/32")

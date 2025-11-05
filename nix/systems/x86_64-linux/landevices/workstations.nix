@@ -16,7 +16,7 @@
       };
       addresses = [
         "10.2.10.3/16"
-        "fd2c:f4cb:63be:2::0a03/64"
+        "fd2c:f4cb:63be:2::a03/64"
       ];
     };
     capefox-wired = mkIntf {
@@ -39,7 +39,7 @@
       };
       addresses = [
         "10.5.10.3/16"
-        "fd2c:f4cb:63be:5::0a03/64"
+        "fd2c:f4cb:63be:5::a03/64"
       ];
     };
     fennec = mkIntf {
@@ -53,7 +53,7 @@
       };
       addresses = [
         "10.2.10.1/16"
-        "fd2c:f4cb:63be:2::0a01/64"
+        "fd2c:f4cb:63be:2::a01/64"
       ];
     };
     wizzy-desktop = mkIntf {
@@ -67,7 +67,7 @@
       };
       addresses = [
         "10.2.10.2/16"
-        "fd2c:f4cb:63be:2::0a02/64"
+        "fd2c:f4cb:63be:2::a02/64"
       ];
     };
   };
