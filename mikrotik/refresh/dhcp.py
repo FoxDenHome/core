@@ -39,6 +39,9 @@ def refresh_dhcp_router(dhcp_leases: list[dict[str, Any]], router: MTikRouter) -
 
         matches = []
         for mtik_lease in dhcpv4_leases:
+            if mtik_lease["server"] != attribs["server"]:
+                continue
+
             if (mtik_lease["address"] == attribs["address"]) or \
                 (mtik_lease["mac-address"].upper() == attribs["mac-address"]) or \
                 (mtik_lease.get("comment", "") == attribs["comment"]):
@@ -94,6 +97,9 @@ def refresh_dhcp_router(dhcp_leases: list[dict[str, Any]], router: MTikRouter) -
 
         matches = []
         for mtik_binding in dhcpv6_bindings:
+            if mtik_binding["server"] != attribs["server"]:
+                continue
+
             if (mtik_binding["address"] == attribs["address"]) or \
                 ((mtik_binding["duid"].lower() == attribs["duid"]) and (mtik_binding["iaid"] == attribs["iaid"])) or \
                 (mtik_binding.get("comment", "") == attribs["comment"]):
