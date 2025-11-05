@@ -18,13 +18,16 @@ ROUTERS = [
 @contextmanager
 def mtik_admin_user():
     user = MTikUser(username="refresh-py", password=str(uuid.v4()))
-    for router in ROUTERS:
-        user.ensure(router)
     try:
+        for router in ROUTERS:
+            user.ensure(router)
         yield user
     finally:
         for router in ROUTERS:
-            user.disable(router)
+            try:
+                user.disable(router)
+            except Exception as e:
+                print("Failed to disable user on", router, "with error", e)
 
 def main():
     with mtik_admin_user() as user:
