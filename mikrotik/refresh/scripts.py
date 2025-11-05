@@ -67,17 +67,6 @@ def load_scripts_from_dir(dir_path: str) -> set[MTikScript]:
 def refresh_script_router(router: MTikRouter, base_scripts: set[MTikScript]) -> None:
     print(f"## {router.host}")
 
-    scripts = base_scripts | router.scripts | {
-        MTikScript(
-            name="onboot-vrrp-config",
-            source=
-                f":global VRRPPriorityOnline {router.vrrpPriorityOnline}\n" +
-                f":global VRRPPriorityOffline {router.vrrpPriorityOffline}\n",
-            runOnChange=True,
-            schedule="startup",
-        )
-    }
-
     connection = router.connection()
     api = connection.get_api()
     api_script = api.get_resource("/system/script")
@@ -92,7 +81,7 @@ def refresh_script_router(router: MTikRouter, base_scripts: set[MTikScript]) -> 
     stray_schedules = set([scheduler["name"] for scheduler in existing_schedules])
 
     scripts_to_run: list[str] = []
-    for script in scripts:
+    for script in (base_scripts | router.scripts):
         attribs = {
             "name": script.name,
             "source": script.source,

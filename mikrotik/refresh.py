@@ -6,6 +6,7 @@ from refresh.pdns import refresh_pdns
 from refresh.dhcp import refresh_dhcp
 from refresh.firewall import refresh_firewall
 from refresh.scripts import refresh_scripts
+from refresh.vrrp import refresh_vrrp
 from refresh.util import ROUTERS
 from contextlib import contextmanager
 
@@ -34,6 +35,8 @@ def main():
         refresh_dhcp()
         print("# Firewall configuration")
         refresh_firewall()
+        print("# VRRP configuration")
+        refresh_vrrp()
         # This must remain last as previous steps may create scripts that need to be deployed
         print("# Scripts")
         refresh_scripts()
