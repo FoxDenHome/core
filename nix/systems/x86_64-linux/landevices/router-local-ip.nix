@@ -14,5 +14,8 @@ in
     (mkDevice "router" "1.1" "0101")
     (mkDevice "router-backup" "1.2" "0102")
     (mkDevice "ntpi" "1.123" "017b")
+    [
+      { name = "ecstest"; ttl = 0; type = "LUA TXT"; value = "bestwho:toString()"; horizon = "internal"; }
+    ]
   ];
 }

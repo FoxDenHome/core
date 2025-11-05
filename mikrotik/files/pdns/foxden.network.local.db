@@ -31,4 +31,3 @@ config IN LUA LUA  ("if not FoxDenLocal then"
                     "  end"
                     "end")
 
-ecstest 0 IN LUA TXT ("bestwho:toString()")
