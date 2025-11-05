@@ -1,4 +1,4 @@
-from refresh.util import mtik_path, MTikUser, MTikRouter, MTikScript, format_mtik_bool, ROUTERS, parse_mtik_bool
+from refresh.util import mtik_path, MTikRouter, MTikScript, format_mtik_bool, ROUTERS, parse_mtik_bool
 from os.path import basename
 from os import listdir
 
@@ -64,7 +64,7 @@ def load_scripts_from_dir(dir_path: str) -> set[MTikScript]:
     return scripts
 
 
-def refresh_script_router(user: MTikUser, router: MTikRouter, base_scripts: set[MTikScript]) -> None:
+def refresh_script_router(router: MTikRouter, base_scripts: set[MTikScript]) -> None:
     print(f"## {router.host}")
 
     scripts = base_scripts | router.scripts | {
@@ -78,7 +78,7 @@ def refresh_script_router(user: MTikUser, router: MTikRouter, base_scripts: set[
         )
     }
 
-    connection = user.connection(router)
+    connection = router.connection()
     api = connection.get_api()
     api_script = api.get_resource("/system/script")
     api_scheduler = api.get_resource("/system/scheduler")
@@ -176,8 +176,8 @@ def refresh_script_router(user: MTikUser, router: MTikRouter, base_scripts: set[
         stray_schedule = existing_schedules_map[stray_schedule_name]
         api_scheduler.remove(id=stray_schedule["id"])
 
-def refresh_scripts(user: MTikUser) -> None:
+def refresh_scripts() -> None:
     base_scripts = load_scripts_from_dir(SCRIPT_DIR)
 
     for router in ROUTERS:
-        refresh_script_router(user, router, base_scripts)
+        refresh_script_router(router, base_scripts)

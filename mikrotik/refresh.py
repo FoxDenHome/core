@@ -6,26 +6,24 @@ from refresh.pdns import refresh_pdns
 from refresh.dhcp import refresh_dhcp
 from refresh.firewall import refresh_firewall
 from refresh.scripts import refresh_scripts
-from refresh.util import MTikUser, ROUTERS
+from refresh.util import ROUTERS
 from contextlib import contextmanager
-from uuid import uuid4
 
 @contextmanager
-def mtik_admin_user():
-    user = MTikUser(username="refresh-py", password=str(uuid4()), connections={})
+def mtik_router_admin():
     try:
         for router in ROUTERS:
-            user.ensure(router)
-        yield user
+            router.ensureUser()
+        yield True
     finally:
         for router in ROUTERS:
             try:
-                user.disable(router)
+                router.disableUser()
             except Exception as e:
                 print("Failed to disable user on", router, "with error", e)
 
 def main():
-    with mtik_admin_user() as user:
+    with mtik_router_admin():
         print("# DynDNS configuration")
         refresh_dyndns()
         print("# HAProxy configuration")
@@ -33,12 +31,12 @@ def main():
         print("# PowerDNS configuration")
         refresh_pdns()
         print("# DHCP configuration")
-        refresh_dhcp(user=user)
+        refresh_dhcp()
         print("# Firewall configuration")
-        refresh_firewall(user=user)
+        refresh_firewall()
         # This must remain last as previous steps may create scripts that need to be deployed
         print("# Scripts")
-        refresh_scripts(user=user)
+        refresh_scripts()
 
 if __name__ == "__main__":
     main()

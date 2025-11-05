@@ -1,13 +1,13 @@
 from subprocess import check_call
 from json import load as json_load
-from refresh.util import unlink_safe, NIX_DIR, get_ipv4_netname, MTikUser, MTikRouter, ROUTERS, parse_mtik_bool, format_mtik_bool, format_weird_mtik_ip
+from refresh.util import unlink_safe, NIX_DIR, get_ipv4_netname, MTikRouter, ROUTERS, parse_mtik_bool, format_mtik_bool, format_weird_mtik_ip
 from typing import Any
 
 IGNORE_CHANGES = {"id", "active-server", "active-address", "class-id", "host-name", "active-client-id", "expires-after", "last-seen", "status", "client-address", "active-mac-address", "dynamic", "invalid", "radius", "blocked"}
 
-def refresh_dhcp_router(dhcp_leases: list[dict[str, Any]], user: MTikUser, router: MTikRouter) -> None:
+def refresh_dhcp_router(dhcp_leases: list[dict[str, Any]], router: MTikRouter) -> None:
     print(f"## {router.host}")
-    connection = user.connection(router)
+    connection = router.connection()
     api = connection.get_api()
     api_dhcpv4 = api.get_resource('/ip/dhcp-server/lease')
     api_dhcpv6 = api.get_resource('/ipv6/dhcp-server/binding')
@@ -132,7 +132,7 @@ def refresh_dhcp_router(dhcp_leases: list[dict[str, Any]], user: MTikUser, route
             print("Removing stray DHCPv6 binding", binding)
             api_dhcpv6.remove(id=binding_id)
 
-def refresh_dhcp(user: MTikUser) -> None:
+def refresh_dhcp() -> None:
     unlink_safe("result")
     check_call(["nix", "build", f"{NIX_DIR}#dhcp.json.router"])
     with open("result", "r") as file:
@@ -140,4 +140,4 @@ def refresh_dhcp(user: MTikUser) -> None:
     unlink_safe("result")
 
     for router in ROUTERS:
-        refresh_dhcp_router(dhcp_leases, user, router)
+        refresh_dhcp_router(dhcp_leases, router)

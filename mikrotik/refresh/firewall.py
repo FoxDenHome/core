@@ -1,6 +1,6 @@
 from subprocess import check_call
 from json import load as json_load
-from refresh.util import unlink_safe, NIX_DIR, MTikUser, ROUTERS, format_mtik_bool, is_ipv6, format_weird_mtik_ip, MTikRouter
+from refresh.util import unlink_safe, NIX_DIR, ROUTERS, format_mtik_bool, is_ipv6, format_weird_mtik_ip, MTikRouter
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -477,9 +477,9 @@ DEFAULT_RULES_TAIL: list[FirewallRule] = [
 ]
 
 
-def refresh_firewall_router(firewall_rules: list[FirewallRule], user: MTikUser, router: MTikRouter) -> None:
+def refresh_firewall_router(firewall_rules: list[FirewallRule], router: MTikRouter) -> None:
     print(f"## {router.host}")
-    connection = user.connection(router)
+    connection = router.connection()
     api = connection.get_api()
     resources: dict[str, Any] = {}
     sent_rule_counts: dict[str, int] = {}
@@ -526,7 +526,7 @@ def refresh_firewall_router(firewall_rules: list[FirewallRule], user: MTikUser, 
             print("Removing extra firewall rule", dr)
             api_rule.remove(id=dr['id'])
 
-def refresh_firewall(user: MTikUser) -> None:
+def refresh_firewall() -> None:
     unlink_safe("result")
     check_call(["nix", "build", f"{NIX_DIR}#firewall.json.router"])
     with open("result", "r") as file:
@@ -589,4 +589,4 @@ def refresh_firewall(user: MTikUser) -> None:
         rule.attribs["disabled"] = format_mtik_bool(False)
 
     for router in ROUTERS:
-        refresh_firewall_router(firewall_rules, user, router)
+        refresh_firewall_router(firewall_rules, router)

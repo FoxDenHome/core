@@ -2,6 +2,7 @@ from os.path import dirname, realpath, join
 from os import unlink
 from dataclasses import dataclass, field
 from subprocess import check_call
+from uuid import uuid4
 from routeros_api import RouterOsApiPool
 
 MTIK_DIR = realpath(dirname(__file__) + "/../")
@@ -35,7 +36,7 @@ class MTikScript:
     schedule: str | None = None
     runOnChange: bool = False
 
-@dataclass(frozen=True, eq=True, kw_only=True)
+@dataclass(kw_only=True)
 class MTikRouter:
     host: str
     vrrpPriorityOnline: int
@@ -43,44 +44,39 @@ class MTikRouter:
     dynDNSSuffix6: str
     scripts: set[MTikScript] = field(default_factory=set)
 
-@dataclass(frozen=True, kw_only=True)
-class MTikUser:
-    username: str
-    password: str
+    _connectionCache: RouterOsApiPool | None = None
+    _username: str = "refresh-py"
+    _password: str | None = None
 
-    connections: dict[str, RouterOsApiPool] = None
-
-    def connection(self, router: MTikRouter) -> RouterOsApiPool:
-        target = router.host
-        if target not in self.connections:
+    def connection(self) -> RouterOsApiPool:
+        if self._connectionCache is None:
             pool = RouterOsApiPool(
-                target,
-                username=self.username,
-                password=self.password,
+                self.host,
+                username=self._username,
+                password=self._password,
                 use_ssl=True,
                 plaintext_login=True,
             )
-            self.connections[target] = pool
-        return self.connections[target]
+            self._connectionCache = pool
+        return self._connectionCache
 
-    def ensure(self, router: MTikRouter) -> None:
-        target = router.host
-        print("Ensuring user", self.username, "on", target)
+    def ensureUser(self) -> None:
+        self._password = str(uuid4())
+        print("Ensuring user", self._username, "on", self.host)
         cmd = f"""
             /user ;
-            :local prev [find name="{self.username}"] ;
+            :local prev [find name="{self._username}"] ;
             :if ([:len $prev] > 0) do={{
-                set $prev password="{self.password}" group=full disabled=no
-            }} else={{
-                add name="{self.username}" password="{self.password}" group=full disabled=no
+                set $prev password="{self._password}" group=full disabled=no
+            }} else {{
+                add name="{self._username}" password="{self._password}" group=full disabled=no
             }}
         """
-        check_call(["ssh", target, cmd.replace("\n", "")])
+        check_call(["ssh", self.host, cmd.replace("\n", "")])
 
-    def disable(self, router: MTikRouter) -> None:
-        target = router.host
-        print("Disabling user", self.username, "on", target)
-        check_call(["ssh", target, f'/user/disable [ find name="{self.username}"]'])
+    def disableUser(self) -> None:
+        print("Disabling user", self._username, "on", self.host)
+        check_call(["ssh", self.host, f'/user/disable [ find name="{self._username}"]'])
 
 def parse_mtik_bool(val: str | bool) -> bool:
     if val == "true" or val == True:
@@ -96,6 +92,7 @@ def is_ipv6(addr: str) -> bool:
     return "." not in addr
 
 def format_weird_mtik_ip(addr: str) -> str:
+    # They want /128 for IPv6 but no CIDR for single-host IPv4
     if is_ipv6(addr) and "/" not in addr:
         return addr + "/128"
     else:
