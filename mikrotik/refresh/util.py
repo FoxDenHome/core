@@ -102,6 +102,6 @@ def format_weird_mtik_ip(addr: str) -> str:
         return addr.removesuffix("/32")
 
 ROUTERS = [
-    #MTikRouter(host="router.foxden.network", vrrpPriorityOnline=50, vrrpPriorityOffline=10, dynDNSSuffix6="::1"),
+    MTikRouter(host="router.foxden.network", vrrpPriorityOnline=50, vrrpPriorityOffline=10, dynDNSSuffix6="::1"),
     MTikRouter(host="router-backup.foxden.network", vrrpPriorityOnline=25, vrrpPriorityOffline=5, dynDNSSuffix6="::2"),
 ]
