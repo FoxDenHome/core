@@ -1,9 +1,9 @@
 config IN LUA LUA  ("if not foxden_local then"
                     "  foxden_local = {}"
-                    "  local function get_foxden_local(suffix)"
+                    "  function get_foxden_local(suffix)"
                     "    local loc = foxden_local[suffix]"
                     "    if loc then"
-                    "      return view(loc)"
+                    "      return loc"
                     "    end"
                     "    loc = {}"
                     "    local ipv6 = suffix:find('.', 1, true)"
@@ -12,7 +12,7 @@ config IN LUA LUA  ("if not foxden_local then"
                     "      local src = {'10.' .. subnet .. '.0.0/16', 'fd2c:f4cb:63be:' .. subnet .. '::/64'}"
                     "      local dest"
                     "      if ipv6 then"
-                    "        dest6 = {'fd2c:f4cb:63be:' .. subnet .. '::' .. suffix}"
+                    "        dest = {'fd2c:f4cb:63be:' .. subnet .. '::' .. suffix}"
                     "      else"
                     "        dest = {'10.' .. subnet .. '.' .. suffix}"
                     "      end"
@@ -23,31 +23,25 @@ config IN LUA LUA  ("if not foxden_local then"
                     "    end"
                     "    if (not ipv6) and suffix:sub(1, 2) == '1.' then"
                     "      local shortSuffix = suffix:sub(3)"
-                    "      table.insert(loc4, {{'100.96.41.0/24'}, {'100.96.41.'..shortSuffix}})"
+                    "      table.insert(loc, {{'100.96.41.0/24'}, {'100.96.41.'..shortSuffix}})"
                     "    end"
                     "    table.insert(loc, {{'0.0.0.0/0', '::/0'}, defDest})"
                     "    foxden_local[suffix] = loc"
-                    "    return view(loc)"
+                    "    return loc"
                     "  end"
-                    "  make_foxden_local('gateway', '0.1', '0001')"
-                    "  make_foxden_local('dns', '0.53', '0035')"
-                    "  make_foxden_local('ntp', '0.123', '007b')"
-                    "  make_foxden_local('router', '1.1', '0101')"
-                    "  make_foxden_local('routerbackup', '1.2', '0102')"
-                    "  make_foxden_local('ntpi', '1.123', '017b')"
                     "end")
 
-gateway       IN LUA A       (";include('config'); return get_foxden_local('0.1')")
-gateway       IN LUA AAAA    (";include('config'); return get_foxden_local('0001')")
-dns           IN LUA A       (";include('config'); return get_foxden_local('0.53)")
-dns           IN LUA AAAA    (";include('config'); return get_foxden_local('0035')")
-ntp           IN LUA A       (";include('config'); return get_foxden_local('0.12')")
-ntp           IN LUA AAAA    (";include('config'); return get_foxden_local('007b')")
-router        IN LUA A       (";include('config'); return get_foxden_local('1.1')")
-router        IN LUA AAAA    (";include('config'); return get_foxden_local('0101')")
-router-backup IN LUA A       (";include('config'); return get_foxden_local('1.2')")
-router-backup IN LUA AAAA    (";include('config'); return get_foxden_local('0102')")
-ntpi          IN LUA A       (";include('config'); return get_foxden_local('1.123')")
-ntpi          IN LUA AAAA    (";include('config'); return get_foxden_local('017b')")
+gateway       IN LUA A       (";include('config'); return view(get_foxden_local('0.1'))")
+gateway       IN LUA AAAA    (";include('config'); return view(get_foxden_local('0001'))")
+dns           IN LUA A       (";include('config'); return view(get_foxden_local('0.53'))")
+dns           IN LUA AAAA    (";include('config'); return view(get_foxden_local('0035'))")
+ntp           IN LUA A       (";include('config'); return view(get_foxden_local('0.12'))")
+ntp           IN LUA AAAA    (";include('config'); return view(get_foxden_local('007b'))")
+router        IN LUA A       (";include('config'); return view(get_foxden_local('1.1'))")
+router        IN LUA AAAA    (";include('config'); return view(get_foxden_local('0101'))")
+router-backup IN LUA A       (";include('config'); return view(get_foxden_local('1.2'))")
+router-backup IN LUA AAAA    (";include('config'); return view(get_foxden_local('0102'))")
+ntpi          IN LUA A       (";include('config'); return view(get_foxden_local('1.123'))")
+ntpi          IN LUA AAAA    (";include('config'); return view(get_foxden_local('017b'))")
 
 ecstest 0 IN LUA TXT ("bestwho:toString()")
