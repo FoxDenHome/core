@@ -4,6 +4,8 @@ from os.path import join as path_join, exists
 from refresh.util import unlink_safe, NIX_DIR, mtik_path
 from yaml import safe_load as yaml_load, dump as yaml_dump
 
+# TODO: Diff config and restart PowerDNS only if changed
+
 INTERNAL_RECORDS = None
 ZONE_DIR = mtik_path("files/pdns")
 

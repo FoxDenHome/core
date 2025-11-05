@@ -11,7 +11,7 @@ uv run refresh.py
 ./scripts.sh
 
 transfer_files router.foxden.network
-ssh router.foxden.network '/system/script/run reconfigure'
+ssh router.foxden.network '/file/add name=container-restart-all'
 
 transfer_files router-backup.foxden.network
-ssh router-backup.foxden.network '/system/script/run reconfigure'
+ssh router-backup.foxden.network '/file/add name=container-restart-all'
