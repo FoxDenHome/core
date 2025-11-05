@@ -78,8 +78,8 @@ in
       systemd.timers.backupmgr-prune = {
         wantedBy = [ "timers.target" ];
         timerConfig = {
-          OnCalendar = "weekly";
-          RandomizedDelaySec = "12h";
+          OnCalendar = "monthly";
+          RandomizedDelaySec = "72h";
         };
       };
 
