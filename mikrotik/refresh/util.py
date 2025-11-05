@@ -1,6 +1,6 @@
 from os.path import dirname, realpath, join
 from os import unlink
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from subprocess import check_call
 from routeros_api import RouterOsApiPool
 
