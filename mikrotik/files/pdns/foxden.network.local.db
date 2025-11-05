@@ -1,30 +1,33 @@
-config IN LUA LUA  ("if not foxden_local4 then"
-                    "  foxden_local4 = {}"
-                    "  foxden_local6 = {}"
-                    "  local function make_foxden_local(host, suffix4, suffix6)"
-                    "    local loc4 = {}"
-                    "    local loc6 = {}"
-                    "    local defDest4"
-                    "    local defDest6"
+config IN LUA LUA  ("if not foxden_local then"
+                    "  foxden_local = {}"
+                    "  local function get_foxden_local(suffix)"
+                    "    local loc = foxden_local[suffix]"
+                    "    if loc then"
+                    "      return view(loc)"
+                    "    end"
+                    "    loc = {}"
+                    "    local ipv6 = suffix:find('.', 1, true)"
+                    "    local defDest"
                     "    for subnet = 1,9 do"
                     "      local src = {'10.' .. subnet .. '.0.0/16', 'fd2c:f4cb:63be:' .. subnet .. '::/64'}"
-                    "      local dest4 = {'10.' .. subnet .. '.' .. suffix4}"
-                    "      local dest6 = {'fd2c:f4cb:63be:' .. subnet .. '::' .. suffix6}"
-                    "      table.insert(loc4, {src, dest4})"
-                    "      table.insert(loc6, {src, dest6})"
+                    "      local dest"
+                    "      if ipv6 then"
+                    "        dest6 = {'fd2c:f4cb:63be:' .. subnet .. '::' .. suffix}"
+                    "      else"
+                    "        dest = {'10.' .. subnet .. '.' .. suffix}"
+                    "      end"
+                    "      table.insert(loc, {src, dest})"
                     "      if subnet == 2 then"
-                    "        defDest4 = dest4"
-                    "        defDest6 = dest6"
+                    "        defDest = dest"
                     "      end"
                     "    end"
-                    "    if suffix4:sub(1, 2) == '1.' then"
-                    "      local shortSuffix4 = suffix4:sub(3)"
-                    "      table.insert(loc4, {{'100.96.41.0/24'}, {'100.96.41.'..shortSuffix4}})"
+                    "    if (not ipv6) and suffix:sub(1, 2) == '1.' then"
+                    "      local shortSuffix = suffix:sub(3)"
+                    "      table.insert(loc4, {{'100.96.41.0/24'}, {'100.96.41.'..shortSuffix}})"
                     "    end"
-                    "    table.insert(loc4, {{'0.0.0.0/0', '::/0'}, defDest4})"
-                    "    table.insert(loc6, {{'0.0.0.0/0', '::/0'}, defDest6})"
-                    "    foxden_local4[host] = loc4"
-                    "    foxden_local6[host] = loc6"
+                    "    table.insert(loc, {{'0.0.0.0/0', '::/0'}, defDest})"
+                    "    foxden_local[suffix] = loc"
+                    "    return view(loc)"
                     "  end"
                     "  make_foxden_local('gateway', '0.1', '0001')"
                     "  make_foxden_local('dns', '0.53', '0035')"
@@ -34,17 +37,17 @@ config IN LUA LUA  ("if not foxden_local4 then"
                     "  make_foxden_local('ntpi', '1.123', '017b')"
                     "end")
 
-gateway       IN LUA A       (";include('config'); return view(foxden_local4.gateway)")
-gateway       IN LUA AAAA    (";include('config'); return view(foxden_local6.gateway)")
-dns           IN LUA A       (";include('config'); return view(foxden_local4.dns)")
-dns           IN LUA AAAA    (";include('config'); return view(foxden_local6.dns)")
-ntp           IN LUA A       (";include('config'); return view(foxden_local4.ntp)")
-ntp           IN LUA AAAA    (";include('config'); return view(foxden_local6.ntp)")
-router        IN LUA A       (";include('config'); return view(foxden_local4.router)")
-router        IN LUA AAAA    (";include('config'); return view(foxden_local6.router)")
-router-backup IN LUA A       (";include('config'); return view(foxden_local4.routerbackup)")
-router-backup IN LUA AAAA    (";include('config'); return view(foxden_local6.routerbackup)")
-ntpi          IN LUA A       (";include('config'); return view(foxden_local4.ntpi)")
-ntpi          IN LUA AAAA    (";include('config'); return view(foxden_local6.ntpi)")
+gateway       IN LUA A       (";include('config'); return get_foxden_local('0.1')")
+gateway       IN LUA AAAA    (";include('config'); return get_foxden_local('0001')")
+dns           IN LUA A       (";include('config'); return get_foxden_local('0.53)")
+dns           IN LUA AAAA    (";include('config'); return get_foxden_local('0035')")
+ntp           IN LUA A       (";include('config'); return get_foxden_local('0.12')")
+ntp           IN LUA AAAA    (";include('config'); return get_foxden_local('007b')")
+router        IN LUA A       (";include('config'); return get_foxden_local('1.1')")
+router        IN LUA AAAA    (";include('config'); return get_foxden_local('0101')")
+router-backup IN LUA A       (";include('config'); return get_foxden_local('1.2')")
+router-backup IN LUA AAAA    (";include('config'); return get_foxden_local('0102')")
+ntpi          IN LUA A       (";include('config'); return get_foxden_local('1.123')")
+ntpi          IN LUA AAAA    (";include('config'); return get_foxden_local('017b')")
 
 ecstest 0 IN LUA TXT ("bestwho:toString()")

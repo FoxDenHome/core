@@ -6,7 +6,9 @@ let
   ipv6Root = "e.b.3.6.b.c.4.f.c.2.d.f.ip6.arpa";
 in
 {
-  config.foxDen.dns.records = lib.flatten (map (vlan: [
+  config.foxDen.dns.records = lib.flatten (map (vlanInt: let
+    vlan = builtins.toString vlanInt;
+  in [
     {
       name = "1.0.${vlan}.${ipv4Root}";
       type = "PTR";
