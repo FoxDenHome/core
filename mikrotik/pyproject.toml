@@ -5,4 +5,5 @@ description = "Helper scripts for Mikrotik setup"
 requires-python = ">=3.12"
 dependencies = [
     "pyyaml>=6.0.3",
+    "routeros-api>=0.21.0",
 ]

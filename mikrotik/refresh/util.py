@@ -2,9 +2,15 @@ from os.path import dirname, realpath, join
 from os import unlink
 from dataclasses import dataclass
 from subprocess import check_call
+from routeros_api import RouterOsApiPool
 
 MTIK_DIR = realpath(dirname(__file__) + "/../")
 NIX_DIR = realpath(dirname(__file__) + "/../../nix/")
+
+ROUTERS = {
+    "router.foxden.network",
+    "router-backup.foxden.network",
+}
 
 def unlink_safe(path: str):
     try:
@@ -29,6 +35,20 @@ class MTikUser:
     username: str
     password: str
 
+    connections: dict[str, RouterOsApiPool] = None
+
+    def connection(self, target: str) -> RouterOsApiPool:
+        if target not in self.connections:
+            pool = RouterOsApiPool(
+                target,
+                username=self.username,
+                password=self.password,
+                use_ssl=True,
+                plaintext_login=True,
+            )
+            self.connections[target] = pool
+        return self.connections[target]
+
     def ensure(self, target: str) -> None:
         print("Ensuring user", self.username, "on", target)
         cmd = f"""
@@ -45,3 +65,13 @@ class MTikUser:
     def disable(self, target: str) -> None:
         print("Disabling user", self.username, "on", target)
         check_call(["ssh", target, f'/user/disable [ find name="{self.username}"]'])
+
+def parse_mtik_bool(val: str | bool) -> bool:
+    if val == "true" or val == "yes" or val == True:
+        return True
+    if val == "false" or val == "no" or val == False:
+        return False
+    raise ValueError(f"Invalid Mikrotik boolean value: {val}")
+
+def format_mtik_bool(val: bool) -> str:
+    return "true" if val else "false"

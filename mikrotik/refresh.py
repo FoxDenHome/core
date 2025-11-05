@@ -6,18 +6,13 @@ from refresh.pdns import refresh_pdns
 from refresh.dhcp import refresh_dhcp
 from refresh.firewall import refresh_firewall
 from refresh.scripts import refresh_scripts
-from refresh.util import MTikUser
+from refresh.util import MTikUser, ROUTERS
 from contextlib import contextmanager
-import uuid
-
-ROUTERS = [
-    "router.foxden.network",
-    "router-backup.foxden.network",
-]
+from uuid import uuid4
 
 @contextmanager
 def mtik_admin_user():
-    user = MTikUser(username="refresh-py", password=str(uuid.v4()))
+    user = MTikUser(username="refresh-py", password=str(uuid4()), connections={})
     try:
         for router in ROUTERS:
             user.ensure(router)
@@ -32,11 +27,11 @@ def mtik_admin_user():
 def main():
     with mtik_admin_user() as user:
         print("# DynDNS configuration")
-        refresh_dyndns()
+        #refresh_dyndns()
         print("# HAProxy configuration")
-        refresh_haproxy()
+        #refresh_haproxy()
         print("# PowerDNS configuration")
-        refresh_pdns()
+        #refresh_pdns()
         print("# DHCP configuration")
         refresh_dhcp(user=user)
         print("# Firewall configuration")
