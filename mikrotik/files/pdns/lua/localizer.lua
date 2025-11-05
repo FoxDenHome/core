@@ -1,6 +1,6 @@
-if not foxden_local then
+if not FoxDenLocal then
   local cache = {}
-  function foxden_local(suffix)
+  function FoxDenLocal(suffix)
     local loc = cache[suffix]
     if loc then
       return loc

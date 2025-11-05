@@ -1,6 +1,6 @@
 { lib, ... } :
 let
-  mkView = suffix: ";include('config'); return view(foxden_local('${suffix}'));";
+  mkView = suffix: ";include('config'); return view(FoxDenLocal('${suffix}'));";
   mkDevice = name: suffix4: suffix6: [
     { name = "${name}.foxden.network"; ttl = 30; type = "LUA A"; value = mkView suffix4; horizon = "internal"; }
     { name = "${name}.foxden.network"; ttl = 30; type = "LUA AAAA"; value = mkView suffix6; horizon = "internal"; }

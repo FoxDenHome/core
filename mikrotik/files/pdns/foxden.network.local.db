@@ -1,6 +1,6 @@
-config IN LUA LUA  ("if not foxden_local then"
+config IN LUA LUA  ("if not FoxDenLocal then"
                     "  local cache = {}"
-                    "  function foxden_local(suffix)"
+                    "  function FoxDenLocal(suffix)"
                     "    local loc = cache[suffix]"
                     "    if loc then"
                     "      return loc"
