@@ -81,9 +81,6 @@ def write_dyndns_script():
     with open(FILENAME, "w") as file:
         file.writelines(outlines)
 
-#$dyndnsUpdate host=$DynDNSHost key=$DynDNSKey key6=$DynDNSKey6
-#$dyndnsUpdate host=$DynDNSHost4 key=$DynDNSKey4 
-#$dyndnsUpdate host=$DynDNSHostDNS key=$DynDNSKeyDNS key6=$DynDNSKeyDNS6
 def print_local_dyndns_settings(host: str):
     host_4 = f"v4-{host}"
 

@@ -24,9 +24,6 @@
 :global DynDNSKey4
 :global DynDNSKey6
 :global DynDNSSuffix6
-:global DynDNSHostDNS
-:global DynDNSKeyDNS
-:global DynDNSKeyDNS6
 
 :local isprimary 0
 #[ /interface/vrrp/get vrrp-mgmt-gateway master ]
