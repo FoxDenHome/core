@@ -1,5 +1,7 @@
-#!/bin/sh
-set -e
+#!/usr/bin/env bash
+set -euo pipefail
+
+# TODO: Do SFTP inside of refresh.py entirely and remove this script
 
 transfer_files() {
     cd files
