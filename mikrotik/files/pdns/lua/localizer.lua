@@ -1,31 +1,32 @@
-foxden_local4 = {}
-foxden_local6 = {}
-
-local function make_foxden_local(host, suffix4, suffix6)
-    local loc4 = {}
-    local loc6 = {}
-    local defDest4
-    local defDest6
-    for subnet = 1,9 do
-        local src = {'10.' .. subnet .. '.0.0/16', 'fd2c:f4cb:63be:' .. subnet .. '::/64'}
-        local dest4 = {'10.' .. subnet .. '.' .. suffix4}
-        local dest6 = {'fd2c:f4cb:63be:' .. subnet .. '::' .. suffix6}
-        table.insert(loc4, {src, dest4})
-        table.insert(loc6, {src, dest6})
-        if subnet == 2 then
-        defDest4 = dest4
-        defDest6 = dest6
-        end
+if not foxden_local then
+  local cache = {}
+  function foxden_local(suffix)
+    local loc = cache[suffix]
+    if loc then
+      return loc
     end
-    table.insert(loc4, {{'0.0.0.0/0', '::/0'}, defDest4})
-    table.insert(loc6, {{'0.0.0.0/0', '::/0'}, defDest6})
-    foxden_local4[host] = loc4
-    foxden_local6[host] = loc6
+    loc = {}
+    local ipv6 = not suffix:find('.', 1, true)
+    local defDest
+    for subnet = 1,9 do
+      local src = {'10.' .. subnet .. '.0.0/16', 'fd2c:f4cb:63be:' .. subnet .. '::/64'}
+      local dest
+      if ipv6 then
+        dest = {'fd2c:f4cb:63be:' .. subnet .. '::' .. suffix}
+      else
+        dest = {'10.' .. subnet .. '.' .. suffix}
+      end
+      table.insert(loc, {src, dest})
+      if subnet == 2 then
+        defDest = dest
+      end
+    end
+    if (not ipv6) and suffix:sub(1, 2) == '1.' then
+      local shortSuffix = suffix:sub(3)
+      table.insert(loc, {{'100.96.41.0/24'}, {'100.96.41.'..shortSuffix}})
+    end
+    table.insert(loc, {{'0.0.0.0/0', '::/0'}, defDest})
+    cache[suffix] = loc
+    return loc
+  end
 end
-
-make_foxden_local('gateway', '0.1', '0001')
-make_foxden_local('dns', '0.53', '0035')
-make_foxden_local('ntp', '0.123', '007b')
-make_foxden_local('router', '1.1', '0101')
-make_foxden_local('routerbackup', '1.2', '0102')
-make_foxden_local('ntpi', '1.123', '017b')

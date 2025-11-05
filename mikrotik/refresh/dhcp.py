@@ -57,6 +57,10 @@ def refresh_dhcp_router(dhcp_leases: list[dict[str, Any]], router: MTikRouter) -
         if match is None:
             print("Adding new DHCPv4 lease", attribs)
             api_dhcpv4.add(**attribs)
+        elif parse_mtik_bool(match.get("dynamic", "false")):
+            print("Re-creating new DHCPv4 lease over dynamic", attribs)
+            api_dhcpv4.remove(id=match['id'])
+            api_dhcpv4.add(**attribs)
         else:
             all_keys = set(match.keys()).union(set(attribs.keys()))
 
@@ -107,6 +111,10 @@ def refresh_dhcp_router(dhcp_leases: list[dict[str, Any]], router: MTikRouter) -
 
         if match is None:
             print("Adding new DHCPv6 binding", attribs)
+            api_dhcpv6.add(**attribs)
+        elif parse_mtik_bool(match.get("dynamic", "false")):
+            print("Re-creating new DHCPv6 binding over dynamic", attribs)
+            api_dhcpv6.remove(id=match['id'])
             api_dhcpv6.add(**attribs)
         else:
             all_keys = set(match.keys()).union(set(attribs.keys()))
