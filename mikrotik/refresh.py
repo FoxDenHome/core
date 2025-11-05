@@ -36,6 +36,7 @@ def main():
         refresh_dhcp(user=user)
         print("# Firewall configuration")
         refresh_firewall(user=user)
+        # This must remain last as previous steps may create scripts that need to be deployed
         print("# Scripts")
         refresh_scripts(user=user)
 
