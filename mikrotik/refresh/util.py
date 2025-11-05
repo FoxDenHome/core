@@ -8,7 +8,7 @@ MTIK_DIR = realpath(dirname(__file__) + "/../")
 NIX_DIR = realpath(dirname(__file__) + "/../../nix/")
 
 ROUTERS = {
-    #"router.foxden.network",
+    "router.foxden.network",
     "router-backup.foxden.network",
 }
 

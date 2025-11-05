@@ -27,11 +27,11 @@ def mtik_admin_user():
 def main():
     with mtik_admin_user() as user:
         print("# DynDNS configuration")
-        #refresh_dyndns()
+        refresh_dyndns()
         print("# HAProxy configuration")
-        #refresh_haproxy()
+        refresh_haproxy()
         print("# PowerDNS configuration")
-        #refresh_pdns()
+        refresh_pdns()
         print("# DHCP configuration")
         refresh_dhcp(user=user)
         print("# Firewall configuration")
