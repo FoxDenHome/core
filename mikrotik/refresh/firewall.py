@@ -526,8 +526,6 @@ def refresh_firewall_router(firewall_rules: list[FirewallRule], user: MTikUser, 
             print("Removing extra firewall rule", dr)
             api_rule.remove(id=dr['id'])
 
-    api.get_resource("/system/script").call("run", {"number": "firewall-update"})
-
 def refresh_firewall(user: MTikUser) -> None:
     unlink_safe("result")
     check_call(["nix", "build", f"{NIX_DIR}#firewall.json.router"])

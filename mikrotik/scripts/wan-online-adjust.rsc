@@ -8,8 +8,6 @@
 :global VRRPPriorityOnline
 :local VRRPPriorityCurrent $VRRPPriorityOffline
 
-/system/script/run firewall-update
-
 if ([/system/script/find name=local-maintenance-mode ]) do={
     $logputwarning "Maintenance mode ON"
 } else={

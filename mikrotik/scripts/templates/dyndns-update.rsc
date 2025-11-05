@@ -18,6 +18,16 @@
 :local ip6addrcidr [/ipv6/address/get ($ip6addrfind->0) address]
 :local ip6addr ([:toip6 ([:deserialize value=$ip6addrcidr from=dsv delimiter="/" options=dsv.plain]->0->0)] & ffff:ffff:ffff:ffff:fff0::)
 
+# BEGIN update hairpins
+:local ip6ptnet "$ip6addr/60"
+:local ip6vpnaddr ($ip6ptaddr | ::a64:ffff)
+:local ip6vpnnet "$ip6vpnaddr/128"
+/ip/firewall/nat/set [ find comment="Hairpin" dst-address!=$ipaddr ] dst-address=$ipaddr
+/ipv6/firewall/nat/set [ find comment="Ingress PT" dst-address!=$ip6ptnet ] dst-address=$ip6ptnet
+/ipv6/firewall/nat/set [ find comment="Egress PT" to-address!=$ip6ptnet ] to-address=$ip6ptnet
+/ipv6/firewall/nat/set [ find comment="VPN Masq" to-address!=$ip6vpnnet ] to-address=$ip6vpnnet
+# END update hairpins
+
 :global DynDNSHost
 :global DynDNSHost4
 :global DynDNSKey
@@ -30,8 +40,6 @@
 :if ($DynDNSHost = "router.foxden.network") do={
     :set isprimary 1
 }
-
-/system/script/run firewall-update
 
 :global dyndnsUpdateOne do={
     :global logputdebug
