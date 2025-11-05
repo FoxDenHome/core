@@ -1,5 +1,5 @@
-config IN LUA LUA  ("if not foxden_local then"
-                    "  foxden_local = {}"
+config IN LUA LUA  ("if not get_foxden_local then"
+                    "  local foxden_local = {}"
                     "  function get_foxden_local(suffix)"
                     "    local loc = foxden_local[suffix]"
                     "    if loc then"
