@@ -31,17 +31,4 @@ config IN LUA LUA  ("if not foxden_local then"
                     "  end"
                     "end")
 
-gateway       IN LUA A       (";include('config'); return view(foxden_local('0.1'));")
-gateway       IN LUA AAAA    (";include('config'); return view(foxden_local('0001'));")
-dns           IN LUA A       (";include('config'); return view(foxden_local('0.53'));")
-dns           IN LUA AAAA    (";include('config'); return view(foxden_local('0035'));")
-ntp           IN LUA A       (";include('config'); return view(foxden_local('0.12'));")
-ntp           IN LUA AAAA    (";include('config'); return view(foxden_local('007b'));")
-router        IN LUA A       (";include('config'); return view(foxden_local('1.1'));")
-router        IN LUA AAAA    (";include('config'); return view(foxden_local('0101'));")
-router-backup IN LUA A       (";include('config'); return view(foxden_local('1.2'));")
-router-backup IN LUA AAAA    (";include('config'); return view(foxden_local('0102'));")
-ntpi          IN LUA A       (";include('config'); return view(foxden_local('1.123'));")
-ntpi          IN LUA AAAA    (";include('config'); return view(foxden_local('017b'));")
-
 ecstest 0 IN LUA TXT ("bestwho:toString()")

@@ -3,6 +3,7 @@ from json import load as json_load
 from os.path import join as path_join, exists
 from refresh.util import unlink_safe, NIX_DIR, mtik_path
 from yaml import safe_load as yaml_load, dump as yaml_dump
+from typing import Any
 
 # TODO: Diff config and restart PowerDNS only if changed (and upload via SFTP ourselves)
 
@@ -18,10 +19,13 @@ def find_record(name: str, type: str) -> dict:
             if recname == name and record["type"] == type:
                 return record
     return None
+def quote_record(record: dict[str, Any]) -> str:
+    return f'"{record["value"]}"'
 RECORD_TYPE_HANDLERS = {}
 RECORD_TYPE_HANDLERS["MX"] = lambda record: f"{record['priority']} {record['value']}"
 RECORD_TYPE_HANDLERS["SRV"] = lambda record: f"{record['priority']} {record['weight']} {record['port']} {record['value']}"
-RECORD_TYPE_HANDLERS["TXT"] = lambda record: f'"{record["value"]}"'
+RECORD_TYPE_HANDLERS["TXT"] = quote_record
+RECORD_TYPE_HANDLERS["LUA"] = quote_record
 RECORD_TYPE_HANDLERS["ALIAS"] = lambda record: [find_record(record["value"], "A"), find_record(record["value"], "AAAA")]
 
 def refresh_pdns():
@@ -54,8 +58,12 @@ def refresh_pdns():
             lines.append(f"$INCLUDE /etc/pdns/{zone}.local.db")
         for record in records:
             value = record["value"]
-            if record["type"] in RECORD_TYPE_HANDLERS:
-                value = RECORD_TYPE_HANDLERS[record["type"]](record)
+
+            rec_type_spl = record["type"].upper().split(" ")
+            rec_type = rec_type_spl[0]
+            if rec_type in RECORD_TYPE_HANDLERS:
+                value = RECORD_TYPE_HANDLERS[rec_type](record)
+
             if not isinstance(value, list):
                 value = [value]
             for val in value:
