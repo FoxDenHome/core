@@ -1,6 +1,6 @@
-local localizer_cache = {}
+local localizerCache = {}
 function FoxDenLocal(suffix)
-  local loc = localizer_cache[suffix]
+  local loc = localizerCache[suffix]
   if loc then
     return loc
   end
@@ -25,6 +25,6 @@ function FoxDenLocal(suffix)
     table.insert(loc, {{'100.96.41.0/24'}, {'100.96.41.'..shortSuffix}})
   end
   table.insert(loc, {{'0.0.0.0/0', '::/0'}, defDest})
-  localizer_cache[suffix] = loc
+  localizerCache[suffix] = loc
   return loc
 end
