@@ -127,18 +127,27 @@ resource "dns-he-net_txt" "dynamic" {
   }
 }
 
+locals {
+  dyndns_fqdn_set = toset([ for _, record in local.dyndns_hosts :  record.fqdn ])
+}
+
 resource "random_password" "dynamic" {
-  for_each = { for name, record in local.dyndns_hosts : name => record.fqdn }
+  for_each = local.dyndns_fqdn_set
 
   length  = 64
   special = false
 }
 
 # TODO: https://github.com/SuperBuker/terraform-provider-dns-he-net/issues/145
-# resource "dns-he-net_ddnskey" "dynamic" {
-#   zone_id  = var.zone_id
-#   for_each = { for name, record in local.dyndns_hosts : name => record.fqdn }
+resource "dns-he-net_ddnskey" "dynamic" {
+  zone_id  = var.zone_id
+  for_each = local.dyndns_fqdn_set
 
-#   domain = each.value
-#   key    = random_password.dynamic[each.key].result
-# }
+  domain = each.value
+  key    = random_password.dynamic[each.key].result
+}
+
+output "dyndns_keys" {
+  value = { for fqdn in local.dyndns_fqdn_set : fqdn => random_password.dynamic[fqdn].result }
+  sensitive = true
+}

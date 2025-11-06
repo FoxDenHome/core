@@ -39,6 +39,11 @@ output "dynamic_urls" {
   sensitive = true
 }
 
+output "dyndns_keys" {
+  value     = merge(values(module.domain)[*].dyndns_keys...)
+  sensitive = true
+}
+
 output "dnskey_records" {
   value = { for zone, domain in module.domain : zone => domain.dnskey_records }
 }
