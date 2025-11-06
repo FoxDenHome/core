@@ -27,7 +27,7 @@
     ];
     addresses = [
       "95.216.116.135/26"
-      "2a01:4f9:2b:1a42::0:ff01/112"
+      "2a01:4f9:2b:1a42::ff01/112"
     ];
     mac = "00:50:56:00:D8:C7";
   };
@@ -57,7 +57,7 @@
       name = "arcticfox.doridian.net";
       type = "AAAA";
       ttl = 3600;
-      value = "2a01:4f9:2b:1a42::0:ff01";
+      value = "2a01:4f9:2b:1a42::ff01";
       horizon = "internal";
     }
     {

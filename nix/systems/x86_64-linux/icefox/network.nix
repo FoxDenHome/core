@@ -19,7 +19,7 @@ let
   ifcfg = {
     addresses = [
       "${mainIPv4}/26"
-      "2a01:4f9:2b:1a42::0:1/112"
+      "2a01:4f9:2b:1a42::1/112"
     ];
     nameservers = [
       "213.133.98.98"
@@ -88,7 +88,7 @@ in
       {
         interfaces.default.routes = [
           { Destination = "0.0.0.0/0"; Gateway = "95.216.116.129"; }
-          { Destination = "::/0"; Gateway = "2a01:4f9:2b:1a42::0:1"; }
+          { Destination = "::/0"; Gateway = "2a01:4f9:2b:1a42::1"; }
         ];
       }
     ];
@@ -285,7 +285,7 @@ in
   ];
 
   # Due to Hetzner routing, we have two IPv6 subnets
-  # - 2a01:4f9:2b:1a42::0:/112 for hosts which have public IPv4
+  # - 2a01:4f9:2b:1a42::/112 for hosts which have public IPv4
   # - 2a01:4f9:2b:1a42::1:/112 for hosts without public IPv4 (routed out via mainIPv4)
   foxDen.hosts.hosts = {
     icefox = let
