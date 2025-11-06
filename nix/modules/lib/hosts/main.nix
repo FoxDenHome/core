@@ -338,8 +338,10 @@ in
                 "net.ipv6.conf.INTERFACE.accept_ra" = "1";
               } // interface.sysctls;
 
+              settingToStr = setting: if setting == false then "0" else if setting == true then "1" else builtins.toString setting;
+
               sysctls = nixpkgs.lib.concatStringsSep "\n" (map
-                ({ name, value }: "${nixpkgs.lib.replaceString "INTERFACE" serviceInterface name} = ${value}")
+                ({ name, value }: "${nixpkgs.lib.replaceString "INTERFACE" serviceInterface name} = ${settingToStr value}")
                 (nixpkgs.lib.attrsets.attrsToList sysctlsRaw)
               );
             in
