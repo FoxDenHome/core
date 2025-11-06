@@ -78,7 +78,7 @@ in
         package = pkgs.postgresql_16;
         enableTCPIP = false;
         ensureDatabases = map (svc: svc.name) svcConfig.services;
-        ensure_users = map (svc: {
+        ensureUsers = map (svc: {
           inherit (svc) name;
           ensureDBOwnership = true;
         }) svcConfig.services;

@@ -84,7 +84,7 @@ in
           };
         };
         ensureDatabases = lib.flatten (map (svc: [(mkDbName svc.name)] ++ svc.databases) svcConfig.services);
-        ensure_users = map (svc: {
+        ensureUsers = map (svc: {
           name = if svc.proxy then svc.name else svc.targetService;
           ensurePermissions = lib.attrsets.listToAttrs (map (dbName: {
             name = "${dbName}.*";
