@@ -46,7 +46,7 @@ class MTikRouter:
     scripts: set[MTikScript] = field(default_factory=set)
 
     _connection_cache: RouterOsApiPool | None = None
-    _username: str = "core-configure-py"
+    _username: str = "foxden-core-configure"
     _password: str | None = None
 
     def connection(self) -> RouterOsApiPool:
