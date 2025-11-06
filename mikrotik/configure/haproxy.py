@@ -20,5 +20,5 @@ def refresh_haproxy():
         print(f"## {router.host}")
         changes = router.sync(ROOTPATH, "/haproxy")
         if changes:
-            print("### Restarting HAProxy container")
+            print("### Restarting HAProxy container", changes)
             router.restart_container("haproxy")

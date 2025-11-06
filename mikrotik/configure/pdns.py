@@ -1,12 +1,15 @@
 from subprocess import check_call
 from json import load as json_load
-from os.path import join as path_join, exists
+from os.path import join as path_join, exists, dirname
+from os import makedirs
 from configure.util import unlink_safe, NIX_DIR, mtik_path, ROUTERS
 from yaml import safe_load as yaml_load, dump as yaml_dump
+from shutil import copytree, rmtree
 from typing import Any
 
 INTERNAL_RECORDS = None
-ROOTPATH = mtik_path("files/pdns")
+ROOT_PATH = mtik_path("files/pdns")
+OUT_PATH = mtik_path("out/pdns")
 
 def find_record(name: str, type: str) -> dict:
     global INTERNAL_RECORDS
@@ -36,7 +39,10 @@ def refresh_pdns():
 
     bind_conf = []
 
-    with open(path_join(ROOTPATH, "recursor-template.conf"), "r") as file:
+    rmtree(OUT_PATH, ignore_errors=True)
+    makedirs(OUT_PATH, exist_ok=True)
+
+    with open(path_join(ROOT_PATH, "recursor.conf"), "r") as file:
         recursor_data = yaml_load(file)
 
     if "recursor" not in recursor_data:
@@ -47,10 +53,10 @@ def refresh_pdns():
 
     for zone in sorted(INTERNAL_RECORDS.keys()):
         records = INTERNAL_RECORDS[zone]
-        zone_file = path_join(ROOTPATH, f"gen-{zone}.db")
+        zone_file = path_join(OUT_PATH, f"gen-{zone}.db")
 
         lines = []
-        if exists(mtik_path(f"files/pdns/{zone}.local.db")):
+        if exists(path_join(ROOT_PATH, f"{zone}.local.db")):
             lines.append(f"$INCLUDE /etc/pdns/{zone}.local.db")
         for record in records:
             value = record["value"]
@@ -82,15 +88,17 @@ def refresh_pdns():
             "forwarders": ["127.0.0.1:530"]
         })
 
-    with open(path_join(ROOTPATH, "bind.conf"), "w") as file:
+    copytree(ROOT_PATH, OUT_PATH, dirs_exist_ok=True)
+
+    with open(path_join(OUT_PATH, "bind.conf"), "w") as file:
         file.write("\n".join(bind_conf) + "\n")
 
-    with open(path_join(ROOTPATH, "recursor.conf"), "w") as file:
+    with open(path_join(OUT_PATH, "recursor.conf"), "w") as file:
         yaml_dump(recursor_data, file)
 
     for router in ROUTERS:
         print(f"## {router.host}")
-        changes = router.sync(ROOTPATH, "/pdns")
+        changes = router.sync(OUT_PATH, "/pdns")
         if changes:
-            print("### Restarting PowerDNS container")
+            print("### Restarting PowerDNS container", changes)
             router.restart_container("pdns")
