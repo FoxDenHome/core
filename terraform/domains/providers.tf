@@ -16,6 +16,10 @@ terraform {
       source  = "SuperBuker/dns-he-net"
       version = "0.1.0"
     }
+    random = {
+      source  = "hashicorp/random"
+      version = "3.7.2"
+    }
   }
 
   backend "s3" {

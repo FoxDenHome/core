@@ -89,9 +89,9 @@ resource "dns-he-net_a" "dynamic" {
   zone_id  = var.zone_id
   for_each = { for name, record in local.dyndns_hosts : name => record if record.type == "A" }
 
-  domain = each.value.fqdn
-  ttl    = each.value.ttl
-  data   = each.value.value
+  domain  = each.value.fqdn
+  ttl     = each.value.ttl
+  data    = each.value.value
   dynamic = true
 
   lifecycle {
@@ -103,9 +103,9 @@ resource "dns-he-net_aaaa" "dynamic" {
   zone_id  = var.zone_id
   for_each = { for name, record in local.dyndns_hosts : name => record if record.type == "AAAA" }
 
-  domain = each.value.fqdn
-  ttl    = each.value.ttl
-  data   = each.value.value
+  domain  = each.value.fqdn
+  ttl     = each.value.ttl
+  data    = each.value.value
   dynamic = true
 
   lifecycle {
@@ -117,9 +117,9 @@ resource "dns-he-net_txt" "dynamic" {
   zone_id  = var.zone_id
   for_each = { for name, record in local.dyndns_hosts : name => record if record.type == "TXT" }
 
-  domain = each.value.fqdn
-  ttl    = each.value.ttl
-  data   = "\"${each.value.value}\""
+  domain  = each.value.fqdn
+  ttl     = each.value.ttl
+  data    = "\"${each.value.value}\""
   dynamic = true
 
   lifecycle {
@@ -127,15 +127,18 @@ resource "dns-he-net_txt" "dynamic" {
   }
 }
 
-# resource "cloudns_dynamic_url" "dynamic" {
-#   domain   = var.domain
-#   for_each = local.dyndns_hosts
+resource "random_password" "dynamic" {
+  for_each = { for name, record in local.dyndns_hosts : name => record.fqdn }
 
-#   recordid = cloudns_dns_record.dynamic[each.key].id
-# }
+  length  = 64
+  special = false
+}
 
-# output "dynamic_urls" {
-#   value = [for id, value in local.dyndns_hosts : (merge({
-#     url = cloudns_dynamic_url.dynamic[id].url,
-#   }, value))]
+# TODO: https://github.com/SuperBuker/terraform-provider-dns-he-net/issues/145
+# resource "dns-he-net_ddnskey" "dynamic" {
+#   zone_id  = var.zone_id
+#   for_each = { for name, record in local.dyndns_hosts : name => record.fqdn }
+
+#   domain = each.value
+#   key    = random_password.dynamic[each.key].result
 # }

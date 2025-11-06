@@ -14,7 +14,7 @@ locals {
   # TODO: https://github.com/SuperBuker/terraform-provider-dns-he-net/issues/141
   he_manual_zones = {
     "c.1.2.2.0.f.8.e.0.a.2.ip6.arpa" = 1055742
-    "0.f.4.4.d.7.e.0.a.2.ip6.arpa" = 927732
+    "0.f.4.4.d.7.e.0.a.2.ip6.arpa"   = 927732
   }
 
   he_net_zone_map = merge(local.he_manual_zones, { for z in data.dns-he-net_zones.zones.zones : z.name => z.id })
@@ -35,7 +35,8 @@ module "domain" {
 }
 
 output "dynamic_urls" {
-  value = { for zone, domain in module.domain : zone => domain.dynamic_urls }
+  value     = { for zone, domain in module.domain : zone => domain.dynamic_urls }
+  sensitive = true
 }
 
 output "dnskey_records" {

@@ -56,6 +56,8 @@ resource "cloudns_dynamic_url" "dynamic" {
 
 output "dynamic_urls" {
   value = [for id, value in local.dyndns_hosts : (merge({
-    url = cloudns_dynamic_url.dynamic[id].url,
+    url    = cloudns_dynamic_url.dynamic[id].url,
+    he_key = random_password.dynamic[id].result,
   }, value))]
+  sensitive = true
 }
