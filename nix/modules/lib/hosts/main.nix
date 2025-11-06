@@ -280,8 +280,8 @@ in
       networking.useDHCP = config.foxDen.hosts.useDHCP;
       foxDen.hosts = {
         defaultSysctls = nixpkgs.lib.attrsets.mapAttrs (n: v: nixpkgs.lib.mkDefault v) (networkSysctls // {
-          "net.ipv4.ip_unprivileged_port_start" = "1";
-          "net.ipv6.conf.INTERFACE.accept_ra" = "1";
+          "net.ipv4.ip_unprivileged_port_start" = 1;
+          "net.ipv6.conf.INTERFACE.accept_ra" = true;
         });
         usedMacAddresses = map (iface: iface.mac) interfaces;
       };
