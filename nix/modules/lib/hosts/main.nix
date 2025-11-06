@@ -250,6 +250,12 @@ in
         type = attrsOf hostType;
         default = {};
       };
+      defaultSysctls = nixpkgs.lib.mkOption {
+        type = attrsOf str;
+        description = ''
+          Default sysctl settings to apply to all interfaces.
+        '';
+      };
       gateway = nixpkgs.lib.mkOption {
         type = str;
         default = "default";
@@ -272,7 +278,13 @@ in
     config = {
       lib.foxDen.mkHashMac = mkHashMac;
       networking.useDHCP = config.foxDen.hosts.useDHCP;
-      foxDen.hosts.usedMacAddresses = map (iface: iface.mac) interfaces;
+      foxDen.hosts = {
+        defaultSysctls = nixpkgs.lib.attrsets.mapAttrs (n: v: nixpkgs.lib.mkDefault v) (networkSysctls // {
+          "net.ipv4.ip_unprivileged_port_start" = "1";
+          "net.ipv6.conf.INTERFACE.accept_ra" = "1";
+        });
+        usedMacAddresses = map (iface: iface.mac) interfaces;
+      };
       foxDen.dns.records = (nixpkgs.lib.flatten (map
           (iface: let
             mkRecord = (addr: nixpkgs.lib.mkIf (iface.dns.name != "") {
@@ -333,10 +345,7 @@ in
               driverRunParams = { inherit ipCmd ipInNsCmd netnsExecCmd interface pkgs serviceInterface; };
               hooks = ifaceDriver.hooks driverRunParams;
 
-              sysctlsRaw = networkSysctls // {
-                "net.ipv4.ip_unprivileged_port_start" = "1";
-                "net.ipv6.conf.INTERFACE.accept_ra" = "1";
-              } // interface.sysctls;
+              sysctlsRaw = config.foxDen.hosts.defaultSysctls // interface.sysctls;
 
               settingToStr = setting: if setting == false then "0" else builtins.toString setting;
 
