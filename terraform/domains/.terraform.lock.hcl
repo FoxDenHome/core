@@ -75,3 +75,26 @@ provider "registry.opentofu.org/hashicorp/external" {
     "zh:fb2ff9e1f86796fda87e1f122d40568912a904da51d477461b850d81a0105f3d",
   ]
 }
+
+provider "registry.opentofu.org/superbuker/dns-he-net" {
+  version     = "0.1.0"
+  constraints = "0.1.0"
+  hashes = [
+    "h1:h/SkLt1uTNG5WuVp+eTRyxK6Og+AGdh+wRGcpJAEOik=",
+    "zh:02e6cc7097d223d80ba9bb32362910499c7132c4972f0c39514692752192b7ca",
+    "zh:161efe4261c546b667191b7fafde1a11109ea92fd201c7bfcf01937b5d406f04",
+    "zh:1917953d25a5fb37ec76793b710bead18137326a8dc0dcfe4ada6594bacb1ebe",
+    "zh:52180dd54003c709cf6fb11c368dc2d7383550e3b08f1b65a8003aeca30a464f",
+    "zh:6308178c43b07c6987b26dcd53e2b3d16919070d77cbe6817251df40ba0834d0",
+    "zh:75597042dbc6397a06f99acce2d91f3e650c3a9ac71abf43299cdbd33be333c1",
+    "zh:775bd9cb0411c11bcb40646a60354e8346678c00e297bd0e1305c6dec834815f",
+    "zh:881dc53c027601352a49212179e206dbce196e08af458d16bf3dce70ce1893ab",
+    "zh:91d7a07d6303bf9c6741841cf4244da876a314caeba613e8cbc5d715f655389b",
+    "zh:cd28491e78d333aecbe023eda908237a17025c83907b4aed44073c6ef7afed51",
+    "zh:de6c88fd1e4f837add6384964f76bd8ec3b52f1c7974bd9839976a2010c847ce",
+    "zh:e76a15e1ae5c3893da47182bdd3cadeaadbeefe1d7b9ef62bd726409384f4243",
+    "zh:ea6fbbeccd60ea785b6a7a715a19aaf6b52f28eb1d2b39c67da3c016d6a5bb74",
+    "zh:ef6cf760872e7aaa29b63b34c60691e773dc9828726ba6d1c74b528de6f4c426",
+    "zh:f74c87091be341396584c7ebf0d9ff32cca0ad98598b5cccf0c056d282492047",
+  ]
+}
