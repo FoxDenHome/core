@@ -106,7 +106,7 @@ def refresh_script_router(router: MTikRouter, base_scripts: set[MTikScript]) -> 
                 if current_script.get(match_key, "") == attribs.get(match_key, ""):
                     continue
 
-                print("Updating script", script.name)
+                print("### Updating script", script.name)
                 api_script.set(id=current_script["id"], **attribs)
                 needs_run = script.run_on_change
                 break
@@ -145,23 +145,23 @@ def refresh_script_router(router: MTikRouter, base_scripts: set[MTikScript]) -> 
                     if current_schedule.get(match_key, "") == attribs.get(match_key, ""):
                         continue
 
-                    print("Updating schedule", script.name)
+                    print("### Updating schedule", script.name)
                     api_scheduler.set(id=current_schedule["id"], **attribs)
                     break
 
             stray_schedules.discard(script.name)
 
     for script_name in scripts_to_run:
-        print(f"Running script (runOnChange) {script_name}")
+        print(f"### Running script (runOnChange) {script_name}")
         api_script.call("run", {"number": script_name})
 
     for stray_script_name in stray_scripts:
-        print(f"Removing stray script {stray_script_name}")
+        print(f"### Removing stray script {stray_script_name}")
         stray_script = existing_scripts_map[stray_script_name]
         api_script.remove(id=stray_script["id"])
 
     for stray_schedule_name in stray_schedules:
-        print(f"Removing stray schedule {stray_schedule_name}")
+        print(f"### Removing stray schedule {stray_schedule_name}")
         stray_schedule = existing_schedules_map[stray_schedule_name]
         api_scheduler.remove(id=stray_schedule["id"])
 
