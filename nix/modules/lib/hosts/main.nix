@@ -251,7 +251,7 @@ in
         default = {};
       };
       defaultSysctls = nixpkgs.lib.mkOption {
-        type = attrsOf (oneOf [str bool int]);
+        type = attrsOf (nullOr (oneOf [str bool int]));
         description = ''
           Default sysctl settings to apply to all interfaces.
         '';
@@ -345,7 +345,7 @@ in
               driverRunParams = { inherit ipCmd ipInNsCmd netnsExecCmd interface pkgs serviceInterface; };
               hooks = ifaceDriver.hooks driverRunParams;
 
-              sysctlsRaw = config.foxDen.hosts.defaultSysctls // interface.sysctls;
+              sysctlsRaw = nixpkgs.lib.filterAttrs (name: value: value != null) (config.foxDen.hosts.defaultSysctls // interface.sysctls);
 
               settingToStr = setting: if setting == false then "0" else builtins.toString setting;
 
