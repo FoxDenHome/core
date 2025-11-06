@@ -1,8 +1,8 @@
-from refresh.util import mtik_path, MTikRouter, MTikScript, formatMTikBool, ROUTERS, parseMTikBool
+from refresh.util import makeMTikPath, MTikRouter, MTikScript, formatMTikBool, ROUTERS, parseMTikBool
 from os.path import basename
 from os import listdir
 
-SCRIPT_DIR = mtik_path("scripts")
+SCRIPT_DIR = makeMTikPath("scripts")
 
 IGNORE_CHANGES_SCRIPT = {"id", "owner", "invalid", "last-started", "run-count"}
 IGNORE_CHANGES_SCHEDULE = {"id", "owner", "run-count", "next-run", "start-date"}

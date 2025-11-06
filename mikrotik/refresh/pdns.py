@@ -1,12 +1,12 @@
 from subprocess import check_call
 from json import load as json_load
 from os.path import join as path_join, exists
-from refresh.util import unlink_safe, NIX_DIR, mtik_path, ROUTERS
+from refresh.util import unlink_safe, NIX_DIR, makeMTikPath, ROUTERS
 from yaml import safe_load as yaml_load, dump as yaml_dump
 from typing import Any
 
 INTERNAL_RECORDS = None
-ROOTPATH = mtik_path("files/pdns")
+ROOTPATH = makeMTikPath("files/pdns")
 
 def find_record(name: str, type: str) -> dict:
     global INTERNAL_RECORDS
@@ -50,7 +50,7 @@ def refresh_pdns():
         zone_file = path_join(ROOTPATH, f"gen-{zone}.db")
 
         lines = []
-        if exists(mtik_path(f"files/pdns/{zone}.local.db")):
+        if exists(makeMTikPath(f"files/pdns/{zone}.local.db")):
             lines.append(f"$INCLUDE /etc/pdns/{zone}.local.db")
         for record in records:
             value = record["value"]
