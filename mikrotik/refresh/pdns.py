@@ -1,14 +1,12 @@
 from subprocess import check_call
 from json import load as json_load
 from os.path import join as path_join, exists
-from refresh.util import unlink_safe, NIX_DIR, mtik_path
+from refresh.util import unlink_safe, NIX_DIR, mtik_path, ROUTERS
 from yaml import safe_load as yaml_load, dump as yaml_dump
 from typing import Any
 
-# TODO: Diff config and restart PowerDNS only if changed (and upload via SFTP ourselves)
-
 INTERNAL_RECORDS = None
-ZONE_DIR = mtik_path("files/pdns")
+ROOTPATH = mtik_path("files/pdns")
 
 def find_record(name: str, type: str) -> dict:
     global INTERNAL_RECORDS
@@ -38,8 +36,7 @@ def refresh_pdns():
 
     bind_conf = []
 
-    print("## Reading recursor-template.conf")
-    with open(path_join(ZONE_DIR, "recursor-template.conf"), "r") as file:
+    with open(path_join(ROOTPATH, "recursor-template.conf"), "r") as file:
         recursor_data = yaml_load(file)
 
     if "recursor" not in recursor_data:
@@ -48,10 +45,9 @@ def refresh_pdns():
     if "forward_zones" not in recursor_data["recursor"]:
         recursor_data["recursor"]["forward_zones"] = []
 
-    print("## Writing zone files")
     for zone in sorted(INTERNAL_RECORDS.keys()):
         records = INTERNAL_RECORDS[zone]
-        zone_file = path_join(ZONE_DIR, f"gen-{zone}.db")
+        zone_file = path_join(ROOTPATH, f"gen-{zone}.db")
 
         lines = []
         if exists(mtik_path(f"files/pdns/{zone}.local.db")):
@@ -86,10 +82,15 @@ def refresh_pdns():
             "forwarders": ["127.0.0.1:530"]
         })
 
-    print("## Writing bind.conf")
-    with open(path_join(ZONE_DIR, "bind.conf"), "w") as file:
+    with open(path_join(ROOTPATH, "bind.conf"), "w") as file:
         file.write("\n".join(bind_conf) + "\n")
 
-    print("## Writing recursor.conf")
-    with open(path_join(ZONE_DIR, "recursor.conf"), "w") as file:
+    with open(path_join(ROOTPATH, "recursor.conf"), "w") as file:
         yaml_dump(recursor_data, file)
+
+    for router in ROUTERS:
+        print(f"## {router.host}")
+        changes = router.sync(ROOTPATH, "/pdns")
+        if changes:
+            print("### Restarting PowerDNS container")
+            router.restartContainer("pdns")

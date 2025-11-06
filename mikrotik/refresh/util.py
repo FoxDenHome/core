@@ -1,13 +1,15 @@
 from os.path import dirname, realpath, join
 from os import unlink
 from dataclasses import dataclass, field
-from subprocess import check_call
+from subprocess import check_call, check_output
 from uuid import uuid4
+from time import sleep
 from routeros_api import RouterOsApiPool
+from routeros_api.exceptions import RouterOsApiCommunicationError
 
 MTIK_DIR = realpath(dirname(__file__) + "/../")
 NIX_DIR = realpath(dirname(__file__) + "/../../nix/")
-
+VLAN_NAMES = ["", "mgmt", "lan", "dmz", "labnet", "security", "hypervisor", "retro"]
 
 def unlink_safe(path: str):
     try:
@@ -18,7 +20,6 @@ def unlink_safe(path: str):
 def mtik_path(path: str) -> str:
     return join(MTIK_DIR, path)
 
-VLAN_NAMES = ["", "mgmt", "lan", "dmz", "labnet", "security", "hypervisor", "retro"]
 def get_ipv4_netname(ip: str) -> str:
     parts = ip.split(".")
     if parts[0] == "10":
@@ -78,15 +79,31 @@ class MTikRouter:
         print("Disabling user", self._username, "on", self.host)
         check_call(["ssh", self.host, f'/user/disable [ find name="{self._username}"]'])
 
+    def sync(self, src: str, dest: str) -> list[str]:
+        result = check_output(["rsync", "--info=NAME", "--checksum", "--recursive", "--delete", "--update", src, f"{self.host}:/data{dest}"])
+        return result.splitlines()
+
+    def restartContainer(self, name: str) -> None:
+        connection = self.connection()
+        api = connection.get_api()
+        containers = api.get_resource("/container")
+        try:
+            containers.call("stop", {"numbers": name})
+        except RouterOsApiCommunicationError:
+            pass
+        while not parse_mtik_bool(containers.get(name=name)[0]["stopped"]):
+            sleep(0.1)
+        containers.call("start", {"numbers": name})
+
+def format_mtik_bool(val: bool) -> str:
+    return "true" if val else "false"
+
 def parse_mtik_bool(val: str | bool) -> bool:
     if val == "true" or val == True:
         return True
     if val == "false" or val == False:
         return False
     raise ValueError(f"Invalid Mikrotik boolean value: {val}")
-
-def format_mtik_bool(val: bool) -> str:
-    return "true" if val else "false"
 
 def is_ipv6(addr: str) -> bool:
     return "." not in addr

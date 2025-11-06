@@ -1,9 +1,9 @@
 from subprocess import check_call
-from refresh.util import unlink_safe, NIX_DIR, mtik_path
+from refresh.util import unlink_safe, NIX_DIR, mtik_path, ROUTERS
+from os import path
 
-# TODO: Diff config and restart HAProxy only if changed (and upload via SFTP ourselves)
-
-FILENAME = mtik_path("files/haproxy/haproxy.cfg")
+ROOTPATH = mtik_path("files/haproxy")
+FILENAME = path.join(ROOTPATH, "haproxy.cfg")
 
 def refresh_haproxy():
     unlink_safe("result")
@@ -15,3 +15,10 @@ def refresh_haproxy():
 
     with open(FILENAME, "w") as out_file:
         out_file.write(config)
+
+    for router in ROUTERS:
+        print(f"## {router.host}")
+        changes = router.sync(ROOTPATH, "/haproxy")
+        if changes:
+            print("### Restarting HAProxy container")
+            router.restartContainer("haproxy")

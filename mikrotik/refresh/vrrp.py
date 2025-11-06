@@ -2,6 +2,7 @@ from refresh.util import MTikScript, ROUTERS
 
 def refresh_vrrp():
     for router in ROUTERS:
+        print(f"## {router.host}")
         router.scripts.add(MTikScript(
             name="onboot-vrrp-config",
             source=
