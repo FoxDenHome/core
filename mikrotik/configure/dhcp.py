@@ -1,6 +1,6 @@
 from subprocess import check_call
 from json import load as json_load
-from refresh.util import unlink_safe, NIX_DIR, get_ipv4_netname, MTikRouter, ROUTERS, parse_mtik_bool, format_mtik_bool, format_weird_mtik_ip
+from configure.util import unlink_safe, NIX_DIR, get_ipv4_netname, MTikRouter, ROUTERS, parse_mtik_bool, format_mtik_bool, format_weird_mtik_ip
 from typing import Any
 
 IGNORE_CHANGES = {"id", "active-server", "active-address", "class-id", "host-name", "active-client-id", "expires-after", "last-seen", "status", "client-address", "active-mac-address", "dynamic", "invalid", "radius", "blocked"}

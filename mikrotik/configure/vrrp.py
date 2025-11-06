@@ -1,4 +1,4 @@
-from refresh.util import MTikScript, ROUTERS
+from configure.util import MTikScript, ROUTERS
 
 def refresh_vrrp():
     for router in ROUTERS:

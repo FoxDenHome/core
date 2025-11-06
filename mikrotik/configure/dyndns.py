@@ -2,7 +2,7 @@ import re
 from subprocess import check_output
 from json import loads as json_loads
 from urllib.parse import parse_qs, urlparse
-from refresh.util import mtik_path, ROUTERS, MTikRouter, MTikScript, format_mtik_bool
+from configure.util import mtik_path, ROUTERS, MTikRouter, MTikScript, format_mtik_bool
 
 MAIN_SCRIPT = "dynamic-ip-update"
 TEMPLATE = mtik_path(f"scripts/templates/{MAIN_SCRIPT}.rsc")

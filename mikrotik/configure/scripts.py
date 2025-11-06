@@ -1,4 +1,4 @@
-from refresh.util import mtik_path, MTikRouter, MTikScript, format_mtik_bool, ROUTERS, parse_mtik_bool
+from configure.util import mtik_path, MTikRouter, MTikScript, format_mtik_bool, ROUTERS, parse_mtik_bool
 from os.path import basename
 from os import listdir
 

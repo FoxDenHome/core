@@ -1,5 +1,5 @@
 from subprocess import check_call
-from refresh.util import unlink_safe, NIX_DIR, mtik_path, ROUTERS
+from configure.util import unlink_safe, NIX_DIR, mtik_path, ROUTERS
 from os import path
 
 ROOTPATH = mtik_path("files/haproxy")

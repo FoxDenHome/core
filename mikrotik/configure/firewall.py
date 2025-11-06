@@ -1,6 +1,6 @@
 from subprocess import check_call
 from json import load as json_load
-from refresh.util import unlink_safe, NIX_DIR, ROUTERS, format_mtik_bool, is_ipv6, format_weird_mtik_ip, MTikRouter
+from configure.util import unlink_safe, NIX_DIR, ROUTERS, format_mtik_bool, is_ipv6, format_weird_mtik_ip, MTikRouter
 from dataclasses import dataclass, field
 from typing import Any
 
