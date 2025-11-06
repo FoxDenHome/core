@@ -1,4 +1,3 @@
-/files/haproxy/haproxy.cfg
 /out
 *.backup
 *-secret.rsc
