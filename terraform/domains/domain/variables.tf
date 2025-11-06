@@ -1,7 +1,3 @@
-variable "zone_id" {
-  type = number
-}
-
 variable "domain" {
   type = string
 }
