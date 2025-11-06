@@ -1,4 +1,4 @@
-{ foxDenLib, ... }:
+{ lib, foxDenLib, ... }:
 let
   baseRule = {
     table = "filter";
@@ -7,7 +7,7 @@ let
   };
 in
 {
-  foxDen.firewall.rules = map (rule: if (foxDenLib.util.isIPv4 rule.source) then [
+  foxDen.firewall.rules = lib.flatten (map (rule: if (foxDenLib.util.isIPv4 rule.source) then [
     (rule // baseRule // {
       destination = "10.99.0.0/16";
     })
@@ -21,5 +21,5 @@ in
     (rule // baseRule // {
       destination = "fd2c:f4cb:63be::ac00:0/104";
     })
-  ]) (foxDenLib.firewall.templates.trusted "s2s-network");
+  ]) (foxDenLib.firewall.templates.trusted "s2s-network"));
 }
