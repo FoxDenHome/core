@@ -7,6 +7,9 @@ from yaml import safe_load as yaml_load, dump as yaml_dump
 from shutil import copytree, rmtree
 from typing import Any
 
+# TODO: redfox/external DynDNS off of the current wireguard remote address
+# TODO: redfox/external rewrite IPv6 subnet to our external subnet
+
 CURRENT_RECORDS = None
 ROOT_PATH = mtik_path("files/pdns")
 OUT_PATH = mtik_path("out/pdns")

@@ -16,6 +16,7 @@ fetch_dnskey() {
     fetch_dnskey_srv "$domain" pns41.cloudns.net 53 || :
     fetch_dnskey_srv "$domain" router.foxden.network 530 || :
     fetch_dnskey_srv "$domain" router-backup.foxden.network 530 || :
+    fetch_dnskey_srv "$domain" redfox.foxden.network 53 || :
 }
 
 fetch_dnskey "$DOMAIN" | jq -R '{dnskeys: [inputs] | tojson}'
