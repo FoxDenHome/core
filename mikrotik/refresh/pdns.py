@@ -1,7 +1,7 @@
 from subprocess import check_call
 from json import load as json_load
 from os.path import join as path_join, exists
-from refresh.util import unlinkSafe, NIX_DIR, makeMTikPath, ROUTERS
+from refresh.util import unlink_safe, NIX_DIR, makeMTikPath, ROUTERS
 from yaml import safe_load as yaml_load, dump as yaml_dump
 from typing import Any
 
@@ -28,11 +28,11 @@ RECORD_TYPE_HANDLERS["ALIAS"] = lambda record: [find_record(record["value"], "A"
 
 def refresh_pdns():
     global INTERNAL_RECORDS
-    unlinkSafe("result")
+    unlink_safe("result")
     check_call(["nix", "build", f"{NIX_DIR}#dns.json"])
     with open("result", "r") as file:
         INTERNAL_RECORDS = json_load(file)["records"]["internal"]
-    unlinkSafe("result")
+    unlink_safe("result")
 
     bind_conf = []
 

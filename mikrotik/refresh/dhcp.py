@@ -1,6 +1,6 @@
 from subprocess import check_call
 from json import load as json_load
-from refresh.util import unlinkSafe, NIX_DIR, getIPv4NetName, MTikRouter, ROUTERS, parseMTikBool, formatMTikBool, formatWeirdMTikIP
+from refresh.util import unlink_safe, NIX_DIR, get_ipv4_netname, MTikRouter, ROUTERS, parseMTikBool, formatMTikBool, formatWeirdMTikIP
 from typing import Any
 
 IGNORE_CHANGES = {"id", "active-server", "active-address", "class-id", "host-name", "active-client-id", "expires-after", "last-seen", "status", "client-address", "active-mac-address", "dynamic", "invalid", "radius", "blocked"}
@@ -24,7 +24,7 @@ def refresh_dhcp_router(dhcp_leases: list[dict[str, Any]], router: MTikRouter) -
         if "ipv4" not in lease:
             raise ValueError(f"Lease {lease} has no IPv4 address")
 
-        netname = getIPv4NetName(lease["ipv4"])
+        netname = get_ipv4_netname(lease["ipv4"])
 
         attribs = {
             "address": formatWeirdMTikIP(lease["ipv4"]),
@@ -147,11 +147,11 @@ def refresh_dhcp_router(dhcp_leases: list[dict[str, Any]], router: MTikRouter) -
             api_dhcpv6.remove(id=binding_id)
 
 def refresh_dhcp() -> None:
-    unlinkSafe("result")
+    unlink_safe("result")
     check_call(["nix", "build", f"{NIX_DIR}#dhcp.json.router"])
     with open("result", "r") as file:
         dhcp_leases = json_load(file)
-    unlinkSafe("result")
+    unlink_safe("result")
 
     for router in ROUTERS:
         refresh_dhcp_router(dhcp_leases, router)
