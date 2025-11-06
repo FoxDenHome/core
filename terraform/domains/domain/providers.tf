@@ -13,7 +13,7 @@ terraform {
       version = "~> 3.2"
     }
     dns-he-net = {
-      source = "SuperBuker/dns-he-net"
+      source  = "SuperBuker/dns-he-net"
       version = "0.1.0"
     }
   }
