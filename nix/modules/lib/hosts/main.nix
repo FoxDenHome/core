@@ -251,7 +251,7 @@ in
         default = {};
       };
       defaultSysctls = nixpkgs.lib.mkOption {
-        type = attrsOf str;
+        type = attrsOf (oneOf str bool int);
         description = ''
           Default sysctl settings to apply to all interfaces.
         '';
