@@ -40,29 +40,33 @@ def refresh_pdns():
         raw_records = json_load(file)["records"]
     unlink_safe("result")
 
+    rmtree(OUT_PATH, ignore_errors=True)
+
     for horizon in ["internal", "external"]:
         bind_conf = []
         CURRENT_RECORDS = raw_records[horizon]
         sub_out_path = horizon_path(horizon)
 
-        rmtree(sub_out_path, ignore_errors=True)
         makedirs(sub_out_path, exist_ok=True)
 
-        with open(path_join(ROOT_PATH, "recursor.conf"), "r") as file:
-            recursor_data = yaml_load(file)
+        has_recursor = exists(path_join(ROOT_PATH, horizon, "recursor.conf"))
 
-        if "recursor" not in recursor_data:
-            recursor_data["recursor"] = {}
+        if has_recursor:
+            with open(path_join(ROOT_PATH, horizon, "recursor.conf"), "r") as file:
+                recursor_data = yaml_load(file)
 
-        if "forward_zones" not in recursor_data["recursor"]:
-            recursor_data["recursor"]["forward_zones"] = []
+            if "recursor" not in recursor_data:
+                recursor_data["recursor"] = {}
+
+            if "forward_zones" not in recursor_data["recursor"]:
+                recursor_data["recursor"]["forward_zones"] = []
 
         for zone in sorted(CURRENT_RECORDS.keys()):
             records = CURRENT_RECORDS[zone]
             zone_file = path_join(sub_out_path, f"gen-{zone}.db")
 
             lines = []
-            if exists(path_join(ROOT_PATH, f"{zone}.local.db")):
+            if exists(path_join(ROOT_PATH, horizon, f"{zone}.local.db")):
                 lines.append(f"$INCLUDE /etc/pdns/{zone}.local.db")
             for record in records:
                 value = record["value"]
@@ -89,18 +93,20 @@ def refresh_pdns():
             bind_conf.append('    file "/etc/pdns/gen-%s.db";' % zone)
             bind_conf.append('};')
 
-            recursor_data["recursor"]["forward_zones"].append({
-                "zone": zone,
-                "forwarders": ["127.0.0.1:530"]
-            })
+            if has_recursor:
+                recursor_data["recursor"]["forward_zones"].append({
+                    "zone": zone,
+                    "forwarders": ["127.0.0.1:530"]
+                })
 
-        copytree(ROOT_PATH, sub_out_path, dirs_exist_ok=True)
+        copytree(path_join(ROOT_PATH, horizon), sub_out_path, dirs_exist_ok=True)
 
         with open(path_join(sub_out_path, "bind.conf"), "w") as file:
             file.write("\n".join(bind_conf) + "\n")
 
-        with open(path_join(sub_out_path, "recursor.conf"), "w") as file:
-            yaml_dump(recursor_data, file)
+        if has_recursor:
+            with open(path_join(sub_out_path, "recursor.conf"), "w") as file:
+                yaml_dump(recursor_data, file)
 
     for router in ROUTERS:
         print(f"## {router.host} / {router.horizon}")
