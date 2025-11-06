@@ -1,6 +1,6 @@
 from subprocess import check_call
 from json import load as json_load
-from refresh.util import unlink_safe, NIX_DIR, get_ipv4_netname, MTikRouter, ROUTERS, parse_mtik_bool, format_mtik_bool, format_weird_mtik_ip
+from refresh.util import unlink_safe, NIX_DIR, get_ipv4_netname, MTikRouter, ROUTERS, parseMTikBool, formatMTikBool, formatWeirdMTikIP
 from typing import Any
 
 IGNORE_CHANGES = {"id", "active-server", "active-address", "class-id", "host-name", "active-client-id", "expires-after", "last-seen", "status", "client-address", "active-mac-address", "dynamic", "invalid", "radius", "blocked"}
@@ -27,14 +27,14 @@ def refresh_dhcp_router(dhcp_leases: list[dict[str, Any]], router: MTikRouter) -
         netname = get_ipv4_netname(lease["ipv4"])
 
         attribs = {
-            "address": format_weird_mtik_ip(lease["ipv4"]),
+            "address": formatWeirdMTikIP(lease["ipv4"]),
             "mac-address": lease["mac"].upper(),
             "comment": lease["name"],
             "lease-time": "1d",
             "dhcp-option": "",
             "address-lists": "",
             "server": f"dhcp-{netname}",
-            "disabled": format_mtik_bool(False),
+            "disabled": formatMTikBool(False),
         }
 
         matches = []
@@ -60,7 +60,7 @@ def refresh_dhcp_router(dhcp_leases: list[dict[str, Any]], router: MTikRouter) -
         if match is None:
             print("Adding new DHCPv4 lease", attribs)
             api_dhcpv4.add(**attribs)
-        elif parse_mtik_bool(match.get("dynamic", "false")):
+        elif parseMTikBool(match.get("dynamic", "false")):
             print("Re-creating new DHCPv4 lease over dynamic", attribs)
             api_dhcpv4.remove(id=match['id'])
             api_dhcpv4.add(**attribs)
@@ -82,7 +82,7 @@ def refresh_dhcp_router(dhcp_leases: list[dict[str, Any]], router: MTikRouter) -
             continue
 
         attribs = {
-            "address": format_weird_mtik_ip(lease["ipv6"]),
+            "address": formatWeirdMTikIP(lease["ipv6"]),
             "duid": lease["dhcpv6"]["duid"].lower(),
             "iaid": str(lease["dhcpv6"]["iaid"]),
             "life-time": "1d",
@@ -92,7 +92,7 @@ def refresh_dhcp_router(dhcp_leases: list[dict[str, Any]], router: MTikRouter) -
             "ia-type": "na",
             "comment": lease["name"],
             "server": f"dhcp-{netname}",
-            "disabled": format_mtik_bool(False),
+            "disabled": formatMTikBool(False),
         }
 
         matches = []
@@ -118,7 +118,7 @@ def refresh_dhcp_router(dhcp_leases: list[dict[str, Any]], router: MTikRouter) -
         if match is None:
             print("Adding new DHCPv6 binding", attribs)
             api_dhcpv6.add(**attribs)
-        elif parse_mtik_bool(match.get("dynamic", "false")):
+        elif parseMTikBool(match.get("dynamic", "false")):
             print("Re-creating new DHCPv6 binding over dynamic", attribs)
             api_dhcpv6.remove(id=match['id'])
             api_dhcpv6.add(**attribs)
@@ -136,13 +136,13 @@ def refresh_dhcp_router(dhcp_leases: list[dict[str, Any]], router: MTikRouter) -
 
     for lease_id in stray_dhcpv4_leases:
         lease = dhcpv4_leases_map[lease_id]
-        if not parse_mtik_bool(lease.get("dynamic", "false")):
+        if not parseMTikBool(lease.get("dynamic", "false")):
             print("Removing stray DHCPv4 lease", lease)
             api_dhcpv4.remove(id=lease_id)
 
     for binding_id in stray_dhcpv6_bindings:
         binding = dhcpv6_bindings_map[binding_id]
-        if not parse_mtik_bool(binding.get("dynamic", "false")):
+        if not parseMTikBool(binding.get("dynamic", "false")):
             print("Removing stray DHCPv6 binding", binding)
             api_dhcpv6.remove(id=binding_id)
 

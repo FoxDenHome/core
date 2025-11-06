@@ -91,26 +91,26 @@ class MTikRouter:
             containers.call("stop", {"numbers": name})
         except RouterOsApiCommunicationError:
             pass
-        while not parse_mtik_bool(containers.get(name=name)[0]["stopped"]):
+        while not parseMTikBool(containers.get(name=name)[0]["stopped"]):
             sleep(0.1)
         containers.call("start", {"numbers": name})
 
-def format_mtik_bool(val: bool) -> str:
+def formatMTikBool(val: bool) -> str:
     return "true" if val else "false"
 
-def parse_mtik_bool(val: str | bool) -> bool:
+def parseMTikBool(val: str | bool) -> bool:
     if val == "true" or val == True:
         return True
     if val == "false" or val == False:
         return False
     raise ValueError(f"Invalid Mikrotik boolean value: {val}")
 
-def is_ipv6(addr: str) -> bool:
+def isIPv6(addr: str) -> bool:
     return "." not in addr
 
-def format_weird_mtik_ip(addr: str) -> str:
+def formatWeirdMTikIP(addr: str) -> str:
     # They want /128 for IPv6 but no CIDR for single-host IPv4
-    if is_ipv6(addr) and "/" not in addr:
+    if isIPv6(addr) and "/" not in addr:
         return addr + "/128"
     else:
         return addr.removesuffix("/32")
