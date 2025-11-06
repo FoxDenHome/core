@@ -589,4 +589,6 @@ def refresh_firewall() -> None:
         rule.attribs["disabled"] = format_mtik_bool(False)
 
     for router in ROUTERS:
+        if router.horizon != "internal":
+            continue
         refresh_firewall_router(firewall_rules, router)

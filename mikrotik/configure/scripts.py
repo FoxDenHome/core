@@ -1,5 +1,5 @@
 from configure.util import mtik_path, MTikRouter, MTikScript, format_mtik_bool, ROUTERS, parse_mtik_bool
-from os.path import basename
+from os.path import basename, join as path_join
 from os import listdir
 
 SCRIPT_DIR = mtik_path("scripts")
@@ -65,8 +65,6 @@ def load_scripts_from_dir(dir_path: str) -> set[MTikScript]:
 
 
 def refresh_script_router(router: MTikRouter, base_scripts: set[MTikScript]) -> None:
-    print(f"## {router.host}")
-
     connection = router.connection()
     api = connection.get_api()
     api_script = api.get_resource("/system/script")
@@ -166,7 +164,11 @@ def refresh_script_router(router: MTikRouter, base_scripts: set[MTikScript]) -> 
         api_scheduler.remove(id=stray_schedule["id"])
 
 def refresh_scripts() -> None:
-    base_scripts = load_scripts_from_dir(SCRIPT_DIR)
+    base_scripts: dict[str, set[MTikScript]] = {}
+    for horizon in ["internal", "external", "all"]:
+        dir_path = path_join(SCRIPT_DIR, horizon)
+        base_scripts[horizon] = load_scripts_from_dir(dir_path)
 
     for router in ROUTERS:
-        refresh_script_router(router, base_scripts)
+        print(f"## {router.host} / {router.horizon}")
+        refresh_script_router(router, base_scripts[router.horizon] | base_scripts["all"])

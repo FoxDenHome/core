@@ -43,6 +43,7 @@ class MTikRouter:
     vrrp_priority_online: int
     vrrp_priority_offline: int
     dyndns_suffix_ipv6: str
+    horizon: str
     scripts: set[MTikScript] = field(default_factory=set)
 
     _connection_cache: RouterOsApiPool | None = None
@@ -116,6 +117,7 @@ def format_weird_mtik_ip(addr: str) -> str:
         return addr.removesuffix("/32")
 
 ROUTERS = [
-    MTikRouter(host="router.foxden.network", vrrp_priority_online=50, vrrp_priority_offline=10, dyndns_suffix_ipv6="::1"),
-    MTikRouter(host="router-backup.foxden.network", vrrp_priority_online=25, vrrp_priority_offline=5, dyndns_suffix_ipv6="::2"),
+    MTikRouter(host="router.foxden.network", horizon="internal", vrrp_priority_online=50, vrrp_priority_offline=10, dyndns_suffix_ipv6="::1"),
+    MTikRouter(host="router-backup.foxden.network", horizon="internal", vrrp_priority_online=25, vrrp_priority_offline=5, dyndns_suffix_ipv6="::2"),
+    MTikRouter(host="redfox.foxden.network", horizon="external", vrrp_priority_online=0, vrrp_priority_offline=0, dyndns_suffix_ipv6=""),
 ]

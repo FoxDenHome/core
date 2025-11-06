@@ -21,6 +21,8 @@ def refresh_haproxy():
         out_file.write(config)
 
     for router in ROUTERS:
+        if router.horizon != "internal":
+            continue
         print(f"## {router.host}")
         changes = router.sync(OUT_PATH, "/haproxy")
         if changes:

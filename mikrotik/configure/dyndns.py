@@ -109,6 +109,8 @@ def make_local_onboot(router: MTikRouter) -> None:
 def refresh_dyndns():
     main_script = make_dyndns_script()
     for router in ROUTERS:
+        if router.horizon != "internal":
+            continue
         print(f"## {router.host}")
         router.scripts.add(main_script)
         make_local_onboot(router)

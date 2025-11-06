@@ -1,5 +1,6 @@
 # dont-require-permissions=true
 # policy=read,write,policy,test
+# run-on-change=true
 # schedule=startup
 
 :global logputdebug do={

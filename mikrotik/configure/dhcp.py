@@ -154,4 +154,6 @@ def refresh_dhcp() -> None:
     unlink_safe("result")
 
     for router in ROUTERS:
+        if router.horizon != "internal":
+            continue
         refresh_dhcp_router(dhcp_leases, router)
