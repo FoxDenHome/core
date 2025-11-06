@@ -1,6 +1,6 @@
 from subprocess import check_call
 from json import load as json_load
-from refresh.util import unlink_safe, NIX_DIR, ROUTERS, formatMTikBool, isIPv6, formatWeirdMTikIP, MTikRouter
+from refresh.util import unlink_safe, NIX_DIR, ROUTERS, format_mtik_bool, is_ipv6, format_weird_mtik_ip, MTikRouter
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -33,7 +33,7 @@ DEFAULT_RULES_HEAD: list[FirewallRule] = [
             "chain": "forward",
             "comment": "related, established",
             "connection-state": "established,related",
-            "hw-offload": formatMTikBool(True),
+            "hw-offload": format_mtik_bool(True),
         },
     ),
     FirewallRule(
@@ -490,7 +490,7 @@ def refresh_firewall_router(firewall_rules: list[FirewallRule], router: MTikRout
             key = f"/{family}/firewall/{rule.table}"
             if key not in resources:
                 resources[key] = api.get_resource(f"/{family}/firewall/{rule.table}")
-                deployed_rules[key] = resources[key].get(dynamic=formatMTikBool(False))
+                deployed_rules[key] = resources[key].get(dynamic=format_mtik_bool(False))
                 sent_rule_counts[key] = 0
 
             api_rule = resources[key]
@@ -538,7 +538,7 @@ def refresh_firewall() -> None:
     for rule in raw_firewall_rules:
         addr = rule.get("source", rule.get("destination", rule.get("toAddresses", None)))
         if addr is not None:
-            families = ["ipv6" if isIPv6(addr) else "ip"]
+            families = ["ipv6" if is_ipv6(addr) else "ip"]
         else:
             families = ["ip", "ipv6"]
 
@@ -575,7 +575,7 @@ def refresh_firewall() -> None:
             for field in {"src-address", "dst-address"}:
                 if field not in attribs:
                     continue
-                attribs[field] = formatWeirdMTikIP(attribs[field])
+                attribs[field] = format_weird_mtik_ip(attribs[field])
 
         firewall_rules.append(FirewallRule(
             families=families,
@@ -586,7 +586,7 @@ def refresh_firewall() -> None:
 
     firewall_rules = DEFAULT_RULES_HEAD + firewall_rules + DEFAULT_RULES_TAIL
     for rule in firewall_rules:
-        rule.attribs["disabled"] = formatMTikBool(False)
+        rule.attribs["disabled"] = format_mtik_bool(False)
 
     for router in ROUTERS:
         refresh_firewall_router(firewall_rules, router)

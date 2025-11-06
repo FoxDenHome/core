@@ -1,4 +1,4 @@
-from refresh.util import mtik_path, MTikRouter, MTikScript, formatMTikBool, ROUTERS, parseMTikBool
+from refresh.util import mtik_path, MTikRouter, MTikScript, format_mtik_bool, ROUTERS, parse_mtik_bool
 from os.path import basename
 from os import listdir
 
@@ -34,11 +34,11 @@ def load_from_file(file_path: str) -> MTikScript:
         value = spl[1].strip()
 
         if key == "dont-require-permissions":
-            dontRequirePermissions = parseMTikBool(value)
+            dontRequirePermissions = parse_mtik_bool(value)
         elif key == "policy":
             policy = value
         elif key == "run-on-change":
-            runOnChange = parseMTikBool(value)
+            runOnChange = parse_mtik_bool(value)
         elif key == "schedule":
             schedule = value
 
@@ -86,7 +86,7 @@ def refresh_script_router(router: MTikRouter, base_scripts: set[MTikScript]) -> 
             "name": script.name,
             "source": script.source,
             "policy": script.policy,
-            "dont-require-permissions": formatMTikBool(script.dontRequirePermissions),
+            "dont-require-permissions": format_mtik_bool(script.dontRequirePermissions),
         }
         needs_run = False
 
@@ -120,7 +120,7 @@ def refresh_script_router(router: MTikRouter, base_scripts: set[MTikScript]) -> 
             attribs = {
                 "name": script.name,
                 "on-event": f"/system/script/run {script.name}",
-                "disabled": formatMTikBool(False),
+                "disabled": format_mtik_bool(False),
                 "policy": script.policy,
             }
             if script.schedule == "startup":
