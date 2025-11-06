@@ -103,7 +103,7 @@ def parse_mtik_bool(val: str | bool) -> bool:
         return True
     if val == "false" or val == False:
         return False
-    raise ValueError(f"Invalid Mikrotik boolean value: {val}")
+    raise ValueError(f"Invalid MTik boolean value: {val}")
 
 def is_ipv6(addr: str) -> bool:
     return "." not in addr
