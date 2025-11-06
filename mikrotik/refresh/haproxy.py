@@ -1,12 +1,12 @@
 from subprocess import check_call
-from refresh.util import unlink_safe, NIX_DIR, makeMTikPath, ROUTERS
+from refresh.util import unlinkSafe, NIX_DIR, makeMTikPath, ROUTERS
 from os import path
 
 ROOTPATH = makeMTikPath("files/haproxy")
 FILENAME = path.join(ROOTPATH, "haproxy.cfg")
 
 def refresh_haproxy():
-    unlink_safe("result")
+    unlinkSafe("result")
     check_call(["nix", "build", f"{NIX_DIR}#haproxy.text.router"])
     with open("result", "r") as file:
         config = file.read()

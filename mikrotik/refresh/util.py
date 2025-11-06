@@ -11,7 +11,7 @@ MTIK_DIR = realpath(dirname(__file__) + "/../")
 NIX_DIR = realpath(dirname(__file__) + "/../../nix/")
 VLAN_NAMES = ["", "mgmt", "lan", "dmz", "labnet", "security", "hypervisor", "retro"]
 
-def unlink_safe(path: str):
+def unlinkSafe(path: str):
     try:
         unlink(path)
     except FileNotFoundError:
@@ -20,7 +20,7 @@ def unlink_safe(path: str):
 def makeMTikPath(path: str) -> str:
     return join(MTIK_DIR, path)
 
-def get_ipv4_netname(ip: str) -> str:
+def getIPv4NetName(ip: str) -> str:
     parts = ip.split(".")
     if parts[0] == "10":
         return VLAN_NAMES[int(parts[1])]

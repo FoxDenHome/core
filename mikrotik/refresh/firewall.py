@@ -1,6 +1,6 @@
 from subprocess import check_call
 from json import load as json_load
-from refresh.util import unlink_safe, NIX_DIR, ROUTERS, formatMTikBool, isIPv6, formatWeirdMTikIP, MTikRouter
+from refresh.util import unlinkSafe, NIX_DIR, ROUTERS, formatMTikBool, isIPv6, formatWeirdMTikIP, MTikRouter
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -527,11 +527,11 @@ def refresh_firewall_router(firewall_rules: list[FirewallRule], router: MTikRout
             api_rule.remove(id=dr['id'])
 
 def refresh_firewall() -> None:
-    unlink_safe("result")
+    unlinkSafe("result")
     check_call(["nix", "build", f"{NIX_DIR}#firewall.json.router"])
     with open("result", "r") as file:
         raw_firewall_rules = json_load(file)
-    unlink_safe("result")
+    unlinkSafe("result")
 
     firewall_rules = []
 
