@@ -6,8 +6,8 @@ def refresh_vrrp():
         router.scripts.add(MTikScript(
             name="onboot-vrrp-config",
             source=
-                f":global VRRPPriorityOnline {router.vrrpPriorityOnline}\n" +
-                f":global VRRPPriorityOffline {router.vrrpPriorityOffline}\n",
-            runOnChange=True,
+                f":global VRRPPriorityOnline {router.vrrp_priority_online}\n" +
+                f":global VRRPPriorityOffline {router.vrrp_priority_offline}\n",
+            run_on_change=True,
             schedule="startup",
         ))

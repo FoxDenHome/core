@@ -33,24 +33,24 @@ class MTikScript:
     name: str
     source: str
     policy: str = "read,write,policy,test"
-    dontRequirePermissions: bool = True
+    dont_require_permissions: bool = True
     schedule: str | None = None
-    runOnChange: bool = False
+    run_on_change: bool = False
 
 @dataclass(kw_only=True)
 class MTikRouter:
     host: str
-    vrrpPriorityOnline: int
-    vrrpPriorityOffline: int
-    dynDNSSuffix6: str
+    vrrp_priority_online: int
+    vrrp_priority_offline: int
+    dyndns_suffix_ipv6: str
     scripts: set[MTikScript] = field(default_factory=set)
 
-    _connectionCache: RouterOsApiPool | None = None
+    _connection_cache: RouterOsApiPool | None = None
     _username: str = "refresh-py"
     _password: str | None = None
 
     def connection(self) -> RouterOsApiPool:
-        if self._connectionCache is None:
+        if self._connection_cache is None:
             pool = RouterOsApiPool(
                 self.host,
                 username=self._username,
@@ -58,10 +58,10 @@ class MTikRouter:
                 use_ssl=True,
                 plaintext_login=True,
             )
-            self._connectionCache = pool
-        return self._connectionCache
+            self._connection_cache = pool
+        return self._connection_cache
 
-    def ensureUser(self) -> None:
+    def ensure_user(self) -> None:
         self._password = str(uuid4())
         print("Ensuring user", self._username, "on", self.host)
         cmd = f"""
@@ -75,7 +75,7 @@ class MTikRouter:
         """
         check_call(["ssh", self.host, cmd.replace("\n", "")])
 
-    def disableUser(self) -> None:
+    def disable_user(self) -> None:
         print("Disabling user", self._username, "on", self.host)
         check_call(["ssh", self.host, f'/user/disable [ find name="{self._username}"]'])
 
@@ -83,7 +83,7 @@ class MTikRouter:
         result = check_output(["rsync", "--info=NAME", "--checksum", "--recursive", "--delete", "--update", src, f"{self.host}:/data{dest}"])
         return result.splitlines()
 
-    def restartContainer(self, name: str) -> None:
+    def restart_container(self, name: str) -> None:
         connection = self.connection()
         api = connection.get_api()
         containers = api.get_resource("/container")
@@ -116,6 +116,6 @@ def format_weird_mtik_ip(addr: str) -> str:
         return addr.removesuffix("/32")
 
 ROUTERS = [
-    MTikRouter(host="router.foxden.network", vrrpPriorityOnline=50, vrrpPriorityOffline=10, dynDNSSuffix6="::1"),
-    MTikRouter(host="router-backup.foxden.network", vrrpPriorityOnline=25, vrrpPriorityOffline=5, dynDNSSuffix6="::2"),
+    MTikRouter(host="router.foxden.network", vrrp_priority_online=50, vrrp_priority_offline=10, dyndns_suffix_ipv6="::1"),
+    MTikRouter(host="router-backup.foxden.network", vrrp_priority_online=25, vrrp_priority_offline=5, dyndns_suffix_ipv6="::2"),
 ]

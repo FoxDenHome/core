@@ -93,4 +93,4 @@ def refresh_pdns():
         changes = router.sync(ROOTPATH, "/pdns")
         if changes:
             print("### Restarting PowerDNS container")
-            router.restartContainer("pdns")
+            router.restart_container("pdns")

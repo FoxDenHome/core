@@ -16,8 +16,8 @@ def load_from_file(file_path: str) -> MTikScript:
     script_name = basename(file_path).rsplit(".", 1)[0]
 
     policy = DEFAULT_SCRIPT.policy
-    dontRequirePermissions = DEFAULT_SCRIPT.dontRequirePermissions
-    runOnChange = DEFAULT_SCRIPT.runOnChange
+    dontRequirePermissions = DEFAULT_SCRIPT.dont_require_permissions
+    runOnChange = DEFAULT_SCRIPT.run_on_change
     schedule = DEFAULT_SCRIPT.schedule
 
     for line in source.splitlines():
@@ -46,8 +46,8 @@ def load_from_file(file_path: str) -> MTikScript:
         name=script_name,
         source=source,
         policy=policy,
-        dontRequirePermissions=dontRequirePermissions,
-        runOnChange=runOnChange,
+        dont_require_permissions=dontRequirePermissions,
+        run_on_change=runOnChange,
         schedule=schedule,
     )
 
@@ -86,7 +86,7 @@ def refresh_script_router(router: MTikRouter, base_scripts: set[MTikScript]) -> 
             "name": script.name,
             "source": script.source,
             "policy": script.policy,
-            "dont-require-permissions": format_mtik_bool(script.dontRequirePermissions),
+            "dont-require-permissions": format_mtik_bool(script.dont_require_permissions),
         }
         needs_run = False
 
@@ -94,7 +94,7 @@ def refresh_script_router(router: MTikRouter, base_scripts: set[MTikScript]) -> 
         if existing_script is None:
             print("Creating script", script.name)
             api_script.add(**attribs)
-            needs_run = script.runOnChange
+            needs_run = script.run_on_change
         else:
             current_script = existing_script
             all_keys = set(current_script.keys()).union(set(attribs.keys()))
@@ -108,7 +108,7 @@ def refresh_script_router(router: MTikRouter, base_scripts: set[MTikScript]) -> 
 
                 print("Updating script", script.name)
                 api_script.set(id=current_script["id"], **attribs)
-                needs_run = script.runOnChange
+                needs_run = script.run_on_change
                 break
 
         stray_scripts.discard(script.name)

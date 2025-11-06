@@ -14,12 +14,12 @@ from contextlib import contextmanager
 def mtik_router_admin():
     try:
         for router in ROUTERS:
-            router.ensureUser()
+            router.ensure_user()
         yield True
     finally:
         for router in ROUTERS:
             try:
-                router.disableUser()
+                router.disable_user()
             except Exception as e:
                 print("Failed to disable user on", router, "with error", e)
 

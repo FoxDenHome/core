@@ -91,7 +91,7 @@ def make_local_onboot(router: MTikRouter) -> None:
 
     result: list[str] = []
 
-    result.append(f":global DynDNSSuffix6 \"{router.dynDNSSuffix6}\"")
+    result.append(f":global DynDNSSuffix6 \"{router.dyndns_suffix_ipv6}\"")
     result.append(f":global DynDNSHost \"{host}\"")
     result.append(f":global DynDNSKey \"{get_dyndns_key(host, 'A')}\"")
     result.append(f":global DynDNSKey6 \"{get_dyndns_key(host, 'AAAA')}\"")
@@ -101,7 +101,7 @@ def make_local_onboot(router: MTikRouter) -> None:
     script = MTikScript(
         name="onboot-dyndns-config",
         source="\n".join(result),
-        runOnChange=True,
+        run_on_change=True,
         schedule="startup",
     )
     router.scripts.add(script)
