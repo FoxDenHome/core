@@ -92,7 +92,7 @@ def refresh_script_router(router: MTikRouter, base_scripts: set[MTikScript]) -> 
 
         existing_script = existing_scripts_map.get(script.name)
         if existing_script is None:
-            print("Creating script", script.name)
+            print("### Creating script", script.name)
             api_script.add(**attribs)
             needs_run = script.run_on_change
         else:
@@ -132,7 +132,7 @@ def refresh_script_router(router: MTikRouter, base_scripts: set[MTikScript]) -> 
 
             existing_schedule = existing_schedules_map.get(script.name)
             if existing_schedule is None:
-                print("Creating schedule", script.name)
+                print("### Creating schedule", script.name)
                 api_scheduler.add(**attribs)
             else:
                 current_schedule = existing_schedule
