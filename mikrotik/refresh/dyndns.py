@@ -2,10 +2,10 @@ import re
 from subprocess import check_output
 from json import loads as json_loads
 from urllib.parse import parse_qs, urlparse
-from refresh.util import makeMTikPath, ROUTERS, MTikRouter, MTikScript, formatMTikBool
+from refresh.util import mtik_path, ROUTERS, MTikRouter, MTikScript, formatMTikBool
 
 MAIN_SCRIPT = "dynamic-ip-update"
-TEMPLATE = makeMTikPath(f"scripts/templates/{MAIN_SCRIPT}.rsc")
+TEMPLATE = mtik_path(f"scripts/templates/{MAIN_SCRIPT}.rsc")
 
 router_hosts = [router.host for router in ROUTERS]
 SPECIAL_HOSTS = router_hosts + [f"v4-{router}" for router in router_hosts]

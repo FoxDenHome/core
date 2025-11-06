@@ -17,7 +17,7 @@ def unlink_safe(path: str):
     except FileNotFoundError:
         pass
 
-def makeMTikPath(path: str) -> str:
+def mtik_path(path: str) -> str:
     return join(MTIK_DIR, path)
 
 def get_ipv4_netname(ip: str) -> str:

@@ -1,8 +1,8 @@
 from subprocess import check_call
-from refresh.util import unlink_safe, NIX_DIR, makeMTikPath, ROUTERS
+from refresh.util import unlink_safe, NIX_DIR, mtik_path, ROUTERS
 from os import path
 
-ROOTPATH = makeMTikPath("files/haproxy")
+ROOTPATH = mtik_path("files/haproxy")
 FILENAME = path.join(ROOTPATH, "haproxy.cfg")
 
 def refresh_haproxy():
