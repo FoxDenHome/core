@@ -162,3 +162,7 @@ def refresh_pdns():
         if changes and changes != ["soa.db"]:
             print("### Restarting PowerDNS container", changes)
             router.restart_container("pdns")
+
+        for zone in sorted(CURRENT_RECORDS.keys()):
+            print("### Securing zone", zone)
+            router.run_in_container("pdns", "pdnsutil secure-zone \'" + zone + "\'")

@@ -84,6 +84,12 @@ class MTikRouter:
         result = check_output(["rsync", "--info=NAME", "--exclude=.type", "--checksum", "--recursive", "--delete", "--update", f"{src}/", f"{self.host}:/data{dest}/"], encoding="utf-8")
         return result.splitlines()
 
+    def run_in_container(self, name: str, command: str) -> None:
+        connection = self.connection()
+        api = connection.get_api()
+        containers = api.get_resource("/container")
+        containers.call("shell", {"number": name, "cmd": command, "no-sh": format_mtik_bool(True)})
+
     def restart_container(self, name: str) -> None:
         connection = self.connection()
         api = connection.get_api()
@@ -95,6 +101,8 @@ class MTikRouter:
         while not parse_mtik_bool(containers.get(name=name)[0]["stopped"]):
             sleep(0.1)
         containers.call("start", {"numbers": name})
+        while not parse_mtik_bool(containers.get(name=name)[0]["running"]):
+            sleep(0.1)
 
 def format_mtik_bool(val: bool) -> str:
     return "true" if val else "false"
