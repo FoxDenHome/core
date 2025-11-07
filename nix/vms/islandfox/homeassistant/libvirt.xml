@@ -10,7 +10,6 @@
       <feature enabled='no' name='enrolled-keys'/>
       <feature enabled='no' name='secure-boot'/>
     </firmware>
-    <boot dev='hd'/>
   </os>
   <features>
     <acpi/>
@@ -35,7 +34,15 @@
       <driver name='qemu' type='qcow2' cache='none' io='native' discard='unmap'/>
       <source file='/var/lib/libvirt/images/homeassistant.qcow2'/>
       <target dev='sda' bus='scsi'/>
+      <boot order='1'/>
       <address type='drive' controller='0' bus='0' target='0' unit='0'/>
+    </disk>
+    <disk type='file' device='cdrom'>
+      <driver name='qemu' type='raw'/>
+      <target dev='sdb' bus='sata'/>
+      <readonly/>
+      <boot order='2'/>
+      <address type='drive' controller='0' bus='0' target='0' unit='1'/>
     </disk>
     <controller type='scsi' index='0' model='virtio-scsi'>
       <address type='pci' domain='0x0000' bus='0x00' slot='0x03' function='0x0'/>
