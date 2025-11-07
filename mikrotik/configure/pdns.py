@@ -8,10 +8,7 @@ from shutil import copytree, rmtree
 from typing import Any
 from time import time
 
-# TODO: redfox/external DynDNS off of the current wireguard remote address
-# TODO: redfox/external rewrite IPv6 subnet to our external subnet
-# TODO: Regenerate SOA record to update serial
-# TODO: Auto-enable DNSSEC
+# TODO: redfox/external DynDNS off of the current wireguard remote address, increment SOA serial when we do; must be script on redfox
 
 CURRENT_RECORDS = None
 ROOT_PATH = mtik_path("files/pdns")
