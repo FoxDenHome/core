@@ -29,4 +29,4 @@ scrape_configs:
 
   - job_name: haproxy
     static_configs:
-      - targets: ['haproxy.foxden.network:9001', 'haproxy-backup.foxden.network:9001', 'icefox-haproxy.foxden.network:9001']
+      - targets: ['wan.foxden.network:9001', 'wan-backup.foxden.network:9001', 'icefox-haproxy.foxden.network:9001']

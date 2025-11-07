@@ -58,28 +58,28 @@ in
       horizon = "external";
     }
     {
-      name = "haproxy.foxden.network";
+      name = "wan.foxden.network";
       type = "CNAME";
       ttl = 3600;
-      value = "wan.foxden.network.";
+      value = "router.foxden.network.";
       horizon = "external";
     }
     {
-      name = "haproxy-backup.foxden.network";
+      name = "wan-backup.foxden.network";
       type = "CNAME";
       ttl = 3600;
-      value = "wan.foxden.network.";
+      value = "router-backup.foxden.network.";
       horizon = "external";
     }
     {
-      name = "haproxy.foxden.network";
+      name = "wan.foxden.network";
       type = "A";
       ttl = 3600;
       value = "10.2.6.1";
       horizon = "internal";
     }
     {
-      name = "haproxy-backup.foxden.network";
+      name = "wan-backup.foxden.network";
       type = "A";
       ttl = 3600;
       value = "10.2.6.2";
@@ -100,7 +100,6 @@ in
       horizon = "internal";
     }
   ]
-  ++ (mkWanRecs "wan" "10.2.0.1" "fd2c:f4cb:63be:2::1")
   ++ (mkWanRecs "router" "10.2.1.1" "fd2c:f4cb:63be:2::101")
   ++ (mkWanRecs "router-backup" "10.2.1.2" "fd2c:f4cb:63be:2::102");
 }

@@ -168,7 +168,6 @@ DEFAULT_RULES_HEAD: list[FirewallRule] = [
             "dst-address": "10.2.6.0/24",
             "jump-target": "port-forward",
         },
-        ignoreChanges={"dst-address"},
     ),
     FirewallRule(
         families=["ip"],
@@ -215,6 +214,18 @@ DEFAULT_RULES_HEAD: list[FirewallRule] = [
             "dst-port": "53,530",
             "protocol": "udp",
             "to-addresses": "172.17.2.2",
+        },
+    ),
+    FirewallRule(
+        families=["ip"],
+        table="nat",
+        attribs={
+            "action": "dst-nat",
+            "chain": "local-port-forward",
+            "comment": "HAProxy TCP (Priv)",
+            "dst-port": "9001",
+            "protocol": "tcp",
+            "to-addresses": "172.17.0.2",
         },
     ),
     FirewallRule(
@@ -290,6 +301,18 @@ DEFAULT_RULES_HEAD: list[FirewallRule] = [
             "dst-port": "53,530",
             "protocol": "udp",
             "to-address": "fd2c:f4cb:63be::ac11:202/128",
+        },
+    ),
+    FirewallRule(
+        families=["ipv6"],
+        table="nat",
+        attribs={
+            "action": "dst-nat",
+            "chain": "local-port-forward",
+            "comment": "HAProxy TCP (Priv)",
+            "dst-port": "9001",
+            "protocol": "tcp",
+            "to-address": "fd2c:f4cb:63be::ac11:2/128",
         },
     ),
 ]
