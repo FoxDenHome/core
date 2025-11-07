@@ -80,7 +80,7 @@ def refresh_pdns():
         wan_ipv6s[router.host] = ipv6_addresses[0]["address"].split("/")[0]
 
     for horizon in ["internal", "external"]:
-        zone_type = "native" if horizon == "internal" else "master"
+        zone_type = "native" if horizon == "internal" else "primary"
 
         bind_conf = []
         CURRENT_RECORDS = raw_records[horizon]
@@ -105,7 +105,11 @@ def refresh_pdns():
             records = CURRENT_RECORDS[zone]
             zone_file = path_join(sub_out_path, f"gen-{zone}.db")
 
-            lines = ["$INCLUDE /etc/pdns/base-rendered.db"]
+            lines = [
+                "$INCLUDE /etc/pdns/base-rendered.db",
+                f"$INCLUDE /etc/pdns/dyndns-{zone}.txt"
+            ]
+            lines_dyndns = []
             if exists(path_join(ROOT_PATH, horizon, f"{zone}.local.db")):
                 lines.append(f"$INCLUDE /etc/pdns/{zone}.local.db")
             for record in records:
@@ -113,7 +117,10 @@ def refresh_pdns():
                 rec_type_spl = record["type"].upper().split(" ")
                 rec_type = rec_type_spl[0]
 
+                use_lines = lines
+
                 if record.get("dynDns", False):
+                    use_lines = lines_dyndns
                     if rec_type == "A":
                         if value == "10.2.1.2":
                             value = wan_ipv4s["router-backup.foxden.network"]
@@ -132,12 +139,15 @@ def refresh_pdns():
                     value = [value]
                 for val in value:
                     if isinstance(val, dict):
-                        lines.append(f"{record['name']} {record['ttl']} IN {val['type']} {val['value']}")
+                        use_lines.append(f"{record['name']} {record['ttl']} IN {val['type']} {val['value']}")
                     else:
-                        lines.append(f"{record['name']} {record['ttl']} IN {record['type']} {val}")
-            data = "\n".join(sorted(list(set(lines)))) + "\n"
+                        use_lines.append(f"{record['name']} {record['ttl']} IN {record['type']} {val}")
 
+            data = "\n".join(sorted(list(set(lines)))) + "\n"
             with open(zone_file, "w") as file:
+                file.write(data)
+            data = "\n".join(sorted(list(set(lines_dyndns)))) + "\n"
+            with open(path_join(sub_out_path, f"dyndns-{zone}.txt"), "w") as file:
                 file.write(data)
 
             bind_conf.append('zone "%s" IN {' % zone)
