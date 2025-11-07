@@ -164,6 +164,18 @@ DEFAULT_RULES_HEAD: list[FirewallRule] = [
         attribs={
             "action": "jump",
             "chain": "dstnat",
+            "comment": "Local faux external ingress",
+            "dst-address": "10.2.6.0/24",
+            "jump-target": "port-forward",
+        },
+        ignoreChanges={"dst-address"},
+    ),
+    FirewallRule(
+        families=["ip"],
+        table="nat",
+        attribs={
+            "action": "jump",
+            "chain": "dstnat",
             "comment": "External",
             "in-interface-list": "zone-wan",
             "jump-target": "port-forward",
