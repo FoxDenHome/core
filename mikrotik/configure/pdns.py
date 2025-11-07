@@ -6,6 +6,7 @@ from configure.util import unlink_safe, NIX_DIR, mtik_path, ROUTERS
 from yaml import safe_load as yaml_load, dump as yaml_dump
 from shutil import copytree, rmtree
 from typing import Any
+from time import time
 
 # TODO: redfox/external DynDNS off of the current wireguard remote address
 # TODO: redfox/external rewrite IPv6 subnet to our external subnet
@@ -78,6 +79,7 @@ def refresh_pdns():
         sub_out_path = horizon_path(horizon)
 
         makedirs(sub_out_path, exist_ok=True)
+        copytree(path_join(ROOT_PATH, horizon), sub_out_path, dirs_exist_ok=True)
 
         has_recursor = exists(path_join(ROOT_PATH, horizon, "recursor.conf"))
 
@@ -95,7 +97,7 @@ def refresh_pdns():
             records = CURRENT_RECORDS[zone]
             zone_file = path_join(sub_out_path, f"gen-{zone}.db")
 
-            lines = []
+            lines = ["$INCLUDE /etc/pdns/soa.db"]
             if exists(path_join(ROOT_PATH, horizon, f"{zone}.local.db")):
                 lines.append(f"$INCLUDE /etc/pdns/{zone}.local.db")
             for record in records:
@@ -141,7 +143,11 @@ def refresh_pdns():
                     "forwarders": ["127.0.0.1:530"]
                 })
 
-        copytree(path_join(ROOT_PATH, horizon), sub_out_path, dirs_exist_ok=True)
+        with open(path_join(sub_out_path, "soa.db"), "r") as file:
+            soa_db = file.read()
+        soa_db = soa_db.replace("1111111111", str(int(time())))
+        with open(path_join(sub_out_path, "soa.db"), "w") as file:
+            file.write(soa_db)
 
         with open(path_join(sub_out_path, "bind.conf"), "w") as file:
             file.write("\n".join(bind_conf) + "\n")
@@ -153,6 +159,6 @@ def refresh_pdns():
     for router in ROUTERS:
         print(f"## {router.host} / {router.horizon}")
         changes = router.sync(horizon_path(router.horizon), "/pdns")
-        if changes:
+        if changes and changes != ["soa.db"]:
             print("### Restarting PowerDNS container", changes)
             router.restart_container("pdns")

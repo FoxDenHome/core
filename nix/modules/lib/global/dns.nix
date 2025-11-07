@@ -1,10 +1,7 @@
-{ nixpkgs, foxDenLib, flakeInputs, ... }:
+{ nixpkgs, foxDenLib, ... }:
 let
   lib = nixpkgs.lib;
   globalConfig = foxDenLib.global.config;
-
-  # This is 10 digits long, the exact length we need!
-  dnsSerial = builtins.toString flakeInputs.self.lastModified;
 
   dnsRecordType = with lib.types; submodule {
     options = {
@@ -158,17 +155,7 @@ let
       value = "10.2.0.53";
       horizon = "internal";
     }
-  ]) (nixpkgs.lib.lists.length authorities.default.nameservers)) else [])) ++ (
-    [
-      {
-        inherit name;
-        ttl = 86400;
-        type = "SOA";
-        value = "${builtins.elemAt authorities.${zone.nameservers}.nameservers 0} ${lib.replaceString "@" "." authorities.${zone.nameservers}.admin}. ${dnsSerial} 7200 1800 1209600 3600";
-        horizon = "*";
-      }
-    ]
-  );
+  ]) (nixpkgs.lib.lists.length authorities.default.nameservers)) else []));
 in
 {
   nixosModule = { config, ... }: {

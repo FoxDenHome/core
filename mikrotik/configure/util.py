@@ -81,7 +81,7 @@ class MTikRouter:
         check_call(["ssh", self.host, f'/user/disable [ find name="{self._username}"]'])
 
     def sync(self, src: str, dest: str) -> list[str]:
-        result = check_output(["rsync", "--info=NAME", "--exclude=.type", "--checksum", "--recursive", "--delete", "--update", f"{src}/", f"{self.host}:/data{dest}/"])
+        result = check_output(["rsync", "--info=NAME", "--exclude=.type", "--checksum", "--recursive", "--delete", "--update", f"{src}/", f"{self.host}:/data{dest}/"], encoding="utf-8")
         return result.splitlines()
 
     def restart_container(self, name: str) -> None:

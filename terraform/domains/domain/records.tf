@@ -8,11 +8,10 @@ locals {
 
   record_map = zipmap([for r in local.records_ext : "${r.type};${r.name};${r.value}"], local.records_ext)
 
-  static_hosts = { for name, record in local.record_map : name => record if !record.dynDns && !contains(local.ignore_record_types, record.type) }
-  dyndns_hosts = { for name, record in local.record_map : name => record if record.dynDns && !contains(local.ignore_record_types, record.type) }
+  static_hosts = { for name, record in local.record_map : name => record if !record.dynDns }
+  dyndns_hosts = { for name, record in local.record_map : name => record if record.dynDns }
 
   dotname_refer_types = toset(["CNAME", "ALIAS", "NS", "SRV", "MX"])
-  ignore_record_types = toset(["SOA"])
 
   dyndns_value_map = {
     A    = "127.0.0.1"
