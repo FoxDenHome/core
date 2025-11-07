@@ -223,7 +223,7 @@ DEFAULT_RULES_HEAD: list[FirewallRule] = [
         table="nat",
         attribs={
             "action": "dst-nat",
-            "chain": "local-port-forward",
+            "chain": "port-forward",
             "comment": "HAProxy TCP (Pub)",
             "dst-port": "80,443",
             "protocol": "tcp",
