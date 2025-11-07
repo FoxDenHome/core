@@ -164,5 +164,4 @@ def refresh_pdns():
             router.restart_container("pdns")
 
         for zone in sorted(CURRENT_RECORDS.keys()):
-            print("### Securing zone", zone)
             router.run_in_container("pdns", "pdnsutil secure-zone \'" + zone + "\'")
