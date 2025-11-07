@@ -56,17 +56,14 @@ def refresh_pdns():
 
     bind_conf = []
 
-    has_recursor = exists(path_join(ROOT_PATH, "recursor.conf"))
+    with open(path_join(ROOT_PATH, "recursor.conf"), "r") as file:
+        recursor_data = yaml_load(file)
 
-    if has_recursor:
-        with open(path_join(ROOT_PATH, "recursor.conf"), "r") as file:
-            recursor_data = yaml_load(file)
+    if "recursor" not in recursor_data:
+        recursor_data["recursor"] = {}
 
-        if "recursor" not in recursor_data:
-            recursor_data["recursor"] = {}
-
-        if "forward_zones" not in recursor_data["recursor"]:
-            recursor_data["recursor"]["forward_zones"] = []
+    if "forward_zones" not in recursor_data["recursor"]:
+        recursor_data["recursor"]["forward_zones"] = []
 
     for zone in sorted(INTERNAL_RECORDS.keys()):
         records = INTERNAL_RECORDS[zone]
@@ -91,7 +88,7 @@ def refresh_pdns():
                     lines.append(f"{record['name']} {record['ttl']} IN {record['type']} {val}")
 
         data = "\n".join(sorted(list(set(lines)))) + "\n"
-        with open(path_join(ROOT_PATH, f"gen-{zone}.db"), "w") as file:
+        with open(path_join(OUT_PATH, f"gen-{zone}.db"), "w") as file:
             file.write(data)
 
         bind_conf.append('zone "%s" IN {' % zone)
@@ -99,11 +96,10 @@ def refresh_pdns():
         bind_conf.append('    file "/etc/pdns/gen-%s.db";' % zone)
         bind_conf.append('};')
 
-        if has_recursor:
-            recursor_data["recursor"]["forward_zones"].append({
-                "zone": zone,
-                "forwarders": ["127.0.0.1:530"]
-            })
+        recursor_data["recursor"]["forward_zones"].append({
+            "zone": zone,
+            "forwarders": ["127.0.0.1:530"]
+        })
 
     with open(path_join(ROOT_PATH, "base.db"), "r") as file:
         soa_db = file.read()
