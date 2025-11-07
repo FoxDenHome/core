@@ -105,7 +105,7 @@ def refresh_pdns():
                 "forwarders": ["127.0.0.1:530"]
             })
 
-    with open(path_join(OUT_PATH, "base.db"), "r") as file:
+    with open(path_join(ROOT_PATH, "base.db"), "r") as file:
         soa_db = file.read()
     soa_db = soa_db.replace("1111111111", str(int(time())))
     with open(path_join(OUT_PATH, "base-rendered.db"), "w") as file:
