@@ -105,7 +105,7 @@ DEFAULT_RULES_HEAD: list[FirewallRule] = [
         },
     ),
     FirewallRule(
-        families=["ip"],
+        families=["ipv6"],
         table="nat",
         attribs={
             "action": "masquerade",
@@ -115,7 +115,7 @@ DEFAULT_RULES_HEAD: list[FirewallRule] = [
         },
     ),
     FirewallRule(
-        families=["ip"],
+        families=["ipv6"],
         table="nat",
         attribs={
             "action": "masquerade",
