@@ -74,7 +74,6 @@ DEFAULT_RULES_HEAD: list[FirewallRule] = [
             "protocol": "icmpv6",
         },
     ),
-
     FirewallRule(
         families=["ip"],
         table="nat",
@@ -83,6 +82,26 @@ DEFAULT_RULES_HEAD: list[FirewallRule] = [
             "chain": "srcnat",
             "comment": "WAN",
             "out-interface": "wan",
+        },
+    ),
+    FirewallRule(
+        families=["ip"],
+        table="nat",
+        attribs={
+            "action": "masquerade",
+            "chain": "srcnat",
+            "comment": "MASQ router",
+            "destination": "10.2.1.1",
+        },
+    ),
+    FirewallRule(
+        families=["ip"],
+        table="nat",
+        attribs={
+            "action": "masquerade",
+            "chain": "srcnat",
+            "comment": "MASQ router-backup",
+            "destination": "10.2.1.2",
         },
     ),
     FirewallRule(
