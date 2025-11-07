@@ -28,12 +28,18 @@ def find_record(name: str, type: str) -> dict:
     return None
 def quote_record(record: dict[str, Any]) -> str:
     return f'"{record["value"]}"'
+def disallow_apex_record(record: dict[str, Any]) -> list[None] | dict[str, Any]:
+    if record["name"] == "@":
+        return []
+    return record
 RECORD_TYPE_HANDLERS = {}
 RECORD_TYPE_HANDLERS["MX"] = lambda record: f"{record['priority']} {record['value']}"
 RECORD_TYPE_HANDLERS["SRV"] = lambda record: f"{record['priority']} {record['weight']} {record['port']} {record['value']}"
 RECORD_TYPE_HANDLERS["TXT"] = quote_record
 RECORD_TYPE_HANDLERS["LUA"] = quote_record
 RECORD_TYPE_HANDLERS["ALIAS"] = lambda record: [find_record(record["value"], "A"), find_record(record["value"], "AAAA")]
+RECORD_TYPE_HANDLERS["SOA"] = disallow_apex_record
+RECORD_TYPE_HANDLERS["NS"] = disallow_apex_record
 
 def horizon_path(horizon: str) -> str:
     return path_join(OUT_PATH, horizon)
@@ -97,7 +103,7 @@ def refresh_pdns():
             records = CURRENT_RECORDS[zone]
             zone_file = path_join(sub_out_path, f"gen-{zone}.db")
 
-            lines = ["$INCLUDE /etc/pdns/soa.db"]
+            lines = ["$INCLUDE /etc/pdns/base-rendered.db"]
             if exists(path_join(ROOT_PATH, horizon, f"{zone}.local.db")):
                 lines.append(f"$INCLUDE /etc/pdns/{zone}.local.db")
             for record in records:
@@ -143,10 +149,10 @@ def refresh_pdns():
                     "forwarders": ["127.0.0.1:530"]
                 })
 
-        with open(path_join(sub_out_path, "soa.db"), "r") as file:
+        with open(path_join(sub_out_path, "base.db"), "r") as file:
             soa_db = file.read()
         soa_db = soa_db.replace("1111111111", str(int(time())))
-        with open(path_join(sub_out_path, "soa.db"), "w") as file:
+        with open(path_join(sub_out_path, "base-rendered.db"), "w") as file:
             file.write(soa_db)
 
         with open(path_join(sub_out_path, "bind.conf"), "w") as file:
@@ -159,7 +165,7 @@ def refresh_pdns():
     for router in ROUTERS:
         print(f"## {router.host} / {router.horizon}")
         changes = router.sync(horizon_path(router.horizon), "/pdns")
-        if changes and changes != ["soa.db"]:
+        if changes and changes != ["base-rendered.db"]:
             print("### Restarting PowerDNS container", changes)
             router.restart_container("pdns")
 
