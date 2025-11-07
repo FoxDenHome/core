@@ -383,18 +383,6 @@ DEFAULT_RULES_TAIL: list[FirewallRule] = [
             "protocol": "tcp",
         },
     ),
-    # FirewallRule(
-    #     families=["ip", "ipv6"],
-    #     table="filter",
-    #     attribs={
-    #         "action": "accept",
-    #         "chain": "forward",
-    #         "comment": "HAProxy UDP (Pub)",
-    #         "dst-port": "443",
-    #         "out-interface": "veth-haproxy",
-    #         "protocol": "udp",
-    #     },
-    # ),
     FirewallRule(
         families=["ip", "ipv6"],
         table="filter",
