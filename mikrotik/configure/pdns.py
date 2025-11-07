@@ -56,10 +56,10 @@ def refresh_pdns():
 
     bind_conf = []
 
-    has_recursor = exists(path_join(ROOT_PATH, horizon, "recursor.conf"))
+    has_recursor = exists(path_join(ROOT_PATH, "recursor.conf"))
 
     if has_recursor:
-        with open(path_join(ROOT_PATH, horizon, "recursor.conf"), "r") as file:
+        with open(path_join(ROOT_PATH, "recursor.conf"), "r") as file:
             recursor_data = yaml_load(file)
 
         if "recursor" not in recursor_data:
@@ -121,7 +121,10 @@ def refresh_pdns():
         yaml_dump(recursor_data, file)
 
     for router in ROUTERS:
-        print(f"## {router.host} / {router.horizon}")
+        if router.horizon != "internal":
+            continue
+
+        print(f"## {router.host}")
         changes = router.sync(OUT_PATH, "/pdns")
         try:
             changes.remove("base-rendered.db")
