@@ -1,6 +1,0 @@
-@ 172800 IN SOA ns1.he.net. hostmaster.he.net. 1111111111 86400 7200 3600000 172800
-@ 172800 IN NS ns1.he.net.
-@ 172800 IN NS ns2.he.net.
-@ 172800 IN NS ns3.he.net.
-@ 172800 IN NS ns4.he.net.
-@ 172800 IN NS ns5.he.net.

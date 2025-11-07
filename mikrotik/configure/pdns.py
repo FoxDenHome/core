@@ -8,16 +8,14 @@ from shutil import copytree, rmtree
 from typing import Any
 from time import time
 
-# TODO: redfox/external DynDNS off of the current wireguard remote address, increment SOA serial when we do; must be script on redfox
-
-CURRENT_RECORDS = None
+INTERNAL_RECORDS = None
 ROOT_PATH = mtik_path("files/pdns")
 OUT_PATH = mtik_path("out/pdns")
 
 def find_record(name: str, type: str) -> dict:
-    global CURRENT_RECORDS
+    global INTERNAL_RECORDS
     name = name.removesuffix(".")
-    for zone, records in CURRENT_RECORDS.items():
+    for zone, records in INTERNAL_RECORDS.items():
         for record in records:
             recname = record["name"] + "." + zone if record["name"] != "@" else zone
             if recname == name and record["type"] == type:
@@ -38,9 +36,6 @@ RECORD_TYPE_HANDLERS["ALIAS"] = lambda record: [find_record(record["value"], "A"
 RECORD_TYPE_HANDLERS["SOA"] = disallow_apex_record
 RECORD_TYPE_HANDLERS["NS"] = disallow_apex_record
 
-def horizon_path(horizon: str) -> str:
-    return path_join(OUT_PATH, horizon)
-
 def remap_ipv6(private: str, public: str) -> str:
     public_spl = public.split(":")
     prefix = f"{public_spl[0]}:{public_spl[1]}:{public_spl[2]}:{public_spl[3][:-1]}"
@@ -48,132 +43,86 @@ def remap_ipv6(private: str, public: str) -> str:
     return f"{prefix}{suffix}"
 
 def refresh_pdns():
-    global CURRENT_RECORDS
+    global INTERNAL_RECORDS
     unlink_safe("result")
     check_call(["nix", "build", f"{NIX_DIR}#dns.json"])
     with open("result", "r") as file:
-        raw_records = json_load(file)["records"]
+        INTERNAL_RECORDS = json_load(file)["records"]["internal"]
     unlink_safe("result")
 
     rmtree(OUT_PATH, ignore_errors=True)
+    makedirs(OUT_PATH, exist_ok=True)
+    copytree(ROOT_PATH, OUT_PATH, dirs_exist_ok=True)
 
-    wan_ipv4s: dict[str, str] = {}
-    wan_ipv6s: dict[str, str] = {}
-    for router in ROUTERS:
-        if router.horizon != "internal":
-            continue
-        connection = router.connection()
-        api = connection.get_api()
-        api_ip = api.get_resource("/ip/address")
-        api_ipv6 = api.get_resource("/ipv6/address")
-        addresses = api_ip.get(interface="wan")
-        if len(addresses) != 1:
-            raise ValueError(f"WAN interface on {router.host} has {len(addresses)} IPv4 addresses, expected 1")
-        wan_ipv4s[router.host] = addresses[0]["address"].split("/")[0]
-        ipv6_addresses_raw = api_ipv6.get(interface="wan")
-        ipv6_addresses = [addr for addr in ipv6_addresses_raw if not addr["address"].startswith("fe80:")]
-        if len(ipv6_addresses) != 1:
-            raise ValueError(f"WAN interface on {router.host} has {len(ipv6_addresses)} IPv6 addresses, expected 1")
-        wan_ipv6s[router.host] = ipv6_addresses[0]["address"].split("/")[0]
+    bind_conf = []
 
-    for horizon in ["internal", "external"]:
-        zone_type = "native" if horizon == "internal" else "primary"
+    has_recursor = exists(path_join(ROOT_PATH, horizon, "recursor.conf"))
 
-        bind_conf = []
-        CURRENT_RECORDS = raw_records[horizon]
-        sub_out_path = horizon_path(horizon)
+    if has_recursor:
+        with open(path_join(ROOT_PATH, horizon, "recursor.conf"), "r") as file:
+            recursor_data = yaml_load(file)
 
-        makedirs(sub_out_path, exist_ok=True)
-        copytree(path_join(ROOT_PATH, horizon), sub_out_path, dirs_exist_ok=True)
+        if "recursor" not in recursor_data:
+            recursor_data["recursor"] = {}
 
-        has_recursor = exists(path_join(ROOT_PATH, horizon, "recursor.conf"))
+        if "forward_zones" not in recursor_data["recursor"]:
+            recursor_data["recursor"]["forward_zones"] = []
 
-        if has_recursor:
-            with open(path_join(ROOT_PATH, horizon, "recursor.conf"), "r") as file:
-                recursor_data = yaml_load(file)
+    for zone in sorted(INTERNAL_RECORDS.keys()):
+        records = INTERNAL_RECORDS[zone]
 
-            if "recursor" not in recursor_data:
-                recursor_data["recursor"] = {}
+        lines = [
+            "$INCLUDE /etc/pdns/base-rendered.db",
+            f"$INCLUDE /etc/pdns/dyndns-{zone}.txt"
+        ]
+        if exists(path_join(ROOT_PATH, f"{zone}.local.db")):
+            lines.append(f"$INCLUDE /etc/pdns/{zone}.local.db")
+        for record in records:
+            value = record["value"]
+            rec_type_spl = record["type"].upper().split(" ")
+            rec_type = rec_type_spl[0]
 
-            if "forward_zones" not in recursor_data["recursor"]:
-                recursor_data["recursor"]["forward_zones"] = []
+            if rec_type in RECORD_TYPE_HANDLERS:
+                value = RECORD_TYPE_HANDLERS[rec_type](record)
 
-        for zone in sorted(CURRENT_RECORDS.keys()):
-            records = CURRENT_RECORDS[zone]
-            zone_file = path_join(sub_out_path, f"gen-{zone}.db")
+            if not isinstance(value, list):
+                value = [value]
+            for val in value:
+                if isinstance(val, dict):
+                    lines.append(f"{record['name']} {record['ttl']} IN {val['type']} {val['value']}")
+                else:
+                    lines.append(f"{record['name']} {record['ttl']} IN {record['type']} {val}")
 
-            lines = [
-                "$INCLUDE /etc/pdns/base-rendered.db",
-                f"$INCLUDE /etc/pdns/dyndns-{zone}.txt"
-            ]
-            lines_dyndns = []
-            if exists(path_join(ROOT_PATH, horizon, f"{zone}.local.db")):
-                lines.append(f"$INCLUDE /etc/pdns/{zone}.local.db")
-            for record in records:
-                value = record["value"]
-                rec_type_spl = record["type"].upper().split(" ")
-                rec_type = rec_type_spl[0]
+        data = "\n".join(sorted(list(set(lines)))) + "\n"
+        with open(path_join(ROOT_PATH, f"gen-{zone}.db"), "w") as file:
+            file.write(data)
 
-                use_lines = lines
-
-                if record.get("dynDns", False):
-                    use_lines = lines_dyndns
-                    if rec_type == "A":
-                        if value == "10.2.1.2":
-                            value = wan_ipv4s["router-backup.foxden.network"]
-                        else:
-                            value = wan_ipv4s["router.foxden.network"]
-                    elif rec_type == "AAAA":
-                        if value == "fd2c:f4cb:63be:2::102":
-                            value = remap_ipv6(value, wan_ipv6s["router-backup.foxden.network"])
-                        else:
-                            value = remap_ipv6(value, wan_ipv6s["router.foxden.network"])
-
-                if rec_type in RECORD_TYPE_HANDLERS:
-                    value = RECORD_TYPE_HANDLERS[rec_type](record)
-
-                if not isinstance(value, list):
-                    value = [value]
-                for val in value:
-                    if isinstance(val, dict):
-                        use_lines.append(f"{record['name']} {record['ttl']} IN {val['type']} {val['value']}")
-                    else:
-                        use_lines.append(f"{record['name']} {record['ttl']} IN {record['type']} {val}")
-
-            data = "\n".join(sorted(list(set(lines)))) + "\n"
-            with open(zone_file, "w") as file:
-                file.write(data)
-            data = "\n".join(sorted(list(set(lines_dyndns)))) + "\n"
-            with open(path_join(sub_out_path, f"dyndns-{zone}.txt"), "w") as file:
-                file.write(data)
-
-            bind_conf.append('zone "%s" IN {' % zone)
-            bind_conf.append('    type %s;' % zone_type)
-            bind_conf.append('    file "/etc/pdns/gen-%s.db";' % zone)
-            bind_conf.append('};')
-
-            if has_recursor:
-                recursor_data["recursor"]["forward_zones"].append({
-                    "zone": zone,
-                    "forwarders": ["127.0.0.1:530"]
-                })
-
-        with open(path_join(sub_out_path, "base.db"), "r") as file:
-            soa_db = file.read()
-        soa_db = soa_db.replace("1111111111", str(int(time())))
-        with open(path_join(sub_out_path, "base-rendered.db"), "w") as file:
-            file.write(soa_db)
-
-        with open(path_join(sub_out_path, "bind.conf"), "w") as file:
-            file.write("\n".join(bind_conf) + "\n")
+        bind_conf.append('zone "%s" IN {' % zone)
+        bind_conf.append('    type native;')
+        bind_conf.append('    file "/etc/pdns/gen-%s.db";' % zone)
+        bind_conf.append('};')
 
         if has_recursor:
-            with open(path_join(sub_out_path, "recursor.conf"), "w") as file:
-                yaml_dump(recursor_data, file)
+            recursor_data["recursor"]["forward_zones"].append({
+                "zone": zone,
+                "forwarders": ["127.0.0.1:530"]
+            })
+
+    with open(path_join(OUT_PATH, "base.db"), "r") as file:
+        soa_db = file.read()
+    soa_db = soa_db.replace("1111111111", str(int(time())))
+    with open(path_join(OUT_PATH, "base-rendered.db"), "w") as file:
+        file.write(soa_db)
+
+    with open(path_join(OUT_PATH, "bind.conf"), "w") as file:
+        file.write("\n".join(bind_conf) + "\n")
+
+    with open(path_join(OUT_PATH, "recursor.conf"), "w") as file:
+        yaml_dump(recursor_data, file)
 
     for router in ROUTERS:
         print(f"## {router.host} / {router.horizon}")
-        changes = router.sync(horizon_path(router.horizon), "/pdns")
+        changes = router.sync(OUT_PATH, "/pdns")
         try:
             changes.remove("base-rendered.db")
         except ValueError:
@@ -183,5 +132,5 @@ def refresh_pdns():
             print("### Restarting PowerDNS container", changes)
             router.restart_container("pdns")
 
-        for zone in sorted(CURRENT_RECORDS.keys()):
+        for zone in sorted(INTERNAL_RECORDS.keys()):
             router.run_in_container("pdns", "pdnsutil secure-zone \'" + zone + "\'")
