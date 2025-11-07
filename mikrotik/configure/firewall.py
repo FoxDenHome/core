@@ -110,6 +110,26 @@ DEFAULT_RULES_HEAD: list[FirewallRule] = [
         attribs={
             "action": "masquerade",
             "chain": "srcnat",
+            "comment": "MASQ router",
+            "dst-address": "fd2c:f4cb:63be:2::101",
+        },
+    ),
+    FirewallRule(
+        families=["ip"],
+        table="nat",
+        attribs={
+            "action": "masquerade",
+            "chain": "srcnat",
+            "comment": "MASQ router-backup",
+            "dst-address": "fd2c:f4cb:63be:2::102",
+        },
+    ),
+    FirewallRule(
+        families=["ip"],
+        table="nat",
+        attribs={
+            "action": "masquerade",
+            "chain": "srcnat",
             "comment": "cghmn",
             "dst-address": "!100.96.41.0/24",
             "out-interface-list": "iface-cghmn",
