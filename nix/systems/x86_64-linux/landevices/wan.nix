@@ -58,6 +58,34 @@ in
       horizon = "external";
     }
     {
+      name = "haproxy.foxden.network";
+      type = "CNAME";
+      ttl = 3600;
+      value = "wan.foxden.network.";
+      horizon = "external";
+    }
+    {
+      name = "haproxy-backup.foxden.network";
+      type = "CNAME";
+      ttl = 3600;
+      value = "wan.foxden.network.";
+      horizon = "external";
+    }
+    {
+      name = "haproxy.foxden.network";
+      type = "A";
+      ttl = 3600;
+      value = "10.2.6.1";
+      horizon = "internal";
+    }
+    {
+      name = "haproxy-backup.foxden.network";
+      type = "A";
+      ttl = 3600;
+      value = "10.2.6.2";
+      horizon = "internal";
+    }
+    {
       name = "vpn.foxden.network";
       type = "A";
       ttl = 3600;
