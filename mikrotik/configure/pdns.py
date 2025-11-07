@@ -165,7 +165,12 @@ def refresh_pdns():
     for router in ROUTERS:
         print(f"## {router.host} / {router.horizon}")
         changes = router.sync(horizon_path(router.horizon), "/pdns")
-        if changes and changes != ["base-rendered.db"]:
+        try:
+            changes.remove("base-rendered.db")
+        except ValueError:
+            pass
+
+        if changes:
             print("### Restarting PowerDNS container", changes)
             router.restart_container("pdns")
 
