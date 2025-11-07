@@ -91,7 +91,7 @@ DEFAULT_RULES_HEAD: list[FirewallRule] = [
             "action": "masquerade",
             "chain": "srcnat",
             "comment": "MASQ router",
-            "destination": "10.2.1.1",
+            "dst-address": "10.2.1.1",
         },
     ),
     FirewallRule(
@@ -101,7 +101,7 @@ DEFAULT_RULES_HEAD: list[FirewallRule] = [
             "action": "masquerade",
             "chain": "srcnat",
             "comment": "MASQ router-backup",
-            "destination": "10.2.1.2",
+            "dst-address": "10.2.1.2",
         },
     ),
     FirewallRule(
