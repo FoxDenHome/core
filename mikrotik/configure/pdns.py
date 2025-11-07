@@ -9,6 +9,8 @@ from typing import Any
 
 # TODO: redfox/external DynDNS off of the current wireguard remote address
 # TODO: redfox/external rewrite IPv6 subnet to our external subnet
+# TODO: Regenerate SOA record to update serial
+# TODO: Auto-enable DNSSEC
 
 CURRENT_RECORDS = None
 ROOT_PATH = mtik_path("files/pdns")
@@ -35,6 +37,12 @@ RECORD_TYPE_HANDLERS["ALIAS"] = lambda record: [find_record(record["value"], "A"
 def horizon_path(horizon: str) -> str:
     return path_join(OUT_PATH, horizon)
 
+def remap_ipv6(private: str, public: str) -> str:
+    public_spl = public.split(":")
+    prefix = f"{public_spl[0]}:{public_spl[1]}:{public_spl[2]}:{public_spl[3][::-1]}"
+    suffix = private.removeprefix("fd2c:f4cb:63be:")
+    return f"{prefix}:{suffix}"
+
 def refresh_pdns():
     global CURRENT_RECORDS
     unlink_safe("result")
@@ -44,6 +52,25 @@ def refresh_pdns():
     unlink_safe("result")
 
     rmtree(OUT_PATH, ignore_errors=True)
+
+    wan_ipv4s: dict[str, str] = {}
+    wan_ipv6s: dict[str, str] = {}
+    for router in ROUTERS:
+        if router.horizon != "internal":
+            continue
+        connection = router.connection()
+        api = connection.get_api()
+        api_ip = api.get_resource("/ip/address")
+        api_ipv6 = api.get_resource("/ipv6/address")
+        addresses = api_ip.get(interface="wan")
+        if len(addresses) != 1:
+            raise ValueError(f"WAN interface on {router.host} has {len(addresses)} IPv4 addresses, expected 1")
+        wan_ipv4s[router.host] = addresses[0]["address"].split("/")[0]
+        ipv6_addresses_raw = api_ipv6.get(interface="wan")
+        ipv6_addresses = [addr for addr in ipv6_addresses_raw if not addr["address"].startswith("fe80:")]
+        if len(ipv6_addresses) != 1:
+            raise ValueError(f"WAN interface on {router.host} has {len(ipv6_addresses)} IPv6 addresses, expected 1")
+        wan_ipv6s[router.host] = ipv6_addresses[0]["address"].split("/")[0]
 
     for horizon in ["internal", "external"]:
         bind_conf = []
@@ -73,9 +100,21 @@ def refresh_pdns():
                 lines.append(f"$INCLUDE /etc/pdns/{zone}.local.db")
             for record in records:
                 value = record["value"]
-
                 rec_type_spl = record["type"].upper().split(" ")
                 rec_type = rec_type_spl[0]
+
+                if record.get("dynDns", False):
+                    if rec_type == "A":
+                        if value == "10.2.1.2":
+                            value = wan_ipv4s["router-backup.foxden.network"]
+                        else:
+                            value = wan_ipv4s["router.foxden.network"]
+                    elif rec_type == "AAAA":
+                        if value == "fd2c:f4cb:63be:2::102":
+                            value = remap_ipv6(value, wan_ipv6s["router-backup.foxden.network"])
+                        else:
+                            value = remap_ipv6(value, wan_ipv6s["router.foxden.network"])
+
                 if rec_type in RECORD_TYPE_HANDLERS:
                     value = RECORD_TYPE_HANDLERS[rec_type](record)
 

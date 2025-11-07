@@ -16,7 +16,7 @@ in
     })
   ] else [
     (rule // baseRule // {
-      destination = "fd2c:f4cb:63be::0a00:0/104";
+      destination = "fd2c:f4cb:63be::a00:0/104";
     })
     (rule // baseRule // {
       destination = "fd2c:f4cb:63be::ac00:0/104";
