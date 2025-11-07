@@ -193,7 +193,6 @@ DEFAULT_RULES_HEAD: list[FirewallRule] = [
             "jump-target": "local-port-forward",
         },
     ),
-
     FirewallRule(
         families=["ip"],
         table="nat",
@@ -216,18 +215,6 @@ DEFAULT_RULES_HEAD: list[FirewallRule] = [
             "dst-port": "53,530",
             "protocol": "udp",
             "to-addresses": "172.17.2.2",
-        },
-    ),
-    FirewallRule(
-        families=["ip"],
-        table="nat",
-        attribs={
-            "action": "dst-nat",
-            "chain": "local-port-forward",
-            "comment": "HAProxy TCP (Priv)",
-            "dst-port": "9001",
-            "protocol": "tcp",
-            "to-addresses": "172.17.0.2",
         },
     ),
     FirewallRule(
@@ -303,18 +290,6 @@ DEFAULT_RULES_HEAD: list[FirewallRule] = [
             "dst-port": "53,530",
             "protocol": "udp",
             "to-address": "fd2c:f4cb:63be::ac11:202/128",
-        },
-    ),
-    FirewallRule(
-        families=["ipv6"],
-        table="nat",
-        attribs={
-            "action": "dst-nat",
-            "chain": "local-port-forward",
-            "comment": "HAProxy TCP (Priv)",
-            "dst-port": "9001",
-            "protocol": "tcp",
-            "to-address": "fd2c:f4cb:63be::ac11:2/128",
         },
     ),
 ]
@@ -419,7 +394,6 @@ DEFAULT_RULES_TAIL: list[FirewallRule] = [
             "reject-with": "icmp-admin-prohibited",
         },
     ),
-
     FirewallRule(
         families=["ip", "ipv6"],
         table="filter",
