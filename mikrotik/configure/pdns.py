@@ -40,9 +40,9 @@ def horizon_path(horizon: str) -> str:
 
 def remap_ipv6(private: str, public: str) -> str:
     public_spl = public.split(":")
-    prefix = f"{public_spl[0]}:{public_spl[1]}:{public_spl[2]}:{public_spl[3][::-1]}"
+    prefix = f"{public_spl[0]}:{public_spl[1]}:{public_spl[2]}:{public_spl[3][:-1]}"
     suffix = private.removeprefix("fd2c:f4cb:63be:")
-    return f"{prefix}:{suffix}"
+    return f"{prefix}{suffix}"
 
 def refresh_pdns():
     global CURRENT_RECORDS
