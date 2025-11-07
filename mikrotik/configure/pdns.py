@@ -71,10 +71,7 @@ def refresh_pdns():
     for zone in sorted(INTERNAL_RECORDS.keys()):
         records = INTERNAL_RECORDS[zone]
 
-        lines = [
-            "$INCLUDE /etc/pdns/base-rendered.db",
-            f"$INCLUDE /etc/pdns/dyndns-{zone}.txt"
-        ]
+        lines = [ "$INCLUDE /etc/pdns/base-rendered.db" ]
         if exists(path_join(ROOT_PATH, f"{zone}.local.db")):
             lines.append(f"$INCLUDE /etc/pdns/{zone}.local.db")
         for record in records:
