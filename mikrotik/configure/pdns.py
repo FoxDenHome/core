@@ -80,6 +80,8 @@ def refresh_pdns():
         wan_ipv6s[router.host] = ipv6_addresses[0]["address"].split("/")[0]
 
     for horizon in ["internal", "external"]:
+        zone_type = "native" if horizon == "internal" else "master"
+
         bind_conf = []
         CURRENT_RECORDS = raw_records[horizon]
         sub_out_path = horizon_path(horizon)
@@ -139,7 +141,7 @@ def refresh_pdns():
                 file.write(data)
 
             bind_conf.append('zone "%s" IN {' % zone)
-            bind_conf.append('    type native;')
+            bind_conf.append('    type %s;' % zone_type)
             bind_conf.append('    file "/etc/pdns/gen-%s.db";' % zone)
             bind_conf.append('};')
 
