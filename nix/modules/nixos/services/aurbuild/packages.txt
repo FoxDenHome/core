@@ -33,3 +33,5 @@ affine
 pam-parallel
 uxplay
 https://github.com/FoxDenHome/backupmgr
+vmware-workstation
+libx11-mr293
