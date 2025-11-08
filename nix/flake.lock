@@ -897,11 +897,11 @@
         "uv2nix": "uv2nix_3"
       },
       "locked": {
-        "lastModified": 1762563047,
-        "narHash": "sha256-3K15tBHnpwYAnEdHMSi+gGAnIMszU2CDN4Mk4BYjIc8=",
+        "lastModified": 1762563213,
+        "narHash": "sha256-rXn/ZmR7f62dnQfFLRWAUdZNWJZgweQPwKyjB5M4AnE=",
         "owner": "Doridian",
         "repo": "systemd-query",
-        "rev": "ced5590584149f247ad36c84768b09e8917759ef",
+        "rev": "165cdffbb6fa5d562345905c5cbae8862f7bca00",
         "type": "github"
       },
       "original": {
