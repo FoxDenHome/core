@@ -32,6 +32,7 @@
     screen
     smartmontools
     ssh-to-age
+    systemd-query
     tmux
     unixtools.netstat
     wget

@@ -34,6 +34,8 @@
     tapemgr.inputs.nixpkgs.follows = "nixpkgs";
     uds-proxy.url = "github:Doridian/uds-proxy";
     uds-proxy.inputs.nixpkgs.follows = "nixpkgs";
+    systemd-query.url = "github:Doridian/systemd-query";
+    systemd-query.inputs.nixpkgs.follows = "nixpkgs";
   };
 
   outputs = inputs: import ./outputs.nix inputs;
