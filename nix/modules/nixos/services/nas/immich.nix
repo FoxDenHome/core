@@ -115,8 +115,10 @@ in
         machine-learning = {
           environment = {
             MACHINE_LEARNING_MODEL_TTL = "0";
-            MACHINE_LEARNING_PRELOAD__CLIP = clipModelName;
-            MACHINE_LEARNING_PRELOAD__FACIAL_RECOGNITION = facialRecognitionModelName;
+            MACHINE_LEARNING_PRELOAD__CLIP__TEXTUAL = clipModelName;
+            MACHINE_LEARNING_PRELOAD__CLIP__VISUAL = clipModelName;
+            MACHINE_LEARNING_PRELOAD__FACIAL_RECOGNITION__DETECTION = facialRecognitionModelName;
+            MACHINE_LEARNING_PRELOAD__FACIAL_RECOGNITION__RECOGNITION = facialRecognitionModelName;
           };
         };
         settings = {
