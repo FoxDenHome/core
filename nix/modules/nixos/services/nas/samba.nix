@@ -37,6 +37,11 @@ in
       };
       users.groups.smbguest = {};
 
+      environment.systemPackages = with pkgs; [
+        samba
+        lgogdownloader
+      ];
+
       services.samba.enable = true;
       services.samba.smbd.extraArgs = [ "--debug-stdout" "--configfile=\${CREDENTIALS_DIRECTORY}/smb.conf" ];
       services.samba.nmbd.extraArgs = [ "--debug-stdout" "--configfile=\${CREDENTIALS_DIRECTORY}/smb.conf" ];
