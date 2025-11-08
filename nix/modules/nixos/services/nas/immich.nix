@@ -8,6 +8,9 @@ let
   primaryInterface = lib.lists.head (lib.attrsets.attrValues hostCfg.interfaces);
   hostName = foxDenLib.global.dns.mkHost primaryInterface.dns;
   proto = if svcConfig.tls then "https" else "http";
+
+  clipModelName = "ViT-H-14-378-quickgelu__dfn5b";
+  facialRecognitionModelName = "antelopev2";
 in
 {
   options.foxDen.services.immich = {
@@ -109,6 +112,13 @@ in
           host = "127.0.0.1";
           port = 6379;
         };
+        machine-learning = {
+          environment = {
+            MACHINE_LEARNING_MODEL_TTL = "0";
+            MACHINE_LEARNING_PRELOAD__CLIP = clipModelName;
+            MACHINE_LEARNING_PRELOAD__FACIAL_RECOGNITION = facialRecognitionModelName;
+          };
+        };
         settings = {
           ffmpeg = {
             crf = 23;
@@ -184,7 +194,7 @@ in
             urls = [ "http://127.0.0.1:3003" ];
             clip = {
               enabled = true;
-              modelName = "ViT-H-14-378-quickgelu__dfn5b";
+              modelName = clipModelName;
             };
             duplicateDetection = {
               enabled = true;
@@ -192,7 +202,7 @@ in
             };
             facialRecognition = {
               enabled = true;
-              modelName = "antelopev2";
+              modelName = facialRecognitionModelName;
               minScore = 0.7;
               maxDistance = 0.5;
               minFaces = 3;
