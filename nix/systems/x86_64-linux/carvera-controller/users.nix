@@ -2,9 +2,9 @@
 {
   environment.systemPackages = with pkgs; [
     wlr-randr
+    wayvnc
+    network-manager-applet
   ];
-  programs.nm-applet.enable = true;
-  programs.wayvnc.enable = true;
 
   users.users.appliance = {
     isSystemUser = true;
