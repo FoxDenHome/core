@@ -1,16 +1,15 @@
 { config, pkgs, ... } :
-let
-  swayPkgs = with pkgs; [
+{
+  environment.systemPackages = with pkgs; [
     bemenu
     wlr-randr
     wayvnc
-    networkmanagerapplet
     config.programs.sway.package
+    config.programs.i3status.package
   ];
-in
-{
-  environment.systemPackages = swayPkgs;
+  programs.i3status.enable = true;
   programs.sway.enable = true;
+  programs.nm-applet.enable = true;
 
   services.seatd.enable = true;
 
