@@ -25,7 +25,7 @@
       ];
     };
     carvera-controller = {
-      ssh = false;
+      ssh = true;
     } // (mkIntf {
       dns = {
         name = "carvera-controller.foxden.network";
