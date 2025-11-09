@@ -1,13 +1,12 @@
 { config, pkgs, ... } :
 {
   environment.systemPackages = with pkgs; [
+    i3status
     bemenu
     wlr-randr
     wayvnc
     config.programs.sway.package
-    config.programs.i3status.package
   ];
-  programs.i3status.enable = true;
   programs.sway.enable = true;
   programs.nm-applet.enable = true;
 
