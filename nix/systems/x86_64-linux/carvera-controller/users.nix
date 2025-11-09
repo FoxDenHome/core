@@ -25,6 +25,8 @@
       User = "appliance";
       Group = "appliance";
       WorkingDirectory = "/run/appliance";
+      Type = "oneshot";
+      RemainAfterExit = true;
       ExecStart = [
         "${pkgs.coreutils}/bin/chmod -R 700 /run/appliance"
         "${pkgs.rsync}/bin/rsync -av --delete ${./appliance-home}/ /run/appliance/"
