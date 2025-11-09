@@ -30,6 +30,14 @@ let
         type = nullOr ints.unsigned;
         default = null;
       };
+      algorithm = lib.mkOption {
+        type = nullOr ints.unsigned;
+        default = null;
+      };
+      fptype = lib.mkOption {
+        type = nullOr ints.unsigned;
+        default = null;
+      };
       dynDns = lib.mkOption {
         type = bool;
         default = false;

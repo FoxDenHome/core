@@ -6,7 +6,7 @@ data "external" "dnssec_json" {
 }
 
 locals {
-  dnskey_records = {for record in (jsondecode(data.external.dnssec_json.result.dnskeys) ):
+  dnskey_records = { for record in(jsondecode(data.external.dnssec_json.result.dnskeys)) :
     split("|", record)[1] => {
       source = split("|", record)[0]
     }

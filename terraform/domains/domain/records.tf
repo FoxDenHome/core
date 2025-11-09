@@ -23,13 +23,15 @@ resource "cloudns_dns_record" "static" {
   zone     = cloudns_dns_zone.domain.id
   for_each = local.static_hosts
 
-  type     = each.value.type
-  name     = each.value.host
-  ttl      = each.value.ttl
-  priority = each.value.priority
-  port     = each.value.port
-  weight   = each.value.weight
-  value    = each.value.value
+  type      = each.value.type
+  name      = each.value.host
+  ttl       = each.value.ttl
+  priority  = each.value.priority
+  port      = each.value.port
+  weight    = each.value.weight
+  value     = each.value.value
+  algorithm = each.value.algorithm
+  fptype    = each.value.fptype
 }
 
 resource "cloudns_dns_record" "dynamic" {
