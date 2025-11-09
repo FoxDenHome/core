@@ -10,10 +10,6 @@
   };
   users.groups.appliance = {};
 
-  systemd.tmpfiles.rules = [
-    "D /run/appliance 0500 appliance appliance"
-  ];
-
   systemd.services.appliance-setup = {
     serviceConfig = {
       User = "appliance";
@@ -22,7 +18,9 @@
       Type = "oneshot";
       RemainAfterExit = true;
       ExecStart = [
-        "${pkgs.coreutils}/bin/chmod -R 700 /run/appliance"
+        "+${pkgs.coreutils}/bin/mkdir -p /run/appliance"
+        "+${pkgs.coreutils}/bin/chown -R appliance:appliance /run/appliance"
+        "+${pkgs.coreutils}/bin/chmod -R 700 /run/appliance"
         "${pkgs.rsync}/bin/rsync -av --delete ${./appliance-home}/ /run/appliance/"
         "${pkgs.coreutils}/bin/chmod 500 /run/appliance"
         "${pkgs.coreutils}/bin/mkdir -p /var/lib/appliance/data"
