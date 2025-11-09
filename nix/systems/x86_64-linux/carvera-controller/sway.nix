@@ -4,6 +4,9 @@
 
   services.seatd.enable = true;
 
+  services.xserver.videoDrivers = [ "modesetting" ];
+  hardware.graphics.enable = true;
+
   systemd.user.services.sway = {
     unitConfig = {
       Description = "Sway Wayland compositor";
