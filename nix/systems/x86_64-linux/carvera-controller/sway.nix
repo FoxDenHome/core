@@ -1,9 +1,11 @@
 { config, pkgs, ... } :
 let
   swayPkgs = with pkgs; [
+    bemenu
     wlr-randr
     wayvnc
     networkmanagerapplet
+    config.programs.sway.package
   ];
 in
 {
