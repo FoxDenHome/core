@@ -15,6 +15,13 @@
   boot.kernelModules = [ "kvm-intel" ];
   boot.extraModulePackages = [ ];
 
+  boot.initrd.luks.devices = {
+    nixroot = {
+      device = "/dev/mmcblk0p2";
+      allowDiscards = true;
+    };
+  };
+
   fileSystems."/" = {
     device = "none";
     fsType = "tmpfs";
