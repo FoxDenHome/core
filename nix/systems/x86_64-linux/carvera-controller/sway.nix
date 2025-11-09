@@ -2,6 +2,8 @@
 {
   programs.sway.enable = true;
 
+  services.seatd.enable = true;
+
   systemd.user.services.sway = {
     unitConfig = {
       Description = "Sway Wayland compositor";
