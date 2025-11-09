@@ -18,7 +18,7 @@
   environment.persistence."/nix/persist/appliance" = {
     hideMounts = true;
     directories = [
-      { directory = "/var/lib/appliance-data"; owner = "appliance"; group = "appliance"; mode = "u=rwx,g=,o="; }
+      { directory = "/var/lib/appliance-data"; user = "appliance"; group = "appliance"; mode = "u=rwx,g=,o="; }
     ];
   };
 }
