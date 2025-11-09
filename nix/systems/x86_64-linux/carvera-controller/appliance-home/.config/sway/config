@@ -1,0 +1,12 @@
+bar {
+    status_command i3status
+}
+
+for_window [shell="xwayland"] title_format "[XWayland] %title"
+
+exec --no-startup-id wlr-randr --output eDP-1 --transform 270 --scale 2.0
+exec --no-startup-id nm-applet
+exec --no-startup-id carvera-controller
+exec --no-startup-id wayvnc -r
+
+set $menu bemenu-run --no-exec | xargs -r swaymsg exec --

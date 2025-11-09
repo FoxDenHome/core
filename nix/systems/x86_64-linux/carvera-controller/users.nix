@@ -1,14 +1,24 @@
 { pkgs, ... } :
 {
+  environment.systemPackages = with pkgs; [
+    wlr-randr
+  ];
+  programs.nm-applet.enable = true;
+  programs.wayvnc.enable = true;
+
   users.users.appliance = {
     isSystemUser = true;
     group = "appliance";
-    home = "/run/appliance";
+    home = ./appliance-home;
     shell = pkgs.fish;
     linger = true;
   };
   users.groups.appliance = {};
-  systemd.tmpfiles.rules = [
-    "D /run/appliance 0700 appliance appliance"
-  ];
+
+  environment.persistence."/nix/persist/appliance" = {
+    hideMounts = true;
+    directories = [
+      { directory = "/var/lib/appliance-data"; owner = "appliance"; group = "appliance"; mode = "u=rwx,g=,o="; }
+    ];
+  };
 }
