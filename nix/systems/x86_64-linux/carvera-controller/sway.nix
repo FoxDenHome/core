@@ -1,17 +1,6 @@
-{ pkgs, ... } :
+{ config, ... } :
 {
   programs.sway.enable = true;
-
-  users.users.appliance = {
-    isSystemUser = true;
-    group = "appliance";
-    home = "/run/appliance";
-    shell = pkgs.fish;
-  };
-  users.groups.appliance = {};
-  systemd.tmpfiles.rules = [
-    "D /run/appliance 0700 appliance appliance"
-  ];
 
   systemd.user.services.sway = {
     unitConfig = {
@@ -21,7 +10,7 @@
     };
 
     serviceConfig = {
-      ExecStart = "${pkgs.sway}/bin/sway";
+      ExecStart = "${config.programs.sway.package}/bin/sway";
       Restart = "always";
       RestartSec = "1s";
       Environment = [
