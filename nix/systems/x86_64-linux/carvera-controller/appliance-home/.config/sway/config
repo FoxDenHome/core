@@ -9,5 +9,5 @@ exec --no-startup-id nm-applet
 exec --no-startup-id carvera-controller
 exec --no-startup-id wayvnc -r
 
-set $menu bemenu-run --no-exec | xargs -r swaymsg exec --
+set $menu wofi --show drun | xargs -r swaymsg exec --
 set $mod super

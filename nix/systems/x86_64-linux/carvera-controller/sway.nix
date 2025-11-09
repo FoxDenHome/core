@@ -1,11 +1,11 @@
 { config, pkgs, ... } :
 {
   environment.systemPackages = with pkgs; [
-    bemenu
     i3status
     networkmanagerapplet
     wayvnc
     wlr-randr
+    wofi
     config.programs.sway.package
   ];
   programs.sway.enable = true;
