@@ -26,9 +26,9 @@
       Group = "appliance";
       WorkingDirectory = "/run/appliance";
       ExecStart = [
+        "${pkgs.coreutils}/bin/chmod -R 700 /run/appliance"
         "${pkgs.rsync}/bin/rsync -av --delete ${./appliance-home}/ /run/appliance/"
         "${pkgs.coreutils}/bin/chmod 500 /run/appliance"
-        "${pkgs.coreutils}/bin/chown -R appliance:appliance /run/appliance"
       ];
     };
 
