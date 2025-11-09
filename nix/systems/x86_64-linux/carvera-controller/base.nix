@@ -34,7 +34,7 @@
   };
 
   fileSystems."/boot" = {
-    device = "/dev/nvme0n1p1";
+    device = "/dev/mmcblk0p1";
     fsType = "vfat";
     options = [ "fmask=0022" "dmask=0022" ];
   };
