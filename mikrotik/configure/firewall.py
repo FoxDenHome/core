@@ -333,6 +333,16 @@ DEFAULT_RULES_TAIL: list[FirewallRule] = [
         attribs={
             "action": "accept",
             "chain": "forward",
+            "in-interface-list": "zone-local",
+            "out-interface-list": "iface-cghmn",
+        },
+    ),
+    FirewallRule(
+        families=["ip", "ipv6"],
+        table="filter",
+        attribs={
+            "action": "accept",
+            "chain": "forward",
             "in-interface": "oob",
         },
     ),
