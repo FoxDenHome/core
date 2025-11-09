@@ -20,6 +20,6 @@
       WorkingDirectory = "%h";
     };
 
-    wantedBy = [ "multi-user.target" ];
+    wantedBy = [ "default.target" ];
   };
 }
