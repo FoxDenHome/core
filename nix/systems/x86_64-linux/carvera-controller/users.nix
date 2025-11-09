@@ -5,6 +5,7 @@
     group = "appliance";
     home = "/run/appliance";
     shell = pkgs.fish;
+    linger = true;
   };
   users.groups.appliance = {};
   systemd.tmpfiles.rules = [
