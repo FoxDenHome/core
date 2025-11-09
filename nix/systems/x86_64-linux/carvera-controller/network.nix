@@ -8,7 +8,7 @@ let
     mtu = 9000;
     routes = foxDenLib.hosts.helpers.lan.mkRoutes 4;
     nameservers = foxDenLib.hosts.helpers.lan.mkNameservers 4;
-    interface = "ens1f0np0";
+    interface = "enp0s20f0u3u3";
   };
 in
 {
