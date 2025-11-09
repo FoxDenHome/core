@@ -1,5 +1,13 @@
-{ config, ... } :
+{ config, pkgs, ... } :
+let
+  swayPkgs = with pkgs; [
+    wlr-randr
+    wayvnc
+    networkmanagerapplet
+  ];
+in
 {
+  environment.systemPackages = swayPkgs;
   programs.sway.enable = true;
 
   services.seatd.enable = true;
@@ -13,6 +21,8 @@
       StartLimitIntervalSec = 0;
       ConditionUser = "appliance";
     };
+
+    path = swayPkgs;
 
     serviceConfig = {
       ExecStart = "${config.programs.sway.package}/bin/sway";

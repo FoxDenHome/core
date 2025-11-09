@@ -1,11 +1,5 @@
 { pkgs, ... } :
 {
-  environment.systemPackages = with pkgs; [
-    wlr-randr
-    wayvnc
-    networkmanagerapplet
-  ];
-
   users.users.appliance = {
     isSystemUser = true;
     group = "appliance";
