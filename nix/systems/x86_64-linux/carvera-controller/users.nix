@@ -27,7 +27,7 @@
       WorkingDirectory = "/run/appliance";
       ExecStart = [
         "${pkgs.rsync}/bin/rsync -av --delete ${./appliance-home}/ /run/appliance/"
-        "${pkgs.coreutils}/bin/chmod 700 /run/appliance"
+        "${pkgs.coreutils}/bin/chmod 500 /run/appliance"
         "${pkgs.coreutils}/bin/chown -R appliance:appliance /run/appliance"
       ];
     };
