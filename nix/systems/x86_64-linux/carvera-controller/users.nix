@@ -12,6 +12,7 @@
     home = ./appliance-home;
     shell = pkgs.fish;
     linger = true;
+    extraGroups = [ "seat" ];
   };
   users.groups.appliance = {};
 
