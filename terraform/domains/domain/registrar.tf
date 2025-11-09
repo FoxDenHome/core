@@ -37,7 +37,7 @@ resource "aws_route53domains_registered_domain" "domain" {
     for_each = local.nameservers
     content {
       name = name_server.value
-      glue_ips = lookup(local.ns_to_upstream, name_server.value, null) ? [
+      glue_ips = lookup(local.ns_to_upstream, name_server.value, null) != null ? [
         data.dns_a_record_set.ns[name_server.value].addrs[0],
         data.dns_aaaa_record_set.ns[name_server.value].addrs[0],
       ] : []

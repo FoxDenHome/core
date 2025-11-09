@@ -44,48 +44,6 @@ in
       horizon = "external";
     }
     {
-      name = "v4-vpn.foxden.network";
-      type = "CNAME";
-      ttl = 3600;
-      value = "v4-wan.foxden.network.";
-      horizon = "external";
-    }
-    {
-      name = "ntp.foxden.network";
-      type = "CNAME";
-      ttl = 3600;
-      value = "wan.foxden.network.";
-      horizon = "external";
-    }
-    {
-      name = "wan.foxden.network";
-      type = "CNAME";
-      ttl = 3600;
-      value = "router.foxden.network.";
-      horizon = "external";
-    }
-    {
-      name = "wan-backup.foxden.network";
-      type = "CNAME";
-      ttl = 3600;
-      value = "router-backup.foxden.network.";
-      horizon = "external";
-    }
-    {
-      name = "wan.foxden.network";
-      type = "A";
-      ttl = 3600;
-      value = "10.2.6.1";
-      horizon = "internal";
-    }
-    {
-      name = "wan-backup.foxden.network";
-      type = "A";
-      ttl = 3600;
-      value = "10.2.6.2";
-      horizon = "internal";
-    }
-    {
       name = "vpn.foxden.network";
       type = "A";
       ttl = 3600;
@@ -94,12 +52,55 @@ in
     }
     {
       name = "v4-vpn.foxden.network";
+      type = "CNAME";
+      ttl = 3600;
+      value = "v4-wan.foxden.network.";
+      horizon = "external";
+    }
+    {
+      name = "v4-vpn.foxden.network";
       type = "A";
       ttl = 3600;
       value = "10.2.1.1";
       horizon = "internal";
     }
+    {
+      name = "ext-router.foxden.network";
+      type = "CNAME";
+      ttl = 3600;
+      value = "router.foxden.network.";
+      horizon = "external";
+    }
+    {
+      name = "ext-router-backup.foxden.network";
+      type = "CNAME";
+      ttl = 3600;
+      value = "router-backup.foxden.network.";
+      horizon = "external";
+    }
+    {
+      name = "ext-router.foxden.network";
+      type = "A";
+      ttl = 3600;
+      value = "10.2.6.1";
+      horizon = "internal";
+    }
+    {
+      name = "ext-router-backup.foxden.network";
+      type = "A";
+      ttl = 3600;
+      value = "10.2.6.2";
+      horizon = "internal";
+    }
+    {
+      name = "ntp.foxden.network";
+      type = "CNAME";
+      ttl = 3600;
+      value = "wan.foxden.network.";
+      horizon = "external";
+    }
   ]
+  ++ (mkWanRecs "wan" "10.2.0.1" "fd2c:f4cb:63be:2::1")
   ++ (mkWanRecs "router" "10.2.1.1" "fd2c:f4cb:63be:2::101")
   ++ (mkWanRecs "router-backup" "10.2.1.2" "fd2c:f4cb:63be:2::102");
 }
