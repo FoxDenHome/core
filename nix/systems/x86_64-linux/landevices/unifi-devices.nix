@@ -5,7 +5,9 @@
       interfaces.default = { driver.name = "null"; } // intf;
     });
   in {
-    ap-backyard = mkIntf {
+    ap-backyard = {
+      ssh = true;
+    } // (mkIntf {
       dns = {
         name = "ap-backyard.foxden.network";
       };
@@ -13,8 +15,10 @@
       addresses = [
         "10.1.10.6/16"
       ];
-    };
-    ap-corridor-upper = mkIntf {
+    });
+    ap-corridor-upper = {
+      ssh = true;
+    } // (mkIntf {
       dns = {
         name = "ap-corridor-upper.foxden.network";
       };
@@ -22,8 +26,10 @@
       addresses = [
         "10.1.10.7/16"
       ];
-    };
-    ap-living-room = mkIntf {
+    });
+    ap-living-room = {
+      ssh = true;
+    } // (mkIntf {
       dns = {
         name = "ap-living-room.foxden.network";
       };
@@ -31,7 +37,7 @@
       addresses = [
         "10.1.10.11/16"
       ];
-    };
+    });
     camera-back-door-upper = mkIntf {
       dns = {
         name = "camera-back-door-upper.foxden.network";
@@ -122,7 +128,9 @@
         "10.5.11.10/16"
       ];
     };
-    nvr = mkIntf {
+    nvr = {
+      ssh = true;
+    } // (mkIntf {
       dns = {
         name = "nvr.foxden.network";
       };
@@ -136,8 +144,10 @@
         "fd2c:f4cb:63be:5::a01/64"
       ];
       firewall.ingressAcceptRules = foxDenLib.firewall.templates.trusted "nvr";
-    };
-    pdu-rack = mkIntf {
+    });
+    pdu-rack = {
+      ssh = true;
+    } // (mkIntf {
       dns = {
         name = "pdu-rack.foxden.network";
       };
@@ -145,8 +155,10 @@
       addresses = [
         "10.1.11.1/16"
       ];
-    };
-    switch-den = mkIntf {
+    });
+    switch-den = {
+      ssh = true;
+    } // (mkIntf {
       dns = {
         name = "switch-den.foxden.network";
       };
@@ -154,7 +166,7 @@
       addresses = [
         "10.1.10.2/16"
       ];
-    };
+    });
     switch-den-desk = mkIntf {
       dns = {
         name = "switch-den-desk.foxden.network";
@@ -164,7 +176,9 @@
         "10.1.10.14/16"
       ];
     };
-    switch-dori-office = mkIntf {
+    switch-dori-office = {
+      ssh = true;
+    } // (mkIntf {
       dns = {
         name = "switch-dori-office.foxden.network";
       };
@@ -172,8 +186,10 @@
       addresses = [
         "10.1.10.5/16"
       ];
-    };
-    switch-dori-office-agg = mkIntf {
+    });
+    switch-dori-office-agg = {
+      ssh = true;
+    } // (mkIntf {
       dns = {
         name = "switch-dori-office-agg.foxden.network";
       };
@@ -181,7 +197,7 @@
       addresses = [
         "10.1.10.10/16"
       ];
-    };
+    });
     switch-dori-office-desk = mkIntf {
       dns = {
         name = "switch-dori-office-desk.foxden.network";
@@ -214,7 +230,9 @@
         "fd2c:f4cb:63be:1::a0d/64"
       ];
     };
-    switch-rack = mkIntf {
+    switch-rack = {
+      ssh = true;
+    } // (mkIntf {
       dns = {
         name = "switch-rack.foxden.network";
       };
@@ -222,8 +240,10 @@
       addresses = [
         "10.1.10.12/16"
       ];
-    };
-    switch-rack-agg = mkIntf {
+    });
+    switch-rack-agg = {
+      ssh = true;
+    } // (mkIntf {
       dns = {
         name = "switch-rack-agg.foxden.network";
       };
@@ -231,6 +251,6 @@
       addresses = [
         "10.1.10.3/16"
       ];
-    };
+    });
   };
 }

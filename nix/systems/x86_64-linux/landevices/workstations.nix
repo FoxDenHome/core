@@ -5,7 +5,9 @@
       interfaces.default = { driver.name = "null"; } // intf;
     });
   in {
-    capefox = mkIntf {
+    capefox = {
+      ssh = false;
+    } // (mkIntf {
       dns = {
         name = "capefox.foxden.network";
       };
@@ -18,7 +20,7 @@
         "10.2.10.3/16"
         "fd2c:f4cb:63be:2::a03/64"
       ];
-    };
+    });
     capefox-wired = mkIntf {
       dns = {
         name = "capefox-wired.foxden.network";
@@ -28,7 +30,9 @@
         "10.2.10.4/16"
       ];
     };
-    crossfox = mkIntf {
+    crossfox = {
+      ssh = true;
+    } // (mkIntf {
       dns = {
         name = "crossfox.foxden.network";
       };
@@ -41,8 +45,10 @@
         "10.5.10.3/16"
         "fd2c:f4cb:63be:5::a03/64"
       ];
-    };
-    fennec = mkIntf {
+    });
+    fennec = {
+      ssh = true;
+    } // (mkIntf {
       dns = {
         name = "fennec.foxden.network";
       };
@@ -55,7 +61,7 @@
         "10.2.10.1/16"
         "fd2c:f4cb:63be:2::a01/64"
       ];
-    };
+    });
     wizzy-desktop = mkIntf {
       dns = {
         name = "wizzy-desktop.foxden.network";

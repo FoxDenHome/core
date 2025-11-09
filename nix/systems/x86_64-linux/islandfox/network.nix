@@ -78,6 +78,7 @@ in
 
   foxDen.hosts.hosts = {
     islandfox = {
+      ssh = true;
       interfaces.default = {
         driver.name = "null";
         dns = {

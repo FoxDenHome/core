@@ -79,6 +79,7 @@ in
 
   foxDen.hosts.hosts = {
     bengalfox = {
+      ssh = true;
       interfaces.default = {
         driver.name = "null";
         dns = {

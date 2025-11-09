@@ -66,6 +66,7 @@ let
   firewall = foxDenLib.global.firewall.make nixosConfigurations;
   haproxy = foxDenLib.global.haproxy.make nixosConfigurations;
   kanidm = foxDenLib.global.kanidm.mkConfig nixosConfigurations;
+  sshHostDnsNames = foxDenLib.global.ssh.sshHostDnsNames nixosConfigurations;
 
   mkSystemConfig = system: {
     name = system.name;
@@ -91,6 +92,10 @@ in
   dns = {
     attrset = dns;
     json = builtins.toFile "dns.json" (builtins.toJSON dns);
+  };
+  sshHostDnsNames = {
+    attrset = sshHostDnsNames;
+    json = builtins.toFile "sshHostDnsNames.json" (builtins.toJSON sshHostDnsNames);
   };
   haproxy = {
     source = haproxy;

@@ -198,6 +198,7 @@ in
             default = 200;
           };
         };
+        ssh = nixpkgs.lib.mkEnableOption "Does this host accept SSH connections";
         nameservers = nixpkgs.lib.mkOption {
           type = listOf str;
           default = [];

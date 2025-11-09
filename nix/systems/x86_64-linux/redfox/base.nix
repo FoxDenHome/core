@@ -8,7 +8,9 @@
       interfaces.default = { driver.name = "null"; } // intf;
     });
   in {
-    redfox = mkIntf {
+    redfox = {
+      ssh = true;
+    } // (mkIntf {
       dns = {
         name = "redfox.foxden.network";
       };
@@ -23,7 +25,7 @@
         "144.202.81.146"
         "2001:19f0:8001:f07:5400:4ff:feb1:d2e3"
       ];
-    };
+    });
   };
 
   foxDen.dns.records = [

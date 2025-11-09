@@ -24,7 +24,9 @@
         "10.4.10.3/16"
       ];
     };
-    carvera-controller = mkIntf {
+    carvera-controller = {
+      ssh = false;
+    } // (mkIntf {
       dns = {
         name = "carvera-controller.foxden.network";
       };
@@ -37,7 +39,7 @@
         "10.4.10.2/16"
         "fd2c:f4cb:63be:4::a02/64"
       ];
-    };
+    });
     laser-controller = mkIntf {
       dns = {
         name = "laser-controller.foxden.network";
