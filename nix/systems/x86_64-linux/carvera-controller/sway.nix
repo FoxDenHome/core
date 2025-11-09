@@ -24,7 +24,9 @@ in
       ConditionUser = "appliance";
     };
 
-    path = swayPkgs;
+    path = [
+      "/run/current-system/sw"
+    ];
 
     serviceConfig = {
       ExecStart = "${config.programs.sway.package}/bin/sway";
