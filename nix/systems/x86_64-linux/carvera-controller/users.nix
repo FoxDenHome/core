@@ -3,7 +3,7 @@
   environment.systemPackages = with pkgs; [
     wlr-randr
     wayvnc
-    network-manager-applet
+    networkmanagerapplet
   ];
 
   users.users.appliance = {
