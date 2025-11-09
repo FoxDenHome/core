@@ -5,6 +5,7 @@
     bemenu
     wlr-randr
     wayvnc
+    config.programs.nm-applet.package
     config.programs.sway.package
   ];
   programs.sway.enable = true;
