@@ -6,7 +6,7 @@
     });
   in {
     capefox = {
-      ssh = false;
+      ssh = true;
     } // (mkIntf {
       dns = {
         name = "capefox.foxden.network";
