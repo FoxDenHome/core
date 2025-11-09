@@ -44,6 +44,7 @@ in
         "--compress=none"
         "--source-bwlimit=75m"
         "--no-privilege-elevation"
+        "--sshoption=VerifyHostKeyDNS=yes"
       ];
       commands = lib.attrsets.mapAttrs (_: cfg: {
         sendOptions = "Lec";
