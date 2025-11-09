@@ -7,7 +7,7 @@ locals {
   ns_to_upstream = { for rec in local.ns_records :
     trimsuffix(rec["value"], ".") =>
     trimsuffix(local.alias_records[trimsuffix(rec["value"], ".")]["value"], ".")
-    if contains(local.nameservers, "${rec["name"]}.${var.domain}")
+    if endswith(trimsuffix(rec["value"], "."), ".${var.domain}")
   }
 }
 
