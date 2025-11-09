@@ -328,12 +328,22 @@ DEFAULT_RULES_TAIL: list[FirewallRule] = [
         },
     ),
     FirewallRule(
-        families=["ip", "ipv6"],
+        families=["ip"],
         table="filter",
         attribs={
             "action": "accept",
             "chain": "forward",
             "in-interface-list": "zone-local",
+            "out-interface-list": "iface-cghmn",
+        },
+    ),
+    FirewallRule(
+        families=["ip"],
+        table="filter",
+        attribs={
+            "action": "accept",
+            "chain": "forward",
+            "in-interface-list": "iface-cghmn",
             "out-interface-list": "iface-cghmn",
         },
     ),
