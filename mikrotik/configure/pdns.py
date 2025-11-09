@@ -37,6 +37,7 @@ def handle_alias(record: dict[str, Any]) -> list[dict[str, Any] | None]:
 RECORD_TYPE_HANDLERS = {}
 RECORD_TYPE_HANDLERS["MX"] = lambda record: f"{record['priority']} {record['value']}"
 RECORD_TYPE_HANDLERS["SRV"] = lambda record: f"{record['priority']} {record['weight']} {record['port']} {record['value']}"
+RECORD_TYPE_HANDLERS["SSHFP"] = lambda record: f"{record['algorithm']} {record['fptype']} {record['value']}"
 RECORD_TYPE_HANDLERS["TXT"] = quote_record
 RECORD_TYPE_HANDLERS["LUA"] = quote_record
 RECORD_TYPE_HANDLERS["ALIAS"] = handle_alias
