@@ -12,7 +12,7 @@
     home = ./appliance-home;
     shell = pkgs.fish;
     linger = true;
-    extraGroups = [ "seat" ];
+    extraGroups = [ "seat" "video" "render" ];
   };
   users.groups.appliance = {};
 
