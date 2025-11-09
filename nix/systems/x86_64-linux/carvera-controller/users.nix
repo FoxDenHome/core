@@ -17,7 +17,7 @@
   users.groups.appliance = {};
 
   systemd.tmpfiles.rules = [
-    "D /run/appliance 0700 appliance appliance"
+    "D /run/appliance 0500 appliance appliance"
   ];
 
   systemd.services.appliance-setup = {
