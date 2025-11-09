@@ -27,12 +27,19 @@ def disallow_apex_record(record: dict[str, Any]) -> list[None] | dict[str, Any]:
     if record["name"] == "@":
         return []
     return record
+def handle_alias(record: dict[str, Any]) -> list[dict[str, Any] | None]:
+    results =  [find_record(record["value"], "A"), find_record(record["value"], "AAAA")]
+    for result in results:
+        if result is not None:
+            return results
+    record["type"] = "CNAME"
+    return [record]
 RECORD_TYPE_HANDLERS = {}
 RECORD_TYPE_HANDLERS["MX"] = lambda record: f"{record['priority']} {record['value']}"
 RECORD_TYPE_HANDLERS["SRV"] = lambda record: f"{record['priority']} {record['weight']} {record['port']} {record['value']}"
 RECORD_TYPE_HANDLERS["TXT"] = quote_record
 RECORD_TYPE_HANDLERS["LUA"] = quote_record
-RECORD_TYPE_HANDLERS["ALIAS"] = lambda record: [find_record(record["value"], "A"), find_record(record["value"], "AAAA")]
+RECORD_TYPE_HANDLERS["ALIAS"] = handle_alias
 RECORD_TYPE_HANDLERS["SOA"] = disallow_apex_record
 RECORD_TYPE_HANDLERS["NS"] = disallow_apex_record
 
@@ -71,6 +78,7 @@ def refresh_pdns():
         lines = [ "$INCLUDE /etc/pdns/base-rendered.db" ]
         if exists(path_join(ROOT_PATH, f"{zone}.local.db")):
             lines.append(f"$INCLUDE /etc/pdns/{zone}.local.db")
+
         for record in records:
             value = record["value"]
             rec_type_spl = record["type"].upper().split(" ")
@@ -81,7 +89,10 @@ def refresh_pdns():
 
             if not isinstance(value, list):
                 value = [value]
+
             for val in value:
+                if val is None:
+                    continue
                 if isinstance(val, dict):
                     lines.append(f"{record['name']} {record['ttl']} IN {val['type']} {val['value']}")
                 else:

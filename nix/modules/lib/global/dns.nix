@@ -146,14 +146,7 @@ let
       type  = "ALIAS";
       ttl   = 86400;
       value = builtins.elemAt authorities.default.nameservers idx;
-      horizon = "external";
-    }
-    {
-      name  = "ns${builtins.toString (idx+1)}.${name}";
-      type  = "A";
-      ttl   = 86400;
-      value = "10.2.0.53";
-      horizon = "internal";
+      horizon = "*";
     }
   ]) (nixpkgs.lib.lists.length authorities.default.nameservers)) else []));
 in

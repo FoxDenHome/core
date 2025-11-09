@@ -17,7 +17,9 @@
       generateNSRecords = true;
     };
     "darksignsonline.com" = {};
-    "f0x.es" = {};
+    "f0x.es" = {
+      generateNSRecords = true;
+    };
     "foxcav.es" = {};
     "spaceage.mp" = {
       registrar = "getmp";

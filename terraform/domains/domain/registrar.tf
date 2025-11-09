@@ -4,11 +4,11 @@ locals {
   ns_records    = [for rec in var.records : rec if rec["type"] == "NS"]
   alias_records = { for rec in var.records : "${rec["name"]}.${var.domain}" => rec if rec["type"] == "ALIAS" }
 
-  ns_same_domain = endswith(tolist(local.nameservers)[0], ".${var.domain}")
-  ns_to_upstream = local.ns_same_domain ? { for rec in local.ns_records :
+  ns_to_upstream = { for rec in local.ns_records :
     trimsuffix(rec["value"], ".") =>
     trimsuffix(local.alias_records[trimsuffix(rec["value"], ".")]["value"], ".")
-  } : {}
+    if contains(local.nameservers, "${rec["name"]}.${var.domain}")
+  }
 }
 
 data "dns_a_record_set" "ns" {
@@ -37,9 +37,9 @@ resource "aws_route53domains_registered_domain" "domain" {
     for_each = local.nameservers
     content {
       name = name_server.value
-      glue_ips = local.ns_same_domain ? [
-        data.dns_a_record_set.ns[name_server.key].addrs[0],
-        data.dns_aaaa_record_set.ns[name_server.key].addrs[0],
+      glue_ips = lookup(local.ns_to_upstream, name_server.value, null) ? [
+        data.dns_a_record_set.ns[name_server.value].addrs[0],
+        data.dns_aaaa_record_set.ns[name_server.value].addrs[0],
       ] : []
     }
   }
