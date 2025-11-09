@@ -11,3 +11,4 @@ exec --no-startup-id wayvnc -r
 
 set $menu wofi --show drun | xargs -r swaymsg exec --
 set $mod super
+bindsym $mod+d exec $menu
