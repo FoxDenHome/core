@@ -21,7 +21,9 @@
         "fd2c:f4cb:63be:2::a03/64"
       ];
     });
-    capefox-wired = mkIntf {
+    capefox-wired = {
+      ssh = true;
+    } // (mkIntf {
       dns = {
         name = "capefox-wired.foxden.network";
       };
@@ -29,7 +31,7 @@
       addresses = [
         "10.2.10.4/16"
       ];
-    };
+    });
     crossfox = {
       ssh = true;
     } // (mkIntf {
