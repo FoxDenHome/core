@@ -57,7 +57,10 @@
     git.enable = true;
     htop.enable = true;
     tcpdump.enable = true;
-    ssh.package = pkgs.openssh_hpn;
+    ssh = {
+      package = pkgs.openssh_hpn;
+      extraConfig = "VerifyHostKeyDNS yes";
+    };
   };
   services.openssh = {
     enable = true;
