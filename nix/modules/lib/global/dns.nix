@@ -46,9 +46,9 @@ let
         type = str;
         default = "aws";
       };
-      nameservers = lib.mkOption {
+      authority = lib.mkOption {
         type = str;
-        default = "doridian.net";
+        default = "default";
       };
       generateNSRecords = lib.mkOption {
         type = bool;
@@ -82,7 +82,7 @@ let
     ttl = 86400;
     value = ns;
     horizon = "*";
-  }) authorities.${zone.nameservers}.nameservers) ++ (if zone.fastmail or zone.ses then [
+  }) authorities.${zone.authority}.nameservers) ++ (if zone.fastmail or zone.ses then [
     {
       inherit name;
       type = "TXT";
@@ -145,10 +145,10 @@ let
       name  = "ns${builtins.toString (idx+1)}.${name}";
       type  = "ALIAS";
       ttl   = 86400;
-      value = builtins.elemAt authorities.default.nameservers idx;
+      value = builtins.elemAt authorities.upstream.nameservers idx;
       horizon = "*";
     }
-  ]) (nixpkgs.lib.lists.length authorities.default.nameservers)) else []));
+  ]) (nixpkgs.lib.lists.length authorities.upstream.nameservers)) else []));
 in
 {
   nixosModule = { config, ... }: {
@@ -173,7 +173,7 @@ in
   mkConfig = (nixosConfigurations: let
     authorities = globalConfig.getAttrSet ["foxDen" "dns" "authorities"] nixosConfigurations;
     zones = nixpkgs.lib.mapAttrs (name: zone: zone // {
-      nameserverList = authorities.${zone.nameservers}.nameservers;
+      nameserverList = authorities.${zone.authority}.nameservers;
     }) (globalConfig.getAttrSet ["foxDen" "dns" "zones"] nixosConfigurations);
     records = (globalConfig.getList ["foxDen" "dns" "records"] nixosConfigurations) ++ nixpkgs.lib.flatten (
       map ({ name, value }: mkAuxRecords name value authorities) (lib.attrsets.attrsToList zones)

@@ -5,7 +5,7 @@ let
     registrar = "inwx";
     fastmail = false;
     ses = true;
-    nameservers = "default";
+    authority = "upstream";
   };
   subCnamesRaw = [
     "ftp"

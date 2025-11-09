@@ -2,12 +2,10 @@
 {
   config.foxDen.dns.zones = {
     "foxden.network" = {
-      nameservers = "foxden.network";
       generateNSRecords = true;
     };
     "doridian.de" = {
       registrar = "inwx";
-      nameservers = "doridian.de";
       generateNSRecords = true;
     };
     "dori.fyi" = {
@@ -48,9 +46,7 @@
   };
 
   config.foxDen.dns.authorities = {
-    "doridian.de" = { admin = "hostmaster@doridian.de"; nameservers = ["ns1.doridian.de." "ns2.doridian.de." "ns3.doridian.de." "ns4.doridian.de."]; };
-    "doridian.net" = { admin = "hostmaster@doridian.net"; nameservers = ["ns1.doridian.net." "ns2.doridian.net." "ns3.doridian.net." "ns4.doridian.net."]; };
-    "foxden.network" = { admin = "hostmaster@foxden.network"; nameservers = ["ns1.foxden.network." "ns2.foxden.network." "ns3.foxden.network." "ns4.foxden.network."]; };
-    default = { admin = "support@cloudns.net"; nameservers = ["pns41.cloudns.net." "pns42.cloudns.net." "pns43.cloudns.net." "pns44.cloudns.net."]; };
+    default = { admin = "hostmaster@doridian.net"; nameservers = ["ns1.doridian.net." "ns2.doridian.de." "ns3.foxden.network." "ns4.f0x.es."]; };
+    upstream = { admin = "support@cloudns.net"; nameservers = ["pns41.cloudns.net." "pns42.cloudns.net." "pns43.cloudns.net." "pns44.cloudns.net."]; };
   };
 }
