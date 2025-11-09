@@ -25,6 +25,8 @@
         "${pkgs.coreutils}/bin/chmod -R 700 /run/appliance"
         "${pkgs.rsync}/bin/rsync -av --delete ${./appliance-home}/ /run/appliance/"
         "${pkgs.coreutils}/bin/chmod 500 /run/appliance"
+        "${pkgs.coreutils}/bin/mkdir -p /var/lib/appliance/data"
+        "${pkgs.coreutils}/bin/mkdir -p /var/lib/appliance/.cache"
       ];
     };
 
@@ -34,7 +36,7 @@
   environment.persistence."/nix/persist/appliance" = {
     hideMounts = true;
     directories = [
-      { directory = "/var/lib/appliance-data"; user = "appliance"; group = "appliance"; mode = "u=rwx,g=,o="; }
+      { directory = "/var/lib/appliance"; user = "appliance"; group = "appliance"; mode = "u=rwx,g=,o="; }
     ];
   };
 }
