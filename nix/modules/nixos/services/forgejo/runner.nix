@@ -44,15 +44,19 @@ in
         ];
 
         serviceConfig = {
-          User = "forgejo-runner";
-          Group = "forgejo-runner";
           ExecStart = "${pkgs.forgejo-runner}/bin/forgejo-runner daemon --config /config.yml";
           ExecReload = "${pkgs.coreutils}/bin/kill -s HUP $MAINPID";
+          ExecStartPre = [
+            "${pkgs.coreutils}/bin/cp -f /registration.json /var/lib/forgejo-runner/.runner"
+          ];
           BindReadOnlyPaths = [
             "/usr/bin/env"
             "${./runner-config.yml}:/config.yml"
             "${config.sops.secrets."forgejo-runner-registration".path}:/registration.json"
           ];
+          User = "forgejo-runner";
+          Group = "forgejo-runner";
+          WorkingDirectory = "/var/lib/forgejo-runner";
           StateDirectory = "forgejo-runner";
         };
 
