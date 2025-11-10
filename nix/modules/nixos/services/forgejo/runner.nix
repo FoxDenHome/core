@@ -80,8 +80,8 @@ in
             "${config.sops.secrets."forgejo-runner-registration".path}:/registration.json"
           ];
           PrivateUsers = false;
-          PrivateDevices = true;
           PrivateTmp = true;
+          ProtectProc = false;
           User = "forgejo-runner";
           Group = "forgejo-runner";
           WorkingDirectory = "/var/lib/forgejo-runner";
