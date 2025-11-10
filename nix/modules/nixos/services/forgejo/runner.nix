@@ -66,6 +66,7 @@ in
             "${./runner-config.yml}:/config.yml"
             "${config.sops.secrets."forgejo-runner-registration".path}:/registration.json"
           ];
+          PrivateUsers = false;
           User = "forgejo-runner";
           Group = "forgejo-runner";
           WorkingDirectory = "/var/lib/forgejo-runner";
