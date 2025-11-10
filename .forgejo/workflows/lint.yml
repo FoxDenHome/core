@@ -5,5 +5,5 @@ jobs:
     steps:
       - name: checkout code
         uses: actions/checkout@v4
-      - name: list directory contents
-        run: docker build -t core .
+      - name: Build dev container
+        run: podman build -t core .
