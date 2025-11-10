@@ -65,7 +65,7 @@ in
           ];
           BindPaths = [
             "/proc"
-            "/run/user"
+            "/run"
           ];
           BindReadOnlyPaths = [
             "/run/wrappers/bin/newuidmap"
