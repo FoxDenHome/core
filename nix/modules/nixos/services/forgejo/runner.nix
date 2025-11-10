@@ -46,10 +46,11 @@ in
           gnutar
           nodejs_24
           podman
+          shadow
         ];
       in {
         confinement.packages = packages;
-        path = packages ++ [ "/run/wrappers" ];
+        path = [ "/run/wrappers" ] ++ packages;
 
         serviceConfig = {
           ExecStart = "${pkgs.forgejo-runner}/bin/forgejo-runner daemon --config /config.yml";
