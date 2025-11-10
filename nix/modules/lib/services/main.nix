@@ -67,8 +67,8 @@ let
             "group"
             "subuid"
             "subgid"
-            "pki/tls/certs"
-            "ssl/certs"
+            "pki/tls/certs/ca-bundle.crt"
+            "ssl/certs/ca-bundle.crt"
           ];
         };
       };
