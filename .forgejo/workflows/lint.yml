@@ -1,6 +1,6 @@
 on: [push]
 jobs:
-  print-content:
+  lint:
     runs-on: default
     steps:
       - name: checkout code
