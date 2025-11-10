@@ -61,7 +61,7 @@ in
     serviceConfig = {
       Type = "simple";
       ExecStart = [ autoUpdateScript ];
-      Restart = "never";
+      Restart = "no";
     };
   };
 }
