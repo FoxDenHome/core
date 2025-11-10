@@ -58,7 +58,8 @@ let
           BindReadOnlyPaths = [
             "/run/systemd/notify"
             "${resolvConf}:/etc/resolv.conf"
-            pkgs.cacert
+            "${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt:/etc/ssl/certs/ca-bundle.crt"
+            "${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt:/etc/pki/tls/certs/ca-bundle.crt"
           ] ++ gpuPaths ++ mkEtcPaths [
             "hosts"
             "localtime"
@@ -67,8 +68,6 @@ let
             "group"
             "subuid"
             "subgid"
-            "pki/tls/certs/ca-bundle.crt"
-            "ssl/certs/ca-bundle.crt"
           ];
         };
       };
