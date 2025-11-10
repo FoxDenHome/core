@@ -21,6 +21,9 @@ let
 
   baseServiceConfig = {
     BindPaths = [ config.services.forgejo.stateDir ];
+    BindReadOnlyPaths = [
+      "/usr/bin/env"
+    ];
     StateDirectory = ifDefaultData "forgejo";
   };
 
