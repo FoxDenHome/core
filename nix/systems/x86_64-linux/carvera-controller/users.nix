@@ -14,7 +14,7 @@
     serviceConfig = {
       User = "appliance";
       Group = "appliance";
-      WorkingDirectory = "/run/appliance";
+      WorkingDirectory = "/";
       Type = "oneshot";
       RemainAfterExit = true;
       ExecStart = [
