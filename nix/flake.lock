@@ -86,11 +86,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1762760334,
-        "narHash": "sha256-I4tMQKQLpQfHFcBJfa+KSlK6cjMoqokwC7/0ZlHRF/Q=",
+        "lastModified": 1762814110,
+        "narHash": "sha256-SDmCTABfUg63N6OCSYUWh68GVZUUY524mvAqeSGkXmw=",
         "owner": "Doridian",
         "repo": "fadumper",
-        "rev": "e852c25fea3dd029842d2b8b83ceafea4ed7cfe5",
+        "rev": "c6171d7862499ff7aa33babc5372ba3fde409cea",
         "type": "github"
       },
       "original": {
@@ -567,11 +567,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1762803106,
-        "narHash": "sha256-eVp6KEL6j+hO/A2xcPCnmVtSLWtrsDMvvCvaZve5j3w=",
+        "lastModified": 1762814028,
+        "narHash": "sha256-0XqOkzf9vUs9GdL67E0WhsuwrGrJt1S/70+mOWXO410=",
         "owner": "Doridian",
         "repo": "oauth-jit-radius",
-        "rev": "2fcd6871331ef2421e55564c19bc80bc683d98c7",
+        "rev": "0b7a99cb3f1d6cc0ba12aad31a3e75f1a9585a2e",
         "type": "github"
       },
       "original": {
@@ -807,11 +807,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1762659808,
-        "narHash": "sha256-2Kv2mANf+FRisqhpfeZ8j9firBxb23ZvEXwdcunbpGI=",
+        "lastModified": 1762812535,
+        "narHash": "sha256-A91a+K0Q9wfdPLwL06e/kbHeAWSzPYy2EGdTDsyfb+s=",
         "owner": "Mic92",
         "repo": "sops-nix",
-        "rev": "524312bc62e3f34bd9231a2f66622663d3355133",
+        "rev": "d75e4f89e58fdda39e4809f8c52013caa22483b7",
         "type": "github"
       },
       "original": {
@@ -828,11 +828,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1762543493,
-        "narHash": "sha256-UOCNLDSYzsFOg+15/16seS01IenEUZuk4hUtRZ2sgb4=",
+        "lastModified": 1762813265,
+        "narHash": "sha256-lzNbF9FHl09qQIXaaEgRurlL8F93ZsOBcRSyb4cm5m4=",
         "owner": "SpaceAgeMP",
         "repo": "space_age_api",
-        "rev": "341c153f3b086cf4ffa058a05bccdfc59373a360",
+        "rev": "892ffc886a56a9b973bfb0a7ad7f4fb1f1c62c18",
         "type": "github"
       },
       "original": {
@@ -913,11 +913,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1762099947,
-        "narHash": "sha256-l4u1l8CJumlWg9CLuG5BHMFI0GNh0QtLCRCFpsPCYJ0=",
+        "lastModified": 1762813636,
+        "narHash": "sha256-Q0eNEXKJaPEVZFWgJhZUr30142/jYMyrk2ciBrlBPyI=",
         "owner": "Doridian",
         "repo": "superfan",
-        "rev": "a12068d77666091c8e1f8e7e7c2476a4a405cde5",
+        "rev": "4469bc210f856b1083850f8e36486add8425cce3",
         "type": "github"
       },
       "original": {
@@ -1183,11 +1183,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1762803069,
-        "narHash": "sha256-mybIMUOOnPkg8UXRw/jtFQLyaI5/tJLNnMeX4M5l6FE=",
+        "lastModified": 1762814115,
+        "narHash": "sha256-qOsI9QfuBVc2ACcPvimNUEw9a7IZBj7xsHzwjqkI6V8=",
         "owner": "FoxDenHome",
         "repo": "tapemgr",
-        "rev": "d78779b06b9f9eb0eca701c460c13da1e42ab832",
+        "rev": "21660ccce20916793c636f7ad0b27102b80055ff",
         "type": "github"
       },
       "original": {
