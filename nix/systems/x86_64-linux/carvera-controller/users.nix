@@ -22,7 +22,7 @@
         "+${pkgs.coreutils}/bin/chown -R appliance:appliance /run/appliance"
         "+${pkgs.coreutils}/bin/chmod -R 700 /run/appliance"
         "${pkgs.rsync}/bin/rsync -av --delete ${./appliance-home}/ /run/appliance/"
-        "+${pkgs.coreutils}/bin/mkdir -p /run/appliance/tmp"
+        "${pkgs.coreutils}/bin/mkdir -p /run/appliance/tmp"
         "${pkgs.coreutils}/bin/chmod 700 /run/appliance/tmp"
         "${pkgs.coreutils}/bin/chmod 500 /run/appliance"
         "${pkgs.coreutils}/bin/mkdir -p /var/lib/appliance/data"
