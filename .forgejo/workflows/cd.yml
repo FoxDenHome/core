@@ -4,6 +4,6 @@ jobs:
     runs-on: default
     steps:
       - name: checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: list directory contents
         run: ls -la
