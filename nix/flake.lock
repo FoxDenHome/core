@@ -29,11 +29,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1762741917,
-        "narHash": "sha256-o9Tp40oYZun5NjfSvih+/ahTAE88OBAgJ8wVwS2btxo=",
+        "lastModified": 1762742831,
+        "narHash": "sha256-B7h6A1ASnVIuPSPJg19NYt5DDWb7BFDza/QRnsfSs9E=",
         "owner": "Doridian",
         "repo": "carvera-pendant",
-        "rev": "af359075f2a8270653283fe9e96eb539ebea4ea9",
+        "rev": "8020db7fcebecd0f29a513dbcd9932d71a0b992d",
         "type": "github"
       },
       "original": {
