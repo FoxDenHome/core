@@ -35,15 +35,20 @@ in
         mode = "0400";
       };
 
-      systemd.services.forgejo-runner = {
-        confinement.packages = with pkgs; [
-          podman
+      systemd.services.forgejo-runner = let
+        packages =  with pkgs; [
+          bash
+          coreutils
+          git
+          gnugrep
+          gnused
+          gnutar
           nodejs_24
-        ];
-        path = with pkgs; [
           podman
-          nodejs_24
         ];
+      in {
+        confinement.packages = packages;
+        path = packages;
 
         serviceConfig = {
           ExecStart = "${pkgs.forgejo-runner}/bin/forgejo-runner daemon --config /config.yml";
