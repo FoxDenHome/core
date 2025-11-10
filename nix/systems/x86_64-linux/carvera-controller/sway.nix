@@ -6,6 +6,7 @@
     networkmanagerapplet
     wayvnc
     wlr-randr
+    xclip
     wofi
     config.programs.sway.package
   ];
