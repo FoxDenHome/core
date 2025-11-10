@@ -7,7 +7,7 @@ for_window [shell="xwayland"] title_format "[XWayland] %title"
 exec --no-startup-id wlr-randr --output eDP-1 --transform 270 --scale 2.0
 exec --no-startup-id nm-applet
 exec --no-startup-id /run/appliance/app/CarveraController
-exec --no-startup-id wayvnc -r
+exec --no-startup-id wayvnc -r 0.0.0.0
 
 set $menu wofi --show drun | xargs -r swaymsg exec --
 set $mod super
