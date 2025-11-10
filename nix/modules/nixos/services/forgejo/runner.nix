@@ -47,6 +47,7 @@ in
           nodejs_24
           podman
           shadow
+          systemd
         ];
       in {
         confinement = {
@@ -64,7 +65,8 @@ in
             "${pkgs.coreutils}/bin/chmod 600 /var/lib/forgejo-runner/.runner"
           ];
           BindPaths = [
-            "/proc:/proc"
+            "/proc"
+            "/run/user"
           ];
           BindReadOnlyPaths = [
             "/run/wrappers/bin/newuidmap"
