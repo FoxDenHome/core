@@ -26,7 +26,7 @@
         "${pkgs.coreutils}/bin/ln -sf \"${pkgs.carvera-controller}\" /run/appliance/app"
         "${pkgs.rsync}/bin/rsync --exclude=tmp --exclude=app -av --delete ${./appliance-home}/ /run/appliance/"
         "${pkgs.coreutils}/bin/chmod 500 /run/appliance"
-        "${pkgs.coreutils}/bin/mkdir -p /var/lib/appliance/data /run/appliance/tmp/.cache /run/appliance/tmp/.local /run/appliance/tmp/.config/fish"
+        "${pkgs.coreutils}/bin/mkdir -p /var/lib/appliance/data /run/appliance/tmp/.cache /run/appliance/tmp/.kivy /run/appliance/tmp/.local /run/appliance/tmp/.config/fish"
       ];
     };
 
