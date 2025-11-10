@@ -6,8 +6,6 @@ jobs:
       - name: checkout code
         uses: actions/checkout@v4
       - name: Say hi
-        run: echo Hello
+        run: sleep 60s
       - name: Build dev container
-        run: |
-          mkdir -p hostexecutor
-          podman build -t core .
+        run: podman build -t core .
