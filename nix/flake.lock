@@ -86,11 +86,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1762303083,
-        "narHash": "sha256-7RMN3ec4tQh343H5aAi5HYlY4qmWsHU9Fk7xOmRCE2o=",
+        "lastModified": 1762760334,
+        "narHash": "sha256-I4tMQKQLpQfHFcBJfa+KSlK6cjMoqokwC7/0ZlHRF/Q=",
         "owner": "Doridian",
         "repo": "fadumper",
-        "rev": "c16b8d7191b72c064f617927bc143f70777f24a3",
+        "rev": "e852c25fea3dd029842d2b8b83ceafea4ed7cfe5",
         "type": "github"
       },
       "original": {

@@ -54,9 +54,7 @@ in
       sops.secrets.fadumper = config.lib.foxDen.sops.mkIfAvailable {};
 
       systemd.services.fadumper-api = {
-        confinement.packages = [
-          pkgs.fadumper
-        ];
+        confinement.packages = [ pkgs.fadumper ];
 
         serviceConfig = {
           BindPaths = [
@@ -69,7 +67,7 @@ in
           EnvironmentFile = config.lib.foxDen.sops.mkIfAvailable config.sops.secrets.fadumper.path;
 
           Type = "simple";
-          ExecStart = [ "${pkgs.nodejs_24}/bin/node ./dist/api/index.js" ];
+          ExecStart = [ "${pkgs.fadumper}/bin/fadumper-api" ];
           WorkingDirectory = faDumperDir;
           StateDirectory = ifDefaultData "fadumper";
 
@@ -86,11 +84,8 @@ in
       };
 
       systemd.services.fadumper-refresh = {
-        confinement.packages = [
-          pkgs.fadumper
-          pkgs.nodejs_24
-        ];
-        path = [ pkgs.nodejs_24 ];
+        confinement.packages = [ pkgs.fadumper ];
+        path = [ pkgs.fadumper ];
 
         serviceConfig = {
           BindPaths = [
@@ -105,7 +100,7 @@ in
 
           EnvironmentFile = config.lib.foxDen.sops.mkIfAvailable config.sops.secrets.fadumper.path;
 
-          ExecStart = [ "${pkgs.bash}/bin/bash ./looper.sh" ];
+          ExecStart = [ "${pkgs.bash}/bin/bash ${pkgs.fadumper}/lib/node_modules/fadumper/looper.sh" ];
           WorkingDirectory = faDumperDir;
           StateDirectory = ifDefaultData "fadumper";
 
