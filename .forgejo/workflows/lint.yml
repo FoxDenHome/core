@@ -8,4 +8,6 @@ jobs:
       - name: Say hi
         run: echo Hello
       - name: Build dev container
-        run: podman build -t core .
+        run: |
+          mkdir -p hostexecutor
+          podman build -t core .
