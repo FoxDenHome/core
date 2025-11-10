@@ -25,7 +25,7 @@ pkgs.stdenv.mkDerivation {
     xz
     bzip2
     libffi
-    openssl
+    (lib.getLib openssl)
     (lib.getLib stdenv.cc.cc)
   ];
 
