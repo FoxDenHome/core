@@ -49,7 +49,10 @@ in
           shadow
         ];
       in {
-        confinement.packages = packages;
+        confinement = {
+          inherit packages;
+          mode = "chroot-only";
+        };
         path = [ "/run/wrappers" ] ++ packages;
 
         serviceConfig = {
@@ -59,6 +62,9 @@ in
             "-${pkgs.coreutils}/bin/chmod 600 /var/lib/forgejo-runner/.runner"
             "${pkgs.coreutils}/bin/cp -f /registration.json /var/lib/forgejo-runner/.runner"
             "${pkgs.coreutils}/bin/chmod 600 /var/lib/forgejo-runner/.runner"
+          ];
+          BindPaths = [
+            "/proc:/proc"
           ];
           BindReadOnlyPaths = [
             "/run/wrappers/bin/newuidmap"
@@ -72,6 +78,8 @@ in
             "${config.sops.secrets."forgejo-runner-registration".path}:/registration.json"
           ];
           PrivateUsers = false;
+          PrivateDevices = true;
+          PrivateTmp = true;
           User = "forgejo-runner";
           Group = "forgejo-runner";
           WorkingDirectory = "/var/lib/forgejo-runner";
