@@ -38,9 +38,11 @@ in
       systemd.services.forgejo-runner = {
         confinement.packages = with pkgs; [
           podman
+          nodejs_24
         ];
         path = with pkgs; [
           podman
+          nodejs_24
         ];
 
         serviceConfig = {
