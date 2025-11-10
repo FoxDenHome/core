@@ -30,7 +30,7 @@ in
       users.groups.forgejo-runner = { };
 
       sops.secrets."forgejo-runner-registration" = {
-        user = "forgejo-runner";
+        owner = "forgejo-runner";
         group = "forgejo-runner";
         mode = "0400";
       };
