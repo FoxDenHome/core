@@ -9,14 +9,23 @@ let
     fi
   '';
 
-  updateScript = pkgs.writeShellScript "update-nixos.sh" ''
+  autoUpdateScript = pkgs.writeShellScript "nixos-auto-update.sh" ''
+    set -xeuo pipefail
+    nix flake update --flake 'github:FoxDenHome/core?dir=nix' || true
+    nixos-rebuild switch --flake "github:FoxDenHome/core?dir=nix#$(hostname)" || true
+    nix-collect-garbage --delete-older-than 30d
+    /run/current-system/bin/switch-to-configuration boot
+    ${syncBootScript}
+  '';
+
+  updateScript = pkgs.writeShellScript "nixos-update.sh" ''
     set -xeuo pipefail
     nix flake update --flake 'github:FoxDenHome/core?dir=nix' || true
     nixos-rebuild switch --flake "github:FoxDenHome/core?dir=nix#$(hostname)"
     ${syncBootScript}
   '';
 
-  pruneScript = pkgs.writeShellScript "prune-nixos.sh" ''
+  pruneScript = pkgs.writeShellScript "nixos-prune.sh" ''
     set -xeuo pipefail
     nix-collect-garbage --delete-old
     /run/current-system/bin/switch-to-configuration boot
@@ -35,6 +44,7 @@ let
           (lib.attrsets.attrValues config.boot.initrd.luks.devices))) + "\n");
 in
 {
+  environment.etc."foxden/nixos/auto-update.sh".source = autoUpdateScript;
   environment.etc."foxden/nixos/update.sh".source = updateScript;
   environment.etc."foxden/nixos/prune.sh".source = pruneScript;
   environment.etc."foxden/cryptenroll.sh".source = cryptenrollScript;
