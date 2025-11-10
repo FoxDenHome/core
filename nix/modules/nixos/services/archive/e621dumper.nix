@@ -4,8 +4,6 @@ let
 
   svcConfig = config.foxDen.services.e621dumper;
 
-  e621DumperDir = "${pkgs.e621dumper}/lib/node_modules/e621dumper";
-
   defaultDataDir = "/var/lib/e621dumper";
   ifDefaultData = lib.mkIf (svcConfig.dataDir == defaultDataDir);
 
@@ -69,8 +67,7 @@ in
           EnvironmentFile = config.lib.foxDen.sops.mkIfAvailable config.sops.secrets.e621dumper.path;
 
           Type = "simple";
-          ExecStart = [ "${pkgs.nodejs_24}/bin/node ./dist/api/index.js" ];
-          WorkingDirectory = e621DumperDir;
+          ExecStart = [ "${pkgs.e621dumper}/bin/e621dumper-api" ];
           StateDirectory = ifDefaultData "e621dumper";
 
           Environment = [
@@ -86,11 +83,8 @@ in
       };
 
       systemd.services.e621dumper-refresh = {
-        confinement.packages = [
-          pkgs.e621dumper
-          pkgs.nodejs_24
-        ];
-        path = [ pkgs.nodejs_24 ];
+        confinement.packages = [ pkgs.e621dumper ];
+        path = [ pkgs.e621dumper ];
 
         serviceConfig = {
           BindPaths = [
@@ -104,9 +98,8 @@ in
           Group = "e621dumper";
 
           EnvironmentFile = config.lib.foxDen.sops.mkIfAvailable config.sops.secrets.e621dumper.path;
-          
-          ExecStart = [ "${pkgs.bash}/bin/bash ./looper.sh" ];
-          WorkingDirectory = e621DumperDir;
+
+          ExecStart = [ "${pkgs.bash}/bin/bash ${pkgs.e621dumper}/lib/node_modules/e621dumper/looper.sh" ];
           StateDirectory = ifDefaultData "e621dumper";
 
           Environment = [

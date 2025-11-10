@@ -65,11 +65,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1762191981,
-        "narHash": "sha256-ZXb/VckyE7tpishYFQMDB9IsnB5rxP7SS+H1JUzAPIE=",
+        "lastModified": 1762759710,
+        "narHash": "sha256-rNQLXzz/YQRd89tgq20QtJneJc5TpvH4hEVExNJA2k4=",
         "owner": "FoxDenHome",
         "repo": "e621dumper",
-        "rev": "17b3c0724763388a16c9a1adc00c057f5ab71ee9",
+        "rev": "9669fc3ca5a5110ae54962d03cc15265caf3082b",
         "type": "github"
       },
       "original": {
