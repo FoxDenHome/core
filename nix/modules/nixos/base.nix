@@ -28,6 +28,7 @@
     mstflint
     ncdu
     openssl
+    pciutils
     rsync
     screen
     smartmontools
@@ -35,6 +36,8 @@
     systemd-query
     tmux
     unixtools.netstat
+    usbutils
+    util-linux
     wget
     xfsprogs
   ];
