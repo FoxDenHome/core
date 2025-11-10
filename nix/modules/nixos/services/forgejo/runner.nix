@@ -62,6 +62,10 @@ in
           BindReadOnlyPaths = [
             "/run/wrappers/bin/newuidmap"
             "/run/wrappers/bin/newgidmap"
+            "/etc/containers/containers.conf"
+            "/etc/containers/policy.conf"
+            "/etc/containers/registry.conf"
+            "/etc/containers/storage.conf"
             "/usr/bin/env"
             "${./runner-config.yml}:/config.yml"
             "${config.sops.secrets."forgejo-runner-registration".path}:/registration.json"
