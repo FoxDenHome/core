@@ -36,6 +36,8 @@
     uds-proxy.inputs.nixpkgs.follows = "nixpkgs";
     systemd-query.url = "github:Doridian/systemd-query";
     systemd-query.inputs.nixpkgs.follows = "nixpkgs";
+    carvera-pendant.url = "github:Doridian/carvera-pendant";
+    carvera-pendant.inputs.nixpkgs.follows = "nixpkgs";
   };
 
   outputs = inputs: import ./outputs.nix inputs;
