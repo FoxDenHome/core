@@ -15,6 +15,10 @@ in
         displayName = "Git";
       };
     };
+    forgejo-runner = {
+      enable = true;
+      host = "islandfox-forgejo-runner";
+    };
   };
 
   foxDen.hosts.hosts = {
@@ -27,6 +31,15 @@ in
       addresses = [
         "10.2.11.13/16"
         "fd2c:f4cb:63be:2::b0d/64"
+      ];
+    };
+    islandfox-forgejo-runner = mkVlanHost 2 {
+      dns = {
+        name = "islandfox-forgejo-runner.foxden.network";
+      };
+      addresses = [
+        "10.2.11.25/16"
+        "fd2c:f4cb:63be:2::b19/64"
       ];
     };
   };
