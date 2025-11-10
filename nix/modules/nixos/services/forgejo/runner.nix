@@ -52,7 +52,6 @@ in
       in {
         confinement = {
           inherit packages;
-          mode = "chroot-only";
         };
         path = [ "/run/wrappers" ] ++ packages;
 
@@ -69,7 +68,6 @@ in
             "/run/user"
           ];
           BindReadOnlyPaths = [
-            "/run/systemd"
             "/run/wrappers/bin/newuidmap"
             "/run/wrappers/bin/newgidmap"
             "/etc/containers/containers.conf"
@@ -82,8 +80,6 @@ in
           ];
           PrivateUsers = false;
           PrivateTmp = true;
-          ProtectProc = lib.mkForce false;
-          ProtectControlGroups = false;
           User = "forgejo-runner";
           Group = "forgejo-runner";
           WorkingDirectory = "/var/lib/forgejo-runner";
