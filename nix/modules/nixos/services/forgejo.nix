@@ -31,6 +31,10 @@ let
 
     confinement.packages = [
       config.services.forgejo.package
+      pkgs.coreutils
+    ];
+    path = [
+      pkgs.coreutils
     ];
   };
 in
