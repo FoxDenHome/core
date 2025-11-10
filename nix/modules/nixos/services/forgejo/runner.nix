@@ -50,7 +50,7 @@ in
         ];
       in {
         confinement.packages = packages;
-        path = packages;
+        path = packages ++ [ "/run/wrappers" ];
 
         serviceConfig = {
           ExecStart = "${pkgs.forgejo-runner}/bin/forgejo-runner daemon --config /config.yml";
@@ -61,6 +61,8 @@ in
             "${pkgs.coreutils}/bin/chmod 600 /var/lib/forgejo-runner/.runner"
           ];
           BindReadOnlyPaths = [
+            "/run/wrappers/bin/newuidmap"
+            "/run/wrappers/bin/newgidmap"
             "/usr/bin/env"
             "${./runner-config.yml}:/config.yml"
             "${config.sops.secrets."forgejo-runner-registration".path}:/registration.json"
