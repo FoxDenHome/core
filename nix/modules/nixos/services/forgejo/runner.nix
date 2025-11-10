@@ -63,7 +63,7 @@ in
             "/run/wrappers/bin/newuidmap"
             "/run/wrappers/bin/newgidmap"
             "/etc/containers/containers.conf"
-            "/etc/containers/policy.conf"
+            "/etc/containers/policy.json"
             "/etc/containers/registry.conf"
             "/etc/containers/storage.conf"
             "/usr/bin/env"
