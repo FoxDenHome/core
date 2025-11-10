@@ -11,8 +11,8 @@ let
 
   autoUpdateScript = pkgs.writeShellScript "nixos-auto-update.sh" ''
     set -xeuo pipefail
-    nix flake update --flake 'github:FoxDenHome/core?dir=nix' || true
-    nixos-rebuild switch --flake "github:FoxDenHome/core?dir=nix#$(hostname)" || true
+    nix flake update --flake 'github:FoxDenHome/core?dir=nix' || :
+    nixos-rebuild switch --flake "github:FoxDenHome/core?dir=nix#$(hostname)" || :
     nix-collect-garbage --delete-older-than 30d
     /run/current-system/bin/switch-to-configuration boot
     ${syncBootScript}
@@ -20,8 +20,8 @@ let
 
   updateScript = pkgs.writeShellScript "nixos-update.sh" ''
     set -xeuo pipefail
-    nix flake update --flake 'github:FoxDenHome/core?dir=nix' || true
-    nixos-rebuild switch --flake "github:FoxDenHome/core?dir=nix#$(hostname)"
+    nix flake update --flake 'github:FoxDenHome/core?dir=nix' || :
+    nixos-rebuild switch --flake "github:FoxDenHome/core?dir=nix#$(hostname)" || :
     ${syncBootScript}
   '';
 
