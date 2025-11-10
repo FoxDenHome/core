@@ -55,11 +55,16 @@ let
           DeviceAllow = map (dev: "${dev} rw") allDevices;
           BindPaths = map (dev: "-${dev}") allDevices;
 
-          BindReadOnlyPaths = [
+          BindReadOnlyPaths = let
+            certBundle = "${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt";
+          in [
             "/run/systemd/notify"
+            pkgs.cacert
             "${resolvConf}:/etc/resolv.conf"
-            "${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt:/etc/ssl/certs/ca-bundle.crt"
-            "${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt:/etc/pki/tls/certs/ca-bundle.crt"
+            "${certBundle}:/etc/ssl/certs/ca-bundle.crt"
+            "${certBundle}:/etc/pki/tls/certs/ca-bundle.crt"
+            "${certBundle}:/etc/ssl/certs/ca-certificates.crt"
+            "${certBundle}:/etc/pki/tls/certs/ca-certificates.crt"
           ] ++ gpuPaths ++ mkEtcPaths [
             "hosts"
             "localtime"
