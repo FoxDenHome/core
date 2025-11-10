@@ -24,8 +24,7 @@
         "+${pkgs.coreutils}/bin/chmod -R 700 /run/appliance"
         "${pkgs.rsync}/bin/rsync --exclude=tmp -av --delete ${./appliance-home}/ /run/appliance/"
         "${pkgs.coreutils}/bin/chmod 500 /run/appliance"
-        "${pkgs.coreutils}/bin/mkdir -p /var/lib/appliance/data"
-        "${pkgs.coreutils}/bin/mkdir -p /var/lib/appliance/.cache"
+        "${pkgs.coreutils}/bin/mkdir -p /var/lib/appliance/data /var/lib/appliance/.cache /run/appliance/tmp/fish"
       ];
     };
 
