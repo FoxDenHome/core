@@ -46,10 +46,11 @@ in
         serviceConfig = {
           User = "forgejo-runner";
           Group = "forgejo-runner";
-          ExecStart = "${pkgs.forgejo-runner}/bin/forgejo-runner daemon";
+          ExecStart = "${pkgs.forgejo-runner}/bin/forgejo-runner daemon --config /config.yml";
           ExecReload = "${pkgs.coreutils}/bin/kill -s HUP $MAINPID";
           BindReadOnlyPaths = [
             "/usr/bin/env"
+            "${./runner-config.yml}:/config.yml"
             "${config.sops.secrets."forgejo-runner-registration".path}:/registration.json"
           ];
           StateDirectory = "forgejo-runner";
