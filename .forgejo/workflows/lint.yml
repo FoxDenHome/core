@@ -6,4 +6,4 @@ jobs:
       - name: checkout code
         uses: actions/checkout@v4
       - name: list directory contents
-        run: ls -la
+        run: docker build -t core .
