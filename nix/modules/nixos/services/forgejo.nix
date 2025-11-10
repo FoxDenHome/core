@@ -27,7 +27,11 @@ let
   baseSystemdConfig = {
     requires = [ "forgejo-pre.service" ];
     after = [ "forgejo-pre.service" ];
-    serviceConfig = baseServiceConfig;  
+    serviceConfig = baseServiceConfig;
+
+    confinement.packages = [
+      config.services.forgejo.package
+    ];
   };
 in
 {
@@ -136,6 +140,14 @@ in
 
       systemd.services.forgejo = baseSystemdConfig;
       systemd.services.forgejo-secrets = lib.mkMerge [
+        baseSystemdConfig
+        {
+          serviceConfig = {
+            Restart = "no";
+          };
+        }
+      ];
+      systemd.services.forgejo-dump = lib.mkMerge [
         baseSystemdConfig
         {
           serviceConfig = {
