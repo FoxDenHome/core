@@ -60,7 +60,8 @@ in
           ExecStart = "${pkgs.forgejo-runner}/bin/forgejo-runner daemon --config /config.yml";
           ExecReload = "${pkgs.coreutils}/bin/kill -s HUP $MAINPID";
           ExecStartPre = [
-            "${pkgs.coreutils}/bin/cp --update=none /registration.json /var/lib/forgejo-runner/.runner"
+            "-${pkgs.coreutils}/bin/chmod 600 /var/lib/forgejo-runner/.runner"
+            "${pkgs.coreutils}/bin/cp --update=all /registration.json /var/lib/forgejo-runner/.runner"
             "${pkgs.coreutils}/bin/chmod 600 /var/lib/forgejo-runner/.runner"
           ];
           BindPaths = [
