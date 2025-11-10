@@ -24,7 +24,7 @@ in
         isSystemUser = true;
         group = "forgejo-runner";
         description = "Forgejo runner user";
-        linger = true;
+        linger = false;
         autoSubUidGidRange = true;
         home = "/var/lib/forgejo-runner";
       };
@@ -79,7 +79,7 @@ in
             "${config.sops.secrets."forgejo-runner-registration".path}:/registration.json"
           ];
           PrivateUsers = false;
-          PrivateTmp = false;
+          PrivateTmp = true;
           User = "forgejo-runner";
           Group = "forgejo-runner";
           WorkingDirectory = "/var/lib/forgejo-runner";
