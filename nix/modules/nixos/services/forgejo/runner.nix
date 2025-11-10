@@ -25,6 +25,7 @@ in
         group = "forgejo-runner";
         description = "Forgejo runner user";
         linger = true;
+        autoSubUidGidRange = true;
         home = "/var/lib/forgejo-runner";
       };
       users.groups.forgejo-runner = { };
