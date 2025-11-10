@@ -11,8 +11,8 @@ let
 
   updateScriptBase = ''
     set -xeuo pipefail
-    nix flake update --flake 'github:FoxDenHome/core?dir=nix' || :
-    nixos-rebuild switch --flake "github:FoxDenHome/core?dir=nix#$(hostname)" || :
+    nix flake update --flake 'git+https://git.foxden.network/FoxDen/core?dir=nix' || :
+    nixos-rebuild switch --flake "git+https://git.foxden.network/FoxDen/core?dir=nix#$(hostname)" || :
   '';
 
   autoUpdateScript = pkgs.writeShellScript "nixos-auto-update.sh" ''
