@@ -66,9 +66,10 @@ in
           ];
           BindPaths = [
             "/proc"
-            "/run/user"
           ];
           BindReadOnlyPaths = [
+            "/run/user"
+            "/run/systemd"
             "/run/wrappers/bin/newuidmap"
             "/run/wrappers/bin/newgidmap"
             "/etc/containers/containers.conf"
