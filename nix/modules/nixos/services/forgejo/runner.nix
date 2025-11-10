@@ -46,7 +46,7 @@ in
         serviceConfig = {
           User = "forgejo-runner";
           Group = "forgejo-runner";
-          ExecStart = "${pkgs.forgejo-runner}/bin/forgejo-runner";
+          ExecStart = "${pkgs.forgejo-runner}/bin/forgejo-runner daemon";
           ExecReload = "${pkgs.coreutils}/bin/kill -s HUP $MAINPID";
           BindReadOnlyPaths = [
             "/usr/bin/env"
