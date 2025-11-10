@@ -18,6 +18,7 @@
       Type = "oneshot";
       RemainAfterExit = true;
       ExecStart = [
+        "+-${pkgs.coreutils}/bin/chmod -R 700 /run/appliance"
         "+${pkgs.coreutils}/bin/mkdir -p /run/appliance /run/appliance/tmp"
         "+${pkgs.coreutils}/bin/chown -R appliance:appliance /run/appliance"
         "+${pkgs.coreutils}/bin/chmod -R 700 /run/appliance"
