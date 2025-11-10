@@ -24,7 +24,7 @@ in
         isSystemUser = true;
         group = "forgejo-runner";
         description = "Forgejo runner user";
-        linger = false;
+        linger = true;
         autoSubUidGidRange = true;
         home = "/var/lib/forgejo-runner";
       };
