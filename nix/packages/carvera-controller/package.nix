@@ -37,10 +37,10 @@ pkgs.stdenv.mkDerivation {
   ];
 
   patchelfFlags = [
-    "--replace-needed libmpdec.so.2 ${pkgs.mpdecimal}/lib/libmpdec.so"
-    "--replace-needed libcrypto.so.1.1 ${pkgs.openssl}/lib/libcrypto.so"
-    "--replace-needed libssl.so.1.1 ${pkgs.openssl}/lib/libssl.so"
-    "--replace-needed libffi.so.7 ${pkgs.libffi}/lib/libffi.so"
+    "--set-soname libmpdec.so.2 ${pkgs.mpdecimal}/lib/libmpdec.so"
+    "--set-soname libcrypto.so.1.1 ${pkgs.openssl}/lib/libcrypto.so"
+    "--set-soname libssl.so.1.1 ${pkgs.openssl}/lib/libssl.so"
+    "--set-soname libffi.so.7 ${pkgs.libffi}/lib/libffi.so"
   ];
 
   unpackPhase = ''
