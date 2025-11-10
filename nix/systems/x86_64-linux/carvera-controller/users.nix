@@ -6,7 +6,7 @@
     home = "/run/appliance";
     shell = pkgs.fish;
     linger = true;
-    extraGroups = [ "seat" "video" "render" ];
+    extraGroups = [ "seat" "video" "render" "dialout" ];
   };
   users.groups.appliance = {};
 
