@@ -36,6 +36,9 @@ let
       config.services.forgejo.package
       pkgs.coreutils
     ];
+    path = [
+      pkgs.coreutils
+    ];
   };
 in
 {
