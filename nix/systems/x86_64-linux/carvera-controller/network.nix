@@ -15,6 +15,8 @@ in
   foxDen.hosts.index = 5;
   foxDen.hosts.gateway = "router";
 
+  services.avahi.enable = true;
+
   systemd.network.networks."30-${ifcfg.interface}" = {
     name = ifcfg.interface;
     routes = ifcfg.routes;
