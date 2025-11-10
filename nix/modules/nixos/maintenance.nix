@@ -16,6 +16,10 @@ let
   '';
 
   autoUpdateScript = pkgs.writeShellScript "nixos-auto-update.sh" ''
+    if [ -f /nix/persist/auto-update.disable ]; then
+      echo "Auto-update disabled via /nix/persist/auto-update.disable, skipping"
+      exit 1
+    fi
     ${updateScriptBase}
     nix-collect-garbage --delete-older-than 30d
     /run/current-system/bin/switch-to-configuration boot
