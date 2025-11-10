@@ -13,10 +13,9 @@
     };
 
     serviceConfig = {
-      ExecStart = "${pkgs.nodejs_24}/bin/node ./dist/index.js";
       Restart = "always";
       RestartSec = "1s";
-      WorkingDirectory = "${pkgs.carvera-pendant}/lib/node_modules/carvera-pendant";
+      ExecStart = [ "${pkgs.carvera-pendant}/bin/carvera-pendant" ];
 
       Environment = [
         "CARVERA_SERIAL_PORT=/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_A50285BI-if00-port0"
