@@ -1,6 +1,7 @@
 { config, pkgs, ... } :
 {
   environment.systemPackages = with pkgs; [
+    foot
     i3status
     networkmanagerapplet
     wayvnc
