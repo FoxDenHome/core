@@ -79,7 +79,7 @@ in
             "${config.sops.secrets."forgejo-runner-registration".path}:/registration.json"
           ];
           PrivateUsers = false;
-          PrivateTmp = true;
+          PrivateTmp = false;
           User = "forgejo-runner";
           Group = "forgejo-runner";
           WorkingDirectory = "/var/lib/forgejo-runner";
