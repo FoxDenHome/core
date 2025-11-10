@@ -46,6 +46,7 @@ in
           gnutar
           nodejs_24
           podman
+          shadow
         ];
       in {
         confinement.packages = packages;
