@@ -9,6 +9,40 @@ pkgs.stdenv.mkDerivation {
     })
   ];
 
+  nativeBuildInputs = [
+    pkgs.autoPatchelfHook
+  ];
+
+  buildInputs = with pkgs; [
+    expat
+    xorg.libX11
+    xorg.libXrender
+    libGL
+    libgcc
+    mpdecimal
+    readline
+    zlib
+    xz
+    bzip2
+    libffi
+    openssl
+    (lib.getLib stdenv.cc.cc)
+  ];
+
+  autoPatchelfIgnoreMissingDeps = [
+    "libcrypto.so.1.1"
+    "libssl.so.1.1"
+    "libffi.so.7"
+    "libmpdec.so.2"
+  ];
+
+  patchelfFlags = [
+    "--replace-needed libmpdec.so.2 ${pkgs.mpdecimal}/lib/libmpdec.so"
+    "--replace-needed libcrypto.so.1.1 ${pkgs.openssl}/lib/libcrypto.so"
+    "--replace-needed libssl.so.1.1 ${pkgs.openssl}/lib/libssl.so"
+    "--replace-needed libffi.so.7 ${pkgs.openssl}/lib/libffi.so"
+  ];
+
   unpackPhase = ''
     for srcFile in $srcs; do
       if [ -d "$srcFile" ]; then
