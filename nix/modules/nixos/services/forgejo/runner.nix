@@ -83,6 +83,7 @@ in
           PrivateUsers = false;
           PrivateTmp = true;
           ProtectProc = lib.mkForce false;
+          ProtectControlGroups = false;
           User = "forgejo-runner";
           Group = "forgejo-runner";
           WorkingDirectory = "/var/lib/forgejo-runner";
