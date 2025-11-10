@@ -9,19 +9,21 @@ let
     fi
   '';
 
-  autoUpdateScript = pkgs.writeShellScript "nixos-auto-update.sh" ''
+  updateScriptBase = ''
     set -xeuo pipefail
     nix flake update --flake 'github:FoxDenHome/core?dir=nix' || :
     nixos-rebuild switch --flake "github:FoxDenHome/core?dir=nix#$(hostname)" || :
+  '';
+
+  autoUpdateScript = pkgs.writeShellScript "nixos-auto-update.sh" ''
+    ${updateScriptBase}
     nix-collect-garbage --delete-older-than 30d
     /run/current-system/bin/switch-to-configuration boot
     ${syncBootScript}
   '';
 
   updateScript = pkgs.writeShellScript "nixos-update.sh" ''
-    set -xeuo pipefail
-    nix flake update --flake 'github:FoxDenHome/core?dir=nix' || :
-    nixos-rebuild switch --flake "github:FoxDenHome/core?dir=nix#$(hostname)" || :
+    ${updateScriptBase}
     ${syncBootScript}
   '';
 
@@ -44,8 +46,22 @@ let
           (lib.attrsets.attrValues config.boot.initrd.luks.devices))) + "\n");
 in
 {
-  environment.etc."foxden/nixos/auto-update.sh".source = autoUpdateScript;
   environment.etc."foxden/nixos/update.sh".source = updateScript;
   environment.etc."foxden/nixos/prune.sh".source = pruneScript;
   environment.etc."foxden/cryptenroll.sh".source = cryptenrollScript;
+
+  systemd.services.foxden-auto-update = {
+    description = "FoxDen NixOS auto-update service";
+    after = [ "network.target" ];
+
+    path = [
+      "/run/current-system/sw"
+    ];
+
+    serviceConfig = {
+      Type = "simple";
+      ExecStart = [ autoUpdateScript ];
+      Restart = "never";
+    };
+  };
 }
