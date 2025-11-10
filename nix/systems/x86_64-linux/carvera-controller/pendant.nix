@@ -1,5 +1,10 @@
 { pkgs, ... } :
 {
+  services.udev.extraRules = ''
+    SUBSYSTEM=="usb", ATTRS{idVendor}=="10ce", ATTRS{idProduct}=="eb93", MODE="0660", GROUP="dialout"
+    KERNEL=="hidraw*", ATTRS{idVendor}=="10ce", ATTRS{idProduct}=="eb93", MODE="0660", GROUP="dialout"
+  '';
+
   systemd.user.services.carvera-pendant = {
     unitConfig = {
       Description = "Carvera pendant proxy";
