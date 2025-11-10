@@ -6,4 +6,4 @@ jobs:
       - name: checkout code
         uses: actions/checkout@v4
       - name: Build dev container
-        run: podman build -t core . || sleep 60s
+        run: podman build -t core .
