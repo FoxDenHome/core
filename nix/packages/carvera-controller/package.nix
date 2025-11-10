@@ -1,4 +1,21 @@
-{ pkgs, ... }:
+{ lib, pkgs, ... }:
+let
+  lib-rewrites = pkgs.stdenv.mkDerivation {
+    name = "carvera-controller-lib-rewrite";
+    version = "1.0.0";
+    srcs = [ ];
+
+    unpackPhase = "true";
+
+    installPhase = ''
+      mkdir -p $out/lib
+      ln -s ${pkgs.libffi}/lib/libffi.so $out/lib/libffi.so.7
+      ln -s ${pkgs.mpdecimal}/lib/libmpdec.so $out/lib/libmpdec.so.2
+      ln -s ${lib.getLib pkgs.openssl}/lib/libcrypto.so $out/lib/libcrypto.so.1.1
+      ln -s ${lib.getLib pkgs.openssl}/lib/libssl.so $out/lib/libssl.so.1.1
+    '';
+  };
+in
 pkgs.stdenv.mkDerivation {
   name = "carvera-controller";
   version = "1.0.0";
@@ -26,21 +43,8 @@ pkgs.stdenv.mkDerivation {
     bzip2
     libffi
     openssl
+    lib-rewrites
     (lib.getLib stdenv.cc.cc)
-  ];
-
-  autoPatchelfIgnoreMissingDeps = [
-    "libcrypto.so.1.1"
-    "libssl.so.1.1"
-    "libffi.so.7"
-    "libmpdec.so.2"
-  ];
-
-  patchelfFlags = [
-    "--replace-needed libmpdec.so.2 ${pkgs.mpdecimal}/lib/libmpdec.so"
-    "--replace-needed libcrypto.so.1.1 ${pkgs.openssl}/lib/libcrypto.so"
-    "--replace-needed libssl.so.1.1 ${pkgs.openssl}/lib/libssl.so"
-    "--replace-needed libffi.so.7 ${pkgs.libffi}/lib/libffi.so"
   ];
 
   unpackPhase = ''
