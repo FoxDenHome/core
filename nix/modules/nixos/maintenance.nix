@@ -68,4 +68,12 @@ in
       Restart = "no";
     };
   };
+
+  systemd.timers.foxden-auto-update = {
+    wantedBy = [ "timers.target" ];
+    timerConfig = {
+      OnCalendar = "*-*-* 4:00:00";
+      RandomizedDelaySec = "1h";
+    };
+  };
 }
