@@ -52,9 +52,7 @@ in
       sops.secrets.e621dumper = config.lib.foxDen.sops.mkIfAvailable {};
 
       systemd.services.e621dumper-api = {
-        confinement.packages = [
-          pkgs.e621dumper
-        ];
+        confinement.packages = [ pkgs.e621dumper ];
 
         serviceConfig = {
           BindPaths = [
