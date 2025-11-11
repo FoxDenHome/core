@@ -72,7 +72,7 @@ in
 
     config.virtualisation.oci-containers.backend = "podman";
 
-    config.services.podman.settings.containers = {
+    config.virtualisation.containers.containersConf.settings = {
       cgroup_manager = "cgroupfs";
     };
 
