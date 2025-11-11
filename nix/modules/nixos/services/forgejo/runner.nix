@@ -35,6 +35,10 @@ in
         mode = "0400";
       };
 
+      systemd.tmpfiles.rules = [
+        "d /run/user-forgejo-runner 0700 forgejo-runner forgejo-runner"
+      ];
+
       systemd.services.forgejo-runner = let
         packages =  with pkgs; [
           bash
@@ -53,10 +57,6 @@ in
           inherit packages;
         };
         path = [ "/run/wrappers" ] ++ packages;
-
-        systemd.tmpfiles.rules = [
-          "d /run/user-forgejo-runner 0700 forgejo-runner forgejo-runner"
-        ];
 
         serviceConfig = {
           ExecStart = "${pkgs.forgejo-runner}/bin/forgejo-runner daemon --config /config.yml";
