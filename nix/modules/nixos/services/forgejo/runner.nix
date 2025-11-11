@@ -58,10 +58,12 @@ in
           ExecStart = "${pkgs.forgejo-runner}/bin/forgejo-runner daemon --config /config.yml";
           ExecReload = "${pkgs.coreutils}/bin/kill -s HUP $MAINPID";
           ExecStartPre = [
+            "+${./runner-setup.sh}"
             "-${pkgs.coreutils}/bin/chmod 600 /var/lib/forgejo-runner/.runner"
             "${pkgs.coreutils}/bin/cp --update=all /registration.json /var/lib/forgejo-runner/.runner"
             "${pkgs.coreutils}/bin/chmod 600 /var/lib/forgejo-runner/.runner"
           ];
+          TemporaryFileSystem = [ "/run" ];
           BindReadOnlyPaths = [
             "/run/wrappers/bin/newuidmap"
             "/run/wrappers/bin/newgidmap"
