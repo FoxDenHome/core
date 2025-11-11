@@ -52,7 +52,7 @@ in
           confinement.packages = packages;
           serviceConfig = {
             BindReadOnlyPaths = [
-              config.services.renovate.environment.RENOVATE_CONFIG_FILE
+              config.systemd.services.renovate.environment.RENOVATE_CONFIG_FILE
             ];
             EnvironmentFile = config.lib.foxDen.sops.mkIfAvailable [
               config.lib.foxDen.sops.mkGithubTokenPath
