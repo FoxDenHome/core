@@ -13,14 +13,25 @@
 
     backupmgr.url = "git+https://git.foxden.network/FoxDen/backupmgr";
     backupmgr.inputs.nixpkgs.follows = "nixpkgs";
+    carvera-pendant.url = "git+https://git.foxden.network/FoxDen/carvera-pendant";
+    carvera-pendant.inputs.nixpkgs.follows = "nixpkgs";
     e621dumper.url = "git+https://git.foxden.network/FoxDen/e621dumper";
     e621dumper.inputs.nixpkgs.follows = "nixpkgs";
     fadumper.url = "git+https://git.foxden.network/FoxDen/fadumper";
     fadumper.inputs.nixpkgs.follows = "nixpkgs";
-    gitbackup.url = "github:Doridian/gitbackup";
+    gitbackup.url = "git+https://git.foxden.network/FoxDen/gitbackup";
     gitbackup.inputs.nixpkgs.follows = "nixpkgs";
-    oauth-jit-radius.url = "github:Doridian/oauth-jit-radius";
+    oauth-jit-radius.url = "git+https://git.foxden.network/FoxDen/oauth-jit-radius";
     oauth-jit-radius.inputs.nixpkgs.follows = "nixpkgs";
+    superfan.url = "git+https://git.foxden.network/FoxDen/superfan";
+    superfan.inputs.nixpkgs.follows = "nixpkgs";
+    systemd-query.url = "git+https://git.foxden.network/FoxDen/systemd-query";
+    systemd-query.inputs.nixpkgs.follows = "nixpkgs";
+    tapemgr.url = "git+https://git.foxden.network/FoxDen/tapemgr";
+    tapemgr.inputs.nixpkgs.follows = "nixpkgs";
+    uds-proxy.url = "git+https://git.foxden.network/FoxDen/uds-proxy";
+    uds-proxy.inputs.nixpkgs.follows = "nixpkgs";
+
     spaceage-api.url = "github:SpaceAgeMP/space_age_api";
     spaceage-api.inputs.nixpkgs.follows = "nixpkgs";
     spaceage-starlord.url = "github:SpaceAgeMP/StarLord";
@@ -28,16 +39,6 @@
     spaceage-tts.url = "github:SpaceAgeMP/TTS";
     spaceage-tts.inputs.nixpkgs.follows = "nixpkgs";
     spaceage-website.url = "github:SpaceAgeMP/website";
-    superfan.url = "github:Doridian/superfan";
-    superfan.inputs.nixpkgs.follows = "nixpkgs";
-    tapemgr.url = "github:FoxDenHome/tapemgr";
-    tapemgr.inputs.nixpkgs.follows = "nixpkgs";
-    uds-proxy.url = "github:Doridian/uds-proxy";
-    uds-proxy.inputs.nixpkgs.follows = "nixpkgs";
-    systemd-query.url = "github:Doridian/systemd-query";
-    systemd-query.inputs.nixpkgs.follows = "nixpkgs";
-    carvera-pendant.url = "github:Doridian/carvera-pendant";
-    carvera-pendant.inputs.nixpkgs.follows = "nixpkgs";
   };
 
   outputs = inputs: import ./outputs.nix inputs;
