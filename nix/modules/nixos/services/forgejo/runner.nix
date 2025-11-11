@@ -68,7 +68,6 @@ in
             "${pkgs.coreutils}/bin/chmod 600 /var/lib/forgejo-runner/.runner"
           ];
           BindPaths = [
-            "/proc"
             "/run/user-forgejo-runner:/run/user"
           ];
           BindReadOnlyPaths = [
@@ -82,6 +81,7 @@ in
             "${./runner-config.yml}:/config.yml"
             "${config.sops.secrets."forgejo-runner-registration".path}:/registration.json"
           ];
+          ProtectProc = lib.mkForce false;
           PrivateUsers = false;
           User = "forgejo-runner";
           Group = "forgejo-runner";
