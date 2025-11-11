@@ -54,6 +54,7 @@ in
         systemd.services.forgejo-runner =
           let
             packages = with pkgs; [
+              (lib.getLib stdenv.cc.cc)
               bash
               coreutils
               git
@@ -61,6 +62,7 @@ in
               gnused
               gnutar
               go
+              libgcc
               nix-ld
               nixfmt-rfc-style
               nixfmt-tree
@@ -70,6 +72,7 @@ in
               python313
               python314
               shadow
+              stdenv.cc.cc
               systemd
               uv
             ];
