@@ -40,6 +40,10 @@ pkgs.stdenv.mkDerivation {
     (lib.getLib mtdev)
   ];
 
+  appendRunpaths = with pkgs; [
+    (lib.makeLibraryPath mtdev)
+  ];
+
   unpackPhase = ''
     for srcFile in $srcs; do
       if [ -d "$srcFile" ]; then
