@@ -73,6 +73,7 @@
     };
     git.enable = true;
     htop.enable = true;
+    nix-ld.enable = true;
     tcpdump.enable = true;
     ssh = {
       package = pkgs.openssh_hpn;
