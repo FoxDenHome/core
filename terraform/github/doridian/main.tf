@@ -40,11 +40,6 @@ locals {
     streamdeckpi      = {}
     go-streamdeck     = {}
     go-haws           = {}
-    gitbackup = {
-      required_checks = [
-        "nix",
-      ]
-    }
     BambuProfiles = {
       description = "Profiles for Bambu Lab printers"
     }
@@ -61,23 +56,13 @@ locals {
       branch_protection = false
     }
     carvera-pendant = {
+      description = "Two-way mirror of https://git.foxden.network/FoxDen/core"
       required_checks = [
         "lint_and_build",
       ]
     }
     karalabe_hid = {
       description = "Gopher Interface Devices (USB HID)"
-    }
-    superfan = {
-      required_checks = [
-        "nix",
-      ]
-    }
-    fadumper = {
-      required_checks = [
-        "lint",
-        "nix",
-      ]
     }
     DarkSignsOnline = {
       homepage_url = "https://darksignsonline.com"
@@ -92,11 +77,6 @@ locals {
     kbidle = {}
     node-single-instance = {
       description = "Check if an instance of the current application is running or not."
-    }
-    oauth-jit-radius = {
-      required_checks = [
-        "nix",
-      ]
     }
     qmk_hid = {
       description = "Commandline tool for interacting with QMK devices over HID"
@@ -132,12 +112,6 @@ locals {
       default_branch = "master"
     }
 
-    uds-proxy = {
-      description = "uds-proxy provides a UNIX domain socket that acts as HTTP(S) connection-pooling forward proxy"
-      required_checks = [
-        "nix",
-      ]
-    }
     haproxytiny = {}
     peercred = {
       description = "A wrapper around using Linux's SO_PEERCRED socket option on Unix domain sockets"

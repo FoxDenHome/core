@@ -9,26 +9,13 @@ locals {
       visibility        = "private"
     }
     NixieClockDori = {}
-    e621dumper = {
-      required_checks = [
-        "nix",
-      ]
-    }
-    tapemgr = {
-      required_checks = [
-        "nix",
-      ]
-    }
     CC1101Duino      = {}
     ntpi             = {}
     shutdownd        = {}
     keepass-unlocker = {}
-    backupmgr = {
-      required_checks = [
-        "nix",
-      ]
+    core                   = {
+      description = "Mirror of https://git.foxden.network/FoxDen/core"
     }
-    core                   = {}
     foxden-radius-autofill = {}
     foxdenaur-keyring      = {}
     foxdenaur-mirrorlist   = {}

@@ -55,8 +55,10 @@ in
             autodiscover = true;
             onboarding = true;
             autodiscoverFilter = [
-              "FoxDen/*"
               "Doridian/*"
+              "foxCaves/*"
+              "FoxDen/*"
+              "SpaceAge/*"
             ];
           };
         };

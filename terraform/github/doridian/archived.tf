@@ -177,6 +177,22 @@ locals {
       default_branch = "6.x.x"
     }
     panon-effects = {}
+
+    fadumper = {
+      description = "Moved to https://git.foxden.network/FoxDen/fadumper"
+    }
+    gitbackup = {
+      description = "Moved to https://git.foxden.network/FoxDen/gitbackup"
+    }
+    oauth-jit-radius = {
+      description = "Moved to https://git.foxden.network/FoxDen/oauth-jit-radius"
+    }
+    superfan = {
+      description = "Moved to https://git.foxden.network/FoxDen/superfan"
+    }
+    uds-proxy = {
+      description = "Moved to https://git.foxden.network/FoxDen/uds-proxy"
+    }
   }
 }
 

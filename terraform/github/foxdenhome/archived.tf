@@ -43,6 +43,15 @@ locals {
     hassio-ecoflow = {
       description = "EcoFlow Portable Power Station Integration for Home Assistant"
     }
+    backupmgr = {
+      description = "Moved to https://git.foxden.network/FoxDen/backupmgr"
+    }
+    e621dumper = {
+      description = "Moved to https://git.foxden.network/FoxDen/e621dumper"
+    }
+    tapemgr = {
+      description = "Moved to https://git.foxden.network/FoxDen/tapemgr"
+    }
   }
 }
 
