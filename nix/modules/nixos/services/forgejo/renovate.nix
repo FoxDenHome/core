@@ -53,8 +53,8 @@ in
             gitAuthor = "Renovate <renovate@foxden.network>";
             platform = "forgejo";
             autodiscover = true;
-            onboardingConfigFileName = ".forgejo/renovate.json";
-            configFileNames = [ ".forgejo/renovate.json" ];
+            onboarding = false;
+            autodiscoverFilter = ["FoxDen/*" "Doridian/*"];
           };
         };
 
