@@ -53,9 +53,7 @@ in
           systemd
         ];
       in {
-        confinement = {
-          inherit packages;
-        };
+        confinement.packages = packages;
         path = [ "/run/wrappers" ] ++ packages;
 
         serviceConfig = {
