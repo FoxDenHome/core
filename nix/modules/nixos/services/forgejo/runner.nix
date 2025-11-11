@@ -41,6 +41,10 @@ in
         name = "forgejo-runner";
         inherit svcConfig pkgs config;
       }).config
+      (services.make {
+        name = "forgejo-runner-podman";
+        inherit svcConfig pkgs config;
+      }).config
       {
         users.users.forgejo-runner = {
           isSystemUser = true;
