@@ -63,7 +63,7 @@ in
             "${pkgs.coreutils}/bin/cp --update=all /registration.json /var/lib/forgejo-runner/.runner"
             "${pkgs.coreutils}/bin/chmod 600 /var/lib/forgejo-runner/.runner"
           ];
-          TemporaryFileSystem = [ "/run" ];
+          TemporaryFileSystem = [ "/run/user" ];
           BindReadOnlyPaths = [
             "/run/wrappers/bin/newuidmap"
             "/run/wrappers/bin/newgidmap"
