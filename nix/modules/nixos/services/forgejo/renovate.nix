@@ -52,6 +52,7 @@ in
             endpoint = "https://git.foxden.network";
             gitAuthor = "Renovate <renovate@foxden.network>";
             platform = "forgejo";
+            autodiscover = true;
           };
         };
 
