@@ -85,7 +85,7 @@ in
           PrivatePIDs = true;
           PrivateTmp = true;
           PrivateUsers = false;
-          ProtectControlGroups = true;
+          #ProtectControlGroups = true;
           ProtectKernelModules = true;
           ProtectKernelTunables = true;
           User = "forgejo-runner";
