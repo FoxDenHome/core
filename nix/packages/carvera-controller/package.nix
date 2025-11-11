@@ -36,6 +36,10 @@ pkgs.stdenv.mkDerivation {
     "libmpdec.so.2"
   ];
 
+  runtimeDependencies = with pkgs; [
+    (lib.getLib mtdev)
+  ];
+
   unpackPhase = ''
     for srcFile in $srcs; do
       if [ -d "$srcFile" ]; then
