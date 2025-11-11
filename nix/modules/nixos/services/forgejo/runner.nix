@@ -93,6 +93,8 @@ in
                 "UV_PYTHON_DOWNLOADS=never"
               ];
               BindReadOnlyPaths = [
+                "-/lib"
+                "-/lib64"
                 "/run/wrappers/bin/newuidmap"
                 "/run/wrappers/bin/newgidmap"
                 "/etc/containers/containers.conf"
