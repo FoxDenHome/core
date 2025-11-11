@@ -10,7 +10,7 @@
         dns = "10.1.0.53";
       };
       ipv6 = {
-        address  = "fd2c:f4cb:63be:1::c01/64";
+        address = "fd2c:f4cb:63be:1::c01/64";
         #gateway = "fd2c:f4cb:63be:1::1"; ignore for IPv6
         dns = "fd2c:f4cb:63be:1::35";
       };

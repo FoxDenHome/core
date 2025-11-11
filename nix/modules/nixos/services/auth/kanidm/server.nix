@@ -1,4 +1,12 @@
-{ pkgs, lib, config, options, kanidm, foxDenLib, ... }:
+{
+  pkgs,
+  lib,
+  config,
+  options,
+  kanidm,
+  foxDenLib,
+  ...
+}:
 let
   services = foxDenLib.services;
 
@@ -18,7 +26,11 @@ in
     };
     server = {
       enable = lib.mkEnableOption "kanidm server";
-  } // (services.http.mkOptions { svcName = "kanidm"; name = "Kanidm server"; });
+    }
+    // (services.http.mkOptions {
+      svcName = "kanidm";
+      name = "Kanidm server";
+    });
   };
 
   options.services.kanidm.provision = {
@@ -57,152 +69,170 @@ in
     };
   };
 
-  config = lib.mkIf svcConfig.enable (lib.mkMerge [
-    (services.make {
-      name = "kanidm";
-      inherit svcConfig pkgs config;
-    }).config
-    (services.make {
-      name = "kanidm-pre";
-      inherit svcConfig pkgs config;
-    }).config
-    (services.http.make {
-      inherit svcConfig pkgs config;
-      name = "http-kanidm";
-      dynamicUser = false;
-      extraConfig = { defaultTarget, ... }: ''
-        location ~ ^/v1/(auth|self|credential|jwk|reauth|oauth2)(/|$) {
-          ${defaultTarget}
-        }
+  config = lib.mkIf svcConfig.enable (
+    lib.mkMerge [
+      (services.make {
+        name = "kanidm";
+        inherit svcConfig pkgs config;
+      }).config
+      (services.make {
+        name = "kanidm-pre";
+        inherit svcConfig pkgs config;
+      }).config
+      (services.http.make {
+        inherit svcConfig pkgs config;
+        name = "http-kanidm";
+        dynamicUser = false;
+        extraConfig =
+          { defaultTarget, ... }:
+          ''
+            location ~ ^/v1/(auth|self|credential|jwk|reauth|oauth2)(/|$) {
+              ${defaultTarget}
+            }
 
-        location /v1/ {
-          allow 192.168.0.0/16;
-          allow 172.16.0.0/12;
-          allow 10.0.0.0/8;
-          allow 127.0.0.0/8;
-          allow fd00::/8;
-          allow ::1/128;
-          ${lib.concatStringsSep "\n" (map (ip: "allow ${ip};") kanidm.externalIPs)}
-          deny all;
+            location /v1/ {
+              allow 192.168.0.0/16;
+              allow 172.16.0.0/12;
+              allow 10.0.0.0/8;
+              allow 127.0.0.0/8;
+              allow fd00::/8;
+              allow ::1/128;
+              ${lib.concatStringsSep "\n" (map (ip: "allow ${ip};") kanidm.externalIPs)}
+              deny all;
 
-          ${defaultTarget}
-        }
-      '';
-      target = ''
-        proxy_pass https://127.0.0.1:8443;
-        proxy_ssl_verify off;
-      '';
-    }).config
-    {
-      sops.secrets."kanidm-admin-password" = config.lib.foxDen.sops.mkIfAvailable {
-        mode = "0400";
-        owner = "kanidm";
-        group = "kanidm";
-      };
+              ${defaultTarget}
+            }
+          '';
+        target = ''
+          proxy_pass https://127.0.0.1:8443;
+          proxy_ssl_verify off;
+        '';
+      }).config
+      {
+        sops.secrets."kanidm-admin-password" = config.lib.foxDen.sops.mkIfAvailable {
+          mode = "0400";
+          owner = "kanidm";
+          group = "kanidm";
+        };
 
-      sops.secrets."kanidm-idm_admin-password" = config.lib.foxDen.sops.mkIfAvailable {
-        mode = "0400";
-        owner = "kanidm";
-        group = "kanidm";
-      };
+        sops.secrets."kanidm-idm_admin-password" = config.lib.foxDen.sops.mkIfAvailable {
+          mode = "0400";
+          owner = "kanidm";
+          group = "kanidm";
+        };
 
-      services.kanidm = {
-        enableServer = true;
-        provision = config.lib.foxDen.sops.mkIfAvailable {
-          enable = true;
+        services.kanidm = {
+          enableServer = true;
+          provision = config.lib.foxDen.sops.mkIfAvailable {
+            enable = true;
 
-          adminPasswordFile = config.sops.secrets."kanidm-admin-password".path;
-          idmAdminPasswordFile = config.sops.secrets."kanidm-idm_admin-password".path;
+            adminPasswordFile = config.sops.secrets."kanidm-admin-password".path;
+            idmAdminPasswordFile = config.sops.secrets."kanidm-idm_admin-password".path;
 
-          autoRemove = true;
+            autoRemove = true;
 
-          systems.oauth2 = kanidm.oauth2;
-          groups = {
-            login-users = {
-              present = true;
-              enableUnix = true;
-              gidNumber = 4242;
-              overwriteMembers = true;
-              members = [ "doridian" "wizzy" ];
+            systems.oauth2 = kanidm.oauth2;
+            groups = {
+              login-users = {
+                present = true;
+                enableUnix = true;
+                gidNumber = 4242;
+                overwriteMembers = true;
+                members = [
+                  "doridian"
+                  "wizzy"
+                ];
+              };
+              superadmins = {
+                present = true;
+                enableUnix = true;
+                gidNumber = 4269;
+                overwriteMembers = true;
+                members = [
+                  "doridian"
+                  "wizzy"
+                ];
+              };
             };
-            superadmins = {
-              present = true;
-              enableUnix = true;
-              gidNumber = 4269;
-              overwriteMembers = true;
-              members = [ "doridian" "wizzy" ];
+            persons = {
+              doridian = {
+                present = true;
+                enableUnix = true;
+                gidNumber = 2006;
+                loginShell = "/usr/bin/fish";
+                displayName = "Doridian";
+                mailAddresses = [ "doridian@foxden.network" ];
+              };
+              wizzy = {
+                present = true;
+                enableUnix = true;
+                gidNumber = 2010;
+                displayName = "Wizzy";
+                mailAddresses = [ "demwizzy@gmail.com" ];
+              };
             };
           };
-          persons = {
-            doridian = {
-              present = true;
-              enableUnix = true;
-              gidNumber = 2006;
-              loginShell = "/usr/bin/fish";
-              displayName = "Doridian";
-              mailAddresses = [ "doridian@foxden.network" ];
-            };
-            wizzy = {
-              present = true;
-              enableUnix = true;
-              gidNumber = 2010;
-              displayName = "Wizzy";
-              mailAddresses = [ "demwizzy@gmail.com" ];
-            };
+          serverSettings = {
+            version = "2";
+
+            origin = "https://${hostName}";
+            domain = hostName;
+
+            tls_chain = "/var/lib/foxden/http-kanidm/acme/${hostName}.crt";
+            tls_key = "/var/lib/foxden/http-kanidm/acme/${hostName}.key";
+
+            http_client_address_info.x-forward-for = [
+              "127.0.0.1"
+              "127.0.0.0/8"
+            ];
           };
         };
-        serverSettings = {
-          version = "2";
 
-          origin = "https://${hostName}";
-          domain = hostName;
-
-          tls_chain = "/var/lib/foxden/http-kanidm/acme/${hostName}.crt";
-          tls_key = "/var/lib/foxden/http-kanidm/acme/${hostName}.key";
-
-          http_client_address_info.x-forward-for = ["127.0.0.1" "127.0.0.0/8"];
+        systemd.services.http-kanidm = {
+          serviceConfig = {
+            User = "kanidm";
+            Group = "kanidm";
+          };
         };
-      };
 
-      systemd.services.http-kanidm = {
-        serviceConfig = {
-          User = "kanidm";
-          Group = "kanidm";
+        systemd.services.kanidm-pre = {
+          serviceConfig = {
+            ExecStart = [
+              "${pkgs.coreutils}/bin/mkdir -p /var/lib/kanidm/backups"
+            ];
+            StateDirectory = "kanidm";
+            Type = "oneshot";
+            RemainAfterExit = true;
+            Restart = "no";
+            User = "kanidm";
+            Group = "kanidm";
+          };
         };
-      };
-    
-      systemd.services.kanidm-pre = {
-        serviceConfig = {
-          ExecStart = [
-            "${pkgs.coreutils}/bin/mkdir -p /var/lib/kanidm/backups"
+
+        systemd.services.kanidm = {
+          after = [ "kanidm-pre.service" ];
+          requires = [ "kanidm-pre.service" ];
+
+          serviceConfig = {
+            BindReadOnlyPaths = [
+              "/var/lib/foxden/http-kanidm/acme"
+            ];
+            StateDirectory = "kanidm";
+          };
+        };
+
+        environment.persistence."/nix/persist/kanidm" = {
+          hideMounts = true;
+          directories = [
+            {
+              directory = "/var/lib/kanidm";
+              user = "kanidm";
+              group = "kanidm";
+              mode = "u=rwx,g=,o=";
+            }
           ];
-          StateDirectory = "kanidm";
-          Type = "oneshot";
-          RemainAfterExit = true;
-          Restart = "no";
-          User = "kanidm";
-          Group = "kanidm";
         };
-      };
-
-      systemd.services.kanidm = {
-        after = [ "kanidm-pre.service" ];
-        requires = [ "kanidm-pre.service" ];
-
-        serviceConfig = {
-          BindReadOnlyPaths = [
-            "/var/lib/foxden/http-kanidm/acme"
-          ];
-          StateDirectory = "kanidm";
-        };
-      };
-
-      environment.persistence."/nix/persist/kanidm" = {
-        hideMounts = true;
-        directories = [
-          { directory = "/var/lib/kanidm"; user = "kanidm"; group = "kanidm"; mode = "u=rwx,g=,o="; }
-        ];
-      };
-    }
-  ]);
+      }
+    ]
+  );
 }

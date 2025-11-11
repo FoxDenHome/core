@@ -1,15 +1,29 @@
-{ lib, impermanence, pkgs, foxDenLib, config, ... }:
+{
+  lib,
+  impermanence,
+  pkgs,
+  foxDenLib,
+  config,
+  ...
+}:
 {
   imports = [
     impermanence.nixosModules.impermanence
   ];
 
-  nix.settings.experimental-features = [ "nix-command" "flakes" ];
+  nix.settings.experimental-features = [
+    "nix-command"
+    "flakes"
+  ];
 
   services.sshd.enable = true;
   networking.useNetworkd = true;
 
-  boot.supportedFilesystems = [ "vfat" "xfs" "ext4" ];
+  boot.supportedFilesystems = [
+    "vfat"
+    "xfs"
+    "ext4"
+  ];
 
   services.timesyncd.servers = lib.mkDefault [ "ntp.foxden.network" ];
   time.timeZone = "America/Los_Angeles";
@@ -78,7 +92,10 @@
     "sudo" = "run0 --background=''";
   };
 
-  nix.settings.allowed-users = [ "root" "@wheel" ];
+  nix.settings.allowed-users = [
+    "root"
+    "@wheel"
+  ];
 
   users.users.root.shell = "${pkgs.fish}/bin/fish";
   users.groups.share.gid = 1001;
@@ -90,12 +107,14 @@
     nftables.enable = true;
   };
 
-
   environment.persistence."/nix/persist/system" = {
     hideMounts = true;
     directories = [
       "/home"
-      { directory = "/root"; mode = "u=rwx,g=,o="; }
+      {
+        directory = "/root";
+        mode = "u=rwx,g=,o=";
+      }
       "/var/log"
       "/var/lib/nixos"
       "/var/lib/systemd/coredump"
@@ -104,9 +123,15 @@
 
     files = [
       "/etc/machine-id"
-    ] ++ lib.lists.flatten (lib.lists.forEach config.services.openssh.hostKeys ({path, ...}: [
-      "${path}"
-      "${path}.pub"
-    ]));
+    ]
+    ++ lib.lists.flatten (
+      lib.lists.forEach config.services.openssh.hostKeys (
+        { path, ... }:
+        [
+          "${path}"
+          "${path}.pub"
+        ]
+      )
+    );
   };
 }

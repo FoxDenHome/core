@@ -1,4 +1,9 @@
-{ pkgs, lib, config, ... }:
+{
+  pkgs,
+  lib,
+  config,
+  ...
+}:
 let
   sanoidPackage = pkgs.sanoid.override {
     openssh = pkgs.openssh_hpn;
@@ -9,19 +14,23 @@ in
     enable = lib.mkEnableOption "Enable ZFS support";
     sanoid = {
       enable = lib.mkEnableOption "Enable sanoid snapshots for ZFS datasets";
-      datasets = with lib.types; lib.mkOption {
-        type = attrsOf anything;
-        default = {};
-        description = "ZFS datasets to snapshot with sanoid";
-      };
+      datasets =
+        with lib.types;
+        lib.mkOption {
+          type = attrsOf anything;
+          default = { };
+          description = "ZFS datasets to snapshot with sanoid";
+        };
     };
     syncoid = {
       enable = lib.mkEnableOption "Enable syncoid replication for ZFS datasets";
-      commands = with lib.types; lib.mkOption {
-        type = attrsOf anything;
-        default = {};
-        description = "Syncoid commands";
-      };
+      commands =
+        with lib.types;
+        lib.mkOption {
+          type = attrsOf anything;
+          default = { };
+          description = "Syncoid commands";
+        };
     };
   };
 
@@ -45,9 +54,13 @@ in
         "--source-bwlimit=75m"
         "--no-privilege-elevation"
       ];
-      commands = lib.attrsets.mapAttrs (_: cfg: {
-        sendOptions = "Lec";
-      } // cfg) config.foxDen.zfs.syncoid.commands;
+      commands = lib.attrsets.mapAttrs (
+        _: cfg:
+        {
+          sendOptions = "Lec";
+        }
+        // cfg
+      ) config.foxDen.zfs.syncoid.commands;
     };
 
     environment.persistence."/nix/persist/syncoid" = lib.mkIf config.foxDen.zfs.syncoid.enable {
@@ -73,9 +86,13 @@ in
         autosnap = true;
         autoprune = true;
       };
-      datasets = lib.attrsets.mapAttrs (_: cfg: {
-        useTemplate = ["foxden"];
-      } // cfg) config.foxDen.zfs.sanoid.datasets;
+      datasets = lib.attrsets.mapAttrs (
+        _: cfg:
+        {
+          useTemplate = [ "foxden" ];
+        }
+        // cfg
+      ) config.foxDen.zfs.sanoid.datasets;
     };
   };
 }

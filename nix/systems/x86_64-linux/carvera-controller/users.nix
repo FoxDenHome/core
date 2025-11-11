@@ -1,4 +1,4 @@
-{ pkgs, ... } :
+{ pkgs, ... }:
 {
   users.users.appliance = {
     isSystemUser = true;
@@ -6,9 +6,14 @@
     home = "/run/appliance";
     shell = pkgs.fish;
     linger = true;
-    extraGroups = [ "seat" "video" "render" "dialout" ];
+    extraGroups = [
+      "seat"
+      "video"
+      "render"
+      "dialout"
+    ];
   };
-  users.groups.appliance = {};
+  users.groups.appliance = { };
 
   systemd.services.appliance-setup = {
     serviceConfig = {
@@ -36,7 +41,12 @@
   environment.persistence."/nix/persist/appliance" = {
     hideMounts = true;
     directories = [
-      { directory = "/var/lib/appliance"; user = "appliance"; group = "appliance"; mode = "u=rwx,g=,o="; }
+      {
+        directory = "/var/lib/appliance";
+        user = "appliance";
+        group = "appliance";
+        mode = "u=rwx,g=,o=";
+      }
     ];
   };
 }

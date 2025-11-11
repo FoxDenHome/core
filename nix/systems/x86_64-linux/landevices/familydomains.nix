@@ -14,30 +14,33 @@ let
     "pop"
     "smtp"
   ];
-  subCnames = (map (name: "www.${name}") subCnamesRaw) ++ subCnamesRaw ++ ["www"];
+  subCnames = (map (name: "www.${name}") subCnamesRaw) ++ subCnamesRaw ++ [ "www" ];
 
-  mkFamilyRecords = domain: (map (name: {
-    name = "${name}.${domain}";
-    type = "CNAME";
-    value = "${domain}.";
-    horizon = "*";
-  }) subCnames) ++ [
-    {
-      name = domain;
-      type = "MX";
-      priority = 1;
-      ttl = 3600;
-      value = "${serverDomain}.";
+  mkFamilyRecords =
+    domain:
+    (map (name: {
+      name = "${name}.${domain}";
+      type = "CNAME";
+      value = "${domain}.";
       horizon = "*";
-    }
-    {
-      name = domain;
-      type = "ALIAS";
-      ttl = 3600;
-      value = "${serverDomain}.";
-      horizon = "*";
-    }
-  ];
+    }) subCnames)
+    ++ [
+      {
+        name = domain;
+        type = "MX";
+        priority = 1;
+        ttl = 3600;
+        value = "${serverDomain}.";
+        horizon = "*";
+      }
+      {
+        name = domain;
+        type = "ALIAS";
+        ttl = 3600;
+        value = "${serverDomain}.";
+        horizon = "*";
+      }
+    ];
 in
 {
   config.foxDen.dns.zones = {
@@ -45,7 +48,5 @@ in
     "candy-girl.net" = familyZoneCfg;
   };
 
-  config.foxDen.dns.records = 
-    (mkFamilyRecords "zoofaeth.de")
-    ++ (mkFamilyRecords "candy-girl.net");
+  config.foxDen.dns.records = (mkFamilyRecords "zoofaeth.de") ++ (mkFamilyRecords "candy-girl.net");
 }

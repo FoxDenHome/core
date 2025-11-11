@@ -13,9 +13,18 @@
   systemd.services."serial-getty@ttyS1".enable = true;
   hardware.enableRedistributableFirmware = true;
   hardware.cpu.intel.updateMicrocode = true;
-  boot.initrd.availableKernelModules = [ "xhci_pci" "ehci_pci" "nvme" "mpt3sas" "usbhid" ];
+  boot.initrd.availableKernelModules = [
+    "xhci_pci"
+    "ehci_pci"
+    "nvme"
+    "mpt3sas"
+    "usbhid"
+  ];
   boot.initrd.kernelModules = [ ];
-  boot.kernelModules = [ "kvm-intel" "rdma_cm" ];
+  boot.kernelModules = [
+    "kvm-intel"
+    "rdma_cm"
+  ];
   boot.extraModulePackages = [ ];
 
   foxDen.nvidia.enable = true;
@@ -53,13 +62,21 @@
   fileSystems."/boot" = {
     device = "/dev/nvme0n1p1";
     fsType = "vfat";
-    options = [ "fmask=0022" "dmask=0022" "nofail" ];
+    options = [
+      "fmask=0022"
+      "dmask=0022"
+      "nofail"
+    ];
   };
 
   fileSystems."/boot2" = {
     device = "/dev/nvme1n1p1";
     fsType = "vfat";
-    options = [ "fmask=0022" "dmask=0022" "nofail" ];
+    options = [
+      "fmask=0022"
+      "dmask=0022"
+      "nofail"
+    ];
   };
 
   fileSystems."/mnt/zssd" = {

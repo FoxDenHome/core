@@ -1,4 +1,10 @@
-{ config, lib, foxDenLib, firewall, ... }:
+{
+  config,
+  lib,
+  foxDenLib,
+  firewall,
+  ...
+}:
 let
   mainIPv4 = "95.216.116.140";
 
@@ -40,118 +46,155 @@ let
     mac = config.lib.foxDen.mkHashMac "000002";
   };
 
-  mkMinHost = (iface: {
-    inherit (ifcfg) nameservers;
-    interfaces.default = iface // {
-      sysctls = {
-        "net.ipv6.conf.INTERFACE.accept_ra" = "0";
-      } // (iface.sysctls or {});
-      addresses = lib.filter (ip: !(foxDenLib.util.isPrivateIP ip)) iface.addresses;
-      webservice.enable = false;
-      driver = {
-        name = "bridge";
-        bridge = {
-          bridge = ifcfg.interface;
-          vlan = 0;
-          mtu = ifcfg.mtu;
+  mkMinHost = (
+    iface: {
+      inherit (ifcfg) nameservers;
+      interfaces.default = iface // {
+        sysctls = {
+          "net.ipv6.conf.INTERFACE.accept_ra" = "0";
+        }
+        // (iface.sysctls or { });
+        addresses = lib.filter (ip: !(foxDenLib.util.isPrivateIP ip)) iface.addresses;
+        webservice.enable = false;
+        driver = {
+          name = "bridge";
+          bridge = {
+            bridge = ifcfg.interface;
+            vlan = 0;
+            mtu = ifcfg.mtu;
+          };
         };
+        routes = [ ];
       };
-      routes = [ ];
-    };
-    interfaces.foxden = iface // {
-      sysctls = {
-        "net.ipv6.conf.INTERFACE.accept_ra" = "0";
-      } // (iface.sysctls or {});
-      mac = null;
-      addresses = lib.filter (foxDenLib.util.isPrivateIP) iface.addresses;
-      driver = {
-        name = "bridge";
-        bridge = {
-          bridge = ifcfg-foxden.interface;
-          vlan = 0;
-          mtu = ifcfg-foxden.mtu;
+      interfaces.foxden = iface // {
+        sysctls = {
+          "net.ipv6.conf.INTERFACE.accept_ra" = "0";
+        }
+        // (iface.sysctls or { });
+        mac = null;
+        addresses = lib.filter (foxDenLib.util.isPrivateIP) iface.addresses;
+        driver = {
+          name = "bridge";
+          bridge = {
+            bridge = ifcfg-foxden.interface;
+            vlan = 0;
+            mtu = ifcfg-foxden.mtu;
+          };
         };
+        routes = [
+          {
+            Destination = "10.0.0.0/8";
+            Gateway = "10.99.12.1";
+          }
+          {
+            Destination = "fd2c:f4cb:63be::/60";
+            Gateway = "fd2c:f4cb:63be::a63:c01";
+          }
+        ];
       };
-      routes = [
-        { Destination = "10.0.0.0/8"; Gateway = "10.99.12.1"; }
-        { Destination = "fd2c:f4cb:63be::/60"; Gateway = "fd2c:f4cb:63be::a63:c01"; }
-      ];
-    };
-  });
+    }
+  );
 in
 {
   lib.foxDenSys = {
     routedInterface = ifcfg-routed.interface;
     inherit mkMinHost;
-    mkHost = iface: lib.mkMerge [
-      (mkMinHost iface)
-      {
-        interfaces.default.routes = [
-          { Destination = "0.0.0.0/0"; Gateway = "95.216.116.129"; }
-          { Destination = "::/0"; Gateway = "2a01:4f9:2b:1a42::1"; }
-        ];
-      }
-    ];
-    mkV6Host = iface: lib.mkMerge [
-      (mkMinHost ({ mac = null; } // iface))
-      {
-        interfaces.default = {
-          dns.auxAddresses = [ mainIPv4 ];
-          routes = [
-            { Destination = "::/0"; Gateway = "2a01:4f9:2b:1a42::1:1"; }
+    mkHost =
+      iface:
+      lib.mkMerge [
+        (mkMinHost iface)
+        {
+          interfaces.default.routes = [
+            {
+              Destination = "0.0.0.0/0";
+              Gateway = "95.216.116.129";
+            }
+            {
+              Destination = "::/0";
+              Gateway = "2a01:4f9:2b:1a42::1";
+            }
           ];
-          driver.bridge = {
-            bridge = lib.mkForce ifcfg-routed.interface;
-            mtu = ifcfg-routed.mtu;
+        }
+      ];
+    mkV6Host =
+      iface:
+      lib.mkMerge [
+        (mkMinHost ({ mac = null; } // iface))
+        {
+          interfaces.default = {
+            dns.auxAddresses = [ mainIPv4 ];
+            routes = [
+              {
+                Destination = "::/0";
+                Gateway = "2a01:4f9:2b:1a42::1:1";
+              }
+            ];
+            driver.bridge = {
+              bridge = lib.mkForce ifcfg-routed.interface;
+              mtu = ifcfg-routed.mtu;
+            };
           };
-        };
-        interfaces.foxden.routes = [
-          { Destination = "0.0.0.0/0"; Gateway = "10.99.12.1"; }
-        ];
-      }
-    ];
+          interfaces.foxden.routes = [
+            {
+              Destination = "0.0.0.0/0";
+              Gateway = "10.99.12.1";
+            }
+          ];
+        }
+      ];
   };
 
   foxDen.services.kanidm.externalIPs = map foxDenLib.util.removeIPCidr ifcfg.addresses;
   foxDen.hosts.index = 3;
   foxDen.hosts.gateway = "icefox";
-  virtualisation.libvirtd.allowedBridges = [ ifcfg.interface ifcfg-foxden.interface ifcfg-routed.interface ];
+  virtualisation.libvirtd.allowedBridges = [
+    ifcfg.interface
+    ifcfg-foxden.interface
+    ifcfg-routed.interface
+  ];
 
   # We don't firewall on servers, so only use port forward type rules
-  networking.nftables.tables = let
-    firewallRules = firewall.${config.foxDen.hosts.gateway};
-    portForwardrules = lib.lists.filter (rule: rule.action == "dnat" && rule.chain == "port-forward" && rule.table == "nat") firewallRules;
+  networking.nftables.tables =
+    let
+      firewallRules = firewall.${config.foxDen.hosts.gateway};
+      portForwardrules = lib.lists.filter (
+        rule: rule.action == "dnat" && rule.chain == "port-forward" && rule.table == "nat"
+      ) firewallRules;
 
-    sharedIPRules = map (rule: "  ${rule.protocol} dport ${builtins.toString rule.dstport} dnat to ${rule.toAddresses} comment \"${rule.comment}\"") portForwardrules;
-  in {
-    nat = {
-      content = ''
-        chain postrouting {
-          type nat hook postrouting priority srcnat; policy accept;
-          ip saddr 10.99.12.0/24 oifname "${ifcfg.interface}" snat to ${mainIPv4}
-        }
+      sharedIPRules = map (
+        rule:
+        "  ${rule.protocol} dport ${builtins.toString rule.dstport} dnat to ${rule.toAddresses} comment \"${rule.comment}\""
+      ) portForwardrules;
+    in
+    {
+      nat = {
+        content = ''
+          chain postrouting {
+            type nat hook postrouting priority srcnat; policy accept;
+            ip saddr 10.99.12.0/24 oifname "${ifcfg.interface}" snat to ${mainIPv4}
+          }
 
-        chain prerouting {
-          type nat hook prerouting priority dstnat; policy accept;
-          ip daddr ${mainIPv4}/32 iifname "${ifcfg.interface}" jump sharedip
-        }
+          chain prerouting {
+            type nat hook prerouting priority dstnat; policy accept;
+            ip daddr ${mainIPv4}/32 iifname "${ifcfg.interface}" jump sharedip
+          }
 
-        chain sharedip {
-        ${builtins.concatStringsSep "\n" sharedIPRules}
-        }
-      '';
-      family = "ip";
+          chain sharedip {
+          ${builtins.concatStringsSep "\n" sharedIPRules}
+          }
+        '';
+        family = "ip";
+      };
+      filter = {
+        content = ''
+          chain forward {
+            type filter hook forward priority 0; policy accept;
+            oifname "${ifcfg.phyIface}" ether saddr & ff:ff:00:00:00:00 == e6:21:00:00:00:00 drop
+          }
+        '';
+        family = "bridge";
+      };
     };
-    filter = {
-      content = ''
-        chain forward {
-          type filter hook forward priority 0; policy accept;
-          oifname "${ifcfg.phyIface}" ether saddr & ff:ff:00:00:00:00 == e6:21:00:00:00:00 drop
-        }
-      '';
-      family = "bridge";
-    };
-  };
 
   boot.kernel.sysctl = {
     "net.ipv4.ip_forward" = "1";
@@ -162,8 +205,14 @@ in
   systemd.network.networks."30-${ifcfg.interface}" = {
     name = ifcfg.interface;
     routes = [
-      { Destination = "0.0.0.0/0"; Gateway = "95.216.116.129"; }
-      { Destination = "::/0"; Gateway = "fe80::1"; }
+      {
+        Destination = "0.0.0.0/0";
+        Gateway = "95.216.116.129";
+      }
+      {
+        Destination = "::/0";
+        Gateway = "fe80::1";
+      }
     ];
     address = ifcfg.addresses;
     dns = ifcfg.nameservers;
@@ -180,7 +229,11 @@ in
       MTUBytes = ifcfg.mtu;
     };
   };
-  boot.initrd.systemd.network.networks."30-${ifcfg.phyIface}" = config.systemd.network.networks."30-${ifcfg.interface}" // { name = ifcfg.phyIface; };
+  boot.initrd.systemd.network.networks."30-${ifcfg.phyIface}" =
+    config.systemd.network.networks."30-${ifcfg.interface}"
+    // {
+      name = ifcfg.phyIface;
+    };
 
   systemd.network.netdevs."${ifcfg.interface}" = {
     netdevConfig = {
@@ -200,7 +253,7 @@ in
 
   systemd.network.networks."40-${ifcfg.interface}-root" = {
     name = ifcfg.phyIface;
-    bridge = [ifcfg.interface];
+    bridge = [ ifcfg.interface ];
   };
 
   systemd.network.networks."30-${ifcfg-foxden.interface}" = {
@@ -252,19 +305,30 @@ in
         listenPort = 13232;
         peers = [
           {
-            allowedIPs = [ "10.99.1.1/32" "fd2c:f4cb:63be::a63:101/128" "10.0.0.0/8" "fd2c:f4cb:63be::/60" ];
+            allowedIPs = [
+              "10.99.1.1/32"
+              "fd2c:f4cb:63be::a63:101/128"
+              "10.0.0.0/8"
+              "fd2c:f4cb:63be::/60"
+            ];
             endpoint = "v4-router.foxden.network:13232";
             persistentKeepalive = 25;
             publicKey = "nCTAIMDv50QhwjCw72FwP2u2pKGMcqxJ09DQ9wJdxH0=";
           }
           {
-            allowedIPs = [ "10.99.1.2/32" "fd2c:f4cb:63be::a63:102/128" ];
+            allowedIPs = [
+              "10.99.1.2/32"
+              "fd2c:f4cb:63be::a63:102/128"
+            ];
             endpoint = "v4-router-backup.foxden.network:13232";
             persistentKeepalive = 25;
             publicKey = "8zUl7b1frvuzcBrIA5lNsegzzyAOniaZ4tczSdoqcWM=";
           }
           {
-            allowedIPs = [ "10.99.10.1/32" "fd2c:f4cb:63be::a63:a01/128" ];
+            allowedIPs = [
+              "10.99.10.1/32"
+              "fd2c:f4cb:63be::a63:a01/128"
+            ];
             endpoint = "redfox.doridian.net:13232";
             persistentKeepalive = 25;
             publicKey = "s1COjkpfpzfQ05ZLNLGQrlEhomlzwHv+APvUABzbSh8=";
@@ -288,28 +352,30 @@ in
   # - 2a01:4f9:2b:1a42::/112 for hosts which have public IPv4
   # - 2a01:4f9:2b:1a42::1:/112 for hosts without public IPv4 (routed out via mainIPv4)
   foxDen.hosts.hosts = {
-    icefox = let
-      mkIntf = subifcfg: {
-        driver.name = "null";
-        dns = {
-          name = "icefox.foxden.network";
+    icefox =
+      let
+        mkIntf = subifcfg: {
+          driver.name = "null";
+          dns = {
+            name = "icefox.foxden.network";
+          };
+          cnames = [
+            {
+              name = "icefox.doridian.net";
+            }
+          ];
+          inherit (subifcfg) mac addresses;
         };
-        cnames = [
-          {
-            name = "icefox.doridian.net";
-          }
-        ];
-        inherit (subifcfg) mac addresses;
+      in
+      {
+        inherit (ifcfg) nameservers;
+        interfaces.default = mkIntf ifcfg;
+        interfaces.foxden = mkIntf ifcfg-foxden;
+        interfaces.routed = {
+          driver.name = "null";
+          inherit (ifcfg-routed) mac addresses;
+          dns.name = "";
+        };
       };
-    in {
-      inherit (ifcfg) nameservers;
-      interfaces.default = mkIntf ifcfg;
-      interfaces.foxden = mkIntf ifcfg-foxden;
-      interfaces.routed = {
-        driver.name = "null";
-        inherit (ifcfg-routed) mac addresses;
-        dns.name = "";
-      };
-    };
   };
 }

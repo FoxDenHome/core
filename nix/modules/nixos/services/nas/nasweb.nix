@@ -1,4 +1,10 @@
-{ foxDenLib, pkgs, lib, config, ... }:
+{
+  foxDenLib,
+  pkgs,
+  lib,
+  config,
+  ...
+}:
 let
   services = foxDenLib.services;
 
@@ -10,32 +16,40 @@ in
       type = lib.types.path;
       description = "Root directory to serve files from";
     };
-  } // (services.http.mkOptions { svcName = "nasweb"; name = "NAS web interface"; });
+  }
+  // (services.http.mkOptions {
+    svcName = "nasweb";
+    name = "NAS web interface";
+  });
 
-  config = lib.mkIf svcConfig.enable (lib.mkMerge [
-    (services.http.make {
-      inherit svcConfig pkgs config;
-      name = "nasweb";
-      target = ''
-        root /nas;
-        autoindex on;
-      '';
-      extraConfig = { defaultTarget, ... }: ''
-        location ~ ^/guest/.*[^/]$ {
-          satisfy any;
-          allow 0.0.0.0/0;
-          allow ::0/0;
+  config = lib.mkIf svcConfig.enable (
+    lib.mkMerge [
+      (services.http.make {
+        inherit svcConfig pkgs config;
+        name = "nasweb";
+        target = ''
           root /nas;
-          autoindex off;
-        }
-      '';
-    }).config
-    {
-      systemd.services.nasweb.serviceConfig = {
-        BindReadOnlyPaths = [
-          "${svcConfig.root}:/nas"
-        ];
-      };
-    }
-  ]);
+          autoindex on;
+        '';
+        extraConfig =
+          { defaultTarget, ... }:
+          ''
+            location ~ ^/guest/.*[^/]$ {
+              satisfy any;
+              allow 0.0.0.0/0;
+              allow ::0/0;
+              root /nas;
+              autoindex off;
+            }
+          '';
+      }).config
+      {
+        systemd.services.nasweb.serviceConfig = {
+          BindReadOnlyPaths = [
+            "${svcConfig.root}:/nas"
+          ];
+        };
+      }
+    ]
+  );
 }

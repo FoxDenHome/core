@@ -6,22 +6,35 @@ in
 {
   fileSystems."/mnt/zhdd/nas/torrent" = {
     device = "/mnt/ztank/local/torrent";
-    options = [ "bind" "nofail" ];
+    options = [
+      "bind"
+      "nofail"
+    ];
   };
 
   fileSystems."/mnt/zhdd/nas/usenet" = {
     device = "/mnt/ztank/local/usenet";
-    options = [ "bind" "nofail" ];
+    options = [
+      "bind"
+      "nofail"
+    ];
   };
 
   foxDen.services = config.lib.foxDen.sops.mkIfAvailable {
     wireguard."wg-deluge" = {
       host = "deluge"; # lawful dove
       interface = {
-        ips = [ "10.73.218.165/32" "fc00:bbbb:bbbb:bb01::a:daa4/128" ];
+        ips = [
+          "10.73.218.165/32"
+          "fc00:bbbb:bbbb:bb01::a:daa4/128"
+        ];
         peers = [
           {
-            allowedIPs = [ "0.0.0.0/0" "::/0" "10.64.0.1/32" ];
+            allowedIPs = [
+              "0.0.0.0/0"
+              "::/0"
+              "10.64.0.1/32"
+            ];
             endpoint = "193.138.7.157:51820";
             persistentKeepalive = 25;
             publicKey = "xeHVhXxyyFqUEE+nsu5Tzd/t9en+++4fVFcSFngpcAU=";
@@ -117,22 +130,24 @@ in
         "fd2c:f4cb:63be::a63:c0a/120"
       ];
     };
-    deluge = let
-      host = mkMinHost {
-        dns = {
-          name = "deluge-offsite.foxden.network";
+    deluge =
+      let
+        host = mkMinHost {
+          dns = {
+            name = "deluge-offsite.foxden.network";
+          };
+          addresses = [
+            "10.99.12.11/24"
+            "fd2c:f4cb:63be::a63:c0b/120"
+          ];
+          sysctls = {
+            "net.ipv6.conf.INTERFACE.accept_ra_defrtr" = "0";
+          };
         };
-        addresses = [
-          "10.99.12.11/24"
-          "fd2c:f4cb:63be::a63:c0b/120"
-        ];
-        sysctls = {
-          "net.ipv6.conf.INTERFACE.accept_ra_defrtr" = "0";
-        };
+      in
+      {
+        nameservers = [ "10.64.0.1" ];
+        interfaces.foxden = host.interfaces.foxden;
       };
-    in {
-      nameservers = [ "10.64.0.1" ];
-      interfaces.foxden = host.interfaces.foxden;
-    };
   };
 }

@@ -11,7 +11,13 @@
   imports = [ ../../../profiles/server.nix ];
   hardware.enableRedistributableFirmware = true;
   hardware.cpu.amd.updateMicrocode = true;
-  boot.initrd.availableKernelModules = [ "nvme" "xhci_pci" "ahci" "usbhid" "usb_storage" ];
+  boot.initrd.availableKernelModules = [
+    "nvme"
+    "xhci_pci"
+    "ahci"
+    "usbhid"
+    "usb_storage"
+  ];
   boot.initrd.kernelModules = [ ];
   boot.kernelModules = [ "kvm-amd" ];
   boot.extraModulePackages = [ ];
@@ -57,13 +63,21 @@
   fileSystems."/boot" = {
     device = "/dev/nvme0n1p1";
     fsType = "vfat";
-    options = [ "fmask=0022" "dmask=0022" "nofail" ];
+    options = [
+      "fmask=0022"
+      "dmask=0022"
+      "nofail"
+    ];
   };
 
   fileSystems."/boot2" = {
     device = "/dev/sda1";
     fsType = "vfat";
-    options = [ "fmask=0022" "dmask=0022" "nofail" ];
+    options = [
+      "fmask=0022"
+      "dmask=0022"
+      "nofail"
+    ];
   };
 
   foxDen.services = {

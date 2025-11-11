@@ -11,12 +11,23 @@
   imports = [ ../../../profiles/server.nix ];
   hardware.enableRedistributableFirmware = true;
   hardware.cpu.amd.updateMicrocode = true;
-  boot.initrd.availableKernelModules = [ "nvme" "xhci_pci" "ahci" "usbhid" "usb_storage" "sd_mod" ];
+  boot.initrd.availableKernelModules = [
+    "nvme"
+    "xhci_pci"
+    "ahci"
+    "usbhid"
+    "usb_storage"
+    "sd_mod"
+  ];
   boot.initrd.kernelModules = [ ];
   boot.kernelModules = [ "kvm-amd" ];
   boot.extraModulePackages = [ ];
 
-  services.timesyncd.servers = ["ntp1.hetzner.de" "ntp2.hetzner.com" "ntp3.hetzner.net"];
+  services.timesyncd.servers = [
+    "ntp1.hetzner.de"
+    "ntp2.hetzner.com"
+    "ntp3.hetzner.net"
+  ];
 
   boot.swraid = {
     enable = true;
@@ -44,13 +55,21 @@
   fileSystems."/boot" = {
     device = "/dev/nvme0n1p1";
     fsType = "vfat";
-    options = [ "fmask=0022" "dmask=0022" "nofail" ];
+    options = [
+      "fmask=0022"
+      "dmask=0022"
+      "nofail"
+    ];
   };
 
   fileSystems."/boot2" = {
     device = "/dev/nvme1n1p1";
     fsType = "vfat";
-    options = [ "fmask=0022" "dmask=0022" "nofail" ];
+    options = [
+      "fmask=0022"
+      "dmask=0022"
+      "nofail"
+    ];
   };
 
   foxDen.services = {

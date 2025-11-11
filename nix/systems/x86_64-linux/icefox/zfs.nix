@@ -24,22 +24,28 @@ let
     "restic"
   ];
 
-  mkZfsMounts = rootDir: rootDS: mounts: (map (mount: let
-    suffix = if mount == "" then "" else "/${mount}";
-  in
-  {
-    name = "${rootDir}${suffix}";
-    value = {
-      device = "${rootDS}${suffix}";
-      fsType = "zfs";
-      options = [ "nofail" ];
-    };
-  }) mounts);
+  mkZfsMounts =
+    rootDir: rootDS: mounts:
+    (map (
+      mount:
+      let
+        suffix = if mount == "" then "" else "/${mount}";
+      in
+      {
+        name = "${rootDir}${suffix}";
+        value = {
+          device = "${rootDS}${suffix}";
+          fsType = "zfs";
+          options = [ "nofail" ];
+        };
+      }
+    ) mounts);
 in
 {
   fileSystems = lib.listToAttrs (
-    (mkZfsMounts "/mnt/ztank" "ztank/ROOT" ztankMounts) ++
-    (mkZfsMounts "/mnt/zhdd" "ztank/ROOT/BENGALFOX/zhdd" zhddMounts));
+    (mkZfsMounts "/mnt/ztank" "ztank/ROOT" ztankMounts)
+    ++ (mkZfsMounts "/mnt/zhdd" "ztank/ROOT/BENGALFOX/zhdd" zhddMounts)
+  );
 
   foxDen.zfs = {
     enable = true;

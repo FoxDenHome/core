@@ -1,4 +1,10 @@
-{ foxDenLib, pkgs, lib, config, ... }:
+{
+  foxDenLib,
+  pkgs,
+  lib,
+  config,
+  ...
+}:
 let
   services = foxDenLib.services;
 
@@ -15,54 +21,60 @@ in
       default = defaultDataDir;
       description = "Directory to store gitbackup data";
     };
-  } // (services.http.mkOptions { svcName = "gitbackup"; name = "Git backup"; });
+  }
+  // (services.http.mkOptions {
+    svcName = "gitbackup";
+    name = "Git backup";
+  });
 
-  config = lib.mkIf svcConfig.enable (lib.mkMerge [
-    (services.make {
-      name = "gitbackup";
-      inherit svcConfig pkgs config;
-    }).config
-    {
-      foxDen.services.gitbackup.host = lib.mkDefault "";
+  config = lib.mkIf svcConfig.enable (
+    lib.mkMerge [
+      (services.make {
+        name = "gitbackup";
+        inherit svcConfig pkgs config;
+      }).config
+      {
+        foxDen.services.gitbackup.host = lib.mkDefault "";
 
-      systemd.services.gitbackup = {
-        confinement.packages = [
-          pkgs.git
-        ];
-
-        path = [
-          pkgs.git
-        ];
-
-        serviceConfig = {
-          DynamicUser = true;
-          Type = "oneshot";
-          Restart = "no";
-
-          Environment = [
-            "GITHUB_ORGANIZATIONS=foxCaves,FoxDenHome,FoxBukkit,MoonHack,PawNode,SpaceAgeMP,WSVPN"
-            "\"BACKUP_ROOT=${svcConfig.dataDir}\""
+        systemd.services.gitbackup = {
+          confinement.packages = [
+            pkgs.git
           ];
 
-          EnvironmentFile = config.lib.foxDen.sops.mkGithubTokenPath;
-
-          BindPaths = ifNotDefaultData [
-            "${svcConfig.dataDir}"
+          path = [
+            pkgs.git
           ];
 
-          ExecStart = [ "${pkgs.gitbackup}/bin/gitbackup-single" ];
+          serviceConfig = {
+            DynamicUser = true;
+            Type = "oneshot";
+            Restart = "no";
 
-          StateDirectory = ifDefaultData "gitbackup";
-        };
-      };
+            Environment = [
+              "GITHUB_ORGANIZATIONS=foxCaves,FoxDenHome,FoxBukkit,MoonHack,PawNode,SpaceAgeMP,WSVPN"
+              "\"BACKUP_ROOT=${svcConfig.dataDir}\""
+            ];
 
-      systemd.timers.gitbackup = {
-        wantedBy = [ "timers.target" ];
-        timerConfig = {
-          OnCalendar = "hourly";
-          RandomizedDelaySec = "45m";
+            EnvironmentFile = config.lib.foxDen.sops.mkGithubTokenPath;
+
+            BindPaths = ifNotDefaultData [
+              "${svcConfig.dataDir}"
+            ];
+
+            ExecStart = [ "${pkgs.gitbackup}/bin/gitbackup-single" ];
+
+            StateDirectory = ifDefaultData "gitbackup";
+          };
         };
-      };
-    }
-  ]);
+
+        systemd.timers.gitbackup = {
+          wantedBy = [ "timers.target" ];
+          timerConfig = {
+            OnCalendar = "hourly";
+            RandomizedDelaySec = "45m";
+          };
+        };
+      }
+    ]
+  );
 }

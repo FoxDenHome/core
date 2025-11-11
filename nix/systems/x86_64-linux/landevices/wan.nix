@@ -1,38 +1,40 @@
 { ... }:
 let
-  mkWanRecs = (suffix: v4: v6: [
-    {
-      name = "${suffix}.foxden.network";
-      type = "A";
-      value = v4;
-      ttl = 300;
-      dynDns = true;
-      horizon = "external";
-    }
-    {
-      name = "${suffix}.foxden.network";
-      type = "AAAA";
-      value = v6;
-      ttl = 300;
-      dynDns = true;
-      horizon = "external";
-    }
-    {
-      name = "v4-${suffix}.foxden.network";
-      type = "A";
-      value = v4;
-      ttl = 300;
-      dynDns = true;
-      horizon = "external";
-    }
-    {
-      name = "v4-${suffix}.foxden.network";
-      type = "CNAME";
-      value = "${suffix}.foxden.network.";
-      ttl = 300;
-      horizon = "internal";
-    }
-  ]);
+  mkWanRecs = (
+    suffix: v4: v6: [
+      {
+        name = "${suffix}.foxden.network";
+        type = "A";
+        value = v4;
+        ttl = 300;
+        dynDns = true;
+        horizon = "external";
+      }
+      {
+        name = "${suffix}.foxden.network";
+        type = "AAAA";
+        value = v6;
+        ttl = 300;
+        dynDns = true;
+        horizon = "external";
+      }
+      {
+        name = "v4-${suffix}.foxden.network";
+        type = "A";
+        value = v4;
+        ttl = 300;
+        dynDns = true;
+        horizon = "external";
+      }
+      {
+        name = "v4-${suffix}.foxden.network";
+        type = "CNAME";
+        value = "${suffix}.foxden.network.";
+        ttl = 300;
+        horizon = "internal";
+      }
+    ]
+  );
 in
 {
   config.foxDen.dns.records = [

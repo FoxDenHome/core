@@ -32,11 +32,13 @@ in
       IPv6AcceptRA = true;
     };
 
-    bridgeVLANs = [{
-      PVID = ifcfg.phyPvid;
-      EgressUntagged = ifcfg.phyPvid;
-      VLAN = builtins.toString ifcfg.phyPvid;
-    }];
+    bridgeVLANs = [
+      {
+        PVID = ifcfg.phyPvid;
+        EgressUntagged = ifcfg.phyPvid;
+        VLAN = builtins.toString ifcfg.phyPvid;
+      }
+    ];
 
     linkConfig = {
       MTUBytes = ifcfg.mtu;
@@ -58,7 +60,7 @@ in
 
   systemd.network.networks."40-${ifcfg.interface}-root" = {
     name = ifcfg.phyIface;
-    bridge = [ifcfg.interface];
+    bridge = [ ifcfg.interface ];
 
     bridgeVLANs = [
       {

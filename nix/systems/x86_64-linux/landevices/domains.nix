@@ -14,11 +14,11 @@
     "doridian.net" = {
       generateNSRecords = true;
     };
-    "darksignsonline.com" = {};
+    "darksignsonline.com" = { };
     "f0x.es" = {
       generateNSRecords = true;
     };
-    "foxcav.es" = {};
+    "foxcav.es" = { };
     "spaceage.mp" = {
       registrar = "getmp";
     };
@@ -46,7 +46,23 @@
   };
 
   config.foxDen.dns.authorities = {
-    default = { admin = "hostmaster@doridian.net"; nameservers = ["ns1.doridian.net." "ns2.doridian.de." "ns3.foxden.network." "ns4.f0x.es."]; };
-    upstream = { admin = "support@cloudns.net"; nameservers = ["pns41.cloudns.net." "pns42.cloudns.net." "pns43.cloudns.net." "pns44.cloudns.net."]; };
+    default = {
+      admin = "hostmaster@doridian.net";
+      nameservers = [
+        "ns1.doridian.net."
+        "ns2.doridian.de."
+        "ns3.foxden.network."
+        "ns4.f0x.es."
+      ];
+    };
+    upstream = {
+      admin = "support@cloudns.net";
+      nameservers = [
+        "pns41.cloudns.net."
+        "pns42.cloudns.net."
+        "pns43.cloudns.net."
+        "pns44.cloudns.net."
+      ];
+    };
   };
 }

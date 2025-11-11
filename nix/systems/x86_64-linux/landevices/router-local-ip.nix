@@ -1,9 +1,21 @@
-{ lib, ... } :
+{ lib, ... }:
 let
   mkView = suffix: ";include('config'); return view(FoxDenLocal('${suffix}'));";
   mkDevice = name: suffix4: suffix6: [
-    { name = "${name}.foxden.network"; ttl = 30; type = "LUA A"; value = mkView suffix4; horizon = "internal"; }
-    { name = "${name}.foxden.network"; ttl = 30; type = "LUA AAAA"; value = mkView suffix6; horizon = "internal"; }
+    {
+      name = "${name}.foxden.network";
+      ttl = 30;
+      type = "LUA A";
+      value = mkView suffix4;
+      horizon = "internal";
+    }
+    {
+      name = "${name}.foxden.network";
+      ttl = 30;
+      type = "LUA AAAA";
+      value = mkView suffix6;
+      horizon = "internal";
+    }
   ];
 in
 {
@@ -15,7 +27,13 @@ in
     (mkDevice "router-backup" "1.2" "0102")
     (mkDevice "ntpi" "1.123" "017b")
     [
-      { name = "ecstest"; ttl = 0; type = "LUA TXT"; value = "bestwho:toString()"; horizon = "internal"; }
+      {
+        name = "ecstest";
+        ttl = 0;
+        type = "LUA TXT";
+        value = "bestwho:toString()";
+        horizon = "internal";
+      }
     ]
   ];
 }

@@ -1,4 +1,9 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 let
   zhddMounts = [
     ""
@@ -12,17 +17,22 @@ let
   ];
 in
 {
-  fileSystems = lib.listToAttrs (map (mount: let
-    suffix = if mount == "" then "" else "/${mount}";
-  in
-  {
-    name = "/mnt/zhdd${suffix}";
-    value = {
-      device = "zhdd/ROOT${suffix}";
-      fsType = "zfs";
-      options = [ "nofail" ];
-    };
-  }) zhddMounts);
+  fileSystems = lib.listToAttrs (
+    map (
+      mount:
+      let
+        suffix = if mount == "" then "" else "/${mount}";
+      in
+      {
+        name = "/mnt/zhdd${suffix}";
+        value = {
+          device = "zhdd/ROOT${suffix}";
+          fsType = "zfs";
+          options = [ "nofail" ];
+        };
+      }
+    ) zhddMounts
+  );
 
   foxDen.zfs = {
     enable = true;

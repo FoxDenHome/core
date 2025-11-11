@@ -1,4 +1,9 @@
-{ pkgs, lib, config, ... }:
+{
+  pkgs,
+  lib,
+  config,
+  ...
+}:
 let
   svcConfig = config.foxDen.services.tapemgr;
 in
@@ -14,7 +19,7 @@ in
       pkgs.fuse
     ];
 
-    sops.secrets.tapemgr = config.lib.foxDen.sops.mkIfAvailable {};
+    sops.secrets.tapemgr = config.lib.foxDen.sops.mkIfAvailable { };
 
     environment.etc."tapemgr/config.json" = config.lib.foxDen.sops.mkIfAvailable {
       source = config.sops.secrets.tapemgr.path;
@@ -27,7 +32,10 @@ in
     environment.persistence."/nix/persist/tapemgr" = {
       hideMounts = true;
       directories = [
-        { directory = "/var/lib/tapemgr"; mode = "u=rwx,g=,o="; }
+        {
+          directory = "/var/lib/tapemgr";
+          mode = "u=rwx,g=,o=";
+        }
       ];
     };
   };

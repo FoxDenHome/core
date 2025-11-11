@@ -1,13 +1,21 @@
-{ foxDenLib, pkgs, lib, config, ... }:
+{
+  foxDenLib,
+  pkgs,
+  lib,
+  config,
+  ...
+}:
 let
   services = foxDenLib.services;
 
-  mkDir = (dir: {
-    directory = dir;
-    user = "prometheus";
-    group = "prometheus";
-    mode = "u=rwx,g=,o=";
-  });
+  mkDir = (
+    dir: {
+      directory = dir;
+      user = "prometheus";
+      group = "prometheus";
+      mode = "u=rwx,g=,o=";
+    }
+  );
 
   svcConfig = config.foxDen.services.prometheus;
 
@@ -29,48 +37,53 @@ let
   };
 in
 {
-  options.foxDen.services.prometheus = services.mkOptions { svcName = "prometheus"; name = "Prometheus monitoring server"; };
+  options.foxDen.services.prometheus = services.mkOptions {
+    svcName = "prometheus";
+    name = "Prometheus monitoring server";
+  };
 
-  config = lib.mkIf svcConfig.enable (lib.mkMerge [
-    (services.make {
-      name = "prometheus";
-      inherit svcConfig pkgs config;
-    }).config
-    {
-      services.prometheus = {
-        enable = true;
-        stateDir = "prometheus";
-        configText = builtins.toJSON cfgObj;
-      };
-
-      sops.secrets.prometheus = config.lib.foxDen.sops.mkIfAvailable {
-        mode = "0400";
-        owner = "prometheus";
-        group = "prometheus";
-      };
-
-      systemd.services.prometheus = {
-        confinement.packages = [
-          pkgs.coreutils
-        ];
-
-        serviceConfig = {
-          ExecStartPre = [
-            "${pkgs.coreutils}/bin/mkdir -p /tmp/scrape_configs"
-            "${pkgs.coreutils}/bin/touch /tmp/scrape_configs/prometheus-scrape.yml"
-            "${pkgs.coreutils}/bin/chmod 600 /tmp/scrape_configs/prometheus-scrape.yml"
-            "${pkgs.envsubst}/bin/envsubst -i ${./prometheus-scrape.yml} -o /tmp/scrape_configs/prometheus-scrape.yml"
-          ];
-          EnvironmentFile = config.lib.foxDen.sops.mkIfAvailable config.sops.secrets.prometheus.path;
+  config = lib.mkIf svcConfig.enable (
+    lib.mkMerge [
+      (services.make {
+        name = "prometheus";
+        inherit svcConfig pkgs config;
+      }).config
+      {
+        services.prometheus = {
+          enable = true;
+          stateDir = "prometheus";
+          configText = builtins.toJSON cfgObj;
         };
-      };
 
-      environment.persistence."/nix/persist/prometheus" = {
-        hideMounts = true;
-        directories = [
-          (mkDir "/var/lib/prometheus")
-        ];
-      };
-    }
-  ]);
+        sops.secrets.prometheus = config.lib.foxDen.sops.mkIfAvailable {
+          mode = "0400";
+          owner = "prometheus";
+          group = "prometheus";
+        };
+
+        systemd.services.prometheus = {
+          confinement.packages = [
+            pkgs.coreutils
+          ];
+
+          serviceConfig = {
+            ExecStartPre = [
+              "${pkgs.coreutils}/bin/mkdir -p /tmp/scrape_configs"
+              "${pkgs.coreutils}/bin/touch /tmp/scrape_configs/prometheus-scrape.yml"
+              "${pkgs.coreutils}/bin/chmod 600 /tmp/scrape_configs/prometheus-scrape.yml"
+              "${pkgs.envsubst}/bin/envsubst -i ${./prometheus-scrape.yml} -o /tmp/scrape_configs/prometheus-scrape.yml"
+            ];
+            EnvironmentFile = config.lib.foxDen.sops.mkIfAvailable config.sops.secrets.prometheus.path;
+          };
+        };
+
+        environment.persistence."/nix/persist/prometheus" = {
+          hideMounts = true;
+          directories = [
+            (mkDir "/var/lib/prometheus")
+          ];
+        };
+      }
+    ]
+  );
 }

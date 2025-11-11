@@ -10,7 +10,11 @@ let
     city = "Seattle";
   };
 
-  geofeedData = (lib.concatMapStringsSep "\n" (subnet: "${subnet},${location.country},${location.state},${location.city},") subnets) + "\n";
+  geofeedData =
+    (lib.concatMapStringsSep "\n" (
+      subnet: "${subnet},${location.country},${location.state},${location.city},"
+    ) subnets)
+    + "\n";
 
   geofeedText = ''
     # Doridian Network geofeed according to RFC 8805
@@ -19,7 +23,8 @@ let
   ''
   + geofeedData
   + "# End of file\n";
-in pkgs.stdenv.mkDerivation {
+in
+pkgs.stdenv.mkDerivation {
   name = "doridian-website";
   version = "1.0.0";
   src = ./files;

@@ -7,6 +7,8 @@ jobs:
         uses: actions/checkout@v4
       - name: Build dev container
         run: |
-          ls /proc
           podman image rm core || true
           podman build -t core .
+      - name: Run lint
+        run: |
+          podman run -v "$(pwd):/src" --rm core treefmt /src/nix

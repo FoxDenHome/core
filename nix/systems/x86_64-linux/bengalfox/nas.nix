@@ -5,22 +5,35 @@ in
 {
   fileSystems."/mnt/zhdd/nas/torrent" = {
     device = "/mnt/zssd/nas/torrent";
-    options = [ "bind" "nofail" ];
+    options = [
+      "bind"
+      "nofail"
+    ];
   };
 
   fileSystems."/mnt/zhdd/nas/usenet" = {
     device = "/mnt/zssd/nas/usenet";
-    options = [ "bind" "nofail" ];
+    options = [
+      "bind"
+      "nofail"
+    ];
   };
 
   foxDen.services = config.lib.foxDen.sops.mkIfAvailable {
     wireguard."wg-deluge" = config.lib.foxDen.sops.mkIfAvailable {
       host = "deluge"; # solid snake
       interface = {
-        ips = [ "10.70.175.10/32" "fc00:bbbb:bbbb:bb01::7:af09/128" ];
+        ips = [
+          "10.70.175.10/32"
+          "fc00:bbbb:bbbb:bb01::7:af09/128"
+        ];
         peers = [
           {
-            allowedIPs = [ "0.0.0.0/0" "::/0" "10.64.0.1/32" ];
+            allowedIPs = [
+              "0.0.0.0/0"
+              "::/0"
+              "10.64.0.1/32"
+            ];
             endpoint = "23.234.81.127:51820";
             persistentKeepalive = 25;
             publicKey = "G6+A375GVmuFCAtvwgx3SWCWhrMvdQ+cboXQ8zp2ang=";
@@ -73,7 +86,10 @@ in
     samba = {
       enable = true;
       host = "nas";
-      sharePaths = [ "/mnt/zhdd/nas" "/mnt/zhdd/nashome" ];
+      sharePaths = [
+        "/mnt/zhdd/nas"
+        "/mnt/zhdd/nashome"
+      ];
     };
   };
 
@@ -110,24 +126,32 @@ in
   };
 
   foxDen.hosts.hosts = {
-    deluge = (mkVlanHost 2 {
-      dns = {
-        name = "deluge.foxden.network";
+    deluge =
+      (mkVlanHost 2 {
+        dns = {
+          name = "deluge.foxden.network";
+        };
+        addresses = [
+          "10.2.11.8/16"
+          "fd2c:f4cb:63be:2::b08/64"
+        ];
+        routes = [
+          {
+            Destination = "10.0.0.0/8";
+            Gateway = "10.2.0.1";
+          }
+          {
+            Destination = "fd2c:f4cb:63be::/48";
+            Gateway = "fd2c:f4cb:63be:2::1";
+          }
+        ];
+        sysctls = {
+          "net.ipv6.conf.INTERFACE.accept_ra_defrtr" = "0";
+        };
+      })
+      // {
+        nameservers = [ "10.64.0.1" ];
       };
-      addresses = [
-        "10.2.11.8/16"
-        "fd2c:f4cb:63be:2::b08/64"
-      ];
-      routes = [
-        { Destination = "10.0.0.0/8"; Gateway = "10.2.0.1"; }
-        { Destination = "fd2c:f4cb:63be::/48"; Gateway = "fd2c:f4cb:63be:2::1"; }
-      ];
-      sysctls = {
-        "net.ipv6.conf.INTERFACE.accept_ra_defrtr" = "0";
-      };
-    }) // {
-      nameservers = [ "10.64.0.1" ];
-    };
     jellyfin = mkVlanHost 2 {
       dns = {
         name = "jellyfin.foxden.network";

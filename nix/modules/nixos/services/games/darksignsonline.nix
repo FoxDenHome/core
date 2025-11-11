@@ -1,4 +1,10 @@
-{ foxDenLib, pkgs, lib, config, ... }:
+{
+  foxDenLib,
+  pkgs,
+  lib,
+  config,
+  ...
+}:
 let
   services = foxDenLib.services;
 
@@ -11,54 +17,60 @@ in
       description = "Domain name for the service";
     };
     tls = lib.mkEnableOption "Enable TLS for the service";
-  } // services.mkOptions { svcName = "darksignsonline"; name = "Dark Signs Online"; };
+  }
+  // services.mkOptions {
+    svcName = "darksignsonline";
+    name = "Dark Signs Online";
+  };
 
-  config = lib.mkIf svcConfig.enable (lib.mkMerge [
-    (foxDenLib.services.oci.make {
-      inherit pkgs config svcConfig;
-      name = "darksignsonline";
-      oci = {
-        image = "ghcr.io/doridian/darksignsonline/server:latest";
-        volumes = [
-          "nginx:/var/lib/nginx"
-          "wiki:/var/www/wiki"
-        ];
-        environment = {
-          "DOMAIN" = svcConfig.domain;
-          "HTTP_MODE" = if svcConfig.tls then "https" else "http";
-          "TRUSTED_PROXIES" = lib.concatStringsSep " " config.foxDen.services.trustedProxies;
-          "SMTP_FROM" = "noreply@${svcConfig.domain}";
+  config = lib.mkIf svcConfig.enable (
+    lib.mkMerge [
+      (foxDenLib.services.oci.make {
+        inherit pkgs config svcConfig;
+        name = "darksignsonline";
+        oci = {
+          image = "ghcr.io/doridian/darksignsonline/server:latest";
+          volumes = [
+            "nginx:/var/lib/nginx"
+            "wiki:/var/www/wiki"
+          ];
+          environment = {
+            "DOMAIN" = svcConfig.domain;
+            "HTTP_MODE" = if svcConfig.tls then "https" else "http";
+            "TRUSTED_PROXIES" = lib.concatStringsSep " " config.foxDen.services.trustedProxies;
+            "SMTP_FROM" = "noreply@${svcConfig.domain}";
+          };
+          environmentFiles = [
+            (config.lib.foxDen.sops.mkIfAvailable config.sops.secrets.darksignsonline.path)
+          ];
+          extraOptions = [
+            "-e MYSQL_*"
+          ];
         };
-        environmentFiles = [
-          (config.lib.foxDen.sops.mkIfAvailable config.sops.secrets.darksignsonline.path)
-        ];
-        extraOptions = [
-          "-e MYSQL_*"
-        ];
-      };
-    }).config
-    {
-      sops.secrets.darksignsonline = config.lib.foxDen.sops.mkIfAvailable {
-        mode = "0400";
-        owner = "darksignsonline";
-        group = "darksignsonline";
-      };
+      }).config
+      {
+        sops.secrets.darksignsonline = config.lib.foxDen.sops.mkIfAvailable {
+          mode = "0400";
+          owner = "darksignsonline";
+          group = "darksignsonline";
+        };
 
-      foxDen.hosts.hosts.${svcConfig.host}.webservice.enable = true;
+        foxDen.hosts.hosts.${svcConfig.host}.webservice.enable = true;
 
-      foxDen.services.mysql = {
-        enable = true;
-        services = [
-          {
-            name = "darksignsonline";
-            databases = [
-              "darksignsonline_wiki"
-            ];
-            proxy = true;
-            targetService = "podman-darksignsonline";
-          }
-        ];
-      };
-    }
-  ]);
+        foxDen.services.mysql = {
+          enable = true;
+          services = [
+            {
+              name = "darksignsonline";
+              databases = [
+                "darksignsonline_wiki"
+              ];
+              proxy = true;
+              targetService = "podman-darksignsonline";
+            }
+          ];
+        };
+      }
+    ]
+  );
 }

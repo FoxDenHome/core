@@ -1,4 +1,9 @@
-{ lib, config, pkgs, ... }:
+{
+  lib,
+  config,
+  pkgs,
+  ...
+}:
 let
   rsaKeyFile = "/nix/persist/foxden/bootssh/ssh_host_rsa_key";
   ed25519KeyFile = "/nix/persist/foxden/bootssh/ssh_host_ed25519_key";

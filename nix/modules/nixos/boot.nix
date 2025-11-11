@@ -1,4 +1,10 @@
-{ lib, pkgs, config, lanzaboote, ... }:
+{
+  lib,
+  pkgs,
+  config,
+  lanzaboote,
+  ...
+}:
 {
   imports = [
     lanzaboote.nixosModules.lanzaboote
@@ -10,13 +16,19 @@
     security.audit.enable = false;
     security.apparmor.enable = true;
 
-    security.lsm = [ "lockdown" "integrity" ];
+    security.lsm = [
+      "lockdown"
+      "integrity"
+    ];
 
     boot = {
       initrd.systemd.enable = true;
 
       kernelPackages = pkgs.linuxPackages_6_16;
-      kernelParams = ["iommu=pt" "intel_iommu=on"];
+      kernelParams = [
+        "iommu=pt"
+        "intel_iommu=on"
+      ];
       # "audit=1" "audit_backlog_limit=256" "module.sig_enforce=1" "lockdown=integrity"
 
       loader.systemd-boot.enable = lib.mkForce (!config.foxDen.boot.secure);
@@ -31,7 +43,10 @@
     ];
 
     environment.persistence."/nix/persist/system".directories = [
-      { directory = "/etc/secureboot"; mode = "u=rwx,g=rx,o="; }
+      {
+        directory = "/etc/secureboot";
+        mode = "u=rwx,g=rx,o=";
+      }
     ];
   };
 }

@@ -1,13 +1,20 @@
-{ pkgs, lib, config, ... }:
+{
+  pkgs,
+  lib,
+  config,
+  ...
+}:
 let
   svcConfig = config.foxDen.services.netdata;
 
-  mkDir = (dir: {
-    directory = dir;
-    user = config.services.netdata.user;
-    group = config.services.netdata.group;
-    mode = "u=rwx,g=,o=";
-  });
+  mkDir = (
+    dir: {
+      directory = dir;
+      user = config.services.netdata.user;
+      group = config.services.netdata.group;
+      mode = "u=rwx,g=,o=";
+    }
+  );
 in
 {
   options.foxDen.services.netdata = {

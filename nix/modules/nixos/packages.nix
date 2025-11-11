@@ -1,4 +1,10 @@
-{ nixpkgs, lib, systemArch, flakeInputs, ... }:
+{
+  nixpkgs,
+  lib,
+  systemArch,
+  flakeInputs,
+  ...
+}:
 let
   internalPackages = {
     "nixpkgs" = true;
@@ -9,14 +15,18 @@ let
     "self" = true;
   };
 
-  inputsWithoutInternal = lib.filterAttrs (name: value: let
-                              valType = if lib.isAttrs value then (value._type or null) else null;
-                            in
-                              valType == "flake" &&
-                              !(internalPackages.${name} or false)) flakeInputs;
+  inputsWithoutInternal = lib.filterAttrs (
+    name: value:
+    let
+      valType = if lib.isAttrs value then (value._type or null) else null;
+    in
+    valType == "flake" && !(internalPackages.${name} or false)
+  ) flakeInputs;
 
   removeDefaultPackage = lib.filterAttrs (name: value: name != "default");
-  addPackage = (mod: if (mod.packages or null) != null then removeDefaultPackage mod.packages.${systemArch} else {});
+  addPackage = (
+    mod: if (mod.packages or null) != null then removeDefaultPackage mod.packages.${systemArch} else { }
+  );
 
   nixPkgConfig = {
     allowUnfree = true;
@@ -25,25 +35,30 @@ let
     };
   };
 
-  pkgs = (import nixpkgs {
-    system = systemArch;
-    config = nixPkgConfig;
-  });
+  pkgs = (
+    import nixpkgs {
+      system = systemArch;
+      config = nixPkgConfig;
+    }
+  );
 
-  localPackages = lib.attrsets.genAttrs
-    (lib.attrNames (builtins.readDir ../../packages))
-    (name: import ../../packages/${name}/package.nix { inherit pkgs lib nixpkgs; });
+  localPackages = lib.attrsets.genAttrs (lib.attrNames (builtins.readDir ../../packages)) (
+    name: import ../../packages/${name}/package.nix { inherit pkgs lib nixpkgs; }
+  );
 in
 {
   imports = [
     nixpkgs.nixosModules.readOnlyPkgs
   ];
 
-  config.nixpkgs.pkgs = lib.mergeAttrsList ([
-    pkgs
-    {
-      config = nixPkgConfig;
-    }
-    localPackages
-  ] ++ (map addPackage (lib.attrValues inputsWithoutInternal)));
+  config.nixpkgs.pkgs = lib.mergeAttrsList (
+    [
+      pkgs
+      {
+        config = nixPkgConfig;
+      }
+      localPackages
+    ]
+    ++ (map addPackage (lib.attrValues inputsWithoutInternal))
+  );
 }

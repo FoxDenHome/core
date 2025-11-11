@@ -1,4 +1,10 @@
-{ foxDenLib, pkgs, lib, config, ... }:
+{
+  foxDenLib,
+  pkgs,
+  lib,
+  config,
+  ...
+}:
 let
   services = foxDenLib.services;
 
@@ -62,78 +68,90 @@ in
       default = "radius";
       description = "OAuth Client ID for oauth-jit-radius";
     };
-  } // (services.http.mkOptions { svcName = "oauth-jit-radius"; name = "OAuthJITRadius"; });
+  }
+  // (services.http.mkOptions {
+    svcName = "oauth-jit-radius";
+    name = "OAuthJITRadius";
+  });
 
-  config = lib.mkIf svcConfig.enable (lib.mkMerge [
-    (services.make {
-      name = "oauth-jit-radius";
-      inherit svcConfig pkgs config;
-    }).config
-    (services.http.make {
-      inherit svcConfig pkgs config;
-      name = "http-oauth-jit-radius";
-      target = "proxy_pass http://127.0.0.1:1444;";
-    }).config
-    {
-      foxDen.services.oauth-jit-radius.oAuth.overrideService = true;
+  config = lib.mkIf svcConfig.enable (
+    lib.mkMerge [
+      (services.make {
+        name = "oauth-jit-radius";
+        inherit svcConfig pkgs config;
+      }).config
+      (services.http.make {
+        inherit svcConfig pkgs config;
+        name = "http-oauth-jit-radius";
+        target = "proxy_pass http://127.0.0.1:1444;";
+      }).config
+      {
+        foxDen.services.oauth-jit-radius.oAuth.overrideService = true;
 
-      sops.secrets.oauth-jit-radius = config.lib.foxDen.sops.mkIfAvailable {};
+        sops.secrets.oauth-jit-radius = config.lib.foxDen.sops.mkIfAvailable { };
 
-      foxDen.services.kanidm.oauth2 = lib.mkIf svcConfig.oAuth.enable {
-        ${svcConfig.oAuth.clientId} =
-          (services.http.mkOauthConfig {
-            inherit svcConfig config;
-            oAuthCallbackUrl = "/redirect";
-          }) // {
-          preferShortUsername = true;
-          claimMaps = {
-            "apc_service_type" = {
-              valuesByGroup = {
-                "superadmins" = [ "admin" ];
+        foxDen.services.kanidm.oauth2 = lib.mkIf svcConfig.oAuth.enable {
+          ${svcConfig.oAuth.clientId} =
+            (services.http.mkOauthConfig {
+              inherit svcConfig config;
+              oAuthCallbackUrl = "/redirect";
+            })
+            // {
+              preferShortUsername = true;
+              claimMaps = {
+                "apc_service_type" = {
+                  valuesByGroup = {
+                    "superadmins" = [ "admin" ];
+                  };
+                };
+                "cyberpower_service_type" = {
+                  valuesByGroup = {
+                    "superadmins" = [ "admin" ];
+                  };
+                };
+                "mikrotik_group" = {
+                  valuesByGroup = {
+                    "superadmins" = [ "full" ];
+                  };
+                };
+                "supermicro_permissions" = {
+                  valuesByGroup = {
+                    "superadmins" = [ "administrator" ];
+                  };
+                };
               };
+              scopeMaps.superadmins = [
+                "preferred_username"
+                "email"
+                "openid"
+                "profile"
+              ];
             };
-            "cyberpower_service_type" = {
-              valuesByGroup = {
-                "superadmins" = [ "admin" ];
-              };
-            };
-            "mikrotik_group" = {
-              valuesByGroup = {
-                "superadmins" = [ "full" ];
-              };
-            };
-            "supermicro_permissions" = {
-              valuesByGroup = {
-                "superadmins" = [ "administrator" ];
-              };
-            };
-          };
-          scopeMaps.superadmins = ["preferred_username" "email" "openid" "profile"];
         };
-      };
 
-      systemd.services.oauth-jit-radius = {
-        confinement.packages = [
-          pkgs.oauth-jit-radius
-        ];
-
-        serviceConfig = {
-          DynamicUser = true;
-
-          BindReadOnlyPaths = [
-            "${configFile}:/etc/oauth-jit-radius/config.yml"
+        systemd.services.oauth-jit-radius = {
+          confinement.packages = [
+            pkgs.oauth-jit-radius
           ];
 
-          EnvironmentFile = config.lib.foxDen.sops.mkIfAvailable config.sops.secrets.oauth-jit-radius.path;
-          WorkingDirectory = "/etc/oauth-jit-radius";
+          serviceConfig = {
+            DynamicUser = true;
 
-          Type = "simple";
-          ExecStart = [ "${pkgs.oauth-jit-radius}/bin/oauth-jit-radius" ];
-          StateDirectory = "oauth-jit-radius";
+            BindReadOnlyPaths = [
+              "${configFile}:/etc/oauth-jit-radius/config.yml"
+            ];
+
+            EnvironmentFile = config.lib.foxDen.sops.mkIfAvailable config.sops.secrets.oauth-jit-radius.path;
+            WorkingDirectory = "/etc/oauth-jit-radius";
+
+            Type = "simple";
+            ExecStart = [ "${pkgs.oauth-jit-radius}/bin/oauth-jit-radius" ];
+            StateDirectory = "oauth-jit-radius";
+          };
+
+          wantedBy = [ "multi-user.target" ];
         };
-
-        wantedBy = ["multi-user.target"];
-      };
-    }
-  ]);
+      }
+    ]
+  );
 }

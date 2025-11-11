@@ -1,4 +1,9 @@
-{ lib, config, foxDenLib, ... }:
+{
+  lib,
+  config,
+  foxDenLib,
+  ...
+}:
 {
   options.foxDen.services.kanidm.login = lib.mkOption {
     type = lib.types.bool;
@@ -29,7 +34,8 @@
         BindReadOnlyPaths = [
           "-/run/current-system/sw/bin"
           "-/usr/bin"
-        ] ++ (foxDenLib.services.mkEtcPaths [
+        ]
+        ++ (foxDenLib.services.mkEtcPaths [
           "shells"
         ]);
       };
@@ -50,7 +56,10 @@
       authorizedKeysCommandUser = "nobody";
     };
 
-    security.polkit.adminIdentities = [ "unix-group:superadmins" "unix-group:wheel" ];
+    security.polkit.adminIdentities = [
+      "unix-group:superadmins"
+      "unix-group:wheel"
+    ];
 
     nix.settings.allowed-users = [ "@superadmins" ];
 
@@ -83,7 +92,12 @@
     };
 
     environment.persistence."/nix/persist/system".directories = [
-      { directory = "/var/cache/kanidm-unixd"; user = "kanidm-unixd"; group = "kanidm-unixd"; mode = "u=rwx,g=,o="; }
+      {
+        directory = "/var/cache/kanidm-unixd";
+        user = "kanidm-unixd";
+        group = "kanidm-unixd";
+        mode = "u=rwx,g=,o=";
+      }
     ];
   };
 }
