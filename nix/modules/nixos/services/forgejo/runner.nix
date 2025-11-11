@@ -87,6 +87,9 @@ in
               BindPaths = [
                 "/run/user-forgejo-runner:/run/user"
               ];
+              Environment = [
+                "UV_PYTHON_DOWNLOADS=never"
+              ];
               BindReadOnlyPaths = [
                 "/run/wrappers/bin/newuidmap"
                 "/run/wrappers/bin/newgidmap"
