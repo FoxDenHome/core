@@ -45,7 +45,7 @@ in
       sanoidPackage
       zfs
     ];
-    kernelPackages = pkgs.linuxPackages_lts;
+    kernelPackages = pkgs.linuxPackages_6_12; # for ZFS compatibility
 
     services.syncoid = lib.mkIf config.foxDen.zfs.syncoid.enable {
       enable = true;
