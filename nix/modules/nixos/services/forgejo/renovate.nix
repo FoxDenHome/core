@@ -50,9 +50,9 @@ in
         systemd.services.renovate = {
           confinement.packages = packages;
           serviceConfig = {
-            EnvironmentFile = [
+            EnvironmentFile = config.lib.foxDen.sops.mkIfAvailable [
               config.lib.foxDen.sops.mkGithubTokenPath
-              config.lib.foxDen.sops.mkIfAvailable config.sops.secrets."renovate-env".path
+              config.sops.secrets."renovate-env".path
             ];
           };
         };
