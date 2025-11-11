@@ -2,7 +2,7 @@
   description = "FoxDen NixOS config";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/c8aa8cc00a5cb57fada0851a038d35c08a36a2bb"; # nixos-25.05
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.05";
     nixpkgs-unstable.url = "github:NixOS/nixpkgs/0b4defa2584313f3b781240b29d61f6f9f7e0df3";
 
     impermanence.url = "github:nix-community/impermanence";
