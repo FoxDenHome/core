@@ -13,5 +13,5 @@ jobs:
           ls -la /run/user/$(id -u)
       - name: Build dev container
         run: |
-          podman image rm core
+          podman image rm core || true
           podman build -t core .
