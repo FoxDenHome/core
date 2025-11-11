@@ -126,6 +126,7 @@ in
               PROTOCOL = "fcgi";
               ROOT_URL = "${proto}://${hostName}";
               START_SSH_SERVER = true;
+              BUILTIN_SSH_SERVER_USER = "git";
             };
             service = {
               DISABLE_REGISTRATION = true;
