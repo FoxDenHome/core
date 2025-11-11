@@ -55,7 +55,7 @@ in
               "\"BACKUP_ROOT=${svcConfig.dataDir}\""
             ];
 
-            EnvironmentFile = config.lib.foxDen.sops.mkGithubTokenPath;
+            EnvironmentFile = config.lib.foxDen.sops.mkIfAvailable config.lib.foxDen.sops.mkGithubTokenPath;
 
             BindPaths = ifNotDefaultData [
               "${svcConfig.dataDir}"

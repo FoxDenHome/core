@@ -8,7 +8,7 @@ let
   sharedSopsFile = ../../secrets/shared.yaml;
 
   mkIfAvailable = lib.mkIf config.foxDen.sops.available;
-  mkGithubTokenPath = mkIfAvailable config.sops.secrets."github-token-env".path;
+  mkGithubTokenPath = config.sops.secrets."github-token-env".path;
 in
 {
   imports = [
