@@ -13,6 +13,4 @@ jobs:
         run: |
           cd ./mikrotik
           uv run ruff check || true
-          ls -Rla .venv
-          ls -Rla .
           ./.venv/bin/ruff check
