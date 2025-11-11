@@ -37,22 +37,22 @@ in
         "fd2c:f4cb:63be:2::b0d/64"
       ];
     };
-    islandfox-forgejo-runner = mkVlanHost 2 {
+    islandfox-forgejo-runner = mkVlanHost 6 {
       dns = {
         name = "islandfox-forgejo-runner.foxden.network";
       };
       addresses = [
-        "10.2.11.25/16"
-        "fd2c:f4cb:63be:2::b19/64"
+        "10.6.11.1/16"
+        "fd2c:f4cb:63be:6::b01/64"
       ];
     };
-    renovate = mkVlanHost 2 {
+    renovate = mkVlanHost 6 {
       dns = {
         name = "renovate.foxden.network";
       };
       addresses = [
-        "10.2.11.26/16"
-        "fd2c:f4cb:63be:2::b1a/64"
+        "10.6.11.2/16"
+        "fd2c:f4cb:63be:6::b02/64"
       ];
     };
   };
