@@ -52,6 +52,7 @@ in
           confinement.packages = packages;
           serviceConfig = {
             BindReadOnlyPaths = [
+              # TODO: config.services.renovate.environment in 25.11
               config.systemd.services.renovate.environment.RENOVATE_CONFIG_FILE
             ];
             EnvironmentFile = config.lib.foxDen.sops.mkIfAvailable [
