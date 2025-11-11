@@ -55,6 +55,7 @@ in
       in {
         confinement = {
           inherit packages;
+          mode = "chroot-only";
         };
         path = [ "/run/wrappers" ] ++ packages;
 
@@ -72,7 +73,8 @@ in
             "/run/user-forgejo-runner:/run/user"
           ];
           BindReadOnlyPaths = [
-            "/run/wrappers/bin"
+            "/run/wrappers/bin/newuidmap"
+            "/run/wrappers/bin/newgidmap"
             "/etc/containers/containers.conf"
             "/etc/containers/policy.json"
             "/etc/containers/registries.conf"
