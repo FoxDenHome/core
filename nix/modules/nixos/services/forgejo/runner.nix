@@ -55,7 +55,6 @@ in
       in {
         confinement = {
           inherit packages;
-          mode = "chroot-only";
         };
         path = [ "/run/wrappers" ] ++ packages;
 
@@ -85,8 +84,6 @@ in
           PrivatePIDs = true;
           PrivateTmp = true;
           PrivateUsers = false;
-          ProtectControlGroups = true;
-          ProtectKernelModules = true;
           ProtectKernelTunables = false;
           User = "forgejo-runner";
           Group = "forgejo-runner";
