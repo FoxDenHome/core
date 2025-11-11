@@ -81,6 +81,7 @@ in
             "${./runner-config.yml}:/config.yml"
             "${config.sops.secrets."forgejo-runner-registration".path}:/registration.json"
           ];
+          ProtectProc = lib.mkForce "default";
           PrivateUsers = false;
           User = "forgejo-runner";
           Group = "forgejo-runner";
