@@ -77,10 +77,12 @@ in
               uv
             ];
 
-            libraries = with pkgs; lib.makeLibraryPath [
-              stdenv.cc.cc
-              libgcc
-            ];
+            libraries =
+              with pkgs;
+              lib.makeLibraryPath [
+                stdenv.cc.cc
+                libgcc
+              ];
           in
           {
             confinement.packages = packages;
