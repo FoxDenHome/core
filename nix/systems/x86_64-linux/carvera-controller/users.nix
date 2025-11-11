@@ -16,10 +16,6 @@
   };
   users.groups.appliance = { };
 
-  environment.systemPackages = with pkgs; [
-    mtdev
-  ];
-
   systemd.services.appliance-setup = {
     serviceConfig = {
       User = "appliance";
