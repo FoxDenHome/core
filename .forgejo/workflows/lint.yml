@@ -7,5 +7,6 @@ jobs:
         uses: actions/checkout@v4
       - name: Build dev container
         run: |
+          ps faux
           podman image rm core || true
           podman build -t core .
