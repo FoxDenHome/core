@@ -10,15 +10,15 @@
       "locked": {
         "lastModified": 1760808146,
         "narHash": "sha256-7X4ZYtPTZZJ8BYn2Am3CM/WesjT8Rt1sAQn8hluIcxM=",
-        "owner": "FoxDenHome",
-        "repo": "backupmgr",
+        "ref": "refs/heads/main",
         "rev": "076de57bada08f8a1524caeec856133d2b205dff",
-        "type": "github"
+        "revCount": 25,
+        "type": "git",
+        "url": "https://git.foxden.network/FoxDen/backupmgr"
       },
       "original": {
-        "owner": "FoxDenHome",
-        "repo": "backupmgr",
-        "type": "github"
+        "type": "git",
+        "url": "https://git.foxden.network/FoxDen/backupmgr"
       }
     },
     "carvera-pendant": {
@@ -29,11 +29,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1762759384,
-        "narHash": "sha256-a/6ZjvlDKdlFCsUjE8aOu+np8/BAHAu1sJTBmnW2iiU=",
+        "lastModified": 1762819071,
+        "narHash": "sha256-mSbDOCbx9aoDA9uZeUC7Fp6UADvovNfomz4j/A7esMs=",
         "owner": "Doridian",
         "repo": "carvera-pendant",
-        "rev": "f96d6aca3d5f0208be3c59dbc23de716ac26272d",
+        "rev": "ce765525ff0066c29860c229bb12bc7ae5b3e8aa",
         "type": "github"
       },
       "original": {
@@ -67,15 +67,15 @@
       "locked": {
         "lastModified": 1762760038,
         "narHash": "sha256-f/eeDtqA/vDV1T25bwaH0ZnPQBoKq7r9PuJPY6tTWmA=",
-        "owner": "FoxDenHome",
-        "repo": "e621dumper",
+        "ref": "refs/heads/main",
         "rev": "a4a57fbc9ff3f430c16d0a223f714e75e7528122",
-        "type": "github"
+        "revCount": 578,
+        "type": "git",
+        "url": "https://git.foxden.network/FoxDen/e621dumper"
       },
       "original": {
-        "owner": "FoxDenHome",
-        "repo": "e621dumper",
-        "type": "github"
+        "type": "git",
+        "url": "https://git.foxden.network/FoxDen/e621dumper"
       }
     },
     "fadumper": {
@@ -88,15 +88,15 @@
       "locked": {
         "lastModified": 1762814110,
         "narHash": "sha256-SDmCTABfUg63N6OCSYUWh68GVZUUY524mvAqeSGkXmw=",
-        "owner": "Doridian",
-        "repo": "fadumper",
+        "ref": "refs/heads/main",
         "rev": "c6171d7862499ff7aa33babc5372ba3fde409cea",
-        "type": "github"
+        "revCount": 586,
+        "type": "git",
+        "url": "https://git.foxden.network/FoxDen/fadumper"
       },
       "original": {
-        "owner": "Doridian",
-        "repo": "fadumper",
-        "type": "github"
+        "type": "git",
+        "url": "https://git.foxden.network/FoxDen/fadumper"
       }
     },
     "flake-compat": {

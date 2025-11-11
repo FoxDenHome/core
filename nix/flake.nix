@@ -11,11 +11,11 @@
     sops-nix.url = "github:Mic92/sops-nix";
     sops-nix.inputs.nixpkgs.follows = "nixpkgs";
 
-    backupmgr.url = "github:FoxDenHome/backupmgr";
+    backupmgr.url = "git+https://git.foxden.network/FoxDen/backupmgr";
     backupmgr.inputs.nixpkgs.follows = "nixpkgs";
-    e621dumper.url = "github:FoxDenHome/e621dumper";
+    e621dumper.url = "git+https://git.foxden.network/FoxDen/e621dumper";
     e621dumper.inputs.nixpkgs.follows = "nixpkgs";
-    fadumper.url = "github:Doridian/fadumper";
+    fadumper.url = "git+https://git.foxden.network/FoxDen/fadumper";
     fadumper.inputs.nixpkgs.follows = "nixpkgs";
     gitbackup.url = "github:Doridian/gitbackup";
     gitbackup.inputs.nixpkgs.follows = "nixpkgs";
