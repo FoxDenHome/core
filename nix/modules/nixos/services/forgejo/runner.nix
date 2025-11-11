@@ -61,6 +61,7 @@ in
               gnused
               gnutar
               go
+              nix-ld
               nixfmt-rfc-style
               nixfmt-tree
               nodejs_24
