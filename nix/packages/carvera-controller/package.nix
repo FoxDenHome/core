@@ -24,7 +24,7 @@ pkgs.stdenv.mkDerivation {
     zlib
     xz
     bzip2
-    libffi
+    libffi_3_3
     (lib.getLib openssl)
     (lib.getLib stdenv.cc.cc)
   ];
@@ -33,7 +33,6 @@ pkgs.stdenv.mkDerivation {
     "libcrypto.so.1.1"
     "libssl.so.1.1"
     "libmpdec.so.2"
-    "libffi.so.7"
   ];
 
   unpackPhase = ''
