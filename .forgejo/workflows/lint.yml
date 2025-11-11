@@ -5,10 +5,5 @@ jobs:
     steps:
       - name: checkout code
         uses: actions/checkout@v4
-      - name: Build dev container
-        run: |
-          podman image rm core || true
-          podman build -t core .
-      - name: Run lint
-        run: |
-          podman run -v "$(pwd):/src" --rm core treefmt /src/nix
+      - name: Lint
+        run: treefmt --ci ./nix

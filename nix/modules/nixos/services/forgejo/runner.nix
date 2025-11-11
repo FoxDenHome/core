@@ -60,6 +60,8 @@ in
               gnugrep
               gnused
               gnutar
+              nixfmt-rfc-style
+              nixfmt-tree
               nodejs_24
               podman
               shadow
