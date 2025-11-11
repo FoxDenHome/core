@@ -117,8 +117,9 @@ in
             wants = [ "network.target" ];
 
             serviceConfig = {
+              Type = "exec";
               ExecStartPre = [ "+${./rundir-setup.sh}" ];
-              ExecStart = "${pkgs.podman}/bin/podman --log-level=info system service unix:///var/lib/forgejo-runner/podman.sock";
+              ExecStart = "${pkgs.podman}/bin/podman --log-level=info system service --time=0 unix:///var/lib/forgejo-runner/podman.sock";
               BindPaths = [
                 "/run/user-forgejo-runner-podman:/run/user"
               ];
