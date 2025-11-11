@@ -51,6 +51,9 @@ in
         systemd.services.renovate = {
           confinement.packages = packages;
           serviceConfig = {
+            BindReadOnlyPaths = [
+              config.services.renovate.environment.RENOVATE_CONFIG_FILE
+            ];
             EnvironmentFile = config.lib.foxDen.sops.mkIfAvailable [
               config.lib.foxDen.sops.mkGithubTokenPath
               config.sops.secrets."renovate-env".path
