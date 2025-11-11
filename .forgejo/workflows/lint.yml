@@ -8,7 +8,8 @@ jobs:
       - name: Lint nix
         run: |
           cd ./nix
-          echo $DOCKER_HOST
+          ls -la /run || true
+          ls -la /var/run || true
           treefmt --ci
       - name: Lint mikrotik
         run: |
