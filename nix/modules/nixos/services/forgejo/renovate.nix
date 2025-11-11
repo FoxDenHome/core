@@ -37,6 +37,7 @@ in
       {
         services.renovate = {
           enable = true;
+          schedule = "hourly";
           runtimePackages = packages;
           settings = {
             endpoint = "https://git.foxden.network";
