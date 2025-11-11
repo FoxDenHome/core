@@ -56,7 +56,7 @@ in
             packages = with pkgs; [
               (lib.getLib stdenv.cc.cc)
               bash
-              config.systemd.programs.ssh.package
+              config.programs.ssh.package
               coreutils
               curl
               git
