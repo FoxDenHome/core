@@ -76,6 +76,11 @@ in
               systemd
               uv
             ];
+
+            libraries = with pkgs; lib.makeLibraryPath [
+              stdenv.cc.cc
+              libgcc
+            ];
           in
           {
             confinement.packages = packages;
@@ -95,6 +100,7 @@ in
               ];
               Environment = [
                 "UV_PYTHON_DOWNLOADS=never"
+                "NIX_LD_LIBRARY_PATH=${libraries}"
               ];
               BindReadOnlyPaths = [
                 "-/lib"
