@@ -77,6 +77,9 @@ in
                 "${pkgs.coreutils}/bin/cp --update=all /registration.json /var/lib/forgejo-runner/.runner"
                 "${pkgs.coreutils}/bin/chmod 600 /var/lib/forgejo-runner/.runner"
               ];
+              BindPaths = [
+                
+              ];
               Environment = [
                 "DOCKER_HOST=unix:///var/lib/forgejo-runner/podman.sock"
               ];
@@ -100,6 +103,10 @@ in
             wantedBy = [ "multi-user.target" ];
           };
 
+        systemd.tmpfiles.rules = [
+          "d /run/user-forgejo-runner-podman 0700 forgejo-runner forgejo-runner"
+        ];
+
         systemd.services.forgejo-runner-podman =
           {
             confinement.packages = packages;
@@ -110,7 +117,11 @@ in
 
             serviceConfig = {
               Type = "exec";
+              ExecStartPre = [ ./rundir-setup.sh ];
               ExecStart = "${pkgs.podman}/bin/podman --log-level=info system service unix:///var/lib/forgejo-runner/podman.sock";
+              BindPaths = [
+                "/run/user-forgejo-runner-podman:/run/user"
+              ];
               BindReadOnlyPaths = [
                 "/etc/containers/containers.conf"
                 "/etc/containers/policy.json"
