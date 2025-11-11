@@ -6,6 +6,16 @@
   ...
 }:
 let
+  packages = with pkgs; [
+    bash
+    coreutils
+    gnugrep
+    gnused
+    gnutar
+    podman
+    shadow
+  ];
+
   services = foxDenLib.services;
 
   mkDir = (
@@ -37,7 +47,6 @@ in
           group = "forgejo-runner";
           description = "Forgejo runner user";
           autoSubUidGidRange = true;
-          linger = true;
           home = "/var/lib/forgejo-runner";
         };
         users.groups.forgejo-runner = { };
@@ -49,20 +58,12 @@ in
         };
 
         systemd.services.forgejo-runner =
-          let
-            packages = with pkgs; [
-              bash
-              coreutils
-              gnugrep
-              gnused
-              gnutar
-              podman
-              shadow
-            ];
-          in
           {
             confinement.packages = packages;
             path = packages;
+
+            after = [ "forgejo-runner-podman.service" ];
+            wants = [ "forgejo-runner-podman.service" ];
 
             serviceConfig = {
               ExecStart = "${pkgs.forgejo-runner}/bin/forgejo-runner daemon --config /config.yml";
@@ -72,8 +73,8 @@ in
                 "${pkgs.coreutils}/bin/cp --update=all /registration.json /var/lib/forgejo-runner/.runner"
                 "${pkgs.coreutils}/bin/chmod 600 /var/lib/forgejo-runner/.runner"
               ];
-              BindPaths = [
-                "/run/user"
+              Environment = [
+                "DOCKER_HOST=unix:///var/lib/forgejo-runner/podman.sock"
               ];
               BindReadOnlyPaths = [
                 "/etc/containers/containers.conf"
@@ -84,7 +85,39 @@ in
                 "${./runner-config.yml}:/config.yml"
                 "${config.sops.secrets."forgejo-runner-registration".path}:/registration.json"
               ];
+              PrivatePIDs = true;
               PrivateTmp = true;
+              User = "forgejo-runner";
+              Group = "forgejo-runner";
+              WorkingDirectory = "/var/lib/forgejo-runner";
+              StateDirectory = "forgejo-runner";
+            };
+
+            wantedBy = [ "multi-user.target" ];
+          };
+
+        systemd.services.forgejo-runner-podman =
+          {
+            confinement.packages = packages;
+            path = packages;
+
+            after = [ "network.target" ];
+            wants = [ "network.target" ];
+
+            serviceConfig = {
+              Type = "exec";
+              ExecStart = "${pkgs.podman}/bin/podman --log-level=info system service unix:///var/lib/forgejo-runner/podman.sock";
+              BindReadOnlyPaths = [
+                "/etc/containers/containers.conf"
+                "/etc/containers/policy.json"
+                "/etc/containers/registries.conf"
+                "/etc/containers/storage.conf"
+                "/usr/bin/env"
+              ];
+              PrivatePIDs = true;
+              PrivateTmp = true;
+              PrivateUsers = false; # Podman rootless need subuid/subgid
+              ProtectKernelTunables = false; # Otherwise podman can't remount /proc
               User = "forgejo-runner";
               Group = "forgejo-runner";
               WorkingDirectory = "/var/lib/forgejo-runner";
