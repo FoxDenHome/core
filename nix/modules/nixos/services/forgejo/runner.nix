@@ -64,8 +64,11 @@ in
               nixfmt-tree
               nodejs_24
               podman
+              python3
               shadow
               systemd
+              go
+              uv
             ];
           in
           {

@@ -5,5 +5,11 @@ jobs:
     steps:
       - name: checkout code
         uses: actions/checkout@v4
-      - name: Lint
-        run: treefmt --ci ./nix
+      - name: Lint nix
+        run: |
+          cd ./nix
+          treefmt --ci ./nix
+      - name: Lint mikrotik
+        run: |
+          cd ./mikrotik
+          uv run ruff check

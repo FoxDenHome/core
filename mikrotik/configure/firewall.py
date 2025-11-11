@@ -1,8 +1,17 @@
 from subprocess import check_call
 from json import load as json_load
-from configure.util import unlink_safe, NIX_DIR, ROUTERS, format_mtik_bool, is_ipv6, format_weird_mtik_ip, MTikRouter
+from configure.util import (
+    unlink_safe,
+    NIX_DIR,
+    ROUTERS,
+    format_mtik_bool,
+    is_ipv6,
+    format_weird_mtik_ip,
+    MTikRouter,
+)
 from dataclasses import dataclass, field
 from typing import Any
+
 
 @dataclass(frozen=True, kw_only=True)
 class FirewallRule:
@@ -10,6 +19,7 @@ class FirewallRule:
     table: str
     attribs: dict[str, str]
     ignoreChanges: set[str] = field(default_factory=set)
+
 
 IGNORE_CHANGES = {"id", "invalid", "packets", "bytes", "dynamic"}
 
@@ -533,7 +543,9 @@ DEFAULT_RULES_TAIL: list[FirewallRule] = [
 ]
 
 
-def refresh_firewall_router(firewall_rules: list[FirewallRule], router: MTikRouter) -> None:
+def refresh_firewall_router(
+    firewall_rules: list[FirewallRule], router: MTikRouter
+) -> None:
     print(f"## {router.host}")
     connection = router.connection()
     api = connection.get_api()
@@ -546,7 +558,9 @@ def refresh_firewall_router(firewall_rules: list[FirewallRule], router: MTikRout
             key = f"/{family}/firewall/{rule.table}"
             if key not in resources:
                 resources[key] = api.get_resource(f"/{family}/firewall/{rule.table}")
-                deployed_rules[key] = resources[key].get(dynamic=format_mtik_bool(False))
+                deployed_rules[key] = resources[key].get(
+                    dynamic=format_mtik_bool(False)
+                )
                 sent_rule_counts[key] = 0
 
             api_rule = resources[key]
@@ -556,19 +570,25 @@ def refresh_firewall_router(firewall_rules: list[FirewallRule], router: MTikRout
                 all_keys = set(current_rule.keys()).union(set(rule.attribs.keys()))
 
                 for match_key in all_keys:
-                    if match_key in rule.ignoreChanges or match_key in IGNORE_CHANGES or match_key[0] == ".":
+                    if (
+                        match_key in rule.ignoreChanges
+                        or match_key in IGNORE_CHANGES
+                        or match_key[0] == "."
+                    ):
                         continue
 
-                    if current_rule.get(match_key, "") == rule.attribs.get(match_key, ""):
+                    if current_rule.get(match_key, "") == rule.attribs.get(
+                        match_key, ""
+                    ):
                         continue
 
                     attribs = {
                         **rule.attribs,
-                        "place-before": current_rule['id'],
+                        "place-before": current_rule["id"],
                     }
                     print("Updating firewall rule", rule.attribs)
                     api_rule.add(**attribs)
-                    api_rule.remove(id=current_rule['id'])
+                    api_rule.remove(id=current_rule["id"])
                     break
             else:
                 print("Adding new firewall rule", rule.attribs)
@@ -580,7 +600,8 @@ def refresh_firewall_router(firewall_rules: list[FirewallRule], router: MTikRout
         delete_rules = deployed_rules[key][count:]
         for dr in delete_rules:
             print("Removing extra firewall rule", dr)
-            api_rule.remove(id=dr['id'])
+            api_rule.remove(id=dr["id"])
+
 
 def refresh_firewall() -> None:
     unlink_safe("result")
@@ -592,7 +613,9 @@ def refresh_firewall() -> None:
     firewall_rules = []
 
     for rule in raw_firewall_rules:
-        addr = rule.get("source", rule.get("destination", rule.get("toAddresses", None)))
+        addr = rule.get(
+            "source", rule.get("destination", rule.get("toAddresses", None))
+        )
         if addr is not None:
             families = ["ipv6" if is_ipv6(addr) else "ip"]
         else:
@@ -633,11 +656,13 @@ def refresh_firewall() -> None:
                     continue
                 attribs[field] = format_weird_mtik_ip(attribs[field])
 
-        firewall_rules.append(FirewallRule(
-            families=families,
-            table=rule["table"],
-            attribs=attribs,
-        ))
+        firewall_rules.append(
+            FirewallRule(
+                families=families,
+                table=rule["table"],
+                attribs=attribs,
+            )
+        )
         # /{family}/firewall/{rule["table"]}/add
 
     firewall_rules = DEFAULT_RULES_HEAD + firewall_rules + DEFAULT_RULES_TAIL

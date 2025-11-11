@@ -6,6 +6,7 @@ from shutil import rmtree
 
 OUT_PATH = mtik_path("out/haproxy")
 
+
 def refresh_haproxy():
     unlink_safe("result")
     check_call(["nix", "build", f"{NIX_DIR}#haproxy.text.router"])

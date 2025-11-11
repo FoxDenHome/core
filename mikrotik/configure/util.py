@@ -11,14 +11,17 @@ MTIK_DIR = realpath(dirname(__file__) + "/../")
 NIX_DIR = realpath(dirname(__file__) + "/../../nix/")
 VLAN_NAMES = ["", "mgmt", "lan", "dmz", "labnet", "security", "hypervisor", "retro"]
 
+
 def unlink_safe(path: str):
     try:
         unlink(path)
     except FileNotFoundError:
         pass
 
+
 def mtik_path(path: str) -> str:
     return join(MTIK_DIR, path)
+
 
 def get_ipv4_netname(ip: str) -> str:
     parts = ip.split(".")
@@ -28,6 +31,7 @@ def get_ipv4_netname(ip: str) -> str:
         return "cghmn"
     raise ValueError(f"Unknown net for IP {ip}")
 
+
 @dataclass(frozen=True, eq=True, kw_only=True)
 class MTikScript:
     name: str
@@ -36,6 +40,7 @@ class MTikScript:
     dont_require_permissions: bool = True
     schedule: str | None = None
     run_on_change: bool = False
+
 
 @dataclass(kw_only=True)
 class MTikRouter:
@@ -81,14 +86,29 @@ class MTikRouter:
         check_call(["ssh", self.host, f'/user/disable [ find name="{self._username}"]'])
 
     def sync(self, src: str, dest: str) -> list[str]:
-        result = check_output(["rsync", "--info=NAME", "--exclude=.type", "--checksum", "--recursive", "--delete", "--update", f"{src}/", f"{self.host}:/data{dest}/"], encoding="utf-8")
+        result = check_output(
+            [
+                "rsync",
+                "--info=NAME",
+                "--exclude=.type",
+                "--checksum",
+                "--recursive",
+                "--delete",
+                "--update",
+                f"{src}/",
+                f"{self.host}:/data{dest}/",
+            ],
+            encoding="utf-8",
+        )
         return result.splitlines()
 
     def run_in_container(self, name: str, command: str) -> None:
         connection = self.connection()
         api = connection.get_api()
         containers = api.get_resource("/container")
-        containers.call("shell", {"number": name, "cmd": command, "no-sh": format_mtik_bool(True)})
+        containers.call(
+            "shell", {"number": name, "cmd": command, "no-sh": format_mtik_bool(True)}
+        )
 
     def restart_container(self, name: str) -> None:
         connection = self.connection()
@@ -104,18 +124,22 @@ class MTikRouter:
         while not parse_mtik_bool(containers.get(name=name)[0]["running"]):
             sleep(0.1)
 
+
 def format_mtik_bool(val: bool) -> str:
     return "true" if val else "false"
 
+
 def parse_mtik_bool(val: str | bool) -> bool:
-    if val == "true" or val == True:
+    if val == "true" or val == True: # noqa: E712
         return True
-    if val == "false" or val == False:
+    if val == "false" or val == False: # noqa: E712
         return False
     raise ValueError(f"Invalid MTik boolean value: {val}")
 
+
 def is_ipv6(addr: str) -> bool:
     return "." not in addr
+
 
 def format_weird_mtik_ip(addr: str) -> str:
     # They want /128 for IPv6 but no CIDR for single-host IPv4
@@ -124,8 +148,27 @@ def format_weird_mtik_ip(addr: str) -> str:
     else:
         return addr.removesuffix("/32")
 
+
 ROUTERS = [
-    MTikRouter(host="router.foxden.network", horizon="internal", vrrp_priority_online=50, vrrp_priority_offline=10, dyndns_suffix_ipv6="::1"),
-    MTikRouter(host="router-backup.foxden.network", horizon="internal", vrrp_priority_online=25, vrrp_priority_offline=5, dyndns_suffix_ipv6="::2"),
-    MTikRouter(host="redfox.foxden.network", horizon="external", vrrp_priority_online=0, vrrp_priority_offline=0, dyndns_suffix_ipv6=""),
+    MTikRouter(
+        host="router.foxden.network",
+        horizon="internal",
+        vrrp_priority_online=50,
+        vrrp_priority_offline=10,
+        dyndns_suffix_ipv6="::1",
+    ),
+    MTikRouter(
+        host="router-backup.foxden.network",
+        horizon="internal",
+        vrrp_priority_online=25,
+        vrrp_priority_offline=5,
+        dyndns_suffix_ipv6="::2",
+    ),
+    MTikRouter(
+        host="redfox.foxden.network",
+        horizon="external",
+        vrrp_priority_online=0,
+        vrrp_priority_offline=0,
+        dyndns_suffix_ipv6="",
+    ),
 ]

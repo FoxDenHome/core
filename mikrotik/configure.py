@@ -24,6 +24,7 @@ def mtik_router_admin():
             except Exception as e:
                 print("Failed to disable user on", router, "with error", e)
 
+
 def main():
     with mtik_router_admin():
         print("# DynDNS configuration")
@@ -41,6 +42,7 @@ def main():
         # This must remain last as previous steps may create scripts that need to be deployed
         print("# Scripts")
         refresh_scripts()
+
 
 if __name__ == "__main__":
     main()

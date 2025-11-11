@@ -12,6 +12,7 @@ INTERNAL_RECORDS = None
 ROOT_PATH = mtik_path("files/pdns")
 OUT_PATH = mtik_path("out/pdns")
 
+
 def find_record(name: str, type: str) -> dict:
     global INTERNAL_RECORDS
     name = name.removesuffix(".")
@@ -21,34 +22,48 @@ def find_record(name: str, type: str) -> dict:
             if recname == name and record["type"] == type:
                 return record
     return None
+
+
 def quote_record(record: dict[str, Any]) -> str:
     return f'"{record["value"]}"'
+
+
 def disallow_apex_record(record: dict[str, Any]) -> list[None] | dict[str, Any]:
     if record["name"] == "@":
         return []
     return record
+
+
 def handle_alias(record: dict[str, Any]) -> list[dict[str, Any] | None]:
-    results =  [find_record(record["value"], "A"), find_record(record["value"], "AAAA")]
+    results = [find_record(record["value"], "A"), find_record(record["value"], "AAAA")]
     for result in results:
         if result is not None:
             return results
     record["type"] = "CNAME"
     return [record]
+
+
 RECORD_TYPE_HANDLERS = {}
 RECORD_TYPE_HANDLERS["MX"] = lambda record: f"{record['priority']} {record['value']}"
-RECORD_TYPE_HANDLERS["SRV"] = lambda record: f"{record['priority']} {record['weight']} {record['port']} {record['value']}"
-RECORD_TYPE_HANDLERS["SSHFP"] = lambda record: f"{record['algorithm']} {record['fptype']} {record['value']}"
+RECORD_TYPE_HANDLERS["SRV"] = (
+    lambda record: f"{record['priority']} {record['weight']} {record['port']} {record['value']}"
+)
+RECORD_TYPE_HANDLERS["SSHFP"] = (
+    lambda record: f"{record['algorithm']} {record['fptype']} {record['value']}"
+)
 RECORD_TYPE_HANDLERS["TXT"] = quote_record
 RECORD_TYPE_HANDLERS["LUA"] = quote_record
 RECORD_TYPE_HANDLERS["ALIAS"] = handle_alias
 RECORD_TYPE_HANDLERS["SOA"] = disallow_apex_record
 RECORD_TYPE_HANDLERS["NS"] = disallow_apex_record
 
+
 def remap_ipv6(private: str, public: str) -> str:
     public_spl = public.split(":")
     prefix = f"{public_spl[0]}:{public_spl[1]}:{public_spl[2]}:{public_spl[3][:-1]}"
     suffix = private.removeprefix("fd2c:f4cb:63be:")
     return f"{prefix}{suffix}"
+
 
 def refresh_pdns():
     global INTERNAL_RECORDS
@@ -76,7 +91,7 @@ def refresh_pdns():
     for zone in sorted(INTERNAL_RECORDS.keys()):
         records = INTERNAL_RECORDS[zone]
 
-        lines = [ "$INCLUDE /etc/pdns/base-rendered.db" ]
+        lines = ["$INCLUDE /etc/pdns/base-rendered.db"]
         if exists(path_join(ROOT_PATH, f"{zone}.local.db")):
             lines.append(f"$INCLUDE /etc/pdns/{zone}.local.db")
 
@@ -95,23 +110,26 @@ def refresh_pdns():
                 if val is None:
                     continue
                 if isinstance(val, dict):
-                    lines.append(f"{record['name']} {record['ttl']} IN {val['type']} {val['value']}")
+                    lines.append(
+                        f"{record['name']} {record['ttl']} IN {val['type']} {val['value']}"
+                    )
                 else:
-                    lines.append(f"{record['name']} {record['ttl']} IN {record['type']} {val}")
+                    lines.append(
+                        f"{record['name']} {record['ttl']} IN {record['type']} {val}"
+                    )
 
         data = "\n".join(sorted(list(set(lines)))) + "\n"
         with open(path_join(OUT_PATH, f"gen-{zone}.db"), "w") as file:
             file.write(data)
 
         bind_conf.append('zone "%s" IN {' % zone)
-        bind_conf.append('    type native;')
+        bind_conf.append("    type native;")
         bind_conf.append('    file "/etc/pdns/gen-%s.db";' % zone)
-        bind_conf.append('};')
+        bind_conf.append("};")
 
-        recursor_data["recursor"]["forward_zones"].append({
-            "zone": zone,
-            "forwarders": ["127.0.0.1:530"]
-        })
+        recursor_data["recursor"]["forward_zones"].append(
+            {"zone": zone, "forwarders": ["127.0.0.1:530"]}
+        )
 
     with open(path_join(ROOT_PATH, "base.db"), "r") as file:
         soa_db = file.read()
@@ -141,4 +159,4 @@ def refresh_pdns():
             router.restart_container("pdns")
 
         for zone in sorted(INTERNAL_RECORDS.keys()):
-            router.run_in_container("pdns", "pdnsutil secure-zone \'" + zone + "\'")
+            router.run_in_container("pdns", "pdnsutil secure-zone '" + zone + "'")

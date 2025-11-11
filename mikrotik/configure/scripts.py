@@ -1,4 +1,11 @@
-from configure.util import mtik_path, MTikRouter, MTikScript, format_mtik_bool, ROUTERS, parse_mtik_bool
+from configure.util import (
+    mtik_path,
+    MTikRouter,
+    MTikScript,
+    format_mtik_bool,
+    ROUTERS,
+    parse_mtik_bool,
+)
 from os.path import basename, join as path_join
 from os import listdir
 
@@ -8,6 +15,7 @@ IGNORE_CHANGES_SCRIPT = {"id", "owner", "invalid", "last-started", "run-count"}
 IGNORE_CHANGES_SCHEDULE = {"id", "owner", "run-count", "next-run", "start-date"}
 
 DEFAULT_SCRIPT = MTikScript(name="default", source="")
+
 
 def load_from_file(file_path: str) -> MTikScript:
     with open(file_path, "r") as f:
@@ -75,16 +83,20 @@ def refresh_script_router(router: MTikRouter, base_scripts: set[MTikScript]) -> 
     stray_scripts = set([script["name"] for script in existing_scripts])
 
     existing_schedules = api_scheduler.get()
-    existing_schedules_map = {scheduler["name"]: scheduler for scheduler in existing_schedules}
+    existing_schedules_map = {
+        scheduler["name"]: scheduler for scheduler in existing_schedules
+    }
     stray_schedules = set([scheduler["name"] for scheduler in existing_schedules])
 
     scripts_to_run: list[str] = []
-    for script in (base_scripts | router.scripts):
+    for script in base_scripts | router.scripts:
         attribs = {
             "name": script.name,
             "source": script.source,
             "policy": script.policy,
-            "dont-require-permissions": format_mtik_bool(script.dont_require_permissions),
+            "dont-require-permissions": format_mtik_bool(
+                script.dont_require_permissions
+            ),
         }
         needs_run = False
 
@@ -140,7 +152,9 @@ def refresh_script_router(router: MTikRouter, base_scripts: set[MTikScript]) -> 
                     if match_key in IGNORE_CHANGES_SCHEDULE or match_key[0] == ".":
                         continue
 
-                    if current_schedule.get(match_key, "") == attribs.get(match_key, ""):
+                    if current_schedule.get(match_key, "") == attribs.get(
+                        match_key, ""
+                    ):
                         continue
 
                     print("### Updating schedule", script.name)
@@ -163,6 +177,7 @@ def refresh_script_router(router: MTikRouter, base_scripts: set[MTikScript]) -> 
         stray_schedule = existing_schedules_map[stray_schedule_name]
         api_scheduler.remove(id=stray_schedule["id"])
 
+
 def refresh_scripts() -> None:
     base_scripts: dict[str, set[MTikScript]] = {}
     for horizon in ["internal", "external", "all"]:
@@ -171,4 +186,6 @@ def refresh_scripts() -> None:
 
     for router in ROUTERS:
         print(f"## {router.host} / {router.horizon}")
-        refresh_script_router(router, base_scripts[router.horizon] | base_scripts["all"])
+        refresh_script_router(
+            router, base_scripts[router.horizon] | base_scripts["all"]
+        )
