@@ -45,7 +45,7 @@ in
       {
         services.renovate = {
           enable = true;
-          schedule = "hourly";
+          schedule = "*:0/5";
           package = nixpkgs-unstable.outputs.legacyPackages.${systemArch}.renovate;
           runtimePackages = packages;
           settings = {
