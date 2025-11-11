@@ -5,5 +5,10 @@ jobs:
     steps:
       - name: checkout code
         uses: actions/checkout@v4
+      - name: Debug
+        run: |
+          ls -la /run
+          ls -la /run/user
+          ls -la /run/user/$(id -u)
       - name: Build dev container
         run: podman build -t core .
