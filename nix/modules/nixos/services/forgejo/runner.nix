@@ -68,7 +68,7 @@ in
             "${pkgs.coreutils}/bin/chmod 600 /var/lib/forgejo-runner/.runner"
           ];
           BindPaths = [
-            "/run/forgejo-runner:/run/user"
+            "/run/user-forgejo-runner:/run/user"
           ];
           BindReadOnlyPaths = [
             "/run/wrappers/bin/newuidmap"
