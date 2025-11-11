@@ -56,7 +56,7 @@ locals {
       branch_protection = false
     }
     carvera-pendant = {
-      description = "Two-way mirror of https://git.foxden.network/FoxDen/core"
+      description = "Mirror of https://git.foxden.network/FoxDen/carvera-pendant"
       required_checks = [
         "lint_and_build",
       ]
