@@ -1,4 +1,12 @@
-{ pkgs, lib, foxDenLib, config, ... } :
+{
+  pkgs,
+  lib,
+  foxDenLib,
+  config,
+  nixpkgs-unstable,
+  systemArch,
+  ...
+}:
 let
   services = foxDenLib.services;
   packages = with pkgs; [
@@ -38,6 +46,7 @@ in
         services.renovate = {
           enable = true;
           schedule = "hourly";
+          package = nixpkgs-unstable.outputs.legacyPackages.${systemArch}.renovate;
           runtimePackages = packages;
           settings = {
             endpoint = "https://git.foxden.network";
