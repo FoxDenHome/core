@@ -99,7 +99,7 @@ in
         systemd.services.forgejo-runner-podman =
           {
             confinement.packages = packages;
-            path = packages;
+            path = [ "/run/wrappers" ] ++ packages;
 
             after = [ "network.target" ];
             wants = [ "network.target" ];
@@ -112,6 +112,8 @@ in
                 "/etc/containers/policy.json"
                 "/etc/containers/registries.conf"
                 "/etc/containers/storage.conf"
+                "/run/wrappers/bin/newgidmap"
+                "/run/wrappers/bin/newuidmap"
                 "/usr/bin/env"
               ];
               PrivatePIDs = true;
