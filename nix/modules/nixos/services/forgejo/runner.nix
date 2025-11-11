@@ -81,8 +81,8 @@ in
           ];
           PrivatePIDs = true;
           PrivateTmp = true;
-          PrivateUsers = false;
-          ProtectKernelTunables = false;
+          PrivateUsers = false; # Podman rootless need subuid/subgid
+          ProtectKernelTunables = false; # Otherwise podman can't remount /proc
           User = "forgejo-runner";
           Group = "forgejo-runner";
           WorkingDirectory = "/var/lib/forgejo-runner";
