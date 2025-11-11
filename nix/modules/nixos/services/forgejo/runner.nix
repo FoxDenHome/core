@@ -43,6 +43,7 @@ in
       }).config
       (services.make {
         name = "forgejo-runner-podman";
+        devices = [ "/dev/net/tun" ];
         inherit svcConfig pkgs config;
       }).config
       {
