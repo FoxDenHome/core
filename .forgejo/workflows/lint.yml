@@ -7,7 +7,7 @@ jobs:
         uses: actions/checkout@v4
       - name: Debug
         run: |
-          mount
+          cat /proc/mounts
           ls -la /run
           ls -la /run/user
           ls -la /run/user/$(id -u)
