@@ -24,7 +24,6 @@ in
         isSystemUser = true;
         group = "forgejo-runner";
         description = "Forgejo runner user";
-        linger = false;
         autoSubUidGidRange = true;
         home = "/var/lib/forgejo-runner";
       };
@@ -63,10 +62,6 @@ in
             "${pkgs.coreutils}/bin/cp --update=all /registration.json /var/lib/forgejo-runner/.runner"
             "${pkgs.coreutils}/bin/chmod 600 /var/lib/forgejo-runner/.runner"
           ];
-          BindPaths = [
-            "/proc"
-            "/run"
-          ];
           BindReadOnlyPaths = [
             "/run/wrappers/bin/newuidmap"
             "/run/wrappers/bin/newgidmap"
@@ -79,7 +74,6 @@ in
             "${config.sops.secrets."forgejo-runner-registration".path}:/registration.json"
           ];
           PrivateUsers = false;
-          PrivateTmp = true;
           User = "forgejo-runner";
           Group = "forgejo-runner";
           WorkingDirectory = "/var/lib/forgejo-runner";
