@@ -26,6 +26,7 @@
       enable = true;
       llmnr = "false";
       dnssec = "allow-downgrade";
+      fallbackDns = [ ];
       domains = [
         "foxden.network"
       ];
