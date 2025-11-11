@@ -57,9 +57,6 @@ locals {
     }
     carvera-pendant = {
       description = "Mirror of https://git.foxden.network/FoxDen/carvera-pendant"
-      required_checks = [
-        "lint_and_build",
-      ]
     }
     karalabe_hid = {
       description = "Gopher Interface Devices (USB HID)"
