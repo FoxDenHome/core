@@ -54,6 +54,7 @@ in
         systemd.services.forgejo-runner =
           let
             packages = with pkgs; [
+              (lib.getLib openssl)
               (lib.getLib stdenv.cc.cc)
               bash
               config.programs.ssh.package
@@ -87,6 +88,7 @@ in
               lib.makeLibraryPath [
                 stdenv.cc.cc
                 libgcc
+                openssl
               ];
           in
           {
