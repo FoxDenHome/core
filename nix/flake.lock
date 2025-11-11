@@ -31,15 +31,15 @@
       "locked": {
         "lastModified": 1762819071,
         "narHash": "sha256-mSbDOCbx9aoDA9uZeUC7Fp6UADvovNfomz4j/A7esMs=",
-        "owner": "Doridian",
-        "repo": "carvera-pendant",
+        "ref": "refs/heads/main",
         "rev": "ce765525ff0066c29860c229bb12bc7ae5b3e8aa",
-        "type": "github"
+        "revCount": 558,
+        "type": "git",
+        "url": "https://git.foxden.network/FoxDen/carvera-pendant"
       },
       "original": {
-        "owner": "Doridian",
-        "repo": "carvera-pendant",
-        "type": "github"
+        "type": "git",
+        "url": "https://git.foxden.network/FoxDen/carvera-pendant"
       }
     },
     "crane": {
@@ -419,15 +419,15 @@
       "locked": {
         "lastModified": 1760808279,
         "narHash": "sha256-Mw4yDNQzEJ/P9ary+cHGDGvNorhP+0skpgQIfSZMDms=",
-        "owner": "Doridian",
-        "repo": "gitbackup",
+        "ref": "refs/heads/main",
         "rev": "5308bf29690a6c905ecb989275bb16db034154ba",
-        "type": "github"
+        "revCount": 37,
+        "type": "git",
+        "url": "https://git.foxden.network/FoxDen/gitbackup"
       },
       "original": {
-        "owner": "Doridian",
-        "repo": "gitbackup",
-        "type": "github"
+        "type": "git",
+        "url": "https://git.foxden.network/FoxDen/gitbackup"
       }
     },
     "gitignore": {
@@ -569,15 +569,15 @@
       "locked": {
         "lastModified": 1762814028,
         "narHash": "sha256-0XqOkzf9vUs9GdL67E0WhsuwrGrJt1S/70+mOWXO410=",
-        "owner": "Doridian",
-        "repo": "oauth-jit-radius",
+        "ref": "refs/heads/main",
         "rev": "0b7a99cb3f1d6cc0ba12aad31a3e75f1a9585a2e",
-        "type": "github"
+        "revCount": 112,
+        "type": "git",
+        "url": "https://git.foxden.network/FoxDen/oauth-jit-radius"
       },
       "original": {
-        "owner": "Doridian",
-        "repo": "oauth-jit-radius",
-        "type": "github"
+        "type": "git",
+        "url": "https://git.foxden.network/FoxDen/oauth-jit-radius"
       }
     },
     "pre-commit-hooks-nix": {
@@ -915,15 +915,15 @@
       "locked": {
         "lastModified": 1762813636,
         "narHash": "sha256-Q0eNEXKJaPEVZFWgJhZUr30142/jYMyrk2ciBrlBPyI=",
-        "owner": "Doridian",
-        "repo": "superfan",
+        "ref": "refs/heads/main",
         "rev": "4469bc210f856b1083850f8e36486add8425cce3",
-        "type": "github"
+        "revCount": 127,
+        "type": "git",
+        "url": "https://git.foxden.network/FoxDen/superfan"
       },
       "original": {
-        "owner": "Doridian",
-        "repo": "superfan",
-        "type": "github"
+        "type": "git",
+        "url": "https://git.foxden.network/FoxDen/superfan"
       }
     },
     "systemd-query": {
@@ -939,15 +939,15 @@
       "locked": {
         "lastModified": 1762803078,
         "narHash": "sha256-t7vGjyambFRZmYT/Ea53hu/xFST++8KYfAHPZH6fIBI=",
-        "owner": "Doridian",
-        "repo": "systemd-query",
+        "ref": "refs/heads/main",
         "rev": "64281e04c0b03def07e059b369ca23013788fb86",
-        "type": "github"
+        "revCount": 13,
+        "type": "git",
+        "url": "https://git.foxden.network/FoxDen/systemd-query"
       },
       "original": {
-        "owner": "Doridian",
-        "repo": "systemd-query",
-        "type": "github"
+        "type": "git",
+        "url": "https://git.foxden.network/FoxDen/systemd-query"
       }
     },
     "systems": {
@@ -1185,15 +1185,15 @@
       "locked": {
         "lastModified": 1762814115,
         "narHash": "sha256-qOsI9QfuBVc2ACcPvimNUEw9a7IZBj7xsHzwjqkI6V8=",
-        "owner": "FoxDenHome",
-        "repo": "tapemgr",
+        "ref": "refs/heads/main",
         "rev": "21660ccce20916793c636f7ad0b27102b80055ff",
-        "type": "github"
+        "revCount": 501,
+        "type": "git",
+        "url": "https://git.foxden.network/FoxDen/tapemgr"
       },
       "original": {
-        "owner": "FoxDenHome",
-        "repo": "tapemgr",
-        "type": "github"
+        "type": "git",
+        "url": "https://git.foxden.network/FoxDen/tapemgr"
       }
     },
     "uds-proxy": {
@@ -1206,15 +1206,15 @@
       "locked": {
         "lastModified": 1760808247,
         "narHash": "sha256-pWDdyw1SvcHY7IBro5WDhy6896RyD2Bu+L5mTl7Tg/A=",
-        "owner": "Doridian",
-        "repo": "uds-proxy",
+        "ref": "refs/heads/main",
         "rev": "88f7cf56d4670dc566bf296fa4bb3a8984546128",
-        "type": "github"
+        "revCount": 38,
+        "type": "git",
+        "url": "https://git.foxden.network/FoxDen/uds-proxy"
       },
       "original": {
-        "owner": "Doridian",
-        "repo": "uds-proxy",
-        "type": "github"
+        "type": "git",
+        "url": "https://git.foxden.network/FoxDen/uds-proxy"
       }
     },
     "uv2nix": {
