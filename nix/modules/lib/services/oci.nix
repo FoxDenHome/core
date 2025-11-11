@@ -72,6 +72,10 @@ in
 
     config.virtualisation.oci-containers.backend = "podman";
 
+    config.virtualisation.podman.settings.containers = {
+      cgroup_manager = "cgroupfs";
+    };
+
     config.virtualisation.podman.autoPrune = {
       enable = true;
       flags = [ "--all" ];
