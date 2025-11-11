@@ -65,7 +65,9 @@ in
               nixfmt-tree
               nodejs_24
               podman
-              python3
+              python312
+              python313
+              python314
               shadow
               systemd
               uv
