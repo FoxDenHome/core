@@ -8,7 +8,7 @@ jobs:
       - name: Lint nix
         run: |
           cd ./nix
-          treefmt --ci ./nix
+          treefmt --ci
       - name: Lint mikrotik
         run: |
           cd ./mikrotik
