@@ -501,10 +501,6 @@ in
                           after = [ "network-pre.target" ];
                           restartTriggers = [ (builtins.concatStringsSep " " host.nameservers) ];
 
-                          unitConfig = {
-                            StopWhenUnneeded = true;
-                          };
-
                           serviceConfig = {
                             Type = "oneshot";
                             RemainAfterExit = true;
