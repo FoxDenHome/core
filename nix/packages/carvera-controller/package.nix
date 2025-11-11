@@ -40,8 +40,8 @@ pkgs.stdenv.mkDerivation {
     (lib.getLib mtdev)
   ];
 
-  appendRunpaths = with pkgs; [
-    (lib.makeLibraryPath mtdev)
+  appendRunpaths = with pkgs; lib.makeLibraryPath [
+    mtdev
   ];
 
   unpackPhase = ''
