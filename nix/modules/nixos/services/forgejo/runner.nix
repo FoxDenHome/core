@@ -117,7 +117,7 @@ in
 
             serviceConfig = {
               Type = "exec";
-              ExecStartPre = [ ./rundir-setup.sh ];
+              ExecStartPre = [ (builtins.toString ./rundir-setup.sh) ];
               ExecStart = "${pkgs.podman}/bin/podman --log-level=info system service unix:///var/lib/forgejo-runner/podman.sock";
               BindPaths = [
                 "/run/user-forgejo-runner-podman:/run/user"
