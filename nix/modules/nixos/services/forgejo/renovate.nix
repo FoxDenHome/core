@@ -61,7 +61,7 @@ in
         systemd.services.renovate = {
           confinement.packages = packages;
           serviceConfig = {
-            Restart = "on-failure";
+            Restart = "no";
             BindReadOnlyPaths = [
               # TODO: config.services.renovate.environment in 25.11
               config.systemd.services.renovate.environment.RENOVATE_CONFIG_FILE
