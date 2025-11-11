@@ -60,6 +60,7 @@ in
               gnugrep
               gnused
               gnutar
+              go
               nixfmt-rfc-style
               nixfmt-tree
               nodejs_24
@@ -67,7 +68,6 @@ in
               python3
               shadow
               systemd
-              go
               uv
             ];
           in
