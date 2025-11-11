@@ -56,7 +56,9 @@ in
             packages = with pkgs; [
               (lib.getLib stdenv.cc.cc)
               bash
+              config.systemd.programs.ssh.package
               coreutils
+              curl
               git
               gnugrep
               gnused
@@ -71,10 +73,12 @@ in
               python312
               python313
               python314
+              rsync
               shadow
               stdenv.cc.cc
               systemd
               uv
+              wget
             ];
 
             libraries =
