@@ -113,6 +113,7 @@ in
               BindReadOnlyPaths = [
                 "-/lib"
                 "-/lib64"
+                "${pkgs.podman}/bin/podman:/run/wrappers/bin/docker"
                 "/run/wrappers/bin/newuidmap"
                 "/run/wrappers/bin/newgidmap"
                 "/etc/containers/containers.conf"
