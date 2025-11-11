@@ -14,19 +14,20 @@ pkgs.stdenv.mkDerivation {
   ];
 
   buildInputs = with pkgs; [
-    expat
-    xorg.libX11
-    xorg.libXrender
-    libGL
-    libgcc
-    mpdecimal
-    readline
-    zlib
-    xz
-    bzip2
-    libffi_3_3
+    (lib.getLib mtdev)
     (lib.getLib openssl)
     (lib.getLib stdenv.cc.cc)
+    bzip2
+    expat
+    libffi_3_3
+    libgcc
+    libGL
+    mpdecimal
+    readline
+    xorg.libX11
+    xorg.libXrender
+    xz
+    zlib
   ];
 
   autoPatchelfIgnoreMissingDeps = [
