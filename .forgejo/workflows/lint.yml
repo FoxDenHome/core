@@ -5,12 +5,6 @@ jobs:
     steps:
       - name: checkout code
         uses: actions/checkout@v4
-      - name: Debug
-        run: |
-          cat /proc/mounts
-          ls -la /run
-          ls -la /run/user
-          ls -la /run/user/$(id -u)
       - name: Build dev container
         run: |
           podman image rm core || true
