@@ -71,8 +71,7 @@ in
             "/run/user-forgejo-runner:/run/user"
           ];
           BindReadOnlyPaths = [
-            "/run/wrappers/bin/newuidmap"
-            "/run/wrappers/bin/newgidmap"
+            "/run/wrappers/bin"
             "/etc/containers/containers.conf"
             "/etc/containers/policy.json"
             "/etc/containers/registries.conf"
