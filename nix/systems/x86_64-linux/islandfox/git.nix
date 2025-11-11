@@ -19,6 +19,10 @@ in
       enable = true;
       host = "islandfox-forgejo-runner";
     };
+    renovate = {
+      enable = true;
+      host = "renovate";
+    };
   };
 
   foxDen.hosts.hosts = {
@@ -40,6 +44,15 @@ in
       addresses = [
         "10.2.11.25/16"
         "fd2c:f4cb:63be:2::b19/64"
+      ];
+    };
+    renovate = mkVlanHost 2 {
+      dns = {
+        name = "renovate.foxden.network";
+      };
+      addresses = [
+        "10.2.11.26/16"
+        "fd2c:f4cb:63be:2::b1a/64"
       ];
     };
   };
