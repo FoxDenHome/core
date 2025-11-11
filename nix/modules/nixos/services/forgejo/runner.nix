@@ -85,6 +85,9 @@ in
           PrivatePIDs = true;
           PrivateTmp = true;
           PrivateUsers = false;
+          ProtectControlGroups = true;
+          ProtectKernelModules = true;
+          ProtectKernelTunables = true;
           User = "forgejo-runner";
           Group = "forgejo-runner";
           WorkingDirectory = "/var/lib/forgejo-runner";
