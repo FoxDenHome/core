@@ -12,5 +12,4 @@ jobs:
       - name: Lint mikrotik
         run: |
           cd ./mikrotik
-          uv run ruff check || true
-          cp -rp . /var/lib/forgejo-runner/x
+          uv run ruff check
