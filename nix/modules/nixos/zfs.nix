@@ -57,6 +57,7 @@ in
         "--compress=none"
         "--source-bwlimit=75m"
         "--no-privilege-elevation"
+        "--sshoption=StrictHostKeyChecking=accept-new"
       ];
       commands = lib.attrsets.mapAttrs (
         _: cfg:

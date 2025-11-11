@@ -22,14 +22,5 @@
       };
       kernelModules = [ "tcp_bbr" "tun" "tap" ];
     };
-    services.resolved = {
-      enable = true;
-      llmnr = "false";
-      dnssec = "allow-downgrade";
-      fallbackDns = [ ];
-      domains = [
-        "foxden.network"
-      ];
-    };
   };
 }
