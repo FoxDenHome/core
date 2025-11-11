@@ -68,6 +68,7 @@ in
             "${pkgs.coreutils}/bin/chmod 600 /var/lib/forgejo-runner/.runner"
           ];
           BindPaths = [
+            "/proc"
             "/run/user-forgejo-runner:/run/user"
           ];
           BindReadOnlyPaths = [
