@@ -1,6 +1,6 @@
 { config, ... }:
 let
-  mkHost = config.lib.foxDenSys.mkHost;
+  mkV6Host = config.lib.foxDenSys.mkV6Host;
 in
 {
   foxDen.services = config.lib.foxDen.sops.mkIfAvailable {
@@ -24,7 +24,7 @@ in
   };
 
   foxDen.hosts.hosts = {
-    mirror = mkHost {
+    mirror = mkV6Host {
       dns = {
         name = "mirror.doridian.net";
       };
@@ -36,13 +36,18 @@ in
           name = "archlinux.doridian.net";
         }
       ];
+      firewall.portForwards = [
+        {
+          protocol = "tcp";
+          port = 873;
+        }
+      ];
+      webservice.enable = true;
       addresses = [
-        "95.216.116.139/26"
-        "2a01:4f9:2b:1a42::3/112"
+        "2a01:4f9:2b:1a42::1:3/112"
         "10.99.12.3/24"
         "fd2c:f4cb:63be::a63:c03/120"
       ];
-      mac = "00:50:56:00:C1:7A";
     };
   };
 }
