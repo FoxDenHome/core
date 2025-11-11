@@ -7,10 +7,11 @@
     shell = pkgs.fish;
     linger = true;
     extraGroups = [
+      "dialout"
+      "input"
+      "render"
       "seat"
       "video"
-      "render"
-      "dialout"
     ];
   };
   users.groups.appliance = { };
