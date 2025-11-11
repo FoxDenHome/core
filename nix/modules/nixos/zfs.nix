@@ -35,17 +35,20 @@ in
   };
 
   config = lib.mkIf config.foxDen.zfs.enable {
-    boot.zfs.devNodes = "/dev/disk/by-path";
-    environment.persistence."/nix/persist/system".files = [
-      { file = "/etc/zfs/zpool.cache"; }
-    ];
-    boot.supportedFilesystems = [ "zfs" ];
+    boot = {
+      zfs.devNodes = "/dev/disk/by-path";
+      supportedFilesystems = [ "zfs" ];
+      kernelPackages = pkgs.linuxPackages_6_12; # for ZFS compatibility
+    };
     environment.systemPackages = with pkgs; [
       mbuffer
       sanoidPackage
       zfs
     ];
-    kernelPackages = pkgs.linuxPackages_6_12; # for ZFS compatibility
+
+    environment.persistence."/nix/persist/system".files = [
+      { file = "/etc/zfs/zpool.cache"; }
+    ];
 
     services.syncoid = lib.mkIf config.foxDen.zfs.syncoid.enable {
       enable = true;
