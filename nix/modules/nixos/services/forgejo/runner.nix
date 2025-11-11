@@ -103,6 +103,7 @@ in
               Environment = [
                 "UV_PYTHON_DOWNLOADS=never"
                 "NIX_LD_LIBRARY_PATH=${libraries}"
+                "NIX_LD=${lib.fileContents "${pkgs.stdenv.cc}/nix-support/dynamic-linker"}"
               ];
               BindReadOnlyPaths = [
                 "-/lib"
