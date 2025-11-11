@@ -37,6 +37,7 @@ in
           group = "forgejo-runner";
           description = "Forgejo runner user";
           autoSubUidGidRange = true;
+          linger = true;
           home = "/var/lib/forgejo-runner";
         };
         users.groups.forgejo-runner = { };
@@ -46,10 +47,6 @@ in
           group = "forgejo-runner";
           mode = "0400";
         };
-
-        systemd.tmpfiles.rules = [
-          "d /run/user-forgejo-runner 0700 forgejo-runner forgejo-runner"
-        ];
 
         systemd.services.forgejo-runner =
           let
@@ -65,29 +62,20 @@ in
           in
           {
             confinement.packages = packages;
-            path = [ "/run/wrappers" ] ++ packages;
+            path = packages;
 
             serviceConfig = {
               ExecStart = "${pkgs.forgejo-runner}/bin/forgejo-runner daemon --config /config.yml";
               ExecReload = "${pkgs.coreutils}/bin/kill -s HUP $MAINPID";
               ExecStartPre = [
-                "+${./runner-setup.sh}"
                 "-${pkgs.coreutils}/bin/chmod 600 /var/lib/forgejo-runner/.runner"
                 "${pkgs.coreutils}/bin/cp --update=all /registration.json /var/lib/forgejo-runner/.runner"
                 "${pkgs.coreutils}/bin/chmod 600 /var/lib/forgejo-runner/.runner"
               ];
               BindPaths = [
-                "/run/user-forgejo-runner:/run/user"
-              ];
-              Environment = [
-                "UV_PYTHON_DOWNLOADS=never"
+                "/run/user"
               ];
               BindReadOnlyPaths = [
-                "-/lib"
-                "-/lib64"
-                "${pkgs.podman}/bin/podman:/run/wrappers/bin/docker"
-                "/run/wrappers/bin/newuidmap"
-                "/run/wrappers/bin/newgidmap"
                 "/etc/containers/containers.conf"
                 "/etc/containers/policy.json"
                 "/etc/containers/registries.conf"
@@ -96,10 +84,7 @@ in
                 "${./runner-config.yml}:/config.yml"
                 "${config.sops.secrets."forgejo-runner-registration".path}:/registration.json"
               ];
-              PrivatePIDs = true;
               PrivateTmp = true;
-              PrivateUsers = false; # Podman rootless need subuid/subgid
-              ProtectKernelTunables = false; # Otherwise podman can't remount /proc
               User = "forgejo-runner";
               Group = "forgejo-runner";
               WorkingDirectory = "/var/lib/forgejo-runner";
