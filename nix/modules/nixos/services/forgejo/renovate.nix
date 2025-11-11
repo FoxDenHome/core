@@ -54,7 +54,10 @@ in
             platform = "forgejo";
             autodiscover = true;
             onboarding = true;
-            autodiscoverFilter = ["FoxDen/*" "Doridian/*"];
+            autodiscoverFilter = [
+              "FoxDen/*"
+              "Doridian/*"
+            ];
           };
         };
 
