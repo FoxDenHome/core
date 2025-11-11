@@ -3,13 +3,14 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - name: checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+      - uses: github.com/astral-sh/setup-uv@v7
+      - uses: cachix/install-nix-action@v31
+        with:
+          nix_path: nixpkgs=channel:nixos-unstable
       - name: Lint nix
         run: |
           cd ./nix
-          ls -la /run || true
-          ls -la /var/run || true
           treefmt --ci
       - name: Lint mikrotik
         run: |
