@@ -55,6 +55,7 @@ in
       in {
         confinement = {
           inherit packages;
+          mode = "chroot-only";
         };
         path = [ "/run/wrappers" ] ++ packages;
 
