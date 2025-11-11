@@ -1,7 +1,7 @@
 on: [push]
 jobs:
   lint:
-    runs-on: default
+    runs-on: ubuntu-latest
     steps:
       - name: checkout code
         uses: actions/checkout@v4

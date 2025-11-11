@@ -45,7 +45,8 @@ runner:
   # Like: ["macos-arm64:host", "ubuntu-latest:docker://node:20-bookworm", "ubuntu-22.04:docker://node:20-bookworm"]
   # If it's empty when registering, it will ask for inputting labels.
   # If it's empty when executing the `daemon`, it will use labels in the `.runner` file.
-  labels: ["default", "islandfox"]
+  labels:
+    - ubuntu-latest:docker://docker.io/ubuntu:24.04
 
 cache:
   #
