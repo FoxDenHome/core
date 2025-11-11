@@ -53,7 +53,7 @@ in
             gitAuthor = "Renovate <renovate@foxden.network>";
             platform = "forgejo";
             autodiscover = true;
-            onboarding = false;
+            onboarding = true;
             autodiscoverFilter = ["FoxDen/*" "Doridian/*"];
           };
         };
