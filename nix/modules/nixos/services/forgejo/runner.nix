@@ -59,6 +59,7 @@ in
               config.programs.ssh.package
               coreutils
               curl
+              fish
               git
               gnugrep
               gnused
