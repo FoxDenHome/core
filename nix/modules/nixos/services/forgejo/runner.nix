@@ -54,42 +54,14 @@ in
         systemd.services.forgejo-runner =
           let
             packages = with pkgs; [
-              (lib.getLib openssl)
-              (lib.getLib stdenv.cc.cc)
               bash
-              config.programs.ssh.package
               coreutils
-              curl
-              fish
-              git
               gnugrep
               gnused
               gnutar
-              go
-              libgcc
-              nix-ld
-              nixfmt-rfc-style
-              nixfmt-tree
-              nodejs_24
               podman
-              python312
-              python313
-              python314
-              rsync
               shadow
-              stdenv.cc.cc
-              systemd
-              uv
-              wget
             ];
-
-            libraries =
-              with pkgs;
-              lib.makeLibraryPath [
-                stdenv.cc.cc
-                libgcc
-                openssl
-              ];
           in
           {
             confinement.packages = packages;
@@ -109,8 +81,6 @@ in
               ];
               Environment = [
                 "UV_PYTHON_DOWNLOADS=never"
-                "NIX_LD_LIBRARY_PATH=${libraries}"
-                "NIX_LD=${lib.fileContents "${pkgs.stdenv.cc}/nix-support/dynamic-linker"}"
               ];
               BindReadOnlyPaths = [
                 "-/lib"
