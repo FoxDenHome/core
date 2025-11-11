@@ -54,6 +54,10 @@ in
         };
         path = [ "/run/wrappers" ] ++ packages;
 
+        systemd.tmpfiles.rules = [
+          "d /run/user-forgejo-runner 0700 forgejo-runner forgejo-runner"
+        ];
+
         serviceConfig = {
           ExecStart = "${pkgs.forgejo-runner}/bin/forgejo-runner daemon --config /config.yml";
           ExecReload = "${pkgs.coreutils}/bin/kill -s HUP $MAINPID";
@@ -63,7 +67,9 @@ in
             "${pkgs.coreutils}/bin/cp --update=all /registration.json /var/lib/forgejo-runner/.runner"
             "${pkgs.coreutils}/bin/chmod 600 /var/lib/forgejo-runner/.runner"
           ];
-          TemporaryFileSystem = [ "/run/user" ];
+          BindPaths = [
+            "/run/forgejo-runner:/run/user"
+          ];
           BindReadOnlyPaths = [
             "/run/wrappers/bin/newuidmap"
             "/run/wrappers/bin/newgidmap"
