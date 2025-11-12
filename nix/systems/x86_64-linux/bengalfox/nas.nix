@@ -60,7 +60,7 @@ in
       tls = true;
       oAuth = {
         enable = true;
-        displayName = "Kiwix (on bengalfox)";
+        displayName = "Kiwix Local (BengalFox)";
         clientId = "kiwix-bengalfox";
         bypassInternal = true;
         imageFile = ../../../files/icons/kiwix.svg;
@@ -73,10 +73,10 @@ in
       tls = true;
       oAuth = {
         enable = true;
-        displayName = "NAS (on bengalfox)";
+        displayName = "NAS WebUI Local (BengalFox)";
         clientId = "nas-bengalfox";
         bypassInternal = true;
-        imageFile = ../../../files/icons/nas-bengalfox.svg;
+        imageFile = ../../../files/icons/nas.svg;
       };
     };
     nzbget = {

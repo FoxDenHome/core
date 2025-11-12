@@ -55,7 +55,7 @@ in
       tls = true;
       oAuth = {
         enable = true;
-        displayName = "Kiwix (on icefox)";
+        displayName = "Kiwix Offsite (IceFox)";
         clientId = "kiwix-icefox";
         bypassInternal = true;
         imageFile = ../../../files/icons/kiwix.svg;
@@ -68,10 +68,10 @@ in
       tls = true;
       oAuth = {
         enable = true;
-        displayName = "NAS (on icefox)";
+        displayName = "NAS WebUI Offsite (IceFox)";
         clientId = "nas-icefox";
         bypassInternal = true;
-        imageFile = ../../../files/icons/nas-icefox.svg;
+        imageFile = ../../../files/icons/nas.svg;
       };
     };
     nzbget = {
