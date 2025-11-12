@@ -148,6 +148,8 @@ in
             serviceConfig = {
               Type = "oneshot";
               ExecStart = "${pkgs.podman}/bin/podman system prune --all --force --volumes --filter until=${builtins.toString (30 * 24)}h";
+              Restart = "no";
+              RemainAfterExit = false;
             };
           }
         ];
