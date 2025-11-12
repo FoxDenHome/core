@@ -66,7 +66,6 @@ in
           services = [
             {
               databases = [ "spaceage_api" ];
-              proxy = true; # TODO: Can ecto connecto to UDS?
               service = "spaceage-api";
             }
           ];
