@@ -36,7 +36,7 @@ let
 
     serviceConfig = {
       BindPaths = [
-        "/run/user-forgejo-runner-podman:/run/user"
+        "/run/user-podman-forgejo-runner:/run/user"
       ];
       BindReadOnlyPaths = [
         "/etc/containers/containers.conf"
@@ -73,12 +73,12 @@ in
         inherit svcConfig pkgs config;
       }).config
       (services.make {
-        name = "forgejo-runner-podman";
+        name = "podman-forgejo-runner";
         devices = [ "/dev/net/tun" ];
         inherit svcConfig pkgs config;
       }).config
       (services.make {
-        name = "forgejo-runner-podman-prune";
+        name = "podman-forgejo-runner-prune";
         inherit svcConfig pkgs config;
       }).config
       {
@@ -101,8 +101,8 @@ in
           confinement.packages = packages;
           path = packages;
 
-          after = [ "forgejo-runner-podman.service" ];
-          wants = [ "forgejo-runner-podman.service" ];
+          after = [ "podman-forgejo-runner.service" ];
+          wants = [ "podman-forgejo-runner.service" ];
 
           serviceConfig = {
             ExecStart = "${pkgs.forgejo-runner}/bin/forgejo-runner daemon --config /config.yml";
@@ -139,22 +139,22 @@ in
         };
 
         systemd.tmpfiles.rules = [
-          "d /run/user-forgejo-runner-podman 0700 forgejo-runner forgejo-runner"
+          "d /run/user-podman-forgejo-runner 0700 forgejo-runner forgejo-runner"
         ];
 
-        systemd.services.forgejo-runner-podman-prune = lib.mkMerge [
+        systemd.services.podman-forgejo-runner-prune = lib.mkMerge [
           podmanServiceBase
           {
             serviceConfig = {
               Type = "oneshot";
-              ExecStart = "${pkgs.podman}/bin/podman system prune --all --force --volumes --filter until=${builtins.toString (30 * 24)}h";
+              ExecStart = "${pkgs.podman}/bin/podman system prune --all --force --volumes --filter until=${builtins.toString (7 * 24)}h";
               Restart = "no";
               RemainAfterExit = false;
             };
           }
         ];
 
-        systemd.timers.forgejo-runner-podman-prune = {
+        systemd.timers.podman-forgejo-runner-prune = {
           wantedBy = [ "timers.target" ];
           timerConfig = {
             OnCalendar = "weekly";
@@ -163,7 +163,7 @@ in
           };
         };
 
-        systemd.services.forgejo-runner-podman = lib.mkMerge [
+        systemd.services.podman-forgejo-runner = lib.mkMerge [
           podmanServiceBase
           {
             serviceConfig = {
