@@ -33,6 +33,7 @@ in
           volumes = [
             "nginx:/var/lib/nginx"
             "wiki:/var/www/wiki"
+            "${config.foxDen.services.mysql.socketPath}:/var/run/mysqld/mysqld.sock:ro"
           ];
           environment = {
             "DOMAIN" = svcConfig.domain;

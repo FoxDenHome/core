@@ -33,6 +33,7 @@ in
             "ssl:/etc/letsencrypt"
             "${svcConfig.dataVolume}:/var/www/foxcaves/storage"
             (config.lib.foxDen.sops.mkIfAvailable "${config.sops.secrets.foxcaves.path}:/var/www/foxcaves/config/production.lua:ro")
+            "${config.foxDen.services.mysql.socketPath}:/var/run/mysqld/mysqld.sock:ro"
           ];
           environment = {
             "ENVIRONMENT" = "production";
