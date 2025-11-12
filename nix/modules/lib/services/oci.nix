@@ -65,22 +65,22 @@ let
             systemd
           ];
 
-        systemd.services."podman-${ctName}-prune" = {
-          serviceConfig = {
-            Type = "oneshot";
-            ExecStart = "${pkgs.podman}/bin/podman system prune --all --force --volumes --filter until=${builtins.toString (30 * 24)}h";
-            Restart = "no";
+          systemd.services."podman-${ctName}-prune" = {
+            serviceConfig = {
+              Type = "oneshot";
+              ExecStart = "${pkgs.podman}/bin/podman system prune --all --force --volumes --filter until=${builtins.toString (30 * 24)}h";
+              Restart = "no";
+            };
           };
-        };
 
-        systemd.timers."podman-${ctName}-prune" = {
-          wantedBy = [ "timers.target" ];
-          timerConfig = {
-            OnCalendar = "monthly";
-            RandomizedDelaySec = "6h";
-            Persistent = true;
+          systemd.timers."podman-${ctName}-prune" = {
+            wantedBy = [ "timers.target" ];
+            timerConfig = {
+              OnCalendar = "monthly";
+              RandomizedDelaySec = "6h";
+              Persistent = true;
+            };
           };
-        };
         };
       }
     )
