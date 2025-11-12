@@ -14,14 +14,9 @@ let
     with lib.types;
     submodule {
       options = {
-        name = lib.mkOption {
-          type = str;
-          description = "Name of the database";
-        };
         databases = lib.mkOption {
           type = listOf str;
-          default = [ ];
-          description = "List of additional databases to ensure exist for this user";
+          description = "List of databases to ensure exist for this user";
         };
         proxy = lib.mkEnableOption "Enable MySQL proxy for 127.0.0.1 access"; # TODO: Make this obsolete
         service = lib.mkOption {
@@ -36,18 +31,17 @@ let
     if clientSvc.proxy then
       (lib.mkMerge [
         (services.make {
-          name = "mysql-${clientSvc.name}";
-          overrideHost = config.foxDen.services.${clientSvc.name}.host;
+          name = "mysql-${clientSvc.service}";
+          overrideHost = config.foxDen.services.${clientSvc.service}.host;
           inherit svcConfig pkgs config;
         }).config.systemd.services
         {
-          "mysql-${clientSvc.name}" = {
+          "mysql-${clientSvc.service}" = {
             wantedBy = [ "multi-user.target" ];
 
             serviceConfig = {
+              inherit (config.systemd.services.${clientSvc.service}.serviceConfig) User Group;
               Type = "simple";
-              User = clientSvc.name;
-              Group = clientSvc.name;
               ExecStart = [
                 "${pkgs.socat}/bin/socat TCP-LISTEN:3306,bind=127.0.0.1,reuseaddr,fork UNIX-CLIENT:${config.foxDen.services.mysql.socketPath}"
               ];
@@ -59,13 +53,7 @@ let
       { }
   );
 
-  mkSvcUser = svc:
-    if svc.proxy then
-      svc.name
-    else
-      config.systemd.services.${svc.service}.serviceConfig.User;
-
-  mkDbName = lib.replaceString "-" "_";
+  mkSvcUser = svc: config.systemd.services.${svc.service}.serviceConfig.User;
 in
 {
   options.foxDen.services.mysql =
@@ -111,7 +99,7 @@ in
             };
           };
           ensureDatabases = lib.flatten (
-            map (svc: [ (mkDbName svc.name) ] ++ svc.databases) svcConfig.services
+            map (svc: svc.databases) svcConfig.services
           );
           ensureUsers = map (svc: {
             name = mkSvcUser svc;
@@ -119,7 +107,7 @@ in
               map (dbName: {
                 name = "${dbName}.*";
                 value = "ALL PRIVILEGES";
-              }) ([ (mkDbName svc.name) ] ++ svc.databases)
+              }) svc.databases
             );
           }) svcConfig.services;
         };
@@ -152,7 +140,7 @@ in
       {
         systemd.services = lib.attrsets.listToAttrs (
           map (mySvc: {
-            name = if mySvc.proxy then "mysql-${mySvc.name}" else mySvc.service;
+            name = if mySvc.proxy then "mysql-${mySvc.service}" else mySvc.service;
             value = {
               requires = [ "mysql.service" ];
               after = [ "mysql.service" ];
@@ -173,12 +161,12 @@ in
           map (mySvc: {
             name = mySvc.service;
             value = rec {
-              requires = if mySvc.proxy then [ "mysql-${mySvc.name}.service" ] else [ ];
+              requires = if mySvc.proxy then [ "mysql-${mySvc.service}.service" ] else [ ];
               after = requires;
               serviceConfig = {
                 Environment =
                   [
-                    "MYSQL_DATABASE=${mkDbName mySvc.name}"
+                    "MYSQL_DATABASE=${builtins.head mySvc.databases}"
                     "MYSQL_USERNAME=${mkSvcUser mySvc}"
                   ]
                   ++ (

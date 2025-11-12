@@ -14,7 +14,7 @@ let
     with lib.types;
     submodule {
       options = {
-        name = lib.mkOption {
+        database = lib.mkOption {
           description = "Name of the database";
           type = str;
         };
@@ -66,9 +66,9 @@ in
           enable = true;
           package = pkgs.postgresql_16;
           enableTCPIP = false;
-          ensureDatabases = map (svc: svc.name) svcConfig.services;
+          ensureDatabases = map (svc: svc.database) svcConfig.services;
           ensureUsers = map (svc: {
-            inherit (svc) name;
+            name = svc.database;
             ensureDBOwnership = true;
           }) svcConfig.services;
           identMap = ''
@@ -76,7 +76,7 @@ in
           ''
           + lib.concatStringsSep "\n" (
             map (svc: ''
-              postgres ${mkSvcUser svc} ${svc.name}
+              postgres ${mkSvcUser svc} ${svc.database}
             '') svcConfig.services
           );
         };
@@ -119,8 +119,8 @@ in
                 ];
                 Environment = [
                   "POSTGRESQL_SOCKET=${config.foxDen.services.postgresql.socketPath}"
-                  "POSTGRESQL_DATABASE=${pgSvc.name}"
-                  "POSTGRESQL_USERNAME=${mkSvcUser pgSvc}"
+                  "POSTGRESQL_DATABASE=${pgSvc.database}"
+                  "POSTGRESQL_USERNAME=${pgSvc.database}"
                 ];
               };
             };

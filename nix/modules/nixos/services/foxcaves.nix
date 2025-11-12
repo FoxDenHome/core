@@ -59,7 +59,7 @@ in
           enable = true;
           services = [
             {
-              name = "foxcaves";
+              database = "foxcaves";
               proxy = true; # TODO: We need to crack the Docker shell for this one...
               service = "podman-foxcaves";
             }
