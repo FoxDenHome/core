@@ -65,7 +65,7 @@ in
           enable = true;
           services = [
             {
-              database = "spaceage-api";
+              databases = [ "spaceage-api" ];
               proxy = true; # TODO: Can ecto connecto to UDS?
               service = "spaceage-api";
             }

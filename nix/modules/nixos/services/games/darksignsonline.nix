@@ -61,8 +61,8 @@ in
           enable = true;
           services = [
             {
-              name = "darksignsonline";
               databases = [
+                "darksignsonline"
                 "darksignsonline_wiki"
               ];
               proxy = true; # TODO: We need to crack the Docker shell for this one...
