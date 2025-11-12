@@ -58,7 +58,7 @@ in
       {
         foxDen.services.postgresql = {
           host = "postgresql";
-          socketPath = "/run/postgresql/.s.PGSQL.5432";
+          socketPath = lib.mkForce "/run/postgresql/.s.PGSQL.5432";
         };
 
         foxDen.hosts.hosts = {

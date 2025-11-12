@@ -94,7 +94,7 @@ in
       {
         foxDen.services.mysql = {
           host = "mysql";
-          socketPath = "/run/mysqld/mysqld.sock";
+          socketPath = lib.mkForce "/run/mysqld/mysqld.sock";
         };
 
         foxDen.hosts.hosts = {
