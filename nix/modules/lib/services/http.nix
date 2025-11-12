@@ -29,6 +29,7 @@ let
       present = true;
       public = true;
       displayName = svcConfig.oAuth.displayName;
+      imageFile = svcConfig.oAuth.imageFile;
       originUrl = map (url: "${url}${oAuthCallbackUrl}") baseUrls;
       originLanding = nixpkgs.lib.lists.head baseUrls;
       scopeMaps.login-users = [
@@ -214,6 +215,10 @@ in
         };
         displayName = nixpkgs.lib.mkOption {
           type = str;
+        };
+        imageFile = nixpkgs.lib.mkOption {
+          type = nullOr str;
+          default = null;
         };
       };
     }
