@@ -24,12 +24,19 @@ let
             (nixpkgs.lib.filter (iface: iface.dns.name != "") (nixpkgs.lib.attrsets.attrValues host.interfaces))
         )
       );
+
+      imageFileObj =
+        if svcConfig.oAuth.imageFile != null then
+          {
+            imageFile = builtins.toString svcConfig.oAuth.imageFile;
+          }
+        else
+          { };
     in
     {
       present = true;
       public = true;
       displayName = svcConfig.oAuth.displayName;
-      imageFile = svcConfig.oAuth.imageFile;
       originUrl = map (url: "${url}${oAuthCallbackUrl}") baseUrls;
       originLanding = nixpkgs.lib.lists.head baseUrls;
       scopeMaps.login-users = [
@@ -39,6 +46,7 @@ let
         "profile"
       ];
     }
+    // imageFileObj
   );
 
   mkOauthProxy = (
@@ -217,7 +225,7 @@ in
           type = str;
         };
         imageFile = nixpkgs.lib.mkOption {
-          type = nullOr str;
+          type = nullOr (either path str);
           default = null;
         };
       };
