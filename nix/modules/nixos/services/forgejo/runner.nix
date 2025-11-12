@@ -51,6 +51,7 @@ let
       PrivateTmp = true;
       PrivateUsers = false; # Podman rootless need subuid/subgid
       ProtectKernelTunables = false; # Otherwise podman can't remount /proc
+      ProtectControlGroups = false; # Otherwise cgroups for limits don't work
       User = "forgejo-runner";
       Group = "forgejo-runner";
       WorkingDirectory = "/var/lib/forgejo-runner";
