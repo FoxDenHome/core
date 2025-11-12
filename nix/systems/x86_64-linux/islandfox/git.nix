@@ -18,7 +18,7 @@ in
     };
     forgejo-runner = {
       enable = true;
-      host = "islandfox-forgejo-runner";
+      host = "forgejo-runner";
     };
     renovate = {
       enable = true;
@@ -38,7 +38,7 @@ in
         "fd2c:f4cb:63be:2::b0d/64"
       ];
     };
-    islandfox-forgejo-runner = mkVlanHost 6 {
+    forgejo-runner = mkVlanHost 6 {
       dns = {
         name = "islandfox-forgejo-runner.foxden.network";
       };
