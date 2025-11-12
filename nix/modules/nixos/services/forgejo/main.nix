@@ -116,7 +116,7 @@ in
           };
           dump = {
             enable = true;
-            age = "90d";
+            #age = "90d"; # TODO: NixOS 25.11
             type = "tar.zst";
           };
           enable = true;
