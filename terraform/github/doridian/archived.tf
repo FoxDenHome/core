@@ -199,6 +199,12 @@ locals {
     peercred = {
       description = "Moved to https://git.foxden.network/FoxDen/peercred"
     }
+    pdnstiny = {
+      description = "Moved to https://git.foxden.network/FoxDen/pdnstiny"
+    }
+    haproxytiny = {
+      description = "Moved to https://git.foxden.network/FoxDen/haproxytiny"
+    }
   }
 }
 

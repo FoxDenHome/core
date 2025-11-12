@@ -99,14 +99,11 @@ locals {
     }
 
     froxlor-system = {}
-    pdnstiny       = {}
 
     kanidm = {
       description    = "Kanidm: A simple, secure and fast identity management platform"
       default_branch = "master"
     }
-
-    haproxytiny = {}
   }
 }
 
