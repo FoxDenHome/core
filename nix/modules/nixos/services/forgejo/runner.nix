@@ -27,6 +27,37 @@ let
     }
   );
 
+  podmanServiceBase = {
+    confinement.packages = packages;
+    path = [ "/run/wrappers" ] ++ packages;
+
+    after = [ "network.target" ];
+    wants = [ "network.target" ];
+
+    serviceConfig = {
+      BindPaths = [
+        "/run/user-forgejo-runner-podman:/run/user"
+      ];
+      BindReadOnlyPaths = [
+        "/etc/containers/containers.conf"
+        "/etc/containers/policy.json"
+        "/etc/containers/registries.conf"
+        "/etc/containers/storage.conf"
+        "/run/wrappers/bin/newgidmap"
+        "/run/wrappers/bin/newuidmap"
+        "/usr/bin/env"
+      ];
+      PrivatePIDs = true;
+      PrivateTmp = true;
+      PrivateUsers = false; # Podman rootless need subuid/subgid
+      ProtectKernelTunables = false; # Otherwise podman can't remount /proc
+      User = "forgejo-runner";
+      Group = "forgejo-runner";
+      WorkingDirectory = "/var/lib/forgejo-runner";
+      StateDirectory = "forgejo-runner";
+    };
+  };
+
   svcConfig = config.foxDen.services.forgejo-runner;
 in
 {
@@ -44,6 +75,10 @@ in
       (services.make {
         name = "forgejo-runner-podman";
         devices = [ "/dev/net/tun" ];
+        inherit svcConfig pkgs config;
+      }).config
+      (services.make {
+        name = "forgejo-runner-podman-prune";
         inherit svcConfig pkgs config;
       }).config
       {
@@ -107,40 +142,36 @@ in
           "d /run/user-forgejo-runner-podman 0700 forgejo-runner forgejo-runner"
         ];
 
-        systemd.services.forgejo-runner-podman = {
-          confinement.packages = packages;
-          path = [ "/run/wrappers" ] ++ packages;
+        systemd.services.forgejo-runner-podman-prune = lib.mkMerge [
+          podmanServiceBase
+          {
+            serviceConfig = {
+              Type = "oneshot";
+              ExecStart = "${pkgs.podman}/bin/podman system prune --all --force --volumes --filter until=${builtins.toString (30 * 24)}h";
+            };
+          }
+        ];
 
-          after = [ "network.target" ];
-          wants = [ "network.target" ];
-
-          serviceConfig = {
-            Type = "exec";
-            ExecStart = "${pkgs.podman}/bin/podman --log-level=info system service --time=0 unix:///var/lib/forgejo-runner/podman.sock";
-            BindPaths = [
-              "/run/user-forgejo-runner-podman:/run/user"
-            ];
-            BindReadOnlyPaths = [
-              "/etc/containers/containers.conf"
-              "/etc/containers/policy.json"
-              "/etc/containers/registries.conf"
-              "/etc/containers/storage.conf"
-              "/run/wrappers/bin/newgidmap"
-              "/run/wrappers/bin/newuidmap"
-              "/usr/bin/env"
-            ];
-            PrivatePIDs = true;
-            PrivateTmp = true;
-            PrivateUsers = false; # Podman rootless need subuid/subgid
-            ProtectKernelTunables = false; # Otherwise podman can't remount /proc
-            User = "forgejo-runner";
-            Group = "forgejo-runner";
-            WorkingDirectory = "/var/lib/forgejo-runner";
-            StateDirectory = "forgejo-runner";
+        systemd.timers.forgejo-runner-podman-prune = {
+          wantedBy = [ "timers.target" ];
+          timerConfig = {
+            OnCalendar = "weekly";
+            RandomizedDelaySec = "6h";
+            Persistent = true;
           };
-
-          wantedBy = [ "multi-user.target" ];
         };
+
+        systemd.services.forgejo-runner-podman = lib.mkMerge [
+          podmanServiceBase
+          {
+            serviceConfig = {
+              Type = "exec";
+              ExecStart = "${pkgs.podman}/bin/podman --log-level=info system service --time=0 unix:///var/lib/forgejo-runner/podman.sock";
+            };
+
+            wantedBy = [ "multi-user.target" ];
+          }
+        ];
 
         environment.persistence."/nix/persist/forgejo" = {
           hideMounts = true;
