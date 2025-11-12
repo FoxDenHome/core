@@ -8,8 +8,6 @@
 let
   services = foxDenLib.services;
 
-  socketPath = "/run/postgresql/.s.PGSQL.5432";
-
   svcConfig = config.foxDen.services.postgresql;
 
   serviceType =
@@ -60,7 +58,7 @@ in
       {
         foxDen.services.postgresql = {
           host = "postgresql";
-          inherit socketPath;
+          socketPath = "/run/postgresql/.s.PGSQL.5432";
         };
 
         foxDen.hosts.hosts = {
@@ -123,7 +121,7 @@ in
                   "/run/postgresql"
                 ];
                 Environment = [
-                  "POSTGRESQL_SOCKET=${socketPath}"
+                  "POSTGRESQL_SOCKET=${config.foxDen.services.postgresql.socketPath}"
                   "POSTGRESQL_DATABASE=${pgSvc.name}"
                   "POSTGRESQL_USERNAME=${pgSvc.name}"
                 ];

@@ -8,8 +8,6 @@
 let
   services = foxDenLib.services;
 
-  socketPath = "/run/mysqld/mysqld.sock";
-
   svcConfig = config.foxDen.services.mysql;
 
   serviceType =
@@ -56,7 +54,7 @@ let
               User = clientSvc.name;
               Group = clientSvc.name;
               ExecStart = [
-                "${pkgs.socat}/bin/socat TCP-LISTEN:3306,bind=127.0.0.1,reuseaddr,fork UNIX-CLIENT:${socketPath}"
+                "${pkgs.socat}/bin/socat TCP-LISTEN:3306,bind=127.0.0.1,reuseaddr,fork UNIX-CLIENT:${config.foxDen.services.mysql.socketPath}"
               ];
             };
           };
@@ -96,7 +94,7 @@ in
       {
         foxDen.services.mysql = {
           host = "mysql";
-          inherit socketPath;
+          socketPath = "/run/mysqld/mysqld.sock";
         };
 
         foxDen.hosts.hosts = {
@@ -168,7 +166,7 @@ in
                   "/run/mysqld"
                 ];
                 Environment = [
-                  "MYSQL_SOCKET=${socketPath}"
+                  "MYSQL_SOCKET=${config.foxDen.services.mysql.socketPath}"
                 ];
               };
             };
