@@ -70,7 +70,7 @@ in
               break
             fi
             maxtries=$((maxtries - 1))
-            if [ "$maxtries" -le 0 ]; then
+            if [ $maxtries -le 0 ]; then
               echo "Timeout waiting for VF interface to appear" >&2
               exit 1
             fi
