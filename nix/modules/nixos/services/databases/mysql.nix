@@ -36,11 +36,14 @@ let
           inherit svcConfig pkgs config;
         }).config.systemd.services
         {
-          "mysql-${clientSvc.service}" = {
+          "mysql-${clientSvc.service}" = let
+            svcConfig = config.systemd.services.${clientSvc.service}.serviceConfig;
+          in {
             wantedBy = [ "multi-user.target" ];
 
             serviceConfig = {
-              inherit (config.systemd.services.${clientSvc.service}.serviceConfig) User Group;
+              User = svcConfig.User;
+              Group = svcConfig.Group ? null;
               Type = "simple";
               ExecStart = [
                 "${pkgs.socat}/bin/socat TCP-LISTEN:3306,bind=127.0.0.1,reuseaddr,fork UNIX-CLIENT:${config.foxDen.services.mysql.socketPath}"
