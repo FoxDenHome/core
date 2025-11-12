@@ -28,7 +28,7 @@ let
       imageFileObj =
         if svcConfig.oAuth.imageFile != null then
           {
-            imageFile = builtins.toString svcConfig.oAuth.imageFile;
+            imageFile = "${svcConfig.oAuth.imageFile}";
           }
         else
           { };
@@ -215,7 +215,7 @@ in
       customReadyz = nixpkgs.lib.mkEnableOption "Don't handle /readyz endpoint for custom health checks";
       quic = nixpkgs.lib.mkEnableOption "Enable QUIC (HTTP/3) support";
       oAuth = {
-        enable = nixpkgs.lib.mkEnableOption "OAuth2 Proxy";
+        enable = nixpkgs.lib.mkEnableOption "OAuth2 support";
         bypassInternal = nixpkgs.lib.mkEnableOption "Bypass OAuth for internal requests";
         overrideService = nixpkgs.lib.mkEnableOption "Don't setup OAuth2 Proxy service, the service has special handling";
         clientId = nixpkgs.lib.mkOption {
