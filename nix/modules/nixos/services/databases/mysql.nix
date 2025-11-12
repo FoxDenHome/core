@@ -28,6 +28,11 @@ let
         targetService = lib.mkOption {
           type = str;
         };
+        user = lib.mkOption {
+          type = nullOr str;
+          default = null;
+          description = "User to connect as (defaults to targetService)";
+        };
       };
     };
 
@@ -108,7 +113,7 @@ in
             map (svc: [ (mkDbName svc.name) ] ++ svc.databases) svcConfig.services
           );
           ensureUsers = map (svc: {
-            name = if svc.proxy then svc.name else svc.targetService;
+            name = if svc.proxy then svc.name else if svc.user != null then svc.user else svc.targetService;
             ensurePermissions = lib.attrsets.listToAttrs (
               map (dbName: {
                 name = "${dbName}.*";
@@ -172,7 +177,7 @@ in
               serviceConfig = {
                 Environment =
                   let
-                    usrName = if mySvc.proxy then mySvc.name else mySvc.targetService;
+                    usrName = if mySvc.proxy then mySvc.name else if mySvc.user != null then mySvc.user else mySvc.targetService;
                   in
                   [
                     "MYSQL_DATABASE=${mkDbName mySvc.name}"
