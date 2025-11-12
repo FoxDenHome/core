@@ -35,6 +35,7 @@ let
     wants = [ "network.target" ];
 
     serviceConfig = {
+      Delegate = "cpu cpuset io memory pids";
       BindPaths = [
         "/run/user-podman-forgejo-runner:/run/user"
       ];
