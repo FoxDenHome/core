@@ -20,7 +20,11 @@
         "net.ipv4.ip_unprivileged_port_start" = 80;
         "net.core.default_qdisc" = "fq_codel";
       };
-      kernelModules = [ "tcp_bbr" "tun" "tap" ];
+      kernelModules = [
+        "tcp_bbr"
+        "tun"
+        "tap"
+      ];
     };
   };
 }
