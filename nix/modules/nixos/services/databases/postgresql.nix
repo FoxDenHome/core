@@ -139,17 +139,7 @@ in
                 Environment = [
                   "POSTGRESQL_DATABASE=${pgSvc.name}"
                   "POSTGRESQL_USERNAME=${pgSvc.name}"
-                ]
-                ++ (
-                  if pgSvc.proxy then
-                    [
-                      "POSTGRESQL_HOST=127.0.0.1"
-                      "POSTGRESQL_PORT=5432"
-                      "POSTGRESQL_PASSWORD="
-                    ]
-                  else
-                    [ ]
-                );
+                ];
               };
             };
           }) svcConfig.services
