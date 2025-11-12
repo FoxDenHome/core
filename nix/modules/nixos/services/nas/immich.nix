@@ -82,11 +82,11 @@ in
           enable = true;
           services = [
             {
-              name = "immich";
+              database = "immich";
               service = "immich-server";
             }
             {
-              name = "immich";
+              database = "immich";
               service = "immich-machine-learning";
             }
           ];

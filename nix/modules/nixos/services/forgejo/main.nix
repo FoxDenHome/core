@@ -187,11 +187,11 @@ in
           enable = true;
           services = [
             {
-              name = "forgejo";
+              database = "forgejo";
               service = "forgejo";
             }
             {
-              name = "forgejo";
+              database = "forgejo";
               service = "forgejo-dump";
             }
           ];

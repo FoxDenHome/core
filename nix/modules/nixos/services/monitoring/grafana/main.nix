@@ -182,7 +182,7 @@ in
           enable = true;
           services = [
             {
-              name = "grafana";
+              database = "grafana";
               service = "grafana";
             }
           ];
