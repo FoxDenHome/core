@@ -32,7 +32,7 @@ let
       (lib.mkMerge [
         (services.make {
           name = "mysql-${clientSvc.service}";
-          overrideHost = config.foxDen.services.${clientSvc.service}.host;
+          overrideHost = config.foxDen.services.${lib.strings.removePrefix "podman-" clientSvc.service}.host;
           inherit svcConfig pkgs config;
         }).config.systemd.services
         {
