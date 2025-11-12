@@ -189,12 +189,12 @@ in
             {
               name = "forgejo";
               user = config.services.forgejo.user;
-              targetService = "forgejo";
+              service = "forgejo";
             }
             {
               name = "forgejo";
               user = config.services.forgejo.user;
-              targetService = "forgejo-dump";
+              service = "forgejo-dump";
             }
           ];
         };

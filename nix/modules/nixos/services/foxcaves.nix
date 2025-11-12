@@ -61,7 +61,7 @@ in
             {
               name = "foxcaves";
               proxy = true;
-              targetService = "podman-foxcaves";
+              service = "podman-foxcaves";
             }
           ];
         };

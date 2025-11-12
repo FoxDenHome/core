@@ -17,47 +17,20 @@ let
     submodule {
       options = {
         name = lib.mkOption {
+          description = "Name of the database";
           type = str;
         };
-        proxy = lib.mkEnableOption "Enable PostgreSQL proxy for 127.0.0.1 access";
-        targetService = lib.mkOption {
+        service = lib.mkOption {
+          description = "Name of the systemd service needing to connect";
           type = str;
         };
         user = lib.mkOption {
           type = nullOr str;
           default = null;
-          description = "User to connect as (defaults to targetService)";
+          description = "Linux user the service runs as (defaults to service)";
         };
       };
     };
-
-  mkProxyTo = (
-    clientSvc:
-    if clientSvc.proxy then
-      (lib.mkMerge [
-        (services.make {
-          name = "postgresql-${clientSvc.name}";
-          overrideHost = config.foxDen.services.${clientSvc.name}.host;
-          inherit svcConfig pkgs config;
-        }).config.systemd.services
-        {
-          "postgresql-${clientSvc.name}" = {
-            wantedBy = [ "multi-user.target" ];
-
-            serviceConfig = {
-              Type = "simple";
-              User = clientSvc.name;
-              Group = clientSvc.name;
-              ExecStart = [
-                "${pkgs.socat}/bin/socat TCP-LISTEN:5432,bind=127.0.0.1,reuseaddr,fork UNIX-CLIENT:${socketPath}"
-              ];
-            };
-          };
-        }
-      ])
-    else
-      { }
-  );
 in
 {
   options.foxDen.services.postgresql =
@@ -108,7 +81,7 @@ in
           ''
           + lib.concatStringsSep "\n" (
             map (svc: ''
-              postgres ${if svc.user == null then svc.targetService else svc.user} ${svc.name}
+              postgres ${if svc.user == null then svc.service else svc.user} ${svc.name}
             '') svcConfig.services
           );
         };
@@ -140,69 +113,47 @@ in
       }
       {
         systemd.services = lib.attrsets.listToAttrs (
-          map (
-            pgSvc:
-            let
-              svcName = if pgSvc.proxy then "postgresql-${pgSvc.name}" else pgSvc.targetService;
-            in
-            {
-              name = svcName;
-              value = {
-                requires = [ "postgresql.service" ];
-                after = [ "postgresql.service" ];
-                serviceConfig = {
-                  BindReadOnlyPaths = [
-                    "/run/postgresql"
-                  ];
-                  Environment = [
-                    "POSTGRESQL_SOCKET=${socketPath}"
-                  ];
-                };
+          map (pgSvc: {
+            name = pgSvc.service;
+            value = {
+              requires = [ "postgresql.service" ];
+              after = [ "postgresql.service" ];
+              serviceConfig = {
+                BindReadOnlyPaths = [
+                  "/run/postgresql"
+                ];
+                Environment = [
+                  "POSTGRESQL_SOCKET=${socketPath}"
+                ];
               };
-            }
-          ) svcConfig.services
+            };
+          }) svcConfig.services
         );
       }
       {
         systemd.services = lib.attrsets.listToAttrs (
-          map (
-            pgSvc:
-            let
-              svcName = if pgSvc.proxy then "postgresql-${pgSvc.name}" else pgSvc.targetService;
-              usrName = if pgSvc.proxy then pgSvc.name else pgSvc.targetService;
-            in
-            {
-              name = pgSvc.targetService;
-              value =
-                let
-                  deps = if pgSvc.proxy then [ "${svcName}.service" ] else [ ];
-                in
-                {
-                  requires = deps;
-                  after = deps;
-                  serviceConfig = {
-                    Environment = [
-                      "POSTGRESQL_DATABASE=${pgSvc.name}"
-                      "POSTGRESQL_USERNAME=${usrName}"
+          map (pgSvc: {
+            name = pgSvc.service;
+            value = {
+              serviceConfig = {
+                Environment = [
+                  "POSTGRESQL_DATABASE=${pgSvc.name}"
+                  "POSTGRESQL_USERNAME=${pgSvc.name}"
+                ]
+                ++ (
+                  if pgSvc.proxy then
+                    [
+                      "POSTGRESQL_HOST=127.0.0.1"
+                      "POSTGRESQL_PORT=5432"
+                      "POSTGRESQL_PASSWORD="
                     ]
-                    ++ (
-                      if pgSvc.proxy then
-                        [
-                          "POSTGRESQL_HOST=127.0.0.1"
-                          "POSTGRESQL_PORT=5432"
-                          "POSTGRESQL_PASSWORD="
-                        ]
-                      else
-                        [ ]
-                    );
-                  };
-                };
-            }
-          ) svcConfig.services
+                  else
+                    [ ]
+                );
+              };
+            };
+          }) svcConfig.services
         );
-      }
-      {
-        systemd.services = lib.mkMerge (map mkProxyTo svcConfig.services);
       }
     ]
   );

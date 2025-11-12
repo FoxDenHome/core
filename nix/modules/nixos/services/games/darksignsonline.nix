@@ -66,7 +66,7 @@ in
                 "darksignsonline_wiki"
               ];
               proxy = true;
-              targetService = "podman-darksignsonline";
+              service = "podman-darksignsonline";
             }
           ];
         };

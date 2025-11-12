@@ -67,7 +67,7 @@ in
             {
               name = "spaceage-api";
               proxy = true;
-              targetService = "spaceage-api";
+              service = "spaceage-api";
             }
           ];
         };

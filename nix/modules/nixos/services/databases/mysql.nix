@@ -18,20 +18,22 @@ let
       options = {
         name = lib.mkOption {
           type = str;
+          description = "Name of the database";
         };
         databases = lib.mkOption {
           type = listOf str;
           default = [ ];
-          description = "List of databases to ensure exist for this user";
+          description = "List of additional databases to ensure exist for this user";
         };
-        proxy = lib.mkEnableOption "Enable MySQL proxy for 127.0.0.1 access";
-        targetService = lib.mkOption {
+        proxy = lib.mkEnableOption "Enable MySQL proxy for 127.0.0.1 access"; # TODO: Make this obsolete
+        service = lib.mkOption {
           type = str;
+          description = "Name of the systemd service needing to connect";
         };
         user = lib.mkOption {
           type = nullOr str;
           default = null;
-          description = "User to connect as (defaults to targetService)";
+          description = "Linux user the service runs as (defaults to service)";
         };
       };
     };
@@ -113,7 +115,13 @@ in
             map (svc: [ (mkDbName svc.name) ] ++ svc.databases) svcConfig.services
           );
           ensureUsers = map (svc: {
-            name = if svc.proxy then svc.name else if svc.user != null then svc.user else svc.targetService;
+            name =
+              if svc.proxy then
+                svc.name
+              else if svc.user != null then
+                svc.user
+              else
+                svc.service;
             ensurePermissions = lib.attrsets.listToAttrs (
               map (dbName: {
                 name = "${dbName}.*";
@@ -151,7 +159,7 @@ in
       {
         systemd.services = lib.attrsets.listToAttrs (
           map (mySvc: {
-            name = if mySvc.proxy then "mysql-${mySvc.name}" else mySvc.targetService;
+            name = if mySvc.proxy then "mysql-${mySvc.name}" else mySvc.service;
             value = {
               requires = [ "mysql.service" ];
               after = [ "mysql.service" ];
@@ -170,14 +178,20 @@ in
       {
         systemd.services = lib.attrsets.listToAttrs (
           map (mySvc: {
-            name = mySvc.targetService;
+            name = mySvc.service;
             value = rec {
               requires = if mySvc.proxy then [ "mysql-${mySvc.name}.service" ] else [ ];
               after = requires;
               serviceConfig = {
                 Environment =
                   let
-                    usrName = if mySvc.proxy then mySvc.name else if mySvc.user != null then mySvc.user else mySvc.targetService;
+                    usrName =
+                      if mySvc.proxy then
+                        mySvc.name
+                      else if mySvc.user != null then
+                        mySvc.user
+                      else
+                        mySvc.service;
                   in
                   [
                     "MYSQL_DATABASE=${mkDbName mySvc.name}"

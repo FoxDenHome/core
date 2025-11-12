@@ -183,7 +183,7 @@ in
           services = [
             {
               name = "grafana";
-              targetService = "grafana";
+              service = "grafana";
             }
           ];
         };
