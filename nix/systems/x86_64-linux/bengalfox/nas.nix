@@ -63,6 +63,7 @@ in
         displayName = "Kiwix (on bengalfox)";
         clientId = "kiwix-bengalfox";
         bypassInternal = true;
+        imageFile = ../../../files/icons/kiwix.svg;
       };
     };
     nasweb = {

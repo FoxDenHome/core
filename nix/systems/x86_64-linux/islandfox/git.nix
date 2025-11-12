@@ -12,7 +12,8 @@ in
       oAuth = {
         enable = true;
         clientId = "git";
-        displayName = "Git";
+        displayName = "Forgejo (git)";
+        imageFile = ../../../files/icons/forgejo.svg;
       };
     };
     forgejo-runner = {

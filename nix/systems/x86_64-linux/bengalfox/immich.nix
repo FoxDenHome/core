@@ -13,6 +13,7 @@ in
         enable = true;
         clientId = "immich";
         displayName = "Immich";
+        imageFile = ../../../files/icons/immich.svg;
       };
     };
   };

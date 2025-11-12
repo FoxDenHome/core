@@ -58,6 +58,7 @@ in
         displayName = "Kiwix (on icefox)";
         clientId = "kiwix-icefox";
         bypassInternal = true;
+        imageFile = ../../../files/icons/kiwix.svg;
       };
     };
     nasweb = {
