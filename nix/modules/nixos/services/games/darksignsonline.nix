@@ -65,7 +65,7 @@ in
               databases = [
                 "darksignsonline_wiki"
               ];
-              proxy = true;
+              proxy = true; # TODO: We need to crack the Docker shell for this one...
               service = "podman-darksignsonline";
             }
           ];

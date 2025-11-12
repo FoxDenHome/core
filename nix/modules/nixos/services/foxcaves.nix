@@ -60,7 +60,7 @@ in
           services = [
             {
               name = "foxcaves";
-              proxy = true;
+              proxy = true; # TODO: We need to crack the Docker shell for this one...
               service = "podman-foxcaves";
             }
           ];
