@@ -16,7 +16,8 @@ in
       oAuth = {
         enable = true;
         clientId = "radius";
-        displayName = "RADIUS";
+        displayName = "JIT RADIUS";
+        imageFile = ../../../files/icons/radius.svg;
       };
     };
   };

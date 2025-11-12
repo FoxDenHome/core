@@ -12,6 +12,7 @@ in
         enable = true;
         clientId = "grafana";
         displayName = "Grafana";
+        imageFile = ../../../files/icons/grafana.svg;
       };
     };
     mktxp = {
