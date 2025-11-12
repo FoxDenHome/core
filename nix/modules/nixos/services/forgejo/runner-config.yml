@@ -46,7 +46,7 @@ runner:
   # If it's empty when registering, it will ask for inputting labels.
   # If it's empty when executing the `daemon`, it will use labels in the `.runner` file.
   labels:
-    - ubuntu-latest:docker://docker.io/node:24-trixie
+    - ubuntu-latest:docker://git.foxden.network/foxden/runner-image:latest
 
 cache:
   #
@@ -178,7 +178,7 @@ container:
   # The specified socket is mounted within the job container at /var/run/docker.sock
   docker_host: "unix:///var/lib/forgejo-runner/podman.sock"
   # Pull docker image(s) even if already present
-  force_pull: false
+  force_pull: true
   # Rebuild local docker image(s) even if already present
   force_rebuild: false
 
