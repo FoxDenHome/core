@@ -114,6 +114,11 @@ in
             type = "mysql";
             user = "forgejo";
           };
+          dump = {
+            enable = true;
+            age = "90d";
+            type = "tar.zst";
+          };
           enable = true;
           lfs = {
             enable = true;
