@@ -124,19 +124,6 @@ in
                 ];
                 Environment = [
                   "POSTGRESQL_SOCKET=${socketPath}"
-                ];
-              };
-            };
-          }) svcConfig.services
-        );
-      }
-      {
-        systemd.services = lib.attrsets.listToAttrs (
-          map (pgSvc: {
-            name = pgSvc.service;
-            value = {
-              serviceConfig = {
-                Environment = [
                   "POSTGRESQL_DATABASE=${pgSvc.name}"
                   "POSTGRESQL_USERNAME=${pgSvc.name}"
                 ];
