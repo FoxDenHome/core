@@ -22,19 +22,10 @@ let
           description = "Name of the systemd service needing to connect";
           type = str;
         };
-        user = lib.mkOption {
-          type = nullOr str;
-          default = null;
-          description = "Linux user the service runs as (defaults to config.systemd.service.{service}.serviceConfig.User)";
-        };
       };
     };
 
-  mkSvcUser = svc:
-    if svc.user != null then
-      svc.user
-    else
-      config.system.services.${svc.service}.serviceConfig.User;
+  mkSvcUser = svc: config.system.services.${svc.service}.serviceConfig.User;
 in
 {
   options.foxDen.services.postgresql =

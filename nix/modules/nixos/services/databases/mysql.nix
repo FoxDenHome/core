@@ -28,10 +28,6 @@ let
           type = str;
           description = "Name of the systemd service needing to connect";
         };
-        user = lib.mkOption {
-          type = nullOr str;
-          description = "Linux user the service runs as (defaults to config.systemd.service.{service}.serviceConfig.User)";
-        };
       };
     };
 
@@ -66,8 +62,6 @@ let
   mkSvcUser = svc:
     if svc.proxy then
       svc.name
-    else if svc.user != null then
-      svc.user
     else
       config.system.services.${svc.service}.serviceConfig.User;
 
