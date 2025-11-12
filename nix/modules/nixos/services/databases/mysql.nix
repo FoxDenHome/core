@@ -30,8 +30,7 @@ let
         };
         user = lib.mkOption {
           type = nullOr str;
-          default = null;
-          description = "Linux user the service runs as (defaults to service)";
+          description = "Linux user the service runs as (defaults to config.systemd.service.{service}.serviceConfig.User)";
         };
       };
     };
@@ -63,6 +62,14 @@ let
     else
       { }
   );
+
+  mkSvcUser = svc:
+    if svc.proxy then
+      svc.name
+    else if svc.user != null then
+      svc.user
+    else
+      config.system.services.${svc.service}.serviceConfig.User;
 
   mkDbName = lib.replaceString "-" "_";
 in
@@ -113,13 +120,7 @@ in
             map (svc: [ (mkDbName svc.name) ] ++ svc.databases) svcConfig.services
           );
           ensureUsers = map (svc: {
-            name =
-              if svc.proxy then
-                svc.name
-              else if svc.user != null then
-                svc.user
-              else
-                svc.service;
+            name = mkSvcUser svc;
             ensurePermissions = lib.attrsets.listToAttrs (
               map (dbName: {
                 name = "${dbName}.*";
@@ -182,18 +183,9 @@ in
               after = requires;
               serviceConfig = {
                 Environment =
-                  let
-                    usrName =
-                      if mySvc.proxy then
-                        mySvc.name
-                      else if mySvc.user != null then
-                        mySvc.user
-                      else
-                        mySvc.service;
-                  in
                   [
                     "MYSQL_DATABASE=${mkDbName mySvc.name}"
-                    "MYSQL_USERNAME=${usrName}"
+                    "MYSQL_USERNAME=${mkSvcUser mySvc}"
                   ]
                   ++ (
                     if mySvc.proxy then

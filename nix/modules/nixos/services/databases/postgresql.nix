@@ -25,10 +25,16 @@ let
         user = lib.mkOption {
           type = nullOr str;
           default = null;
-          description = "Linux user the service runs as (defaults to service)";
+          description = "Linux user the service runs as (defaults to config.systemd.service.{service}.serviceConfig.User)";
         };
       };
     };
+
+  mkSvcUser = svc:
+    if svc.user != null then
+      svc.user
+    else
+      config.system.services.${svc.service}.serviceConfig.User;
 in
 {
   options.foxDen.services.postgresql =
@@ -79,7 +85,7 @@ in
           ''
           + lib.concatStringsSep "\n" (
             map (svc: ''
-              postgres ${if svc.user == null then svc.service else svc.user} ${svc.name}
+              postgres ${mkSvcUser svc} ${svc.name}
             '') svcConfig.services
           );
         };
@@ -123,7 +129,7 @@ in
                 Environment = [
                   "POSTGRESQL_SOCKET=${config.foxDen.services.postgresql.socketPath}"
                   "POSTGRESQL_DATABASE=${pgSvc.name}"
-                  "POSTGRESQL_USERNAME=${pgSvc.name}"
+                  "POSTGRESQL_USERNAME=${mkSvcUser pgSvc}"
                 ];
               };
             };
