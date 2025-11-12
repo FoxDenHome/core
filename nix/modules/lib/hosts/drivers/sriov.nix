@@ -46,7 +46,8 @@ in
         else
           interface.driver.sriov.vlan;
 
-      allocSriovScript = pkgs.writeShellScript "allocate-sriov" ''
+      allocSriovScript = pkgs.writeShellScript "allocate-sriov.sh" ''
+        #!${pkgs.bash}/bin/bash
         set -euox pipefail
         interface="$1"
         numvfs_file="/sys/class/net/${root}/device/sriov_numvfs"
@@ -61,7 +62,20 @@ in
           # Enable spoof checking, set MAC and VLAN
           ${ipCmd} link set dev "${root}" vf "$idx" spoofchk on mac "${interface.mac}" vlan "${builtins.toString vlan}"
           # Find current name of VF interface
-          ifname="$(${pkgs.coreutils}/bin/ls /sys/class/net/${root}/device/virtfn$idx/net/)"
+          ifname=""
+          maxtries=300
+          while :; do
+            ifname="$(${pkgs.coreutils}/bin/ls /sys/class/net/${root}/device/virtfn$idx/net/ 2>/dev/null || :)"
+            if [ -n "$ifname" ]; then
+              break
+            fi
+            maxtries=$((maxtries - 1))
+            if [ "$maxtries" -le 0 ]; then
+              echo "Timeout waiting for VF interface to appear" >&2
+              exit 1
+            fi
+            sleep 0.1
+          done
           # And rename it
           ${ipCmd} link set dev "$ifname" name "${serviceInterface}"
         }
