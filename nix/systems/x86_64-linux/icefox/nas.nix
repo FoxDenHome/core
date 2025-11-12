@@ -71,6 +71,7 @@ in
         displayName = "NAS (on icefox)";
         clientId = "nas-icefox";
         bypassInternal = true;
+        imageFile = ../../../files/icons/nas-icefox.svg;
       };
     };
     nzbget = {

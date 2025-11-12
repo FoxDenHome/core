@@ -13,7 +13,7 @@ in
         enable = true;
         displayName = "e621Dumper";
         clientId = "e621dumper";
-        imageFile = ../../../files/icons/e621dumper.svg;
+        imageFile = ../../../files/icons/e621.svg;
       };
     };
     fadumper = {
@@ -25,7 +25,7 @@ in
         enable = true;
         displayName = "FADumper";
         clientId = "fadumper";
-        imageFile = ../../../files/icons/fadumper.webp;
+        imageFile = ../../../files/icons/furaffinity.webp;
       };
     };
   };

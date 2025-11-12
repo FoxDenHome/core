@@ -76,6 +76,7 @@ in
         displayName = "NAS (on bengalfox)";
         clientId = "nas-bengalfox";
         bypassInternal = true;
+        imageFile = ../../../files/icons/nas-bengalfox.svg;
       };
     };
     nzbget = {
