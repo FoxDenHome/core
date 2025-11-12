@@ -828,11 +828,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1762968569,
-        "narHash": "sha256-IfdyiWVqi1dsvUe5jP17RM4E9qhEuuQE4gjd2h8ZMK0=",
+        "lastModified": 1762970207,
+        "narHash": "sha256-8JXa00lTl2lb0stRElh6tSLZBgSZ9sXAHGRxf96DBuI=",
         "owner": "SpaceAgeMP",
         "repo": "space_age_api",
-        "rev": "3def8efc816640c320ee2d3f3f76893269cbf1fe",
+        "rev": "9f7845d463226755775d31059720f8870776ccaa",
         "type": "github"
       },
       "original": {
@@ -1204,11 +1204,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1762841275,
-        "narHash": "sha256-urzuzAx9tbWXf91LOVp/mg7PP/KYY+BtGq1gsgBu73E=",
+        "lastModified": 1762977504,
+        "narHash": "sha256-oMkUeAHjFkD0m25amofNtFKxA8aiCZjmDdcmVvNJ39I=",
         "ref": "refs/heads/main",
-        "rev": "a296ec22aaafa9292679c98c773f433b25575686",
-        "revCount": 39,
+        "rev": "486c5aae0b92e2f2fc8f5524cb31c90d41a304a8",
+        "revCount": 40,
         "type": "git",
         "url": "https://git.foxden.network/FoxDen/uds-proxy"
       },

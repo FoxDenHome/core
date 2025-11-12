@@ -65,9 +65,6 @@ locals {
       homepage_url = "https://darksignsonline.com"
     }
     NetDAQ = {}
-    aurbuild = {
-      description = "Automated AUR builds so my laptop doesn't try to take off"
-    }
     fwui = {
       description = "Framework 16 LED matrix UI for expansion card status"
     }
@@ -110,9 +107,6 @@ locals {
     }
 
     haproxytiny = {}
-    peercred = {
-      description = "A wrapper around using Linux's SO_PEERCRED socket option on Unix domain sockets"
-    }
   }
 }
 

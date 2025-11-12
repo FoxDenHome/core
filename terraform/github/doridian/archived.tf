@@ -193,6 +193,12 @@ locals {
     uds-proxy = {
       description = "Moved to https://git.foxden.network/FoxDen/uds-proxy"
     }
+    aurbuild = {
+      description = "Moved to https://git.foxden.network/FoxDen/aurbuild"
+    }
+    peercred = {
+      description = "Moved to https://git.foxden.network/FoxDen/peercred"
+    }
   }
 }
 
