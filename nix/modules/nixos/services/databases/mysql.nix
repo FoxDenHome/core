@@ -43,7 +43,7 @@ let
 
             serviceConfig = {
               User = svcConfig.User;
-              Group = svcConfig.Group ? null;
+              Group = lib.mkIf (builtins.hasAttr "Group" svcConfig) svcConfig.Group;
               Type = "simple";
               ExecStart = [
                 "${pkgs.socat}/bin/socat TCP-LISTEN:3306,bind=127.0.0.1,reuseaddr,fork UNIX-CLIENT:${config.foxDen.services.mysql.socketPath}"
