@@ -97,6 +97,12 @@ in
         systemd.services =
           let
             cfg = {
+              confinement.packages = [
+                config.services.postgresql.package
+              ];
+              path = [
+                config.services.postgresql.package
+              ];
               serviceConfig = {
                 BindPaths = [
                   svcConfig.mediaDir
