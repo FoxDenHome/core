@@ -25,7 +25,7 @@ let
       };
     };
 
-  mkSvcUser = svc: config.system.services.${svc.service}.serviceConfig.User;
+  mkSvcUser = svc: config.systemd.services.${svc.service}.serviceConfig.User;
 in
 {
   options.foxDen.services.postgresql =

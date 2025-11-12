@@ -63,7 +63,7 @@ let
     if svc.proxy then
       svc.name
     else
-      config.system.services.${svc.service}.serviceConfig.User;
+      config.systemd.services.${svc.service}.serviceConfig.User;
 
   mkDbName = lib.replaceString "-" "_";
 in
