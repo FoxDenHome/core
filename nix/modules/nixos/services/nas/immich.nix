@@ -83,12 +83,10 @@ in
           services = [
             {
               name = "immich";
-              user = config.services.immich.user;
               service = "immich-server";
             }
             {
               name = "immich";
-              user = config.services.immich.user;
               service = "immich-machine-learning";
             }
           ];
