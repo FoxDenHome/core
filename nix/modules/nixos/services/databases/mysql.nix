@@ -36,20 +36,22 @@ let
           inherit svcConfig pkgs config;
         }).config.systemd.services
         {
-          "mysql-${clientSvc.service}" = let
-            svcConfig = config.systemd.services.${clientSvc.service}.serviceConfig;
-          in {
-            wantedBy = [ "multi-user.target" ];
+          "mysql-${clientSvc.service}" =
+            let
+              svcConfig = config.systemd.services.${clientSvc.service}.serviceConfig;
+            in
+            {
+              wantedBy = [ "multi-user.target" ];
 
-            serviceConfig = {
-              User = svcConfig.User;
-              Group = lib.mkIf (builtins.hasAttr "Group" svcConfig) svcConfig.Group;
-              Type = "simple";
-              ExecStart = [
-                "${pkgs.socat}/bin/socat TCP-LISTEN:3306,bind=127.0.0.1,reuseaddr,fork UNIX-CLIENT:${config.foxDen.services.mysql.socketPath}"
-              ];
+              serviceConfig = {
+                User = svcConfig.User;
+                Group = lib.mkIf (builtins.hasAttr "Group" svcConfig) svcConfig.Group;
+                Type = "simple";
+                ExecStart = [
+                  "${pkgs.socat}/bin/socat TCP-LISTEN:3306,bind=127.0.0.1,reuseaddr,fork UNIX-CLIENT:${config.foxDen.services.mysql.socketPath}"
+                ];
+              };
             };
-          };
         }
       ])
     else
@@ -101,9 +103,7 @@ in
               skip-networking = true;
             };
           };
-          ensureDatabases = lib.flatten (
-            map (svc: svc.databases) svcConfig.services
-          );
+          ensureDatabases = lib.flatten (map (svc: svc.databases) svcConfig.services);
           ensureUsers = map (svc: {
             name = mkSvcUser svc;
             ensurePermissions = lib.attrsets.listToAttrs (
@@ -167,21 +167,20 @@ in
               requires = if mySvc.proxy then [ "mysql-${mySvc.service}.service" ] else [ ];
               after = requires;
               serviceConfig = {
-                Environment =
-                  [
-                    "MYSQL_DATABASE=${builtins.head mySvc.databases}"
-                    "MYSQL_USERNAME=${mkSvcUser mySvc}"
-                  ]
-                  ++ (
-                    if mySvc.proxy then
-                      [
-                        "MYSQL_HOST=127.0.0.1"
-                        "MYSQL_PORT=3306"
-                        "MYSQL_PASSWORD="
-                      ]
-                    else
-                      [ ]
-                  );
+                Environment = [
+                  "MYSQL_DATABASE=${builtins.head mySvc.databases}"
+                  "MYSQL_USERNAME=${mkSvcUser mySvc}"
+                ]
+                ++ (
+                  if mySvc.proxy then
+                    [
+                      "MYSQL_HOST=127.0.0.1"
+                      "MYSQL_PORT=3306"
+                      "MYSQL_PASSWORD="
+                    ]
+                  else
+                    [ ]
+                );
               };
             };
           }) svcConfig.services

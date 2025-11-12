@@ -170,9 +170,7 @@ in
           {
             serviceConfig = {
               Type = "exec";
-              ExecStartPre = [
-                "${pkgs.podman}/bin/podman --log-level=info system migrate"
-              ];
+              ExecStartPre = [ "${pkgs.podman}/bin/podman --log-level=info system migrate" ];
               ExecStart = "${pkgs.podman}/bin/podman --log-level=info system service --time=0 unix:///var/lib/forgejo-runner/podman.sock";
             };
 
