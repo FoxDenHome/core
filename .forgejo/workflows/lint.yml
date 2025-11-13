@@ -22,7 +22,7 @@ jobs:
           cd ./mikrotik
           uv run ruff check
 
-      - uses: terraform-linters/setup-tflint@v6
+      - uses: https://github.com/terraform-linters/setup-tflint@v6
         name: Setup TFLint
         with:
           tflint_version: v0.59.1
