@@ -366,7 +366,12 @@ in
                 mkRecord = (
                   addr:
                   nixpkgs.lib.mkIf (iface.dns.name != "") {
-                    inherit (iface.dns) name ttl dynDns critical;
+                    inherit (iface.dns)
+                      name
+                      ttl
+                      dynDns
+                      critical
+                      ;
                     type = if (util.isIPv6 addr) then "AAAA" else "A";
                     value = util.removeIPCidr addr;
                     horizon = if (util.isPrivateIP addr) then "internal" else "external";

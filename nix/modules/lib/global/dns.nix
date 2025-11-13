@@ -98,7 +98,22 @@ let
       };
     };
 
+  emptyRecord = {
+    algorithm = null;
+    critical = false;
+    dynDns = false;
+    fptype = null;
+    port = null;
+    priority = null;
+    ttl = 3600;
+    weight = null;
+  };
+
   mkAuxRecords =
+    name: zone: authorities:
+    map (record: emptyRecord // record) (mkAuxRecordsInt name zone authorities);
+
+  mkAuxRecordsInt =
     name: zone: authorities:
     (map (ns: {
       inherit name;

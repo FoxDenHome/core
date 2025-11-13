@@ -64,6 +64,15 @@ def remap_ipv6(private: str, public: str) -> str:
     suffix = private.removeprefix("fd2c:f4cb:63be:")
     return f"{prefix}{suffix}"
 
+def record_key(record: dict[str, Any]) -> str:
+    return f"{record['type']}|{resolve_record(record)}"
+
+def resolve_record(record: dict[str, Any]) -> str:
+    if 'zone' not in record:
+        return record['name']
+    if record["name"] == "@":
+        return record["zone"]
+    return f"{record['name']}.{record['zone']}"
 
 def refresh_pdns():
     global INTERNAL_RECORDS
@@ -160,3 +169,47 @@ def refresh_pdns():
 
         for zone in sorted(INTERNAL_RECORDS.keys()):
             router.run_in_container("pdns", "pdnsutil secure-zone '" + zone + "'")
+
+        connection = router.connection()
+        api = connection.get_api()
+        api_dns = api.get_resource("/ip/dns/static")
+        existing_static_dns = api_dns.get()
+        existing_static_dns_map = {}
+        for existing_record in existing_static_dns:
+            key = record_key(existing_record)
+            if key in existing_static_dns_map:
+                print("Removing duplicate DNS entry", existing_record)
+                api_dns.remove(id=existing_record["id"])
+            else:
+                existing_static_dns_map[key] = existing_record
+
+        stray_static_dns = set(existing_static_dns_map.keys())
+
+        for zone in sorted(INTERNAL_RECORDS.keys()):
+            records = INTERNAL_RECORDS[zone]
+            for record in records:
+                if not record["critical"]:
+                    continue
+                if record["type"] == "PTR":
+                    # We skip PTR records, MTik creates those on its own anyway and they are not critical for us
+                    continue
+                if record["type"] != "A" and record["type"] != "AAAA":
+                    raise ValueError(f"Unsupported record type {record['type']} for critical record {record['name']} in zone {zone}")
+                key = record_key(record)
+                stray_static_dns.discard(key)
+                if key in existing_static_dns_map:
+                    existing_entry = existing_static_dns_map[key]
+                    if existing_entry["address"] != record["value"]:
+                        print(f"Updating DNS entry {record}")
+                        api_dns.update(id=existing_entry["id"], address=record["value"])
+                else:
+                    print(f"Adding DNS entry {record}")
+                    api_dns.add(
+                        name=resolve_record(record),
+                        type=record["type"],
+                        address=record["value"],
+                    )
+
+        for key in stray_static_dns:
+            print(f"Removing stale DNS entry {existing_static_dns_map[key]}")
+            api_dns.remove(id=existing_static_dns_map[key]["id"])
