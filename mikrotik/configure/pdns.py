@@ -5,16 +5,17 @@ from os import makedirs
 from configure.util import unlink_safe, NIX_DIR, mtik_path, ROUTERS
 from yaml import safe_load as yaml_load, dump as yaml_dump
 from shutil import copytree, rmtree
-from typing import Any
+from typing import Any, cast
 from time import time
 
-INTERNAL_RECORDS = None
+INTERNAL_RECORDS: dict[str, Any] | None = None
 ROOT_PATH = mtik_path("files/pdns")
 OUT_PATH = mtik_path("out/pdns")
 
 
-def find_record(name: str, type: str) -> dict:
+def find_record(name: str, type: str) -> dict | None:
     global INTERNAL_RECORDS
+    assert INTERNAL_RECORDS is not None
     name = name.removesuffix(".")
     for zone, records in INTERNAL_RECORDS.items():
         for record in records:
@@ -79,7 +80,7 @@ def refresh_pdns():
     unlink_safe("result")
     check_call(["nix", "build", f"{NIX_DIR}#dns.json"])
     with open("result", "r") as file:
-        INTERNAL_RECORDS = json_load(file)["records"]["internal"]
+        INTERNAL_RECORDS = cast(dict[str, Any], json_load(file)["records"]["internal"])
     unlink_safe("result")
 
     rmtree(OUT_PATH, ignore_errors=True)

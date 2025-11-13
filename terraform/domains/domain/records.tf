@@ -1,7 +1,7 @@
 locals {
   records_ext = [for r in var.records : merge(r, {
     type  = upper(r.type)
-    host  = r.name == "@" ? "" : "${r.name}"
+    host  = r.name == "@" ? "" : r.name
     fqdn  = r.name == "@" ? var.domain : "${r.name}.${var.domain}"
     value = contains(local.dotname_refer_types, upper(r.type)) ? trimsuffix(r.value, ".") : r.value
   })]

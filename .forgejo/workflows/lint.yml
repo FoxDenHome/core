@@ -1,4 +1,9 @@
 on: [push]
+
+concurrency:
+  cancel-in-progress: true
+  group: lint-${{ github.ref }}
+
 jobs:
   lint:
     runs-on: ubuntu-latest
@@ -16,3 +21,14 @@ jobs:
         run: |
           cd ./mikrotik
           uv run ruff check
+
+      - uses: terraform-linters/setup-tflint@v6
+        name: Setup TFLint
+        with:
+          tflint_version: v0.59.1
+
+      - name: Init TFLint
+        run: tflint --init
+
+      - name: Run TFLint
+        run: tflint -c "${PWD}/terraform/.tflint.hcl" --recursive -f compact

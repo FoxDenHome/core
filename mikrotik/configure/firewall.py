@@ -551,7 +551,7 @@ def refresh_firewall_router(
     api = connection.get_api()
     resources: dict[str, Any] = {}
     sent_rule_counts: dict[str, int] = {}
-    deployed_rules: dict[str, int] = {}
+    deployed_rules: dict[str, list[dict[str, Any]]] = {}
 
     for rule in firewall_rules:
         for family in rule.families:

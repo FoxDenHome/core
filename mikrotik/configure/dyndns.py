@@ -1,7 +1,7 @@
 import re
 from subprocess import check_output
 from json import loads as json_loads
-from urllib.parse import parse_qs, urlparse
+from urllib.parse import ParseResult, parse_qs, urlparse
 from configure.util import mtik_path, ROUTERS, MTikRouter, MTikScript
 
 MAIN_SCRIPT = "dynamic-ip-update"
@@ -39,7 +39,7 @@ def load_dyndns_hosts():
     return _dyndns_hosts_value
 
 
-def get_dyndns_url(host: str, record_type: str) -> str:
+def get_dyndns_url(host: str, record_type: str) -> ParseResult:
     val = load_dyndns_hosts()
     return urlparse(val[host][record_type]["url"])
 
@@ -75,14 +75,16 @@ def make_dyndns_script() -> MTikScript:
     with open(TEMPLATE, "r") as file:
         lines = file.readlines()
 
-    outlines = []
+    outlines: list[str] = []
     found_hosts = False
     for line in lines:
         line_strip = line.strip()
         if line_strip == "# HOSTS #":
             if found_hosts:
                 raise RuntimeError("Multiple # HOSTS # found in script")
-            indent = re.match(r"^(\s*)", line).group(1)
+            match = re.match(r"^(\s*)# HOSTS #", line)
+            assert match is not None
+            indent = match.group(1)
             found_hosts = True
             outlines += write_all_hosts(indent)
             continue
