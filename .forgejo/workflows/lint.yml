@@ -17,7 +17,7 @@ jobs:
       - name: Lint nix
         run: |
           cd ./nix
-          treefmt --ci
+          nix run nixpkgs#nixfmt-tree --ci
       - name: Lint mikrotik
         run: |
           cd ./mikrotik
