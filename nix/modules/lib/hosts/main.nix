@@ -138,6 +138,10 @@ in
                 type = bool;
                 default = false;
               };
+              critical = nixpkgs.lib.mkOption {
+                type = bool;
+                default = false;
+              };
               dynDnsTtl = nixpkgs.lib.mkOption {
                 type = nullOr ints.positive;
                 default = 300;
@@ -362,7 +366,7 @@ in
                 mkRecord = (
                   addr:
                   nixpkgs.lib.mkIf (iface.dns.name != "") {
-                    inherit (iface.dns) name ttl;
+                    inherit (iface.dns) name ttl dynDns critical;
                     type = if (util.isIPv6 addr) then "AAAA" else "A";
                     value = util.removeIPCidr addr;
                     horizon = if (util.isPrivateIP addr) then "internal" else "external";
@@ -374,7 +378,7 @@ in
                     revName = util.mkPtr addr;
                   in
                   nixpkgs.lib.mkIf (iface.dns.name != "") {
-                    inherit (iface.dns) ttl;
+                    inherit (iface.dns) ttl critical;
                     name = revName;
                     type = "PTR";
                     value = "${foxDenLib.global.dns.mkHost iface.dns}.";
@@ -382,7 +386,7 @@ in
                   }
                 );
                 ifaceCnames = map (cname: {
-                  inherit (iface.dns) ttl;
+                  inherit (iface.dns) ttl critical;
                   inherit (cname) name type;
                   value = "${foxDenLib.global.dns.mkHost iface.dns}.";
                   horizon = "*";

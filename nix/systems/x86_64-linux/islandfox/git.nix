@@ -31,6 +31,7 @@ in
       dns = {
         name = "git.foxden.network";
         dynDns = true;
+        critical = true;
       };
       webservice.enable = true;
       addresses = [
