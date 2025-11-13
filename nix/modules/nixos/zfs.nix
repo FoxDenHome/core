@@ -52,6 +52,7 @@ in
 
     services.syncoid = lib.mkIf config.foxDen.zfs.syncoid.enable {
       enable = true;
+      interval = "daily";
       package = sanoidPackage;
       commonArgs = [
         "--compress=none"
