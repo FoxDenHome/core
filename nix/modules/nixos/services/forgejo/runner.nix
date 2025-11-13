@@ -76,7 +76,7 @@ in
       }).config
       (services.make {
         name = "podman-forgejo-runner";
-        devices = [ "/dev/net/tun" ];
+        devices = [ "/dev/net/tun" "/dev/fuse" ];
         inherit svcConfig pkgs config;
       }).config
       (services.make {
@@ -92,6 +92,12 @@ in
           home = "/var/lib/forgejo-runner";
         };
         users.groups.forgejo-runner = { };
+
+        boot.kernelModules = [
+          "fuse"
+          "tun"
+          "tap"
+        ];
 
         sops.secrets."forgejo-runner-registration" = {
           owner = "forgejo-runner";
