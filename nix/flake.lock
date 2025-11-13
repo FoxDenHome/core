@@ -807,11 +807,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1762812535,
-        "narHash": "sha256-A91a+K0Q9wfdPLwL06e/kbHeAWSzPYy2EGdTDsyfb+s=",
+        "lastModified": 1763023272,
+        "narHash": "sha256-TCVNCn/GcKhwm+WlSJEZEPW4ISQdU9ICIU3lTiOLBYc=",
         "owner": "Mic92",
         "repo": "sops-nix",
-        "rev": "d75e4f89e58fdda39e4809f8c52013caa22483b7",
+        "rev": "b80c966e70fa0615352c9596315678df1de75801",
         "type": "github"
       },
       "original": {
@@ -1204,11 +1204,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1762977504,
-        "narHash": "sha256-oMkUeAHjFkD0m25amofNtFKxA8aiCZjmDdcmVvNJ39I=",
+        "lastModified": 1763027910,
+        "narHash": "sha256-walBQg/q9CWVkqDrbuFuVKFEoXjWtcPx778SzPu/5l0=",
         "ref": "refs/heads/main",
-        "rev": "486c5aae0b92e2f2fc8f5524cb31c90d41a304a8",
-        "revCount": 40,
+        "rev": "a9e8e1bbe41a2dc24b0333f83b599b42967de887",
+        "revCount": 41,
         "type": "git",
         "url": "https://git.foxden.network/FoxDen/uds-proxy"
       },
