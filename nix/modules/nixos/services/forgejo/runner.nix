@@ -114,9 +114,6 @@ in
               "${pkgs.coreutils}/bin/cp --update=all /registration.json /var/lib/forgejo-runner/.runner"
               "${pkgs.coreutils}/bin/chmod 600 /var/lib/forgejo-runner/.runner"
             ];
-            BindPaths = [
-
-            ];
             Environment = [
               "DOCKER_HOST=unix:///var/lib/forgejo-runner/podman.sock"
             ];
