@@ -158,7 +158,6 @@ container:
   privileged: true
   # And other options to be used when the container is started (eg, --volume /etc/ssl/certs:/etc/ssl/certs:ro).
   options:
-    --device /dev/fuse
   # The parent directory of a job's working directory.
   # If it's empty, /workspace will be used.
   workdir_parent:
