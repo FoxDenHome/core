@@ -48,7 +48,6 @@ let
         "/run/wrappers/bin/newuidmap"
         "/usr/bin/env"
       ];
-      PrivatePIDs = true;
       PrivateTmp = true;
       PrivateUsers = false; # Podman rootless need subuid/subgid
       ProtectKernelTunables = false; # Otherwise podman can't remount /proc
@@ -135,7 +134,6 @@ in
               "${./runner-config.yml}:/config.yml"
               "${config.sops.secrets."forgejo-runner-registration".path}:/registration.json"
             ];
-            PrivatePIDs = true;
             PrivateTmp = true;
             User = "forgejo-runner";
             Group = "forgejo-runner";
