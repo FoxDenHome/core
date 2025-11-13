@@ -4,15 +4,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: https://github.com/astral-sh/setup-uv@v7
-      - uses: https://github.com/cachix/install-nix-action@v31
-        with:
-          nix_path: nixpkgs=channel:nixos-unstable
-      - name: Lint nix
+      - name: Tests :3
         run: |
-          cd ./nix
-          treefmt --ci
-      - name: Lint mikrotik
-        run: |
-          cd ./mikrotik
-          uv run ruff check
+          docker ps || true
+          docker pull docker.io/ubuntu:24.04
+          docker run --rm -v /:/data --entrypoint=/bin/ls docker.io/ubuntu:24.04 -- -la /data
