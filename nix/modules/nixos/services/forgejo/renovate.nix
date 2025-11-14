@@ -81,6 +81,8 @@ in
               "+${pkgs.coreutils}/bin/ln -sf /run/credentials/renovate.service/nix-config /run/secrets/nix-config"
             ];
             ProtectKernelTunables = lib.mkForce false; # Otherwise nix can't remount /proc
+            ProtectControlGroups = "private"; # Otherwise cgroups for limits don't work
+            PrivateUsers = false;
             BindReadOnlyPaths = [
               "/etc/nix/nix.conf"
               "${./renovate-tools}:/tools"
