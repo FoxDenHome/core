@@ -80,6 +80,7 @@ in
               "+${pkgs.coreutils}/bin/mkdir -p /run/secrets"
               "+${pkgs.coreutils}/bin/ln -sf /run/credentials/renovate.service/nix-config /run/secrets/nix-config"
             ];
+            ProtectKernelTunables = false; # Otherwise nix can't remount /proc
             BindReadOnlyPaths = [
               "/etc/nix/nix.conf"
               "${./renovate-tools}:/tools"
