@@ -11,5 +11,6 @@ jobs:
     steps:
     - run: |
         set -x
-        ifconfig || ip addr
+        sudo apt-get install -y iproute2
+        ip addr
         curl -m 5 -v "${ACTIONS_CACHE_URL}/ping"
