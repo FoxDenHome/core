@@ -48,6 +48,7 @@ runner:
   labels:
     - ubuntu-latest:docker://git.foxden.network/foxden/runner-image:latest
     - nixos-latest:docker://nixos/nix
+    - renovate:docker://git.foxden.network/foxden/renovate:latest
 
 cache:
   #

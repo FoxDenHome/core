@@ -20,10 +20,6 @@ in
       enable = true;
       host = "forgejo-runner";
     };
-    renovate = {
-      enable = true;
-      host = "renovate";
-    };
   };
 
   foxDen.hosts.hosts = {
@@ -46,15 +42,6 @@ in
       addresses = [
         "10.6.11.1/16"
         "fd2c:f4cb:63be:6::b01/64"
-      ];
-    };
-    renovate = mkVlanHost 6 {
-      dns = {
-        name = "renovate.foxden.network";
-      };
-      addresses = [
-        "10.6.11.2/16"
-        "fd2c:f4cb:63be:6::b02/64"
       ];
     };
   };
