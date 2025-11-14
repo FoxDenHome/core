@@ -109,7 +109,7 @@ in
           cgroup_manager = "cgroupfs";
         };
         network = {
-          pasta_options = "--map-gw";
+          pasta_options = [ "--map-gw" ];
         };
       };
 
