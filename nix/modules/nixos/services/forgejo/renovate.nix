@@ -73,7 +73,15 @@ in
           confinement.packages = packages;
           serviceConfig = {
             Restart = "no";
+            LoadCredential = config.lib.foxDen.sops.mkIfAvailable [
+              "nix-config:${config.sops.secrets."nix-config".path}"
+            ];
+            ExecStartPre = [
+              "+${pkgs.coreutils}/bin/mkdir -p /run/secrets"
+              "+${pkgs.coreutils}/bin/ln -sf /run/credentials/renovate.service/nix-config /run/secrets/nix-config"
+            ];
             BindReadOnlyPaths = [
+              "/etc/nix/nix.conf"
               "${./renovate-tools}:/tools"
               # TODO: config.services.renovate.environment in 25.11
               config.systemd.services.renovate.environment.RENOVATE_CONFIG_FILE
