@@ -2,7 +2,7 @@
 set -xeuo pipefail
 
 echo 'sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=' > vendor-hash.txt
-RESULT="$((nix build '.#packages.x86_64-linux.default.goModules' || true) 2>&1 | grep -F ' got: ' | cut -d':' -f2 | tr -d ' ')"
+RESULT="$((nix build '.#packages.x86_64-linux.default.goModules' || true) 2>&1 | grep -F ' got: ' | cut -d':' -f2 | tr -d ' ' || true)"
 if [ -z "$RESULT" ]; then
   echo "Failed to compute vendor hash, running build again for debug"
   nix build '.#packages.x86_64-linux.default.goModules'
