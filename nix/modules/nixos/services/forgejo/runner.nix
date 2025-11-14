@@ -8,6 +8,8 @@
 let
   packages = with pkgs; [
     bash
+    catatonit
+    cni-plugins
     coreutils
     gnugrep
     gnused

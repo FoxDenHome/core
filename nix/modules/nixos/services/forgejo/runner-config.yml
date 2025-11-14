@@ -150,7 +150,7 @@ container:
   # Specifies the network to which the container will connect.
   # Could be host, bridge or the name of a custom network.
   # If it's empty, create a network automatically.
-  network: "pasta:--map-gw"
+  network: "" #"pasta:--map-gw"
   # Whether to create networks with IPv6 enabled. Requires the Docker daemon to be set up accordingly.
   # Only takes effect if "network" is set to "".
   enable_ipv6: true
