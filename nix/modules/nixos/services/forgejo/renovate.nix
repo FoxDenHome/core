@@ -82,7 +82,7 @@ in
             ];
             ProtectKernelTunables = lib.mkForce false; # Otherwise nix can't remount /proc
             ProtectControlGroups = "private"; # Otherwise cgroups for limits don't work
-            PrivateUsers = false;
+            PrivateUsers = lib.mkForce false;
             BindReadOnlyPaths = [
               "/etc/nix/nix.conf"
               "${./renovate-tools}:/tools"
