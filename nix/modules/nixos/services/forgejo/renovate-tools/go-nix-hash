@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+set -xeuo pipefail
+
+echo 'sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=' > vendor-hash.txt
+RESULT="$((nix build '.#packages.x86_64-linux.default.goModules' || true) 2>&1 | grep -F ' got: ' | cut -d':' -f2 | tr -d ' ')"
+if [ -z "$RESULT" ]; then
+  echo "Failed to compute vendor hash, running build again for debug"
+  nix build '.#packages.x86_64-linux.default.goModules'
+  exit 1
+fi
+echo "$RESULT" > vendor-hash.txt

@@ -20,6 +20,7 @@ let
     gnused
     gnutar
     go
+    nix
     nodejs_24
     python312
     python313
@@ -54,6 +55,9 @@ in
             platform = "forgejo";
             autodiscover = true;
             onboarding = true;
+            allowedCommands = [
+              "^/tools/"
+            ];
             autodiscoverFilter = [
               "Doridian/*"
               "foxCaves/*"
@@ -70,8 +74,10 @@ in
           serviceConfig = {
             Restart = "no";
             BindReadOnlyPaths = [
+              "${./renovate-tools}:/tools"
               # TODO: config.services.renovate.environment in 25.11
               config.systemd.services.renovate.environment.RENOVATE_CONFIG_FILE
+              "/usr/bin/env"
             ];
             EnvironmentFile = config.lib.foxDen.sops.mkIfAvailable [
               config.lib.foxDen.sops.mkGithubTokenPath
