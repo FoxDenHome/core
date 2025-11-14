@@ -11,6 +11,5 @@ jobs:
     steps:
     - run: |
         set -x
-        curl -m 5 -v4 "${ACTIONS_CACHE_URL}/ping"
-        curl -m 5 -v6 "${ACTIONS_CACHE_URL}/ping"
+        curl -m 5 -v4 "${ACTIONS_CACHE_URL}/ping" || curl -m 5 -v6 "${ACTIONS_CACHE_URL}/ping" 
   
