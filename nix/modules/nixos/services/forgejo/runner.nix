@@ -68,7 +68,8 @@ in
     containerHost = lib.mkOption {
       type = lib.types.str;
     };
-  } // services.mkOptions {
+  }
+  // services.mkOptions {
     svcName = "forgejo-runner";
     name = "Forgejo runner server";
   };
