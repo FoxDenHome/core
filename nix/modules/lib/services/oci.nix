@@ -94,7 +94,7 @@ in
   nixosModule =
     { ... }:
     {
-      config.environment.persistence."/nix/persist/oci" = {
+      environment.persistence."/nix/persist/oci" = {
         hideMounts = true;
         directories = [
           "/var/lib/containers"
@@ -102,15 +102,18 @@ in
         ];
       };
 
-      config.virtualisation.oci-containers.backend = "podman";
+      virtualisation.oci-containers.backend = "podman";
 
-      config.virtualisation.containers.containersConf.settings = {
+      virtualisation.containers.containersConf.settings = {
         engine = {
           cgroup_manager = "cgroupfs";
         };
+        network = {
+          pasta_options = "--map-gw";
+        };
       };
 
-      config.virtualisation.podman.autoPrune = {
+      virtualisation.podman.autoPrune = {
         enable = true;
         flags = [ "--all" ];
       };
