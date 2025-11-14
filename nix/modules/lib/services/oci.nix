@@ -108,9 +108,6 @@ in
         engine = {
           cgroup_manager = "cgroupfs";
         };
-        network = {
-          pasta_options = [ "--map-gw" ];
-        };
       };
 
       virtualisation.podman.autoPrune = {
