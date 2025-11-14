@@ -11,5 +11,4 @@ jobs:
     steps:
     - run: |
         set -x
-        curl -m 5 -v https://git.foxden.network
         curl -m 5 -v "${ACTIONS_CACHE_URL}/ping"

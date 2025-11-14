@@ -19,6 +19,7 @@ in
     forgejo-runner = {
       enable = true;
       host = "forgejo-runner";
+      containerHost = "forgejo-runner-container";
     };
   };
 
@@ -42,6 +43,15 @@ in
       addresses = [
         "10.6.11.1/16"
         "fd2c:f4cb:63be:6::b01/64"
+      ];
+    };
+    forgejo-runner-container = mkVlanHost 6 {
+      dns = {
+        name = "islandfox-forgejo-runner-container.foxden.network";
+      };
+      addresses = [
+        "10.6.11.2/16"
+        "fd2c:f4cb:63be:6::b02/64"
       ];
     };
   };

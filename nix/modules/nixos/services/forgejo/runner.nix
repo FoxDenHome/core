@@ -64,7 +64,11 @@ let
   svcConfig = config.foxDen.services.forgejo-runner;
 in
 {
-  options.foxDen.services.forgejo-runner = services.mkOptions {
+  options.foxDen.services.forgejo-runner = {
+    containerHost = lib.mkOption {
+      type = lib.types.str;
+    };
+  } // services.mkOptions {
     svcName = "forgejo-runner";
     name = "Forgejo runner server";
   };
@@ -77,6 +81,7 @@ in
       }).config
       (services.make {
         name = "podman-forgejo-runner";
+        overrideHost = svcConfig.containerHost;
         devices = [
           "/dev/net/tun"
           "/dev/fuse"
@@ -85,6 +90,7 @@ in
       }).config
       (services.make {
         name = "podman-forgejo-runner-prune";
+        overrideHost = svcConfig.containerHost;
         inherit svcConfig pkgs config;
       }).config
       {
