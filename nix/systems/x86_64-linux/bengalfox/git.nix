@@ -8,6 +8,7 @@ in
       enable = true;
       host = "forgejo-runner";
       containerHost = "forgejo-runner-container";
+      capacity = 20;
     };
   };
 
