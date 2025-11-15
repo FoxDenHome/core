@@ -19,6 +19,7 @@ in
     forgejo-runner = {
       enable = true;
       host = "forgejo-runner";
+      capacity = 1;
       containerHost = "forgejo-runner-container";
     };
   };
