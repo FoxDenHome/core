@@ -68,6 +68,11 @@ in
     containerHost = lib.mkOption {
       type = lib.types.str;
     };
+    capacity = lib.mkOption {
+      type = lib.types.ints.positive;
+      default = 2;
+      description = "The capacity of concurrent jobs the runner can handle.";
+    };
   }
   // services.mkOptions {
     svcName = "forgejo-runner";
@@ -124,11 +129,13 @@ in
           wants = [ "podman-forgejo-runner.service" ];
 
           serviceConfig = {
-            ExecStart = "${pkgs.forgejo-runner}/bin/forgejo-runner daemon --config /config.yml";
+            ExecStart = "${pkgs.forgejo-runner}/bin/forgejo-runner daemon --config /var/lib/forgejo-runner/config.yml";
             ExecReload = "${pkgs.coreutils}/bin/kill -s HUP $MAINPID";
             ExecStartPre = [
-              "-${pkgs.coreutils}/bin/chmod 600 /var/lib/forgejo-runner/.runner"
+              "-${pkgs.coreutils}/bin/chmod 600 /var/lib/forgejo-runner/.runner /var/lib/forgejo-runner/config.yml"
               "${pkgs.coreutils}/bin/cp --update=all /registration.json /var/lib/forgejo-runner/.runner"
+              "${pkgs.coreutils}/bin/cp --update=all /config.yml /var/lib/forgejo-runner/config.yml"
+              "${pkgs.gnused}/bin/sed -i 's/__CAPACITY__/${toString svcConfig.capacity}/g' /var/lib/forgejo-runner/config.yml"
               "${pkgs.coreutils}/bin/chmod 600 /var/lib/forgejo-runner/.runner"
             ];
             Environment = [
