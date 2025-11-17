@@ -8,11 +8,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1763413175,
-        "narHash": "sha256-1XEYRlylFcUVyprvBPT42y50kIpcmrUo+RDr4QDHlAU=",
+        "lastModified": 1763415181,
+        "narHash": "sha256-77nol8P03xclxLs/Qb3ZJBk+e0t9bVi9kXJHgqIJ6UU=",
         "ref": "refs/heads/main",
-        "rev": "d042bd05de1ae616fba9aaddc7a757755e30ee3c",
-        "revCount": 39,
+        "rev": "14f38dc31dff255df4480104d9d94a0bbef79040",
+        "revCount": 40,
         "type": "git",
         "url": "https://git.foxden.network/FoxDen/backupmgr"
       },
