@@ -23,6 +23,7 @@ in
     mediaDir = lib.mkOption {
       type = lib.types.path;
       description = "Directory to store Immich media";
+      default = "/var/lib/immich";
     };
   }
   // services.http.mkOptions {

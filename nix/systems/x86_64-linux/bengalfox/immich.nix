@@ -7,7 +7,6 @@ in
     immich = {
       enable = true;
       host = "immich";
-      mediaDir = "/mnt/zssd/immich";
       tls = true;
       oAuth = {
         enable = true;

@@ -91,7 +91,6 @@
     netdata.enable = true;
     backupmgr = config.lib.foxDen.sops.mkIfAvailable {
       enable = true;
-      sourceDirs = [ "/mnt/zssd/immich" ];
       targetDirs = [ "/mnt/zhdd/restic/bengalfox" ];
     };
     apcupsd.enable = config.lib.foxDen.sops.mkIfAvailable true;
