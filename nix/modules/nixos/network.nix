@@ -1,4 +1,31 @@
-{ ... }:
+{ dns, lib, ... }:
+let
+  criticalRecords = lib.lists.filter (record: record.critical) (
+    lib.lists.flatten (lib.attrsets.attrValues dns.internal)
+  );
+
+  resolveCNAME =
+    record:
+    resolveRecordAddress criticalRecords [
+      lib.strings.removeSuffix
+      "."
+      record.value
+    ];
+  resolveRecordAddress =
+    record:
+    if record.type == "A" || record.type == "AAAA" then
+      record.value
+    else if record.type == "CNAME" || record.type == "ALIAS" then
+      resolveCNAME record
+    else
+      null;
+  mappedHosts = map (record: {
+    name = record.name;
+    address = resolveRecordAddress record;
+  }) criticalRecords;
+  # TODO: Go back to uniqueStrings once next NixOS stable
+  mappedAddresses = lib.lists.unique (map (host: host.address) mappedHosts);
+in
 {
   config = {
     boot = {
@@ -26,5 +53,8 @@
         "tap"
       ];
     };
+    networking.hosts = lib.attrsets.genAttrs mappedAddresses (
+      addr: map (host: host.name) (lib.lists.filter (host: host.address == addr) mappedHosts)
+    );
   };
 }
