@@ -83,7 +83,6 @@ locals {
     inputmodule-rs = {
       description = "Framework Laptop 16 Input Module SW/FW"
     }
-    mkinitcpio-sd-pcr8lock-hook = {}
     dotfiles                    = {}
     libnss_igshim               = {}
     linux-cachyos-dori = {

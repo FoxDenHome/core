@@ -18,7 +18,6 @@ locals {
     }
     foxden-radius-autofill = {}
     goscsi                 = {}
-    initcpio-uki-sbsign    = {}
   }
 
   members = {

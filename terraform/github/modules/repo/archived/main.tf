@@ -12,6 +12,7 @@ resource "github_repository" "repo" {
       allow_rebase_merge,
       allow_squash_merge,
       description,
+      fork,
       has_downloads,
       has_issues,
       has_projects,
@@ -19,6 +20,8 @@ resource "github_repository" "repo" {
       homepage_url,
       merge_commit_message,
       merge_commit_title,
+      source_owner,
+      source_repo,
       squash_merge_commit_message,
       squash_merge_commit_title,
     ]

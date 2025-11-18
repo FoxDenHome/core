@@ -35,6 +35,14 @@ resource "github_repository" "repo" {
   }
 
   archive_on_destroy = true
+
+  lifecycle {
+    ignore_changes = [
+      fork,
+      source_owner,
+      source_repo,
+    ]
+  }
 }
 
 resource "github_branch_default" "main" {
