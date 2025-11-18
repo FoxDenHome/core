@@ -30,6 +30,7 @@ in
       dns = {
         name = "mirror.foxden.network";
         dynDns = true;
+        critical = true;
       };
       cnames = [
         {
