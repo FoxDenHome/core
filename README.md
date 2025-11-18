@@ -2,7 +2,9 @@
 
 ## TODO IMMEDIATE
 
-Add option to opt-out of critical provisioning to /etc/hosts
+- Add option to opt-out of critical provisioning to /etc/hosts
+
+- Allow rsync access to mirror.foxden.network for all
 
 ## END TODO
 
