@@ -5,15 +5,6 @@
   ...
 }:
 let
-  # TODO: Use a lanzaboote post script for this, once they exist
-  syncBootScript = ''
-    if [ -d /boot2/EFI ]; then
-      rsync -av --delete /boot/ /boot2/
-    else
-      echo 'No /boot2/EFI, skipping'
-    fi
-  '';
-
   updateScriptBase = ''
     set -xeuo pipefail
     nix flake update --flake 'git+https://git.foxden.network/FoxDen/core?dir=nix' || :
@@ -28,19 +19,14 @@ let
     ${updateScriptBase}
     nix-collect-garbage --delete-older-than 30d
     /run/current-system/bin/switch-to-configuration boot
-    ${syncBootScript}
   '';
 
-  updateScript = pkgs.writeShellScript "nixos-update.sh" ''
-    ${updateScriptBase}
-    ${syncBootScript}
-  '';
+  updateScript = pkgs.writeShellScript "nixos-update.sh" updateScriptBase;
 
   pruneScript = pkgs.writeShellScript "nixos-prune.sh" ''
     set -xeuo pipefail
     nix-collect-garbage --delete-old
     /run/current-system/bin/switch-to-configuration boot
-    ${syncBootScript}
   '';
 
   cryptenrollScript = pkgs.writeShellScript "cryptenroll.sh" (
