@@ -17,8 +17,6 @@ locals {
       description = "Mirror of https://git.foxden.network/FoxDen/core"
     }
     foxden-radius-autofill = {}
-    foxdenaur-keyring      = {}
-    foxdenaur-mirrorlist   = {}
     goscsi                 = {}
     initcpio-uki-sbsign    = {}
   }

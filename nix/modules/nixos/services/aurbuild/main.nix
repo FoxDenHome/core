@@ -26,7 +26,7 @@ in
         inherit pkgs config svcConfig;
         name = "aurbuild";
         oci = {
-          image = "git.foxden.network/foxden/aurbuild:latest";
+          image = "git.foxden.network/foxdenaur/builder:latest";
           volumes = [
             "${packagesTxt}:/aur/packages.txt:ro"
             "${makepkgConf}:/etc/makepkg.conf:ro"
