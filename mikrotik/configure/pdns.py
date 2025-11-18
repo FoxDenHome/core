@@ -58,6 +58,10 @@ RECORD_TYPE_HANDLERS["ALIAS"] = handle_alias
 RECORD_TYPE_HANDLERS["SOA"] = disallow_apex_record
 RECORD_TYPE_HANDLERS["NS"] = disallow_apex_record
 
+MTIK_RECORD_TYPE_HANDLERS = {}
+MTIK_RECORD_TYPE_HANDLERS["A"] = lambda record: {"address": record["value"]}
+MTIK_RECORD_TYPE_HANDLERS["AAAA"] = MTIK_RECORD_TYPE_HANDLERS["A"]
+MTIK_RECORD_TYPE_HANDLERS["CNAME"] = lambda record: {"cname": record["value"].removesuffix(".")}
 
 def remap_ipv6(private: str, public: str) -> str:
     public_spl = public.split(":")
@@ -194,22 +198,28 @@ def refresh_pdns():
                 if record["type"] == "PTR":
                     # We skip PTR records, MTik creates those on its own anyway and they are not critical for us
                     continue
-                if record["type"] != "A" and record["type"] != "AAAA":
-                    raise ValueError(f"Unsupported record type {record['type']} for critical record {record['name']} in zone {zone}")
+
+                handler = MTIK_RECORD_TYPE_HANDLERS.get(record["type"])
+                if handler is None:
+                    raise ValueError(f"No MTik handler for record type {record['type']} for critical record {record['name']} in zone {zone}")
                 key = record_key(record)
                 stray_static_dns.discard(key)
+
+                attribs = handler(record)
+                attribs["ttl"] = f"{record['ttl']}"
+                attribs["type"] = record["type"]
+                attribs["name"] = resolve_record(record)
+
                 if key in existing_static_dns_map:
                     existing_entry = existing_static_dns_map[key]
-                    if existing_entry["address"] != record["value"]:
-                        print(f"Updating DNS entry {record}")
-                        api_dns.update(id=existing_entry["id"], address=record["value"])
+                    for attr, val in attribs.items():
+                        if existing_entry[attr] != val:
+                            print(f"Updating DNS entry {record}")
+                            api_dns.set(id=existing_entry["id"], **attribs)
+                            break
                 else:
                     print(f"Adding DNS entry {record}")
-                    api_dns.add(
-                        name=resolve_record(record),
-                        type=record["type"],
-                        address=record["value"],
-                    )
+                    api_dns.add(**attribs)
 
         for key in stray_static_dns:
             print(f"Removing stale DNS entry {existing_static_dns_map[key]}")
