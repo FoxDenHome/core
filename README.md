@@ -1,11 +1,5 @@
 # FoxDen core
 
-## TODO IMMEDIATE
-
-- Allow rsync access to mirror.foxden.network for all
-
-## END TODO
-
 This is the monorepo to control the FoxDen homelab pretty much in its entirety.
 
 A from-zero setup of `router`, `router-backup` or `redfox` is currently impossible. Hence we keep regular backups of those devices around.
