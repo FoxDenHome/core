@@ -2,44 +2,148 @@
   description = "FoxDen NixOS config";
 
   inputs = {
+    # Basics
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.05";
     nixpkgs-unstable.url = "github:NixOS/nixpkgs/0b4defa2584313f3b781240b29d61f6f9f7e0df3";
 
     impermanence.url = "github:nix-community/impermanence";
-    lanzaboote.url = "github:nix-community/lanzaboote";
-    lanzaboote.inputs.nixpkgs.follows = "nixpkgs";
-    sops-nix.url = "github:Mic92/sops-nix";
-    sops-nix.inputs.nixpkgs.follows = "nixpkgs";
+    lanzaboote = {
+      url = "github:nix-community/lanzaboote";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    sops-nix = {
+      url = "github:Mic92/sops-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
-    backupmgr.url = "git+https://git.foxden.network/FoxDen/backupmgr";
-    backupmgr.inputs.nixpkgs.follows = "nixpkgs";
-    carvera-pendant.url = "git+https://git.foxden.network/FoxDen/carvera-pendant";
-    carvera-pendant.inputs.nixpkgs.follows = "nixpkgs";
-    e621dumper.url = "git+https://git.foxden.network/FoxDen/e621dumper";
-    e621dumper.inputs.nixpkgs.follows = "nixpkgs";
-    fadumper.url = "git+https://git.foxden.network/FoxDen/fadumper";
-    fadumper.inputs.nixpkgs.follows = "nixpkgs";
-    gitbackup.url = "git+https://git.foxden.network/FoxDen/gitbackup";
-    gitbackup.inputs.nixpkgs.follows = "nixpkgs";
-    oauth-jit-radius.url = "git+https://git.foxden.network/FoxDen/oauth-jit-radius";
-    oauth-jit-radius.inputs.nixpkgs.follows = "nixpkgs";
-    superfan.url = "git+https://git.foxden.network/FoxDen/superfan";
-    superfan.inputs.nixpkgs.follows = "nixpkgs";
-    systemd-query.url = "git+https://git.foxden.network/FoxDen/systemd-query";
-    systemd-query.inputs.nixpkgs.follows = "nixpkgs";
-    tapemgr.url = "git+https://git.foxden.network/FoxDen/tapemgr";
-    tapemgr.inputs.nixpkgs.follows = "nixpkgs";
-    uds-proxy.url = "git+https://git.foxden.network/FoxDen/uds-proxy";
-    uds-proxy.inputs.nixpkgs.follows = "nixpkgs";
+    # Helpers
+    flake-utils.url = "github:numtide/flake-utils";
 
-    spaceage-api.url = "github:SpaceAgeMP/space_age_api";
-    spaceage-api.inputs.nixpkgs.follows = "nixpkgs";
-    spaceage-starlord.url = "github:SpaceAgeMP/StarLord";
-    spaceage-starlord.inputs.nixpkgs.follows = "nixpkgs";
-    spaceage-tts.url = "github:SpaceAgeMP/TTS";
-    spaceage-tts.inputs.nixpkgs.follows = "nixpkgs";
-    spaceage-website.url = "github:SpaceAgeMP/website";
-    spaceage-website.inputs.nixpkgs.follows = "nixpkgs";
+    pyproject-nix.url = "github:pyproject-nix/pyproject.nix";
+    pyproject-nix.inputs.nixpkgs.follows = "nixpkgs";
+
+    uv2nix = {
+      url = "github:pyproject-nix/uv2nix";
+      inputs = {
+        pyproject-nix.follows = "pyproject-nix";
+        nixpkgs.follows = "nixpkgs";
+      };
+    };
+
+    pyproject-build-systems = {
+      url = "github:pyproject-nix/build-system-pkgs";
+      inputs = {
+        pyproject-nix.follows = "pyproject-nix";
+        uv2nix.follows = "uv2nix";
+        nixpkgs.follows = "nixpkgs";
+      };
+    };
+
+    # Applications
+    backupmgr = {
+      url = "git+https://git.foxden.network/FoxDen/backupmgr";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.flake-utils.follows = "flake-utils";
+    };
+    carvera-pendant = {
+      url = "git+https://git.foxden.network/FoxDen/carvera-pendant";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.flake-utils.follows = "flake-utils";
+    };
+    e621dumper = {
+      url = "git+https://git.foxden.network/FoxDen/e621dumper";
+      inputs = {
+        nixpkgs.follows = "nixpkgs";
+        flake-utils.follows = "flake-utils";
+      };
+    };
+    fadumper = {
+      url = "git+https://git.foxden.network/FoxDen/fadumper";
+      inputs = {
+        nixpkgs.follows = "nixpkgs";
+        flake-utils.follows = "flake-utils";
+      };
+    };
+    gitbackup = {
+      url = "git+https://git.foxden.network/FoxDen/gitbackup";
+      inputs = {
+        nixpkgs.follows = "nixpkgs";
+        flake-utils.follows = "flake-utils";
+        pyproject-nix.follows = "pyproject-nix";
+        uv2nix.follows = "uv2nix";
+        pyproject-build-systems.follows = "pyproject-build-systems";
+      };
+    };
+    oauth-jit-radius = {
+      url = "git+https://git.foxden.network/FoxDen/oauth-jit-radius";
+      inputs = {
+        nixpkgs.follows = "nixpkgs";
+        flake-utils.follows = "flake-utils";
+      };
+    };
+    superfan = {
+      url = "git+https://git.foxden.network/FoxDen/superfan";
+      inputs = {
+        nixpkgs.follows = "nixpkgs";
+        flake-utils.follows = "flake-utils";
+      };
+    };
+    systemd-query = {
+      url = "git+https://git.foxden.network/FoxDen/systemd-query";
+      inputs = {
+        nixpkgs.follows = "nixpkgs";
+        flake-utils.follows = "flake-utils";
+        pyproject-nix.follows = "pyproject-nix";
+        uv2nix.follows = "uv2nix";
+        pyproject-build-systems.follows = "pyproject-build-systems";
+      };
+    };
+    tapemgr = {
+      url = "git+https://git.foxden.network/FoxDen/tapemgr";
+      inputs = {
+        nixpkgs.follows = "nixpkgs";
+        flake-utils.follows = "flake-utils";
+      };
+    };
+    uds-proxy = {
+      url = "git+https://git.foxden.network/FoxDen/uds-proxy";
+      inputs = {
+        nixpkgs.follows = "nixpkgs";
+        flake-utils.follows = "flake-utils";
+      };
+    };
+
+    spaceage-api = {
+      url = "github:SpaceAgeMP/space_age_api";
+      inputs = {
+        nixpkgs.follows = "nixpkgs";
+        flake-utils.follows = "flake-utils";
+      };
+    };
+    spaceage-starlord = {
+      url = "github:SpaceAgeMP/StarLord";
+      inputs = {
+        nixpkgs.follows = "nixpkgs";
+        flake-utils.follows = "flake-utils";
+        pyproject-nix.follows = "pyproject-nix";
+        uv2nix.follows = "uv2nix";
+        pyproject-build-systems.follows = "pyproject-build-systems";
+      };
+    };
+    spaceage-tts = {
+      url = "github:SpaceAgeMP/TTS";
+      inputs = {
+        nixpkgs.follows = "nixpkgs";
+        flake-utils.follows = "flake-utils";
+      };
+    };
+    spaceage-website = {
+      url = "github:SpaceAgeMP/website";
+      inputs = {
+        nixpkgs.follows = "nixpkgs";
+        flake-utils.follows = "flake-utils";
+      };
+    };
   };
 
   outputs = inputs: import ./outputs.nix inputs;
