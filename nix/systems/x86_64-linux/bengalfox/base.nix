@@ -79,7 +79,7 @@
     ];
   };
 
-  boot.lanzaboote.extraEfiSysMounts = [ "/boot2" ];
+  boot.lanzaboote.extraEfiSysMountPoints = [ "/boot2" ];
 
   fileSystems."/mnt/zssd" = {
     device = "/dev/mapper/zssd";
