@@ -61,7 +61,8 @@ RECORD_TYPE_HANDLERS["NS"] = disallow_apex_record
 MTIK_RECORD_TYPE_HANDLERS = {}
 MTIK_RECORD_TYPE_HANDLERS["A"] = lambda record: {"address": record["value"]}
 MTIK_RECORD_TYPE_HANDLERS["AAAA"] = MTIK_RECORD_TYPE_HANDLERS["A"]
-MTIK_RECORD_TYPE_HANDLERS["CNAME"] = lambda record: {"cname": record["value"].removesuffix(".")}
+MTIK_RECORD_TYPE_HANDLERS["CNAME"] = lambda record: {"type": "CNAME", "cname": record["value"].removesuffix(".")}
+MTIK_RECORD_TYPE_HANDLERS["ALIAS"] = MTIK_RECORD_TYPE_HANDLERS["CNAME"]
 
 def remap_ipv6(private: str, public: str) -> str:
     public_spl = public.split(":")
