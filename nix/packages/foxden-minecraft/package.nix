@@ -18,27 +18,34 @@ pkgs.stdenv.mkDerivation {
       url = "https://mediafilez.forgecdn.net/files/4632/236/Dynmap-3.6-forge-1.20.jar";
       hash = "sha256-voYFsMvbiGlmAmbGCeveiRtsefaKUbljS3M51wjMkkg=";
     })
-    ./minecraft-run.sh
-    ./minecraft-install.sh
-    ./server-icon.png
+    ./local
   ];
 
   unpackPhase = ''
     mkdir -p server/mods
     for srcFile in $srcs; do
       echo "Copying from $srcFile"
-      if [ -d $srcFile ]; then
+      if [ "$(stripHash $srcFile)" == "local" ]; then
+        cp -r "$srcFile"/* server/
+      elif [ -d "$srcFile" ]; then
         rm -rf server-tmp && mkdir -p server-tmp
-        cp -r $srcFile/* server-tmp
+        cp -r "$srcFile"/* server-tmp
         chmod 600 server-tmp/server-icon.png server-tmp/variables.txt server-tmp/server.properties server-tmp/minecraft-*.sh server-tmp/nix-version.txt || true
         rm -fv server-tmp/server-icon.png server-tmp/variables.txt server-tmp/server.properties server-tmp/minecraft-*.sh server-tmp/nix-version.txt
         cp -r server-tmp/* server/
       else
-        if [[ $srcFile == *.jar ]]; then
-          cp -r $srcFile server/mods/$(stripHash $srcFile)
-        else
-          cp -r $srcFile server/$(stripHash $srcFile)
-        fi
+        case "$(stripHash $srcFile)" in
+          *.sh|server-icon.png|server.properties)
+            cp "$srcFile" "server/$(stripHash $srcFile)"
+            ;;
+          *.jar)
+            cp "$srcFile" "server/mods/$(stripHash $srcFile)"
+            ;;
+          *)
+            echo "Unknown file type: $srcFile"
+            exit 1
+            ;;
+        esac
       fi
     done
   '';
