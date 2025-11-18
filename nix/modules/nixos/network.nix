@@ -4,19 +4,12 @@ let
     lib.lists.flatten (lib.attrsets.attrValues dns.records.internal)
   );
 
-  resolveCNAME =
-    record:
-    resolveRecordAddress criticalRecords [
-      lib.strings.removeSuffix
-      "."
-      record.value
-    ];
   resolveRecordAddress =
     record:
     if record.type == "A" || record.type == "AAAA" then
       record.value
     else if record.type == "CNAME" || record.type == "ALIAS" then
-      resolveCNAME record
+      resolveRecordAddress criticalRecords."${lib.strings.removeSuffix}.${record.value}"
     else
       null;
   mappedHosts = map (record: {
