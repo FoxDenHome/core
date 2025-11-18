@@ -1,7 +1,20 @@
-{ dns, lib, ... }:
+{
+  dns,
+  lib,
+  foxDenLib,
+  ...
+}:
 let
+  mkRecordHost = foxDenLib.global.dns.mkRecordHost;
+
   criticalRecords = lib.lists.filter (record: record.critical) (
     lib.lists.flatten (lib.attrsets.attrValues dns.records.internal)
+  );
+  mappedCriticalRecords = lib.attrsets.listToAttrs (
+    map (record: {
+      name = mkRecordHost record;
+      value = record;
+    }) criticalRecords
   );
 
   resolveRecordAddress =
@@ -9,15 +22,16 @@ let
     if record.type == "A" || record.type == "AAAA" then
       record.value
     else if record.type == "CNAME" || record.type == "ALIAS" then
-      resolveRecordAddress criticalRecords."${lib.strings.removeSuffix}.${record.value}"
+      resolveRecordAddress mappedCriticalRecords.${lib.strings.removeSuffix "." record.value}
     else
       null;
-  mappedHosts = map (record: {
-    name = record.name;
-    address = resolveRecordAddress record;
-  }) criticalRecords;
+  mappedHosts = lib.attrsets.mapAttrs (
+    name: record: resolveRecordAddress record
+  ) mappedCriticalRecords;
   # TODO: Go back to uniqueStrings once next NixOS stable
-  mappedAddresses = lib.lists.unique (map (host: host.address) mappedHosts);
+  mappedAddresses = lib.lists.unique (
+    lib.lists.filter (addr: addr != null) (lib.attrsets.attrValues mappedHosts)
+  );
 in
 {
   config = {
@@ -47,7 +61,8 @@ in
       ];
     };
     networking.hosts = lib.attrsets.genAttrs mappedAddresses (
-      addr: map (host: host.name) (lib.lists.filter (host: host.address == addr) mappedHosts)
+      targetAddr:
+      lib.attrsets.attrNames (lib.attrsets.filterAttrs (name: addr: addr == targetAddr) mappedHosts)
     );
   };
 }

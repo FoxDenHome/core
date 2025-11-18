@@ -238,6 +238,8 @@ in
 
   mkHost = record: record.name;
 
+  mkRecordHost = record: if record.name == "@" then record.zone else "${record.name}.${record.zone}";
+
   mkConfig = (
     nixosConfigurations:
     let
