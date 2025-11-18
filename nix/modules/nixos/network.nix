@@ -1,7 +1,7 @@
 { dns, lib, ... }:
 let
   criticalRecords = lib.lists.filter (record: record.critical) (
-    lib.lists.flatten (lib.attrsets.attrValues dns.internal)
+    lib.lists.flatten (lib.attrsets.attrValues dns.records.internal)
   );
 
   resolveCNAME =
