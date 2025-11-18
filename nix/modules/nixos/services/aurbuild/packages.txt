@@ -1,5 +1,4 @@
-https://github.com/FoxDenHome/foxdenaur-keyring
-https://github.com/FoxDenHome/foxdenaur-mirrorlist
+https://git.foxden.network/FoxDenAUR/setup
 ttf-nanum
 orca-slicer-bin
 ptouch-print
@@ -13,13 +12,13 @@ qmk-hid
 uhubctl
 framework-system-git
 kanidm
-https://github.com/Doridian/mkinitcpio-sd-pcr8lock-hook
+https://git.foxden.network/FoxDenAUR/mkinitcpio-sd-pcr8lock-hook
 rpiusbboot
 openlinkhub-bin
 openterface_qt
 reveng
 driftctl-bin
-https://github.com/FoxDenHome/initcpio-uki-sbsign
+https://git.foxden.network/FoxDenAUR/initcpio-uki-sbsign
 android-sdk-platform-tools
 makemkv
 mstflint
@@ -32,7 +31,7 @@ starsector
 affine
 pam-parallel
 uxplay
-https://github.com/FoxDenHome/backupmgr
+https://git.foxden.network/FoxDen/backupmgr
 vmware-keymaps
 vmware-workstation
 libx11-mr293
