@@ -1,5 +1,11 @@
 # FoxDen core
 
+## TODO IMMEDIATE
+
+Add option to opt-out of critical provisioning to /etc/hosts
+
+## END TODO
+
 This is the monorepo to control the FoxDen homelab pretty much in its entirety.
 
 A from-zero setup of `router`, `router-backup` or `redfox` is currently impossible. Hence we keep regular backups of those devices around.
