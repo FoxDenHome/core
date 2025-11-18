@@ -27,6 +27,7 @@ in
       dns = {
         name = "auth.foxden.network";
         dynDns = true;
+        critical = true;
       };
       webservice.enable = true;
       addresses = [
@@ -38,6 +39,7 @@ in
       dns = {
         name = "radius.auth.foxden.network";
         dynDns = true;
+        critical = true;
       };
       webservice.enable = true;
       addresses = [
