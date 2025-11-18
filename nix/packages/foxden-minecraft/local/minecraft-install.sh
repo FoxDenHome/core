@@ -12,11 +12,11 @@ run_update() {
   chmod -R 700 mods run.* libraries || true
   rm -rf mods run.* libraries
 
-  find -type d -not -path './dynmap/web/*' -exec chmod 700 {} \; || true
-  find -type f -not -path './dynmap/web/*' -exec chmod 600 {} \; || true
+  find -type d -not -path './dynmap/web/*' -not -path './world/*' -exec chmod 700 {} \; || true
+  find -type f -not -path './dynmap/web/*' -not -path './world/*' -exec chmod 600 {} \; || true
   cp -r /server/* ./
-  find -type d -not -path './dynmap/web/*' -exec chmod 700 {} \; || true
-  find -type f -not -path './dynmap/web/*' -exec chmod 600 {} \; || true
+  find -type d -not -path './dynmap/web/*' -not -path './world/*' -exec chmod 700 {} \; || true
+  find -type f -not -path './dynmap/web/*' -not -path './world/*' -exec chmod 600 {} \; || true
   chmod 700 ./*.sh
 
   echo "${INSTALL_SCRIPT}" > "${VERSION_FILE}"
