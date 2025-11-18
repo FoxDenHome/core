@@ -12,6 +12,7 @@ in
     };
     minecraft = {
       enable = true;
+      tls = true;
       host = "minecraft";
     };
     spaceage-api = {
@@ -65,6 +66,7 @@ in
           name = "mc.doridian.net";
         }
       ];
+      webservice.enable = true;
       firewall.portForwards = [
         {
           protocol = "tcp";
