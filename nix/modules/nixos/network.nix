@@ -1,4 +1,5 @@
 {
+  config,
   dns,
   lib,
   foxDenLib,
@@ -34,6 +35,14 @@ let
   );
 in
 {
+  options.foxDen.networking.provisionCriticalHosts = lib.mkOption {
+    type = lib.types.bool;
+    default = true;
+    description = ''
+      Whether to provision critical hosts into /etc/hosts.
+    '';
+  };
+
   config = {
     boot = {
       kernel.sysctl = {
@@ -60,9 +69,11 @@ in
         "tap"
       ];
     };
-    networking.hosts = lib.attrsets.genAttrs mappedAddresses (
-      targetAddr:
-      lib.attrsets.attrNames (lib.attrsets.filterAttrs (name: addr: addr == targetAddr) mappedHosts)
+    networking.hosts = lib.mkIf config.foxDen.networking.provisionCriticalHosts (
+      lib.attrsets.genAttrs mappedAddresses (
+        targetAddr:
+        lib.attrsets.attrNames (lib.attrsets.filterAttrs (name: addr: addr == targetAddr) mappedHosts)
+      )
     );
   };
 }

@@ -40,6 +40,12 @@ in
           name = "cachyos.foxden.network";
         }
       ];
+      firewall.ingressAcceptRules = [
+        {
+          protocol = "tcp";
+          port = 873;
+        }
+      ];
       webservice.enable = true;
       addresses = [
         "10.2.11.17/16"
