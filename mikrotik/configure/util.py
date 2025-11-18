@@ -149,6 +149,22 @@ def format_weird_mtik_ip(addr: str) -> str:
         return addr.removesuffix("/32")
 
 
+def format_mtik_duration(seconds: int) -> str:
+    output = ""
+    if seconds >= 86400:
+        output += f"{seconds // 86400}d"
+        seconds %= 86400
+    if seconds >= 3600:
+        output += f"{seconds // 3600}h"
+        seconds %= 3600
+    if seconds >= 60:
+        output += f"{seconds // 60}m"
+        seconds %= 60
+    if seconds > 0 or output == "":
+        return output + f"{seconds}s"
+    return output
+
+
 ROUTERS = [
     MTikRouter(
         host="router.foxden.network",

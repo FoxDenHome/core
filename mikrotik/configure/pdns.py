@@ -2,7 +2,7 @@ from subprocess import check_call
 from json import load as json_load
 from os.path import join as path_join, exists
 from os import makedirs
-from configure.util import unlink_safe, NIX_DIR, mtik_path, ROUTERS
+from configure.util import unlink_safe, NIX_DIR, mtik_path, ROUTERS, format_mtik_duration
 from yaml import safe_load as yaml_load, dump as yaml_dump
 from shutil import copytree, rmtree
 from typing import Any, cast
@@ -68,9 +68,6 @@ def remap_ipv6(private: str, public: str) -> str:
     prefix = f"{public_spl[0]}:{public_spl[1]}:{public_spl[2]}:{public_spl[3][:-1]}"
     suffix = private.removeprefix("fd2c:f4cb:63be:")
     return f"{prefix}{suffix}"
-
-def record_key(record: dict[str, Any]) -> str:
-    return f"{record['type']}|{resolve_record(record)}"
 
 def resolve_record(record: dict[str, Any]) -> str:
     if 'zone' not in record:
@@ -181,7 +178,7 @@ def refresh_pdns():
         existing_static_dns = api_dns.get()
         existing_static_dns_map = {}
         for existing_record in existing_static_dns:
-            key = record_key(existing_record)
+            key = f"{existing_record['type']}|{resolve_record(existing_record)}"
             if key in existing_static_dns_map:
                 print("Removing duplicate DNS entry", existing_record)
                 api_dns.remove(id=existing_record["id"])
@@ -202,19 +199,21 @@ def refresh_pdns():
                 handler = MTIK_RECORD_TYPE_HANDLERS.get(record["type"])
                 if handler is None:
                     raise ValueError(f"No MTik handler for record type {record['type']} for critical record {record['name']} in zone {zone}")
-                key = record_key(record)
-                stray_static_dns.discard(key)
 
                 attribs = handler(record)
-                attribs["ttl"] = f"{record['ttl']}"
-                attribs["type"] = record["type"]
+                if "type" not in attribs:
+                    attribs["type"] = record["type"]
+                attribs["ttl"] = format_mtik_duration(record["ttl"])
                 attribs["name"] = resolve_record(record)
+
+                key = f"{attribs['type']}|{attribs['name']}"
+                stray_static_dns.discard(key)
 
                 if key in existing_static_dns_map:
                     existing_entry = existing_static_dns_map[key]
                     for attr, val in attribs.items():
                         if existing_entry[attr] != val:
-                            print(f"Updating DNS entry {record}")
+                            print(f"Updating DNS entry {record} due to changed attribute {attr}: {existing_entry[attr]} -> {val}")
                             api_dns.set(id=existing_entry["id"], **attribs)
                             break
                 else:
