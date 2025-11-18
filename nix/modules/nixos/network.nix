@@ -35,13 +35,7 @@ let
   );
 in
 {
-  options.foxDen.networking.provisionCriticalHosts = lib.mkOption {
-    type = lib.types.bool;
-    default = true;
-    description = ''
-      Whether to provision critical hosts into /etc/hosts.
-    '';
-  };
+  options.foxDen.networking.provisionCriticalHosts = lib.mkEnableOption "Whether to provision critical hosts into /etc/hosts.";
 
   config = {
     boot = {

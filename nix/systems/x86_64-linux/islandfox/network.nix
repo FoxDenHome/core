@@ -78,6 +78,8 @@ in
     };
   };
 
+  foxDen.networking.provisionCriticalHosts = true;
+
   foxDen.hosts.hosts = {
     islandfox = {
       ssh = true;
