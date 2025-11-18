@@ -80,6 +80,8 @@
     ];
   };
 
+  boot.lanzaboote.extraEfiSysMountPoints = [ "/boot2" ];
+
   foxDen.services = {
     watchdog.enable = true;
     netdata.enable = true;
