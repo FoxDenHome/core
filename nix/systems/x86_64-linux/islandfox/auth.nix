@@ -25,7 +25,7 @@ in
   foxDen.hosts.hosts = {
     auth = mkVlanHost 2 {
       dns = {
-        fqdn = "auth.foxden.network";
+        fqdns = [ "auth.foxden.network" ];
         dynDns = true;
         critical = true;
       };
@@ -37,7 +37,7 @@ in
     };
     radius = mkVlanHost 1 {
       dns = {
-        fqdn = "radius.auth.foxden.network";
+        fqdns = [ "radius.auth.foxden.network" ];
         dynDns = true;
         critical = true;
       };

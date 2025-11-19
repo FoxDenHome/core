@@ -14,7 +14,7 @@
     {
       mister = mkIntf {
         dns = {
-          fqdn = "mister.foxden.network";
+          fqdns = [ "mister.foxden.network" ];
         };
         mac = "02:03:04:05:06:07";
         addresses = [
@@ -23,7 +23,7 @@
       };
       ps2 = mkIntf {
         dns = {
-          fqdn = "ps2.foxden.network";
+          fqdns = [ "ps2.foxden.network" ];
         };
         mac = "00:27:09:FF:A7:49";
         addresses = [
@@ -32,7 +32,7 @@
       };
       wii = mkIntf {
         dns = {
-          fqdn = "wii.foxden.network";
+          fqdns = [ "wii.foxden.network" ];
         };
         mac = "00:27:09:8A:A7:49";
         addresses = [

@@ -15,7 +15,7 @@ in
   foxDen.hosts.hosts = {
     forgejo-runner = mkVlanHost 6 {
       dns = {
-        fqdn = "bengalfox-forgejo-runner.foxden.network";
+        fqdns = [ "bengalfox-forgejo-runner.foxden.network" ];
       };
       addresses = [
         "10.6.11.3/16"
@@ -24,7 +24,7 @@ in
     };
     forgejo-runner-container = mkVlanHost 6 {
       dns = {
-        fqdn = "bengalfox-forgejo-runner-container.foxden.network";
+        fqdns = [ "bengalfox-forgejo-runner-container.foxden.network" ];
       };
       addresses = [
         "10.6.11.4/16"

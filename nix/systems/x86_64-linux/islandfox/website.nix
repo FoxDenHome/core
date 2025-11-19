@@ -14,21 +14,14 @@ in
   foxDen.hosts.hosts = {
     doridian-website = mkVlanHost 2 {
       dns = {
-        fqdn = "doridian.net";
+        fqdns = [
+          "doridian.net"
+          "www.doridian.net"
+          "doridian.de"
+          "www.doridian.de"
+        ];
         dynDns = true;
       };
-      cnames = [
-        {
-          fqdn = "www.doridian.net";
-        }
-        {
-          fqdn = "doridian.de";
-          type = "ALIAS";
-        }
-        {
-          fqdn = "www.doridian.de";
-        }
-      ];
       webservice.enable = true;
       addresses = [
         "10.2.11.15/16"

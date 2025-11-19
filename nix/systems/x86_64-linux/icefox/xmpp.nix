@@ -47,16 +47,12 @@ in
   foxDen.hosts.hosts = {
     xmpp = mkV6Host {
       dns = {
-        fqdn = "foxden.network";
+        fqdns = [
+          "foxden.network"
+          "xmpp.foxden.network"
+          "upload.xmpp.foxden.network"
+        ];
       };
-      cnames = [
-        {
-          fqdn = "xmpp.foxden.network";
-        }
-        {
-          fqdn = "upload.xmpp.foxden.network";
-        }
-      ];
       firewall.portForwards = [
         {
           protocol = "tcp";

@@ -1,7 +1,8 @@
 { nixpkgs, foxDenLib, ... }:
 let
   util = foxDenLib.util;
-  eSA = nixpkgs.lib.strings.escapeShellArg;
+  eSA = lib.strings.escapeShellArg;
+  lib = nixpkgs.lib;
 
   getByName = (
     config: name:
@@ -31,46 +32,26 @@ in
     let
       ptrMode = config.foxDen.hosts.ptrMode;
 
-      cnameType =
-        with nixpkgs.lib.types;
-        submodule {
-          options = {
-            fqdn = nixpkgs.lib.mkOption {
-              type = str;
-            };
-            zone = nixpkgs.lib.mkOption {
-              type = str;
-            };
-            type = nixpkgs.lib.mkOption {
-              type = enum [
-                "CNAME"
-                "ALIAS"
-              ];
-              default = "CNAME";
-            };
-          };
-        };
-
       portType =
-        with nixpkgs.lib.types;
+        with lib.types;
         submodule {
           options = {
-            port = nixpkgs.lib.mkOption {
+            port = lib.mkOption {
               type = nullOr ints.u16;
               default = null;
             };
-            protocol = nixpkgs.lib.mkOption {
+            protocol = lib.mkOption {
               type = nullOr (enum [
                 "tcp"
                 "udp"
               ]);
               default = null;
             };
-            source = nixpkgs.lib.mkOption {
+            source = lib.mkOption {
               type = nullOr str;
               default = null;
             };
-            comment = nixpkgs.lib.mkOption {
+            comment = lib.mkOption {
               type = str;
               default = "";
             };
@@ -78,97 +59,93 @@ in
         };
 
       interfaceType =
-        with nixpkgs.lib.types;
+        with lib.types;
         submodule {
           options = {
             driver = {
-              name = nixpkgs.lib.mkOption {
-                type = enum (nixpkgs.lib.attrsets.attrNames foxDenLib.hosts.drivers);
+              name = lib.mkOption {
+                type = enum (lib.attrsets.attrNames foxDenLib.hosts.drivers);
               };
             }
-            // (nixpkgs.lib.attrsets.genAttrs (nixpkgs.lib.attrsets.attrNames foxDenLib.hosts.drivers) (
+            // (lib.attrsets.genAttrs (lib.attrsets.attrNames foxDenLib.hosts.drivers) (
               name:
-              nixpkgs.lib.mkOption {
+              lib.mkOption {
                 type = foxDenLib.hosts.drivers.${name}.driverConfigType;
                 default = foxDenLib.hosts.drivers.${name}.driverConfigDefault or { };
               }
             ));
-            mac = nixpkgs.lib.mkOption {
+            mac = lib.mkOption {
               type = nullOr str;
               default = null;
             };
             dhcpv6 = {
-              duid = nixpkgs.lib.mkOption {
+              duid = lib.mkOption {
                 type = nullOr str;
                 default = null;
               };
-              iaid = nixpkgs.lib.mkOption {
+              iaid = lib.mkOption {
                 type = nullOr ints.u32;
                 default = null;
               };
             };
             webservice = {
-              enable = nixpkgs.lib.mkOption {
+              enable = lib.mkOption {
                 type = bool;
                 default = false;
               };
             };
             firewall = {
-              ingressAcceptRules = nixpkgs.lib.mkOption {
+              ingressAcceptRules = lib.mkOption {
                 type = listOf portType;
                 default = [ ];
               };
-              portForwards = nixpkgs.lib.mkOption {
+              portForwards = lib.mkOption {
                 type = listOf portType;
                 default = [ ];
               };
             };
             dns = {
-              fqdn = nixpkgs.lib.mkOption {
-                type = str;
-                default = "";
+              fqdns = lib.mkOption {
+                type = listOf str;
+                default = [ ];
               };
-              auxAddresses = nixpkgs.lib.mkOption {
+              auxAddresses = lib.mkOption {
                 type = uniq (listOf foxDenLib.types.ip);
                 default = [ ];
               };
-              ttl = nixpkgs.lib.mkOption {
+              ttl = lib.mkOption {
                 type = ints.positive;
                 default = 3600;
               };
-              dynDns = nixpkgs.lib.mkOption {
+              dynDns = lib.mkOption {
                 type = bool;
                 default = false;
               };
-              critical = nixpkgs.lib.mkOption {
+              critical = lib.mkOption {
                 type = bool;
                 default = false;
               };
-              dynDnsTtl = nixpkgs.lib.mkOption {
+              dynDnsTtl = lib.mkOption {
                 type = nullOr ints.positive;
                 default = 300;
               };
             };
-            cnames = nixpkgs.lib.mkOption {
-              type = listOf cnameType;
-              default = [ ];
-            };
-            addresses = nixpkgs.lib.mkOption {
+            addresses = lib.mkOption {
               type = uniq (listOf foxDenLib.types.ip);
             };
-            routes = nixpkgs.lib.mkOption {
+            routes = lib.mkOption {
               type = nullOr (listOf routeType);
               default = [ ];
             };
-            sysctls = nixpkgs.lib.mkOption {
+            sysctls = lib.mkOption {
               type = attrsOf str;
               default = { };
             };
-            useDHCP = nixpkgs.lib.mkOption {
+            useDHCP = lib.mkOption {
               type = bool;
               default = config.foxDen.hosts.useDHCP;
             };
-            gateway = nixpkgs.lib.mkOption {
+            gateway = lib.mkOption {
               type = str;
               default = config.foxDen.hosts.gateway;
             };
@@ -176,14 +153,14 @@ in
         };
 
       routeType =
-        with nixpkgs.lib.types;
+        with lib.types;
         submodule {
           options = {
-            Destination = nixpkgs.lib.mkOption {
+            Destination = lib.mkOption {
               type = nullOr foxDenLib.types.ip;
               default = null;
             };
-            Gateway = nixpkgs.lib.mkOption {
+            Gateway = lib.mkOption {
               type = nullOr foxDenLib.types.ipWithoutCidr;
               default = null;
             };
@@ -191,68 +168,67 @@ in
         };
 
       hostType =
-        with nixpkgs.lib.types;
+        with lib.types;
         submodule {
           options = {
-            interfaces = nixpkgs.lib.mkOption {
+            interfaces = lib.mkOption {
               type = attrsOf interfaceType;
             };
             webservice = {
-              enable = nixpkgs.lib.mkOption {
+              enable = lib.mkOption {
                 type = bool;
                 default = false;
               };
-              proxyProtocol = nixpkgs.lib.mkOption {
+              proxyProtocol = lib.mkOption {
                 type = bool;
                 default = true;
               };
-              httpPort = nixpkgs.lib.mkOption {
+              httpPort = lib.mkOption {
                 type = ints.u16;
                 default = 80;
               };
-              httpsPort = nixpkgs.lib.mkOption {
+              httpsPort = lib.mkOption {
                 type = ints.u16;
                 default = 443;
               };
-              httpProxyPort = nixpkgs.lib.mkOption {
+              httpProxyPort = lib.mkOption {
                 type = ints.u16;
                 default = 81;
               };
-              httpsProxyPort = nixpkgs.lib.mkOption {
+              httpsProxyPort = lib.mkOption {
                 type = ints.u16;
                 default = 444;
               };
-              quicPort = nixpkgs.lib.mkOption {
+              quicPort = lib.mkOption {
                 type = ints.u16;
                 default = 0;
               };
-              readyUrl = nixpkgs.lib.mkOption {
+              readyUrl = lib.mkOption {
                 type = str;
                 default = "/readyz";
               };
-              checkExpectCode = nixpkgs.lib.mkOption {
+              checkExpectCode = lib.mkOption {
                 type = ints.positive;
                 default = 200;
               };
             };
-            ssh = nixpkgs.lib.mkEnableOption "Does this host accept SSH connections";
-            nameservers = nixpkgs.lib.mkOption {
+            ssh = lib.mkEnableOption "Does this host accept SSH connections";
+            nameservers = lib.mkOption {
               type = listOf str;
               default = [ ];
             };
           };
         };
 
-      hostIndexHex1 = nixpkgs.lib.toHexString config.foxDen.hosts.index;
-      hostIndexHex =
-        if (nixpkgs.lib.stringLength hostIndexHex1 == 1) then "0${hostIndexHex1}" else hostIndexHex1;
+      hostIndexHex1 = lib.toHexString config.foxDen.hosts.index;
+      hostIndexHex = if (lib.stringLength hostIndexHex1 == 1) then "0${hostIndexHex1}" else hostIndexHex1;
 
       mkHashMac = (
         hash:
         "e6:21:${hostIndexHex}:${builtins.substring 0 2 hash}:${builtins.substring 2 2 hash}:${builtins.substring 4 2 hash}"
       );
 
-      hosts = map (getByName config) (nixpkgs.lib.attrsets.attrNames config.foxDen.hosts.hosts);
+      hosts = map (getByName config) (lib.attrsets.attrNames config.foxDen.hosts.hosts);
       mapIfaces = (
         host:
         map (
@@ -266,23 +242,22 @@ in
             suffix = "${hostIndexHex}${hash}";
             mac = if value.mac != null then value.mac else (mkHashMac hash);
           }
-        ) (nixpkgs.lib.attrsets.attrsToList host.interfaces)
+        ) (lib.attrsets.attrsToList host.interfaces)
       );
-      interfaces = nixpkgs.lib.flatten (map mapIfaces hosts);
+      interfaces = lib.flatten (map mapIfaces hosts);
 
-      ifaceHasV4 = (iface: nixpkgs.lib.any util.isIPv4 iface.addresses);
-      ifaceHasV6 = (iface: nixpkgs.lib.any util.isIPv6 iface.addresses);
+      ifaceHasV4 = (iface: lib.any util.isIPv4 iface.addresses);
+      ifaceHasV6 = (iface: lib.any util.isIPv6 iface.addresses);
 
-      ifaceFirstV4 = (iface: nixpkgs.lib.findFirst util.isIPv4 "127.0.0.1" iface.addresses);
-      ifaceFirstV6 = (iface: nixpkgs.lib.findFirst util.isIPv6 "::1" iface.addresses);
+      ifaceFirstV4 = (iface: lib.findFirst util.isIPv4 "127.0.0.1" iface.addresses);
+      ifaceFirstV6 = (iface: lib.findFirst util.isIPv6 "::1" iface.addresses);
 
       mkIfaceDynDnsOne = (
-        iface: check: type: value:
+        iface: fqdn: check: type: value:
         if (check iface) then
           [
             {
-              inherit (iface.dns) fqdn;
-              type = type;
+              inherit fqdn type;
               ttl = iface.dns.dynDnsTtl;
               value = util.removeIPCidr (value iface);
               dynDns = true;
@@ -294,25 +269,25 @@ in
       );
 
       mkIfaceDynDns = (
-        iface:
+        iface: fqdn:
         if iface.dns.dynDns then
-          (mkIfaceDynDnsOne iface ifaceHasV4 "A" ifaceFirstV4)
-          ++ (mkIfaceDynDnsOne iface ifaceHasV6 "AAAA" ifaceFirstV6)
+          (mkIfaceDynDnsOne iface fqdn ifaceHasV4 "A" ifaceFirstV4)
+          ++ (mkIfaceDynDnsOne iface fqdn ifaceHasV6 "AAAA" ifaceFirstV6)
         else
           [ ]
       );
 
-      networkSysctls = nixpkgs.lib.attrsets.filterAttrs (
-        n: v: (nixpkgs.lib.strings.hasPrefix "net.ipv4." n) || (nixpkgs.lib.strings.hasPrefix "net.ipv6." n)
+      networkSysctls = lib.attrsets.filterAttrs (
+        n: v: (lib.strings.hasPrefix "net.ipv4." n) || (lib.strings.hasPrefix "net.ipv6." n)
       ) config.boot.kernel.sysctl;
     in
     {
-      options.foxDen.hosts = with nixpkgs.lib.types; {
-        hosts = nixpkgs.lib.mkOption {
+      options.foxDen.hosts = with lib.types; {
+        hosts = lib.mkOption {
           type = attrsOf hostType;
           default = { };
         };
-        ptrMode = nixpkgs.lib.mkOption {
+        ptrMode = lib.mkOption {
           type = enum [
             "none"
             "internal"
@@ -321,7 +296,7 @@ in
           ];
           default = "internal";
         };
-        defaultSysctls = nixpkgs.lib.mkOption {
+        defaultSysctls = lib.mkOption {
           type = attrsOf (
             nullOr (oneOf [
               str
@@ -333,25 +308,25 @@ in
             Default sysctl settings to apply to all interfaces.
           '';
         };
-        gateway = nixpkgs.lib.mkOption {
+        gateway = lib.mkOption {
           type = str;
           default = "default";
         };
-        useDHCP = nixpkgs.lib.mkEnableOption "Configure DHCP lease for hosts on this system";
-        usedMacAddresses = nixpkgs.lib.mkOption {
+        useDHCP = lib.mkEnableOption "Configure DHCP lease for hosts on this system";
+        usedMacAddresses = lib.mkOption {
           type = addCheck (listOf str) (
             macs:
             let
-              uniqueMacs = nixpkgs.lib.lists.uniqueString macs;
+              uniqueMacs = lib.lists.uniqueString macs;
             in
-            (nixpkgs.lib.lists.length macs) == (nixpkgs.lib.lists.length uniqueMacs)
+            (lib.lists.length macs) == (lib.lists.length uniqueMacs)
           );
           description = ''
             List of MAC addresses that are already in use on your network.
             This is used to avoid generating colliding MAC addresses for interfaces.
           '';
         };
-        index = nixpkgs.lib.mkOption {
+        index = lib.mkOption {
           type = ints.u8;
         };
       };
@@ -360,7 +335,7 @@ in
         lib.foxDen.mkHashMac = mkHashMac;
         networking.useDHCP = config.foxDen.hosts.useDHCP;
         foxDen.hosts = {
-          defaultSysctls = nixpkgs.lib.attrsets.mapAttrs (n: v: nixpkgs.lib.mkDefault v) (
+          defaultSysctls = lib.attrsets.mapAttrs (n: v: lib.mkDefault v) (
             networkSysctls
             // {
               "net.ipv4.ip_unprivileged_port_start" = 1;
@@ -370,19 +345,20 @@ in
           usedMacAddresses = map (iface: iface.mac) interfaces;
         };
         foxDen.dns.records = (
-          nixpkgs.lib.flatten (
+          lib.flatten (
             map (
               iface:
               let
+                primaryFQDN = lib.lists.head iface.dns.fqdns;
+
                 mkRecord = (
-                  addr:
-                  nixpkgs.lib.mkIf (iface.dns.fqdn != "") {
+                  addr: {
                     inherit (iface.dns)
-                      fqdn
                       ttl
                       dynDns
                       critical
                       ;
+                    fqdn = primaryFQDN;
                     type = if (util.isIPv6 addr) then "AAAA" else "A";
                     value = util.removeIPCidr addr;
                     horizon = if (util.isPrivateIP addr) then "internal" else "external";
@@ -393,53 +369,54 @@ in
                   let
                     horizon = if util.isPrivateIP addr then "internal" else "external";
                   in
-                  nixpkgs.lib.mkIf (iface.dns.fqdn != "" && (ptrMode == "all" || ptrMode == horizon)) {
+                  lib.mkIf (ptrMode == "all" || ptrMode == horizon) {
                     inherit horizon;
                     inherit (iface.dns) ttl critical;
                     fqdn = util.mkPtr addr;
                     type = "PTR";
-                    value = "${iface.dns.fqdn}.";
+                    value = "${primaryFQDN}.";
                   }
                 );
-                ifaceCnames = map (cname: {
+                mkIfaceAuxFQDNs = map (fqdn: {
                   inherit (iface.dns) ttl critical;
-                  inherit (cname) fqdn type;
-                  value = "${iface.dns.fqdn}.";
+                  inherit fqdn;
+                  type = "CNAME";
+                  value = "${primaryFQDN}.";
                   horizon = "*";
-                }) iface.cnames;
+                }) (lib.lists.tail iface.dns.fqdns);
               in
               (
                 (map mkRecord (iface.addresses ++ iface.dns.auxAddresses))
                 ++ (map mkPtr iface.addresses)
-                ++ (mkIfaceDynDns iface)
-                ++ ifaceCnames
+                ++ (mkIfaceDynDns iface primaryFQDN)
+                ++ mkIfaceAuxFQDNs
               )
-            ) interfaces
+            ) (lib.lists.filter (iface: (lib.lists.length iface.dns.fqdns) > 0) interfaces)
           )
         );
 
-        environment.etc = nixpkgs.lib.listToAttrs (
+        environment.etc = lib.listToAttrs (
           map (host: {
-            name = nixpkgs.lib.strings.removePrefix "/etc/" host.resolvConf;
+            name = lib.strings.removePrefix "/etc/" host.resolvConf;
             value.text = ''
               # Generated by foxDen
-              ${nixpkgs.lib.concatMapStrings (ns: "nameserver ${ns}\n") host.nameservers}
+              ${lib.concatMapStrings (ns: "nameserver ${ns}\n") host.nameservers}
             '';
           }) hosts
         );
 
-        systemd = nixpkgs.lib.mkMerge (
+        systemd = lib.mkMerge (
           (map (
             { name, value }:
             (value.build {
-              interfaces = (nixpkgs.lib.filter (iface: iface.driver.name == name) interfaces);
+              interfaces = (lib.filter (iface: iface.driver.name == name) interfaces);
             }).config.systemd
-          ) (nixpkgs.lib.attrsets.attrsToList foxDenLib.hosts.drivers))
+          ) (lib.attrsets.attrsToList foxDenLib.hosts.drivers))
           ++ [
             {
               # Configure each host's NetNS
               services = (
-                nixpkgs.lib.attrsets.listToAttrs (
+                lib.attrsets.listToAttrs (
                   map (
                     host:
                     let
@@ -472,17 +449,16 @@ in
                           };
                           hooks = ifaceDriver.hooks driverRunParams;
 
-                          sysctlsRaw = nixpkgs.lib.filterAttrs (name: value: value != null) (
+                          sysctlsRaw = lib.filterAttrs (name: value: value != null) (
                             config.foxDen.hosts.defaultSysctls // interface.sysctls
                           );
 
                           settingToStr = setting: if setting == false then "0" else builtins.toString setting;
 
-                          sysctls = nixpkgs.lib.concatStringsSep "\n" (
+                          sysctls = lib.concatStringsSep "\n" (
                             map (
-                              { name, value }:
-                              "${nixpkgs.lib.replaceString "INTERFACE" serviceInterface name} = ${settingToStr value}"
-                            ) (nixpkgs.lib.attrsets.attrsToList sysctlsRaw)
+                              { name, value }: "${lib.replaceString "INTERFACE" serviceInterface name} = ${settingToStr value}"
+                            ) (lib.attrsets.attrsToList sysctlsRaw)
                           );
                         in
                         {
@@ -510,11 +486,11 @@ in
                       );
                     in
                     {
-                      name = (nixpkgs.lib.strings.removeSuffix ".service" host.unit);
+                      name = (lib.strings.removeSuffix ".service" host.unit);
                       value =
                         let
-                          ifaceHooks = map mkHooks (nixpkgs.lib.filter (iface: iface.host.name == host.name) interfaces);
-                          getHook = sub: nixpkgs.lib.flatten (map (cfg: cfg.${sub}) ifaceHooks);
+                          ifaceHooks = map mkHooks (lib.filter (iface: iface.host.name == host.name) interfaces);
+                          getHook = sub: lib.flatten (map (cfg: cfg.${sub}) ifaceHooks);
                         in
                         {
                           description = "NetNS ${host.namespace}";

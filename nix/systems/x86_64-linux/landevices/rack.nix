@@ -14,7 +14,7 @@
     {
       pikvm-rack = mkIntf {
         dns = {
-          fqdn = "pikvm-rack.foxden.network";
+          fqdns = [ "pikvm-rack.foxden.network" ];
         };
         mac = "D8:3A:DD:A3:82:A8";
         dhcpv6 = {
@@ -28,7 +28,7 @@
       };
       tape-library = mkIntf {
         dns = {
-          fqdn = "tape-library.foxden.network";
+          fqdns = [ "tape-library.foxden.network" ];
         };
         mac = "00:0E:11:14:70:8B";
         dhcpv6 = {
@@ -42,7 +42,7 @@
       };
       ups-rack = mkIntf {
         dns = {
-          fqdn = "ups-rack.foxden.network";
+          fqdns = [ "ups-rack.foxden.network" ];
         };
         dhcpv6 = {
           duid = "0x0003000100c0b7e8b2a0";

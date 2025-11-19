@@ -20,7 +20,7 @@ in
   foxDen.hosts.hosts = {
     immich = mkVlanHost 2 {
       dns = {
-        fqdn = "images.foxden.network";
+        fqdns = [ "images.foxden.network" ];
         dynDns = true;
       };
       webservice.enable = true;

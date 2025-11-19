@@ -113,6 +113,8 @@ let
     fqdn: zone: authorities:
     map (record: emptyRecord // record) (mkAuxRecordsInt fqdn zone authorities);
 
+  # These records are currently not validated or post-processed
+  # so be careful changing anything here. In particular, none of the core fields have defaults.
   mkAuxRecordsInt =
     fqdn: zone: authorities:
     (map (ns: {
@@ -265,6 +267,7 @@ in
             zone: (zone == record.fqdn) || (lib.strings.hasSuffix ".${zone}" record.fqdn)
           ) (throw "DNS record ${record.fqdn} does not belong to a defined zone") zoneNames;
           name = if (record.fqdn == zone) then "@" else (lib.strings.removeSuffix ".${zone}" record.fqdn);
+          type = if (name == "@" && record.type == "CNAME") then "ALIAS" else record.type;
         }
       ) records;
     in

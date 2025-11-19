@@ -17,7 +17,7 @@
       }
       // (mkIntf {
         dns = {
-          fqdn = "capefox.foxden.network";
+          fqdns = [ "capefox.foxden.network" ];
         };
         mac = "7c:e7:12:81:29:9b";
         dhcpv6 = {
@@ -34,7 +34,7 @@
       }
       // (mkIntf {
         dns = {
-          fqdn = "capefox-wired.foxden.network";
+          fqdns = [ "capefox-wired.foxden.network" ];
         };
         mac = "00:30:93:12:12:38";
         addresses = [
@@ -46,7 +46,7 @@
       }
       // (mkIntf {
         dns = {
-          fqdn = "crossfox.foxden.network";
+          fqdns = [ "crossfox.foxden.network" ];
         };
         mac = "B8:27:EB:ED:0F:4B";
         dhcpv6 = {
@@ -63,7 +63,7 @@
       }
       // (mkIntf {
         dns = {
-          fqdn = "fennec.foxden.network";
+          fqdns = [ "fennec.foxden.network" ];
         };
         mac = "7C:FE:90:31:7B:0E";
         dhcpv6 = {
@@ -77,7 +77,7 @@
       });
       wizzy-desktop = mkIntf {
         dns = {
-          fqdn = "wizzy-desktop.foxden.network";
+          fqdns = [ "wizzy-desktop.foxden.network" ];
         };
         mac = "7C:FE:90:39:20:9A";
         dhcpv6 = {

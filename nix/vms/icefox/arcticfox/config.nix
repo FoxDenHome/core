@@ -3,28 +3,17 @@
   autostart = true;
   interfaces.default = {
     dns = {
-      fqdn = "arcticfox.doridian.net";
+      fqdns = [
+        "arcticfox.doridian.net"
+        "pma.arcticfox.doridian.net"
+        "ftp.arcticfox.doridian.net"
+        "mail.arcticfox.doridian.net"
+        "www.arcticfox.doridian.net"
+        "www.pma.arcticfox.doridian.net"
+        "www.ftp.arcticfox.doridian.net"
+        "www.mail.arcticfox.doridian.net"
+      ];
     };
-    cnames = [
-      {
-        fqdn = "pma.arcticfox.doridian.net";
-      }
-      {
-        fqdn = "ftp.arcticfox.doridian.net";
-      }
-      {
-        fqdn = "mail.arcticfox.doridian.net";
-      }
-      {
-        fqdn = "www.pma.arcticfox.doridian.net";
-      }
-      {
-        fqdn = "www.ftp.arcticfox.doridian.net";
-      }
-      {
-        fqdn = "www.mail.arcticfox.doridian.net";
-      }
-    ];
     addresses = [
       "95.216.116.135/26"
       "2a01:4f9:2b:1a42::ff01/112"

@@ -16,7 +16,7 @@ let
       # TODO: Go back to uniqueStrings once next NixOS stable
       baseUrls = nixpkgs.lib.lists.unique (
         nixpkgs.lib.flatten (
-          map (iface: (map (dns: "${baseUrlPrefix}${dns.fqdn}") ([ iface.dns ] ++ iface.cnames))) (
+          map (iface: (map (dns: "${baseUrlPrefix}${dns.fqdn}") iface.dns.fqdns)) (
             nixpkgs.lib.filter (iface: iface.dns.fqdn != "") (nixpkgs.lib.attrsets.attrValues host.interfaces)
           )
         )
@@ -261,11 +261,7 @@ in
 
       # TODO: Go back to uniqueStrings once next NixOS stable
       hostMatchers = nixpkgs.lib.lists.unique (
-        nixpkgs.lib.flatten (
-          map (iface: (map (record: record.fqdn) ([ iface.dns ] ++ iface.cnames))) (
-            nixpkgs.lib.filter (iface: iface.dns.fqdn != "") (nixpkgs.lib.attrsets.attrValues host.interfaces)
-          )
-        )
+        nixpkgs.lib.flatten (map (iface: iface.dns.fqdns) (nixpkgs.lib.attrsets.attrValues host.interfaces))
       );
 
       svc = services.mkNamed name inputs;

@@ -178,7 +178,7 @@ in
         lib.mkIf (privateIPv4 != "" && iface.webservice.enable) {
           inherit (iface) gateway;
           inherit (hostVal.webservice) readyUrl checkExpectCode proxyProtocol;
-          names = map (record: record.fqdn) ([ iface.dns ] ++ iface.cnames);
+          names = iface.dns.fqdns;
           host = util.removeIPCidr privateIPv4;
           httpPort =
             if hostVal.webservice.proxyProtocol then

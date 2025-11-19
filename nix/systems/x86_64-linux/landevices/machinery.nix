@@ -14,7 +14,7 @@
     {
       bambu-x1 = mkIntf {
         dns = {
-          fqdn = "bambu-x1.foxden.network";
+          fqdns = [ "bambu-x1.foxden.network" ];
         };
         firewall.ingressAcceptRules = foxDenLib.firewall.templates.trusted "bambu-x1";
         mac = "08:FB:EA:02:64:96";
@@ -24,7 +24,7 @@
       };
       carvera = mkIntf {
         dns = {
-          fqdn = "carvera.foxden.network";
+          fqdns = [ "carvera.foxden.network" ];
         };
         mac = "EC:C7:00:1C:E3:2D";
         addresses = [
@@ -33,7 +33,7 @@
       };
       laser-controller = mkIntf {
         dns = {
-          fqdn = "laser-controller.foxden.network";
+          fqdns = [ "laser-controller.foxden.network" ];
         };
         mac = "8C:16:45:46:05:22";
         addresses = [

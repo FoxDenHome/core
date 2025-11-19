@@ -16,15 +16,13 @@ in
   foxDen.hosts.hosts = {
     syncthing = mkVlanHost 2 {
       dns = {
-        fqdn = "syncthing.foxden.network";
+        fqdns = [
+          "syncthing.foxden.network"
+          "webdav.syncthing.foxden.network"
+        ];
         dynDns = true;
       };
       webservice.enable = true;
-      cnames = [
-        {
-          fqdn = "webdav.syncthing.foxden.network";
-        }
-      ];
       firewall.portForwards = [
         {
           protocol = "tcp";

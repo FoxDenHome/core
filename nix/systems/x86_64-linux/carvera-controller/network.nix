@@ -40,7 +40,7 @@ in
       interfaces.default = {
         driver.name = "null";
         dns = {
-          fqdn = "carvera-controller.foxden.network";
+          fqdns = [ "carvera-controller.foxden.network" ];
         };
         inherit (ifcfg) addresses;
       };

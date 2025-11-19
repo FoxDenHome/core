@@ -17,7 +17,7 @@ in
   foxDen.hosts.hosts = {
     restic = mkVlanHost 2 {
       dns = {
-        fqdn = "restic.foxden.network";
+        fqdns = [ "restic.foxden.network" ];
         dynDns = true;
       };
       webservice.enable = true;

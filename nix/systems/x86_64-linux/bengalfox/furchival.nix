@@ -33,7 +33,7 @@ in
   foxDen.hosts.hosts = {
     e621dumper = mkVlanHost 2 {
       dns = {
-        fqdn = "e621.foxden.network";
+        fqdns = [ "e621.foxden.network" ];
         dynDns = true;
       };
       webservice.enable = true;
@@ -44,7 +44,7 @@ in
     };
     fadumper = mkVlanHost 2 {
       dns = {
-        fqdn = "furaffinity.foxden.network";
+        fqdns = [ "furaffinity.foxden.network" ];
         dynDns = true;
       };
       webservice.enable = true;

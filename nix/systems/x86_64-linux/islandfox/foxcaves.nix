@@ -13,21 +13,14 @@ in
   foxDen.hosts.hosts = {
     foxcaves = mkVlanHost 3 {
       dns = {
-        fqdn = "foxcav.es";
+        fqdns = [
+          "foxcav.es"
+          "www.foxcav.es"
+          "f0x.es"
+          "www.f0x.es"
+        ];
         dynDns = true;
       };
-      cnames = [
-        {
-          fqdn = "f0x.es";
-          type = "ALIAS";
-        }
-        {
-          fqdn = "www.f0x.es";
-        }
-        {
-          fqdn = "www.foxcav.es";
-        }
-      ];
       webservice.enable = true;
       addresses = [
         "10.3.10.1/16"

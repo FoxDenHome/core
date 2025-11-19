@@ -15,7 +15,7 @@ in
   foxDen.hosts.hosts = {
     haproxy = mkV6Host {
       dns = {
-        fqdn = "icefox-haproxy.foxden.network";
+        fqdns = [ "icefox-haproxy.foxden.network" ];
       };
       firewall.portForwards = [
         {

@@ -14,7 +14,7 @@
     {
       amp-living-room = mkIntf {
         dns = {
-          fqdn = "amp-living-room.foxden.network";
+          fqdns = [ "amp-living-room.foxden.network" ];
         };
         mac = "EC:F4:51:D0:8C:AF";
         addresses = [
@@ -23,7 +23,7 @@
       };
       ecoflow-delta-pro = mkIntf {
         dns = {
-          fqdn = "ecoflow-delta-pro.foxden.network";
+          fqdns = [ "ecoflow-delta-pro.foxden.network" ];
         };
         mac = "4C:EB:D6:D6:3C:9C";
         addresses = [
@@ -32,7 +32,7 @@
       };
       hue = mkIntf {
         dns = {
-          fqdn = "hue.foxden.network";
+          fqdns = [ "hue.foxden.network" ];
         };
         mac = "C4:29:96:B5:2B:8F";
         dhcpv6 = {
@@ -46,7 +46,7 @@
       };
       hue-sync-box = mkIntf {
         dns = {
-          fqdn = "hue-sync-box.foxden.network";
+          fqdns = [ "hue-sync-box.foxden.network" ];
         };
         mac = "C4:29:96:0B:9C:82";
         addresses = [
@@ -55,7 +55,7 @@
       };
       led-strip-dori-office-ceiling = mkIntf {
         dns = {
-          fqdn = "led-strip-dori-office-ceiling.foxden.network";
+          fqdns = [ "led-strip-dori-office-ceiling.foxden.network" ];
         };
         mac = "C4:DE:E2:B2:D2:C7";
         addresses = [
@@ -64,7 +64,7 @@
       };
       nanoleaf-shapes-dori = mkIntf {
         dns = {
-          fqdn = "nanoleaf-shapes-dori.foxden.network";
+          fqdns = [ "nanoleaf-shapes-dori.foxden.network" ];
         };
         mac = "80:8A:F7:03:E2:1A";
         dhcpv6 = {
@@ -78,7 +78,7 @@
       };
       nanoleaf-lines-wizzy = mkIntf {
         dns = {
-          fqdn = "nanoleaf-lines-wizzy.foxden.network";
+          fqdns = [ "nanoleaf-lines-wizzy.foxden.network" ];
         };
         mac = "80:8A:F7:03:55:58";
         dhcpv6 = {
@@ -92,7 +92,7 @@
       };
       printer = mkIntf {
         dns = {
-          fqdn = "printer.foxden.network";
+          fqdns = [ "printer.foxden.network" ];
         };
         mac = "64:C6:D2:E5:91:45";
         addresses = [
@@ -101,7 +101,7 @@
       };
       streamdeckpi = mkIntf {
         dns = {
-          fqdn = "streamdeckpi.foxden.network";
+          fqdns = [ "streamdeckpi.foxden.network" ];
         };
         mac = "D8:3A:DD:40:CA:F1";
         addresses = [
@@ -110,7 +110,7 @@
       };
       tesla-wall-charger = mkIntf {
         dns = {
-          fqdn = "tesla-wall-charger.foxden.network";
+          fqdns = [ "tesla-wall-charger.foxden.network" ];
         };
         mac = "98:ED:5C:9B:79:CF";
         addresses = [
@@ -122,7 +122,7 @@
       }
       // (mkIntf {
         dns = {
-          fqdn = "ups-dori-office.foxden.network";
+          fqdns = [ "ups-dori-office.foxden.network" ];
         };
         mac = "00:0C:15:04:39:93";
         dhcpv6 = {

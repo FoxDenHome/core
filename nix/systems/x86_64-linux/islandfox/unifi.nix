@@ -13,7 +13,7 @@ in
   foxDen.hosts.hosts = {
     unifi = mkVlanHost 1 {
       dns = {
-        fqdn = "unifi.foxden.network";
+        fqdns = [ "unifi.foxden.network" ];
       };
       firewall.ingressAcceptRules = foxDenLib.firewall.templates.trusted "unifi";
       addresses = [

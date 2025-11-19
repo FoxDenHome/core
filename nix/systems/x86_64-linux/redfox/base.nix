@@ -20,13 +20,11 @@
       }
       // (mkIntf {
         dns = {
-          fqdn = "redfox.foxden.network";
+          fqdns = [
+            "redfox.foxden.network"
+            "redfox.doridian.net"
+          ];
         };
-        cnames = [
-          {
-            fqdn = "redfox.doridian.net";
-          }
-        ];
         addresses = [
           "10.99.10.1"
           "fd2c:f4cb:63be::a63:a01"

@@ -27,7 +27,7 @@ in
   foxDen.hosts.hosts = {
     git = mkVlanHost 2 {
       dns = {
-        fqdn = "git.foxden.network";
+        fqdns = [ "git.foxden.network" ];
         dynDns = true;
         critical = true;
       };
@@ -39,7 +39,7 @@ in
     };
     forgejo-runner = mkVlanHost 6 {
       dns = {
-        fqdn = "islandfox-forgejo-runner.foxden.network";
+        fqdns = [ "islandfox-forgejo-runner.foxden.network" ];
       };
       addresses = [
         "10.6.11.1/16"
@@ -48,7 +48,7 @@ in
     };
     forgejo-runner-container = mkVlanHost 6 {
       dns = {
-        fqdn = "islandfox-forgejo-runner-container.foxden.network";
+        fqdns = [ "islandfox-forgejo-runner-container.foxden.network" ];
       };
       addresses = [
         "10.6.11.2/16"
