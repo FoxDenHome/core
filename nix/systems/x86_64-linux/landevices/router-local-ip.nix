@@ -28,7 +28,7 @@ in
     (mkDevice "ntpi" "1.123" "017b")
     [
       {
-        name = "ecstest";
+        name = "ecstest.foxden.network";
         ttl = 0;
         type = "LUA TXT";
         value = "bestwho:toString()";
