@@ -29,6 +29,8 @@ in
       ...
     }:
     let
+      ptrMode = config.foxDen.hosts.ptrMode;
+
       cnameType =
         with nixpkgs.lib.types;
         submodule {
@@ -311,7 +313,12 @@ in
           default = { };
         };
         ptrMode = nixpkgs.lib.mkOption {
-          type = enum [ "none" "internal" "external" "all" ];
+          type = enum [
+            "none"
+            "internal"
+            "external"
+            "all"
+          ];
           default = "internal";
         };
         defaultSysctls = nixpkgs.lib.mkOption {
@@ -384,7 +391,6 @@ in
                 mkPtr = (
                   addr:
                   let
-                    ptrMode = config.foxDen.hosts.ptrMode;
                     horizon = if util.isPrivateIP addr then "internal" else "external";
                   in
                   nixpkgs.lib.mkIf (iface.dns.fqdn != "" && (ptrMode == "all" || ptrMode == horizon)) {
