@@ -3,6 +3,7 @@
   foxDen.hosts.index = 4;
   foxDen.hosts.gateway = "redfox";
 
+  foxDen.hosts.addPTR = false;
   foxDen.hosts.hosts =
     let
       mkIntf = (

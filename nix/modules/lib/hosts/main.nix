@@ -310,6 +310,10 @@ in
           type = attrsOf hostType;
           default = { };
         };
+        addPTR = nixpkgs.lib.mkOption {
+          type = bool;
+          default = true;
+        };
         defaultSysctls = nixpkgs.lib.mkOption {
           type = attrsOf (
             nullOr (oneOf [
@@ -382,7 +386,7 @@ in
                   let
                     revName = util.mkPtr addr;
                   in
-                  nixpkgs.lib.mkIf (iface.dns.name != "") {
+                  nixpkgs.lib.mkIf (config.foxDen.hosts.addPTR && iface.dns.name != "") {
                     inherit (iface.dns) ttl critical;
                     name = revName;
                     type = "PTR";

@@ -236,7 +236,7 @@ in
         };
     };
 
-  mkHost = record: record.name;
+  mkHost = record: record.name; # TODO: Remove this
 
   mkRecordHost = record: if record.name == "@" then record.zone else "${record.name}.${record.zone}";
 
@@ -267,7 +267,7 @@ in
         // rec {
           zone = lib.findFirst (
             zone: (zone == record.name) || (lib.strings.hasSuffix ".${zone}" record.name)
-          ) "" zoneNames;
+          ) (throw "DNS record ${record.name} does not belong to a defined zone") zoneNames;
           name = if (record.name == zone) then "@" else (lib.strings.removeSuffix ".${zone}" record.name);
         }
       ) records;
