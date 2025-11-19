@@ -2,18 +2,15 @@
   config,
   dns,
   lib,
-  foxDenLib,
   ...
 }:
 let
-  mkRecordHost = foxDenLib.global.dns.mkRecordHost;
-
   criticalRecords = lib.lists.filter (record: record.critical) (
     lib.lists.flatten (lib.attrsets.attrValues dns.records.internal)
   );
   mappedCriticalRecords = lib.attrsets.listToAttrs (
     map (record: {
-      name = mkRecordHost record;
+      name = if record.name == "@" then record.zone else "${record.name}.${record.zone}";
       value = record;
     }) criticalRecords
   );

@@ -236,8 +236,6 @@ in
         };
     };
 
-  mkRecordHost = procRecord: if procRecord.name == "@" then procRecord.zone else "${procRecord.name}.${procRecord.zone}";
-
   mkConfig = (
     nixosConfigurations:
     let
