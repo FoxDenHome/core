@@ -7,19 +7,28 @@ let
   mkForGateway =
     gateway: allHosts:
     let
-      hosts = lib.lists.filter (val: val.gateway == gateway) allHosts;
+      hosts = lib.sortOn (host: lib.lists.head host.fqdns) (
+        map (
+          host:
+          host
+          // {
+            primaryName = lib.lists.head host.fqdns;
+            fqdns = lib.naturalSort host.fqdns;
+          }
+        ) (lib.lists.filter (val: val.gateway == gateway) allHosts)
+      );
 
       renderMatchers = (
         cfgName: varName:
-        nixpkgs.lib.concatStringsSep "\n" (
-          nixpkgs.lib.flatten (
+        lib.concatStringsSep "\n" (
+          lib.flatten (
             map (
               host:
               let
-                name = "${cfgName}_${nixpkgs.lib.lists.head host.names}";
+                name = "${cfgName}_${lib.lists.head host.fqdns}";
               in
               if host.host != null then
-                (map (hostName: "  acl acl_${name} ${varName} -i ${hostName}") host.names)
+                (map (hostName: "  acl acl_${name} ${varName} -i ${hostName}") host.fqdns)
                 ++ [
                   "  use_backend be_${name} if acl_${name}"
                 ]
@@ -32,13 +41,13 @@ let
 
       renderBackends = (
         cfgName: mode: directives: addFlags:
-        nixpkgs.lib.concatStringsSep "\n" (
+        lib.concatStringsSep "\n" (
           map (
             host:
             let
-              primaryHost = nixpkgs.lib.lists.head host.names;
-              procHostVars = vals: map (val: nixpkgs.lib.replaceString "__HOST__" primaryHost val) vals;
-              name = "${cfgName}_${primaryHost}";
+              procHostVars =
+                vals: map (val: lib.replaceString "__HOST__" host.primaryName val) (lib.naturalSort vals);
+              name = "${cfgName}_${host.primaryName}";
               flags = [
                 "check"
               ]
@@ -50,17 +59,17 @@ let
                 backend be_${name}
                   mode ${mode}
                   option httpchk
-                  http-check send meth GET uri ${host.readyUrl} hdr Host ${primaryHost}
+                  http-check send meth GET uri ${host.readyUrl} hdr Host ${host.primaryName}
                   http-check expect status ${builtins.toString host.checkExpectCode}
                 ${
                   if directives != [ ] then
-                    nixpkgs.lib.concatStringsSep "\n" (map (dir: "  ${dir}") (procHostVars directives))
+                    lib.concatStringsSep "\n" (map (dir: "  ${dir}") (procHostVars directives))
                   else
                     ""
                 }
                   server srv_main ${host.host}:${
                     builtins.toString host."${cfgName}Port"
-                  } ${nixpkgs.lib.concatStringsSep " " flags}
+                  } ${lib.concatStringsSep " " flags}
               ''
             else
               ""
@@ -129,7 +138,7 @@ in
         with lib.types;
         submodule {
           options = {
-            names = lib.mkOption {
+            fqdns = lib.mkOption {
               type = listOf str;
             };
             host = lib.mkOption {
@@ -148,7 +157,7 @@ in
               type = str;
               default = "/readyz";
             };
-            checkExpectCode = nixpkgs.lib.mkOption {
+            checkExpectCode = lib.mkOption {
               type = ints.positive;
               default = 200;
             };
@@ -177,8 +186,8 @@ in
         in
         lib.mkIf (privateIPv4 != "" && iface.webservice.enable) {
           inherit (iface) gateway;
+          inherit (iface.dns) fqdns;
           inherit (hostVal.webservice) readyUrl checkExpectCode proxyProtocol;
-          names = iface.dns.fqdns;
           host = util.removeIPCidr privateIPv4;
           httpPort =
             if hostVal.webservice.proxyProtocol then
@@ -205,7 +214,7 @@ in
           default = { };
         };
       config.foxDen.haproxy.hosts = lib.flatten (
-        map renderHost (nixpkgs.lib.attrsets.attrsToList config.foxDen.hosts.hosts)
+        map renderHost (lib.attrsets.attrsToList config.foxDen.hosts.hosts)
       );
     };
 
