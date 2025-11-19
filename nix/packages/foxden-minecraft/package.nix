@@ -13,6 +13,10 @@ pkgs.stdenv.mkDerivation {
       url = "https://cdn.modrinth.com/data/E1XS8bXN/versions/rLfqDKHu/PlayerCollars-1.2.6%2B1.20.1-forge.jar";
       hash = "sha256-kEYZzR+tWaISRCkvZ0I1nHHXUabZxMdchs7YxX+HBqA=";
     })
+    # TODO: Add/fix BlueMap rendering for:
+    # - Large waterwheel
+    # - Crushing wheel
+    # - Filled cauldrons (water and lava)
     (pkgs.fetchurl {
       url = "https://github.com/BlueMap-Minecraft/BlueMap/releases/download/v5.12/bluemap-5.12-mc1.20-6-forge.jar";
       hash = "sha256-J2Z9CdyUPsHncaIOLVk2ddCDUvH4d97xmeEyNoOPQ+0=";
