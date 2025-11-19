@@ -225,7 +225,7 @@ renderacceleratethreshold: 60
 renderaccelerateinterval: 0.2
 
 # How many update tiles to work on at once (if not defined, default is 1/2 the number of cores)
-tiles-rendered-at-once: 2
+tiles-rendered-at-once: 12
 
 # If true, use normal priority threads for rendering (versus low priority) - this can keep rendering
 # from starving on busy Windows boxes (Linux JVMs pretty much ignore thread priority), but may result
@@ -368,7 +368,7 @@ progressloginterval: 100
 # Parallel fullrender: if defined, number of concurrent threads used for fullrender or radiusrender
 #   Note: setting this will result in much more intensive CPU use, some additional memory use.  Caution should be used when
 #  setting this to equal or exceed the number of physical cores on the system.
-#parallelrendercnt: 4
+parallelrendercnt: 6
 
 # Interval the browser should poll for updates.
 updaterate: 2000
