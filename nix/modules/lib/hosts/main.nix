@@ -310,9 +310,9 @@ in
           type = attrsOf hostType;
           default = { };
         };
-        addPTR = nixpkgs.lib.mkOption {
-          type = bool;
-          default = true;
+        ptrMode = nixpkgs.lib.mkOption {
+          type = enum [ "none" "internal" "external" "all" ];
+          default = "internal";
         };
         defaultSysctls = nixpkgs.lib.mkOption {
           type = attrsOf (
@@ -383,12 +383,16 @@ in
                 );
                 mkPtr = (
                   addr:
-                  nixpkgs.lib.mkIf (config.foxDen.hosts.addPTR && iface.dns.fqdn != "") {
+                  let
+                    ptrMode = config.foxDen.hosts.ptrMode;
+                    horizon = if util.isPrivateIP addr then "internal" else "external";
+                  in
+                  nixpkgs.lib.mkIf ((ptrMode == "all" || ptrMode == horizon) && iface.dns.fqdn != "") {
+                    inherit horizon;
                     inherit (iface.dns) ttl critical;
                     fqdn = util.mkPtr addr;
                     type = "PTR";
                     value = "${iface.dns.fqdn}.";
-                    horizon = if (util.isPrivateIP addr) then "internal" else "external";
                   }
                 );
                 ifaceCnames = map (cname: {
