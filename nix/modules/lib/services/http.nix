@@ -19,9 +19,9 @@ let
           map
             (
               iface:
-              (map (dns: "${baseUrlPrefix}${foxDenLib.global.dns.mkHost dns}") ([ iface.dns ] ++ iface.cnames))
+              (map (dns: "${baseUrlPrefix}${dns.fqdn}") ([ iface.dns ] ++ iface.cnames))
             )
-            (nixpkgs.lib.filter (iface: iface.dns.name != "") (nixpkgs.lib.attrsets.attrValues host.interfaces))
+            (nixpkgs.lib.filter (iface: iface.dns.fqdn != "") (nixpkgs.lib.attrsets.attrValues host.interfaces))
         )
       );
 
@@ -265,8 +265,8 @@ in
       # TODO: Go back to uniqueStrings once next NixOS stable
       hostMatchers = nixpkgs.lib.lists.unique (
         nixpkgs.lib.flatten (
-          map (iface: (map foxDenLib.global.dns.mkHost ([ iface.dns ] ++ iface.cnames))) (
-            nixpkgs.lib.filter (iface: iface.dns.name != "") (nixpkgs.lib.attrsets.attrValues host.interfaces)
+          map (iface: (map (record: record.fqdn) ([ iface.dns ] ++ iface.cnames))) (
+            nixpkgs.lib.filter (iface: iface.dns.fqdn != "") (nixpkgs.lib.attrsets.attrValues host.interfaces)
           )
         )
       );

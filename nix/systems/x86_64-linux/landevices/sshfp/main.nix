@@ -13,7 +13,7 @@ in
             parts = lib.strings.splitString " " valueRaw;
           in
           {
-            name = fileName;
+            fqdn = fileName;
             ttl = 3600;
             type = "SSHFP";
             horizon = "*";

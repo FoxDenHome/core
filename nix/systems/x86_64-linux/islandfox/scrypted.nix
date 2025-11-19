@@ -13,7 +13,7 @@ in
   foxDen.hosts.hosts = {
     scrypted = mkVlanHost 2 {
       dns = {
-        name = "scrypted.foxden.network";
+        fqdn = "scrypted.foxden.network";
       };
       addresses = [
         "10.2.11.16/16"

@@ -16,7 +16,7 @@ in
   foxDen.hosts.hosts = {
     restic = mkV6Host {
       dns = {
-        name = "restic.doridian.net";
+        fqdn = "restic.doridian.net";
       };
       webservice.enable = true;
       addresses = [

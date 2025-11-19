@@ -13,7 +13,7 @@ in
     nixosConfigurations:
     lib.lists.unique (
       lib.flatten (
-        map (host: map (intf: intf.dns.name) (lib.attrsets.attrValues host.interfaces)) (
+        map (host: map (intf: intf.dns.fqdn) (lib.attrsets.attrValues host.interfaces)) (
           lib.attrsets.attrValues (sshHostsRaw nixosConfigurations)
         )
       )

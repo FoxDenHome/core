@@ -14,7 +14,7 @@ let
 
   hostCfg = foxDenLib.hosts.getByName config svcConfig.host;
   primaryInterface = lib.lists.head (lib.attrsets.attrValues hostCfg.interfaces);
-  hostName = foxDenLib.global.dns.mkHost primaryInterface.dns;
+  hostName = primaryInterface.dns.fqdn;
 in
 {
   options.foxDen.services.kanidm = with lib.types; {

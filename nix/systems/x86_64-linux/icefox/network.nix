@@ -342,7 +342,7 @@ in
 
   foxDen.dns.records = [
     {
-      name = "v4-icefox.doridian.net";
+      fqdn = "v4-icefox.doridian.net";
       type = "A";
       ttl = 3600;
       value = mainIPv4;
@@ -360,11 +360,11 @@ in
         mkIntf = subifcfg: {
           driver.name = "null";
           dns = {
-            name = "icefox.foxden.network";
+            fqdn = "icefox.foxden.network";
           };
           cnames = [
             {
-              name = "icefox.doridian.net";
+              fqdn = "icefox.doridian.net";
             }
           ];
           inherit (subifcfg) mac addresses;
@@ -377,7 +377,7 @@ in
         interfaces.routed = {
           driver.name = "null";
           inherit (ifcfg-routed) mac addresses;
-          dns.name = "";
+          dns.fqdn = "";
         };
       };
   };

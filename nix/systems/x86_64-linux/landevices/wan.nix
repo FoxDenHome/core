@@ -3,7 +3,7 @@ let
   mkWanRecs = (
     suffix: v4: v6: [
       {
-        name = "${suffix}.foxden.network";
+        fqdn = "${suffix}.foxden.network";
         type = "A";
         value = v4;
         ttl = 300;
@@ -11,7 +11,7 @@ let
         horizon = "external";
       }
       {
-        name = "${suffix}.foxden.network";
+        fqdn = "${suffix}.foxden.network";
         type = "AAAA";
         value = v6;
         ttl = 300;
@@ -19,7 +19,7 @@ let
         horizon = "external";
       }
       {
-        name = "v4-${suffix}.foxden.network";
+        fqdn = "v4-${suffix}.foxden.network";
         type = "A";
         value = v4;
         ttl = 300;
@@ -27,7 +27,7 @@ let
         horizon = "external";
       }
       {
-        name = "v4-${suffix}.foxden.network";
+        fqdn = "v4-${suffix}.foxden.network";
         type = "CNAME";
         value = "${suffix}.foxden.network.";
         ttl = 300;
@@ -39,63 +39,63 @@ in
 {
   config.foxDen.dns.records = [
     {
-      name = "vpn.foxden.network";
+      fqdn = "vpn.foxden.network";
       type = "CNAME";
       ttl = 3600;
       value = "v4-wan.foxden.network.";
       horizon = "external";
     }
     {
-      name = "vpn.foxden.network";
+      fqdn = "vpn.foxden.network";
       type = "A";
       ttl = 3600;
       value = "10.2.1.1";
       horizon = "internal";
     }
     {
-      name = "v4-vpn.foxden.network";
+      fqdn = "v4-vpn.foxden.network";
       type = "CNAME";
       ttl = 3600;
       value = "v4-wan.foxden.network.";
       horizon = "external";
     }
     {
-      name = "v4-vpn.foxden.network";
+      fqdn = "v4-vpn.foxden.network";
       type = "A";
       ttl = 3600;
       value = "10.2.1.1";
       horizon = "internal";
     }
     {
-      name = "ext-router.foxden.network";
+      fqdn = "ext-router.foxden.network";
       type = "CNAME";
       ttl = 3600;
       value = "router.foxden.network.";
       horizon = "external";
     }
     {
-      name = "ext-router-backup.foxden.network";
+      fqdn = "ext-router-backup.foxden.network";
       type = "CNAME";
       ttl = 3600;
       value = "router-backup.foxden.network.";
       horizon = "external";
     }
     {
-      name = "ext-router.foxden.network";
+      fqdn = "ext-router.foxden.network";
       type = "A";
       ttl = 3600;
       value = "10.2.6.1";
       horizon = "internal";
     }
     {
-      name = "ext-router-backup.foxden.network";
+      fqdn = "ext-router-backup.foxden.network";
       type = "A";
       ttl = 3600;
       value = "10.2.6.2";
       horizon = "internal";
     }
     {
-      name = "ntp.foxden.network";
+      fqdn = "ntp.foxden.network";
       type = "CNAME";
       ttl = 3600;
       value = "wan.foxden.network.";

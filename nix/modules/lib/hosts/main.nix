@@ -33,7 +33,7 @@ in
         with nixpkgs.lib.types;
         submodule {
           options = {
-            name = nixpkgs.lib.mkOption {
+            fqdn = nixpkgs.lib.mkOption {
               type = str;
             };
             zone = nixpkgs.lib.mkOption {
@@ -122,7 +122,7 @@ in
               };
             };
             dns = {
-              name = nixpkgs.lib.mkOption {
+              fqdn = nixpkgs.lib.mkOption {
                 type = str;
                 default = "";
               };
@@ -279,7 +279,7 @@ in
         if (check iface) then
           [
             {
-              name = iface.dns.name;
+              inherit (iface.dns) fqdn;
               type = type;
               ttl = iface.dns.dynDnsTtl;
               value = util.removeIPCidr (value iface);
@@ -369,9 +369,9 @@ in
               let
                 mkRecord = (
                   addr:
-                  nixpkgs.lib.mkIf (iface.dns.name != "") {
+                  nixpkgs.lib.mkIf (iface.dns.fqdn != "") {
                     inherit (iface.dns)
-                      name
+                      fqdn
                       ttl
                       dynDns
                       critical
@@ -383,21 +383,18 @@ in
                 );
                 mkPtr = (
                   addr:
-                  let
-                    revName = util.mkPtr addr;
-                  in
-                  nixpkgs.lib.mkIf (config.foxDen.hosts.addPTR && iface.dns.name != "") {
+                  nixpkgs.lib.mkIf (config.foxDen.hosts.addPTR && iface.dns.fqdn != "") {
                     inherit (iface.dns) ttl critical;
-                    name = revName;
+                    fqdn = util.mkPtr addr;
                     type = "PTR";
-                    value = "${foxDenLib.global.dns.mkHost iface.dns}.";
+                    value = "${iface.dns.fqdn}.";
                     horizon = if (util.isPrivateIP addr) then "internal" else "external";
                   }
                 );
                 ifaceCnames = map (cname: {
                   inherit (iface.dns) ttl critical;
-                  inherit (cname) name type;
-                  value = "${foxDenLib.global.dns.mkHost iface.dns}.";
+                  inherit (cname) fqdn type;
+                  value = "${iface.dns.fqdn}.";
                   horizon = "*";
                 }) iface.cnames;
               in

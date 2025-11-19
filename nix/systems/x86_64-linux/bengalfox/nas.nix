@@ -131,7 +131,7 @@ in
     deluge =
       (mkVlanHost 2 {
         dns = {
-          name = "deluge.foxden.network";
+          fqdn = "deluge.foxden.network";
         };
         addresses = [
           "10.2.11.8/16"
@@ -156,7 +156,7 @@ in
       };
     jellyfin = mkVlanHost 2 {
       dns = {
-        name = "jellyfin.foxden.network";
+        fqdn = "jellyfin.foxden.network";
         dynDns = true;
       };
       webservice.enable = true;
@@ -167,7 +167,7 @@ in
     };
     kiwix = mkVlanHost 2 {
       dns = {
-        name = "kiwix.foxden.network";
+        fqdn = "kiwix.foxden.network";
         dynDns = true;
       };
       webservice.enable = true;
@@ -178,7 +178,7 @@ in
     };
     nas = mkVlanHost 2 {
       dns = {
-        name = "nas.foxden.network";
+        fqdn = "nas.foxden.network";
         dynDns = true;
       };
       webservice.enable = true;
@@ -189,7 +189,7 @@ in
     };
     nzbget = mkVlanHost 2 {
       dns = {
-        name = "nzbget.foxden.network";
+        fqdn = "nzbget.foxden.network";
       };
       addresses = [
         "10.2.11.9/16"

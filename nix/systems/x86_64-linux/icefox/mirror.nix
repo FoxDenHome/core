@@ -26,14 +26,14 @@ in
   foxDen.hosts.hosts = {
     mirror = mkV6Host {
       dns = {
-        name = "mirror.doridian.net";
+        fqdn = "mirror.doridian.net";
       };
       cnames = [
         {
-          name = "cachyos.doridian.net";
+          fqdn = "cachyos.doridian.net";
         }
         {
-          name = "archlinux.doridian.net";
+          fqdn = "archlinux.doridian.net";
         }
       ];
       firewall.portForwards = [

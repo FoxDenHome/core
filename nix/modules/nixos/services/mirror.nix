@@ -13,7 +13,7 @@ let
   primaryInterfaceName = lib.lists.head (lib.attrsets.attrNames hostCfg.interfaces);
   primaryInterface = hostCfg.interfaces.${primaryInterfaceName};
 
-  svcRootName = lib.strings.removePrefix "mirror." primaryInterface.dns.name;
+  svcRootName = lib.strings.removePrefix "mirror." primaryInterface.dns.fqdn;
 
   sourceType =
     with lib.types;

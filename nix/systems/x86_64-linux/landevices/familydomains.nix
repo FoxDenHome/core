@@ -19,14 +19,14 @@ let
   mkFamilyRecords =
     domain:
     (map (name: {
-      name = "${name}.${domain}";
+      fqdn = "${name}.${domain}";
       type = "CNAME";
       value = "${domain}.";
       horizon = "*";
     }) subCnames)
     ++ [
       {
-        name = domain;
+        fqdn = domain;
         type = "MX";
         priority = 1;
         ttl = 3600;
@@ -34,7 +34,7 @@ let
         horizon = "*";
       }
       {
-        name = domain;
+        fqdn = domain;
         type = "ALIAS";
         ttl = 3600;
         value = "${serverDomain}.";

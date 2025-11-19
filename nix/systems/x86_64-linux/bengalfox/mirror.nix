@@ -28,16 +28,16 @@ in
   foxDen.hosts.hosts = {
     mirror = mkVlanHost 2 {
       dns = {
-        name = "mirror.foxden.network";
+        fqdn = "mirror.foxden.network";
         dynDns = true;
         critical = true;
       };
       cnames = [
         {
-          name = "archlinux.foxden.network";
+          fqdn = "archlinux.foxden.network";
         }
         {
-          name = "cachyos.foxden.network";
+          fqdn = "cachyos.foxden.network";
         }
       ];
       firewall.ingressAcceptRules = [

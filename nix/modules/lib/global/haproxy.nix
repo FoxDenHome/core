@@ -2,7 +2,6 @@
 let
   lib = nixpkgs.lib;
   util = foxDenLib.util;
-  mkHost = foxDenLib.global.dns.mkHost;
   globalConfig = foxDenLib.global.config;
 
   mkForGateway =
@@ -179,7 +178,7 @@ in
         lib.mkIf (privateIPv4 != "" && iface.webservice.enable) {
           inherit (iface) gateway;
           inherit (hostVal.webservice) readyUrl checkExpectCode proxyProtocol;
-          names = map mkHost ([ iface.dns ] ++ iface.cnames);
+          names = map (record: record.name) ([ iface.dns ] ++ iface.cnames);
           host = util.removeIPCidr privateIPv4;
           httpPort =
             if hostVal.webservice.proxyProtocol then

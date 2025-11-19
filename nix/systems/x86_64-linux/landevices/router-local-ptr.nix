@@ -24,84 +24,84 @@ in
       in
       [
         {
-          name = "1.0.${vlan}.${ipv4Root}";
+          fqdn = "1.0.${vlan}.${ipv4Root}";
           type = "PTR";
           ttl = 3600;
           value = "gateway.foxden.network.";
           horizon = "internal";
         }
         {
-          name = "1.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.${vlan}.0.0.0.${ipv6Root}";
+          fqdn = "1.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.${vlan}.0.0.0.${ipv6Root}";
           type = "PTR";
           ttl = 3600;
           value = "gateway.foxden.network.";
           horizon = "internal";
         }
         {
-          name = "53.0.${vlan}.${ipv4Root}";
+          fqdn = "53.0.${vlan}.${ipv4Root}";
           type = "PTR";
           ttl = 3600;
           value = "dns.foxden.network.";
           horizon = "internal";
         }
         {
-          name = "5.3.0.0.0.0.0.0.0.0.0.0.0.0.0.0.${vlan}.0.0.0.${ipv6Root}";
+          fqdn = "5.3.0.0.0.0.0.0.0.0.0.0.0.0.0.0.${vlan}.0.0.0.${ipv6Root}";
           type = "PTR";
           ttl = 3600;
           value = "dns.foxden.network.";
           horizon = "internal";
         }
         {
-          name = "123.0.${vlan}.${ipv4Root}";
+          fqdn = "123.0.${vlan}.${ipv4Root}";
           type = "PTR";
           ttl = 3600;
           value = "ntp.foxden.network.";
           horizon = "internal";
         }
         {
-          name = "b.7.0.0.0.0.0.0.0.0.0.0.0.0.0.0.${vlan}.0.0.0.${ipv6Root}";
+          fqdn = "b.7.0.0.0.0.0.0.0.0.0.0.0.0.0.0.${vlan}.0.0.0.${ipv6Root}";
           type = "PTR";
           ttl = 3600;
           value = "ntp.foxden.network.";
           horizon = "internal";
         }
         {
-          name = "1.1.${vlan}.${ipv4Root}";
+          fqdn = "1.1.${vlan}.${ipv4Root}";
           type = "PTR";
           ttl = 3600;
           value = "router.foxden.network.";
           horizon = "internal";
         }
         {
-          name = "1.0.1.0.0.0.0.0.0.0.0.0.0.0.0.0.${vlan}.0.0.0.${ipv6Root}";
+          fqdn = "1.0.1.0.0.0.0.0.0.0.0.0.0.0.0.0.${vlan}.0.0.0.${ipv6Root}";
           type = "PTR";
           ttl = 3600;
           value = "router.foxden.network.";
           horizon = "internal";
         }
         {
-          name = "2.1.${vlan}.${ipv4Root}";
+          fqdn = "2.1.${vlan}.${ipv4Root}";
           type = "PTR";
           ttl = 3600;
           value = "router-backup.foxden.network.";
           horizon = "internal";
         }
         {
-          name = "2.0.1.0.0.0.0.0.0.0.0.0.0.0.0.0.${vlan}.0.0.0.${ipv6Root}";
+          fqdn = "2.0.1.0.0.0.0.0.0.0.0.0.0.0.0.0.${vlan}.0.0.0.${ipv6Root}";
           type = "PTR";
           ttl = 3600;
           value = "router-backup.foxden.network.";
           horizon = "internal";
         }
         {
-          name = "123.1.${vlan}.${ipv4Root}";
+          fqdn = "123.1.${vlan}.${ipv4Root}";
           type = "PTR";
           ttl = 3600;
           value = "ntpi.foxden.network.";
           horizon = "internal";
         }
         {
-          name = "b.7.1.0.0.0.0.0.0.0.0.0.0.0.0.0.${vlan}.0.0.0.${ipv6Root}";
+          fqdn = "b.7.1.0.0.0.0.0.0.0.0.0.0.0.0.0.${vlan}.0.0.0.${ipv6Root}";
           type = "PTR";
           ttl = 3600;
           value = "ntpi.foxden.network.";

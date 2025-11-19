@@ -3,14 +3,14 @@ let
   mkView = suffix: ";include('config'); return view(FoxDenLocal('${suffix}'));";
   mkDevice = name: suffix4: suffix6: [
     {
-      name = "${name}.foxden.network";
+      fqdn = "${name}.foxden.network";
       ttl = 30;
       type = "LUA A";
       value = mkView suffix4;
       horizon = "internal";
     }
     {
-      name = "${name}.foxden.network";
+      fqdn = "${name}.foxden.network";
       ttl = 30;
       type = "LUA AAAA";
       value = mkView suffix6;
@@ -28,7 +28,7 @@ in
     (mkDevice "ntpi" "1.123" "017b")
     [
       {
-        name = "ecstest.foxden.network";
+        fqdn = "ecstest.foxden.network";
         ttl = 0;
         type = "LUA TXT";
         value = "bestwho:toString()";

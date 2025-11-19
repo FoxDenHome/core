@@ -7,7 +7,7 @@
   };
   interfaces.default = {
     dns = {
-      name = "bengalfox-win.foxden.network";
+      fqdn = "bengalfox-win.foxden.network";
     };
     mac = "5e:8c:f2:cd:c8:4a";
     dhcpv6 = {

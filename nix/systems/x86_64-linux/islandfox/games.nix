@@ -39,12 +39,12 @@ in
   foxDen.hosts.hosts = {
     darksignsonline = mkVlanHost 3 {
       dns = {
-        name = "darksignsonline.com";
+        fqdn = "darksignsonline.com";
         dynDns = true;
       };
       cnames = [
         {
-          name = "www.darksignsonline.com";
+          fqdn = "www.darksignsonline.com";
         }
       ];
       webservice.enable = true;
@@ -55,15 +55,15 @@ in
     };
     minecraft = mkVlanHost 2 {
       dns = {
-        name = "minecraft.foxden.network";
+        fqdn = "minecraft.foxden.network";
         dynDns = true;
       };
       cnames = [
         {
-          name = "mc.foxden.network";
+          fqdn = "mc.foxden.network";
         }
         {
-          name = "mc.doridian.net";
+          fqdn = "mc.doridian.net";
         }
       ];
       webservice.enable = true;
@@ -80,15 +80,15 @@ in
     };
     spaceage-gmod = mkVlanHost 3 {
       dns = {
-        name = "spaceage-gmod.foxden.network";
+        fqdn = "spaceage-gmod.foxden.network";
         dynDns = true;
       };
       cnames = [
         {
-          name = "gmod.spaceage.mp";
+          fqdn = "gmod.spaceage.mp";
         }
         {
-          name = "play.spaceage.mp";
+          fqdn = "play.spaceage.mp";
         }
       ];
       firewall.portForwards = [
@@ -104,13 +104,13 @@ in
     };
     spaceage-api = mkVlanHost 3 {
       dns = {
-        name = "spaceage-api.foxden.network";
+        fqdn = "spaceage-api.foxden.network";
         dynDns = true;
       };
       webservice.enable = true;
       cnames = [
         {
-          name = "api.spaceage.mp";
+          fqdn = "api.spaceage.mp";
         }
       ];
       addresses = [
@@ -120,13 +120,13 @@ in
     };
     spaceage-tts = mkVlanHost 3 {
       dns = {
-        name = "spaceage-tts.foxden.network";
+        fqdn = "spaceage-tts.foxden.network";
         dynDns = true;
       };
       webservice.enable = true;
       cnames = [
         {
-          name = "tts.spaceage.mp";
+          fqdn = "tts.spaceage.mp";
         }
       ];
       addresses = [
@@ -136,13 +136,13 @@ in
     };
     spaceage-website = mkVlanHost 3 {
       dns = {
-        name = "spaceage.mp";
+        fqdn = "spaceage.mp";
         dynDns = true;
       };
       webservice.enable = true;
       cnames = [
         {
-          name = "www.spaceage.mp";
+          fqdn = "www.spaceage.mp";
         }
       ];
       addresses = [

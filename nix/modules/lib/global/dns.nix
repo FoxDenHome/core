@@ -7,7 +7,7 @@ let
     with lib.types;
     submodule {
       options = {
-        name = lib.mkOption {
+        fqdn = lib.mkOption {
           type = str;
         };
         type = lib.mkOption {
@@ -110,13 +110,13 @@ let
   };
 
   mkAuxRecords =
-    name: zone: authorities:
-    map (record: emptyRecord // record) (mkAuxRecordsInt name zone authorities);
+    fqdn: zone: authorities:
+    map (record: emptyRecord // record) (mkAuxRecordsInt fqdn zone authorities);
 
   mkAuxRecordsInt =
-    name: zone: authorities:
+    fqdn: zone: authorities:
     (map (ns: {
-      inherit name;
+      inherit fqdn;
       type = "NS";
       ttl = 86400;
       value = ns;
@@ -126,7 +126,7 @@ let
       if zone.fastmail or zone.ses then
         [
           {
-            inherit name;
+            inherit fqdn;
             type = "TXT";
             ttl = 3600;
             value = nixpkgs.lib.concatStringsSep " " (
@@ -141,7 +141,7 @@ let
             horizon = "*";
           }
           {
-            name = "_dmarc.${name}";
+            fqdn = "_dmarc.${fqdn}";
             type = "TXT";
             ttl = 3600;
             value = "v=DMARC1;p=quarantine;pct=100";
@@ -155,7 +155,7 @@ let
       if zone.fastmail then
         [
           {
-            inherit name;
+            inherit fqdn;
             type = "MX";
             ttl = 3600;
             value = "in1-smtp.messagingengine.com.";
@@ -163,7 +163,7 @@ let
             horizon = "*";
           }
           {
-            inherit name;
+            inherit fqdn;
             type = "MX";
             ttl = 3600;
             value = "in2-smtp.messagingengine.com.";
@@ -171,24 +171,24 @@ let
             horizon = "*";
           }
           {
-            name = "fm1._domainkey.${name}";
+            fqdn = "fm1._domainkey.${fqdn}";
             type = "CNAME";
             ttl = 3600;
-            value = "fm1.${name}.dkim.fmhosted.com";
+            value = "fm1.${fqdn}.dkim.fmhosted.com";
             horizon = "*";
           }
           {
-            name = "fm2._domainkey.${name}";
+            fqdn = "fm2._domainkey.${fqdn}";
             type = "CNAME";
             ttl = 3600;
-            value = "fm2.${name}.dkim.fmhosted.com";
+            value = "fm2.${fqdn}.dkim.fmhosted.com";
             horizon = "*";
           }
           {
-            name = "fm3._domainkey.${name}";
+            fqdn = "fm3._domainkey.${fqdn}";
             type = "CNAME";
             ttl = 3600;
-            value = "fm3.${name}.dkim.fmhosted.com";
+            value = "fm3.${fqdn}.dkim.fmhosted.com";
             horizon = "*";
           }
         ]
@@ -199,7 +199,7 @@ let
       if zone.generateNSRecords then
         (builtins.genList (idx: [
           {
-            name = "ns${builtins.toString (idx + 1)}.${name}";
+            fqdn = "ns${builtins.toString (idx + 1)}.${fqdn}";
             type = "ALIAS";
             ttl = 86400;
             value = builtins.elemAt authorities.upstream.nameservers idx;
@@ -236,9 +236,7 @@ in
         };
     };
 
-  mkHost = record: record.name; # TODO: Remove this
-
-  mkRecordHost = record: if record.name == "@" then record.zone else "${record.name}.${record.zone}";
+  mkRecordHost = procRecord: if procRecord.name == "@" then procRecord.zone else "${procRecord.name}.${procRecord.zone}";
 
   mkConfig = (
     nixosConfigurations:
@@ -266,9 +264,9 @@ in
         record
         // rec {
           zone = lib.findFirst (
-            zone: (zone == record.name) || (lib.strings.hasSuffix ".${zone}" record.name)
-          ) (throw "DNS record ${record.name} does not belong to a defined zone") zoneNames;
-          name = if (record.name == zone) then "@" else (lib.strings.removeSuffix ".${zone}" record.name);
+            zone: (zone == record.fqdn) || (lib.strings.hasSuffix ".${zone}" record.fqdn)
+          ) (throw "DNS record ${record.fqdn} does not belong to a defined zone") zoneNames;
+          name = if (record.fqdn == zone) then "@" else (lib.strings.removeSuffix ".${zone}" record.fqdn);
         }
       ) records;
     in

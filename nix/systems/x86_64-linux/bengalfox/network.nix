@@ -87,7 +87,7 @@ in
       interfaces.default = {
         driver.name = "null";
         dns = {
-          name = "bengalfox.foxden.network";
+          fqdn = "bengalfox.foxden.network";
         };
         inherit (ifcfg) mac addresses;
       };

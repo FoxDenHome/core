@@ -17,7 +17,7 @@
       }
       // (mkIntf {
         dns = {
-          name = "ap-backyard.foxden.network";
+          fqdn = "ap-backyard.foxden.network";
         };
         mac = "68:D7:9A:1F:57:E2";
         addresses = [
@@ -29,7 +29,7 @@
       }
       // (mkIntf {
         dns = {
-          name = "ap-corridor-upper.foxden.network";
+          fqdn = "ap-corridor-upper.foxden.network";
         };
         mac = "60:22:32:1D:48:15";
         addresses = [
@@ -41,7 +41,7 @@
       }
       // (mkIntf {
         dns = {
-          name = "ap-living-room.foxden.network";
+          fqdn = "ap-living-room.foxden.network";
         };
         mac = "60:22:32:83:6D:9E";
         addresses = [
@@ -50,7 +50,7 @@
       });
       camera-back-door-upper = mkIntf {
         dns = {
-          name = "camera-back-door-upper.foxden.network";
+          fqdn = "camera-back-door-upper.foxden.network";
         };
         mac = "D0:21:F9:94:97:13";
         addresses = [
@@ -59,7 +59,7 @@
       };
       camera-back-right = mkIntf {
         dns = {
-          name = "camera-back-right.foxden.network";
+          fqdn = "camera-back-right.foxden.network";
         };
         mac = "D0:21:F9:99:60:DA";
         addresses = [
@@ -68,7 +68,7 @@
       };
       camera-den = mkIntf {
         dns = {
-          name = "camera-den.foxden.network";
+          fqdn = "camera-den.foxden.network";
         };
         mac = "E4:38:83:0E:E4:A3";
         addresses = [
@@ -77,7 +77,7 @@
       };
       camera-front-door = mkIntf {
         dns = {
-          name = "camera-front-door.foxden.network";
+          fqdn = "camera-front-door.foxden.network";
         };
         mac = "E4:38:83:0E:1F:D3";
         addresses = [
@@ -86,7 +86,7 @@
       };
       camera-front-left = mkIntf {
         dns = {
-          name = "camera-front-left.foxden.network";
+          fqdn = "camera-front-left.foxden.network";
         };
         mac = "70:A7:41:0B:11:36";
         addresses = [
@@ -95,7 +95,7 @@
       };
       camera-front-right = mkIntf {
         dns = {
-          name = "camera-front-right.foxden.network";
+          fqdn = "camera-front-right.foxden.network";
         };
         mac = "70:A7:41:5F:DB:54";
         addresses = [
@@ -104,7 +104,7 @@
       };
       camera-garage = mkIntf {
         dns = {
-          name = "camera-garage.foxden.network";
+          fqdn = "camera-garage.foxden.network";
         };
         mac = "F4:E2:C6:0C:3F:C3";
         addresses = [
@@ -113,7 +113,7 @@
       };
       camera-living-room = mkIntf {
         dns = {
-          name = "camera-living-room.foxden.network";
+          fqdn = "camera-living-room.foxden.network";
         };
         mac = "68:D7:9A:CF:30:09";
         addresses = [
@@ -122,7 +122,7 @@
       };
       camera-server-room = mkIntf {
         dns = {
-          name = "camera-server-room.foxden.network";
+          fqdn = "camera-server-room.foxden.network";
         };
         mac = "F4:E2:C6:0C:E8:3C";
         addresses = [
@@ -131,7 +131,7 @@
       };
       camera-side-right = mkIntf {
         dns = {
-          name = "camera-side-right.foxden.network";
+          fqdn = "camera-side-right.foxden.network";
         };
         mac = "1C:6A:1B:81:B9:D4";
         addresses = [
@@ -143,7 +143,7 @@
       }
       // (mkIntf {
         dns = {
-          name = "nvr.foxden.network";
+          fqdn = "nvr.foxden.network";
         };
         mac = "60:22:32:F1:BF:71";
         dhcpv6 = {
@@ -161,7 +161,7 @@
       }
       // (mkIntf {
         dns = {
-          name = "pdu-rack.foxden.network";
+          fqdn = "pdu-rack.foxden.network";
         };
         mac = "70:A7:41:F8:13:09";
         addresses = [
@@ -173,7 +173,7 @@
       }
       // (mkIntf {
         dns = {
-          name = "switch-den.foxden.network";
+          fqdn = "switch-den.foxden.network";
         };
         mac = "24:5A:4C:A6:6B:9A";
         addresses = [
@@ -182,7 +182,7 @@
       });
       switch-den-desk = mkIntf {
         dns = {
-          name = "switch-den-desk.foxden.network";
+          fqdn = "switch-den-desk.foxden.network";
         };
         mac = "74:83:C2:FF:87:16";
         addresses = [
@@ -194,7 +194,7 @@
       }
       // (mkIntf {
         dns = {
-          name = "switch-dori-office.foxden.network";
+          fqdn = "switch-dori-office.foxden.network";
         };
         mac = "60:22:32:39:77:9C";
         addresses = [
@@ -206,7 +206,7 @@
       }
       // (mkIntf {
         dns = {
-          name = "switch-dori-office-agg.foxden.network";
+          fqdn = "switch-dori-office-agg.foxden.network";
         };
         mac = "AC:8B:A9:A6:E7:EE";
         addresses = [
@@ -215,7 +215,7 @@
       });
       switch-dori-office-desk = mkIntf {
         dns = {
-          name = "switch-dori-office-desk.foxden.network";
+          fqdn = "switch-dori-office-desk.foxden.network";
         };
         mac = "F4:E2:C6:AC:81:DC";
         addresses = [
@@ -224,7 +224,7 @@
       };
       switch-dori-office-tv = mkIntf {
         dns = {
-          name = "switch-dori-office-tv.foxden.network";
+          fqdn = "switch-dori-office-tv.foxden.network";
         };
         mac = "F4:E2:C6:AC:81:3D";
         addresses = [
@@ -233,7 +233,7 @@
       };
       switch-living-room = mkIntf {
         dns = {
-          name = "switch-living-room.foxden.network";
+          fqdn = "switch-living-room.foxden.network";
         };
         mac = "E4:38:83:8C:AA:DA";
         dhcpv6 = {
@@ -250,7 +250,7 @@
       }
       // (mkIntf {
         dns = {
-          name = "switch-rack.foxden.network";
+          fqdn = "switch-rack.foxden.network";
         };
         mac = "D8:B3:70:1E:9E:3A";
         addresses = [
@@ -262,7 +262,7 @@
       }
       // (mkIntf {
         dns = {
-          name = "switch-rack-agg.foxden.network";
+          fqdn = "switch-rack-agg.foxden.network";
         };
         mac = "24:5A:4C:56:41:C4";
         addresses = [

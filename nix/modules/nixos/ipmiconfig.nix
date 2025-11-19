@@ -106,7 +106,7 @@ in
           driver.name = "null";
           useDHCP = false;
           dns = {
-            name = "${netconfig.hostName}.${netconfig.hostZone}";
+            fqdn = "${netconfig.hostName}.${netconfig.hostZone}";
           };
           addresses = lib.lists.filter (val: val != null) [
             netconfig.ipv4.address

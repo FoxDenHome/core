@@ -3,7 +3,7 @@
   autostart = true;
   interfaces.default = {
     dns = {
-      name = "homeassistant.foxden.network";
+      fqdn = "homeassistant.foxden.network";
       dynDns = true;
     };
     webservice.enable = true;
