@@ -17,7 +17,7 @@ let
           type = str;
         };
         ttl = lib.mkOption {
-          type = ints.positive;
+          type = ints.unsigned;
           default = 3600;
         };
         priority = lib.mkOption {
