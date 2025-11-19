@@ -14,8 +14,8 @@ pkgs.stdenv.mkDerivation {
       hash = "sha256-kEYZzR+tWaISRCkvZ0I1nHHXUabZxMdchs7YxX+HBqA=";
     })
     (pkgs.fetchurl {
-      url = "https://github.com/BlueMap-Minecraft/BlueMap/releases/download/v5.3/BlueMap-5.3-forge-1.20.jar";
-      hash = "sha256-eN4wWUItI7WleFk1KUSTM5EQv9ri4QRKrBuvCgN89qU=";
+      url = "https://github.com/BlueMap-Minecraft/BlueMap/releases/download/v5.12/bluemap-5.12-mc1.20-6-forge.jar";
+      hash = "sha256-J2Z9CdyUPsHncaIOLVk2ddCDUvH4d97xmeEyNoOPQ+0=";
     })
     ./local
   ];

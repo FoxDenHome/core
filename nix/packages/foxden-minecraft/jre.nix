@@ -1,1 +1,1 @@
-{ pkgs, ... }: pkgs.corretto17
+{ pkgs, ... }: pkgs.corretto21
