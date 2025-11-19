@@ -387,7 +387,7 @@ in
                     ptrMode = config.foxDen.hosts.ptrMode;
                     horizon = if util.isPrivateIP addr then "internal" else "external";
                   in
-                  nixpkgs.lib.mkIf ((ptrMode == "all" || ptrMode == horizon) && iface.dns.fqdn != "") {
+                  nixpkgs.lib.mkIf (iface.dns.fqdn != "" && (ptrMode == "all" || ptrMode == horizon)) {
                     inherit horizon;
                     inherit (iface.dns) ttl critical;
                     fqdn = util.mkPtr addr;
