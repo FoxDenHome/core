@@ -29,7 +29,7 @@ pkgs.stdenv.mkDerivation {
       elif [ -d "$srcFile" ]; then
         rm -rf server-tmp && mkdir -p server-tmp
         cp -r "$srcFile"/* server-tmp
-        chmod 600 server-tmp/server-icon.png server-tmp/variables.txt server-tmp/server.properties server-tmp/*.json server-tmp/minecraft-*.sh server-tmp/nix-version.txt || true
+        chmod 600 server-tmp/server-icon.png server-tmp/variables.txt server-tmp/server.properties server-tmp/*.json server-tmp/minecraft-*.sh server-tmp/nix-version.txt server-tmp/config || true
         rm -fv server-tmp/server-icon.png server-tmp/variables.txt server-tmp/server.properties server-tmp/*.json server-tmp/minecraft-*.sh server-tmp/nix-version.txt
         cp -r server-tmp/* server/
       else
