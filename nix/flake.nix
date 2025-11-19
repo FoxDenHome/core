@@ -8,7 +8,7 @@
 
     impermanence.url = "github:nix-community/impermanence";
     lanzaboote = {
-      url = "github:Doridian/lanzaboote";
+      url = "github:nix-community/lanzaboote";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     sops-nix = {
