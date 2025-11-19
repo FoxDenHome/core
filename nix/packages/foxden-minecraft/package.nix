@@ -18,6 +18,7 @@ pkgs.stdenv.mkDerivation {
     # - Crushing wheel
     # - Filled cauldrons (water and lava)
     # - Water-filled catalyst (fire and lava work)
+    # - Witch-hazel (I think) bookshelves
     (pkgs.fetchurl {
       url = "https://github.com/BlueMap-Minecraft/BlueMap/releases/download/v5.12/bluemap-5.12-mc1.20-6-forge.jar";
       hash = "sha256-J2Z9CdyUPsHncaIOLVk2ddCDUvH4d97xmeEyNoOPQ+0=";
