@@ -15,7 +15,7 @@ let
 
   findFqdnForPrefix =
     prefix:
-    lib.findFirstfindFirst (
+    lib.findFirst (
       fqdn: lib.strings.hasPrefix "${prefix}." fqdn
     ) (throw "No FQDN found for mirror service ${prefix}") primaryInterface.dns.fqdns;
 
