@@ -16,6 +16,7 @@ let
   ];
 
   syncoidVolumes = [
+    "kiwix"
     "nashome"
     "restic"
   ];
