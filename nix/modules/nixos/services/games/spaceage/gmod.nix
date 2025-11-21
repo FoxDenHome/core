@@ -8,6 +8,19 @@
 let
   services = foxDenLib.services;
 
+  libraries =
+    with pkgs;
+    lib.makeLibraryPath [
+      stdenv.cc.cc
+    ];
+
+  packages = with pkgs; [
+    steamcmd
+    starlord
+    git
+    coreutils
+  ];
+
   svcConfig = config.foxDen.services.spaceage-gmod;
 in
 {
@@ -34,19 +47,8 @@ in
           wants = [ "network-online.target" ];
           after = [ "network-online.target" ];
 
-          confinement.packages = with pkgs; [
-            steamcmd
-            steam-run
-            starlord
-            git
-            coreutils
-          ];
-          path = with pkgs; [
-            steamcmd
-            starlord
-            git
-            coreutils
-          ];
+          confinement.packages = packages;
+          path = packages;
 
           serviceConfig = {
             User = "spaceage-gmod";
@@ -58,6 +60,8 @@ in
             Environment = [
               "STEAM_RUN=${pkgs.steam-run}/bin/steam-run"
               "STARLORD_CONFIG=spaceage_forlorn"
+              "NIX_LD_LIBRARY_PATH=${libraries}"
+              "NIX_LD=${lib.fileContents "${pkgs.stdenv.cc}/nix-support/dynamic-linker"}"
             ];
             Type = "simple";
             ExecStart = [ "${pkgs.starlord}/bin/starlord" ];
