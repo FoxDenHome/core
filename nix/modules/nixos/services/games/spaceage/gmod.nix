@@ -8,12 +8,10 @@
 let
   services = foxDenLib.services;
 
-  libraries =
-    with pkgs;
-    lib.makeLibraryPath [
-      stdenv.cc.cc
-      libgcc
-    ];
+  libraries = with pkgs; [
+    stdenv.cc.cc
+    libgcc
+  ];
 
   packages = with pkgs; [
     steamcmd
@@ -48,7 +46,7 @@ in
           wants = [ "network-online.target" ];
           after = [ "network-online.target" ];
 
-          confinement.packages = packages;
+          confinement.packages = packages ++ libraries;
           path = packages;
 
           serviceConfig = {
@@ -61,7 +59,7 @@ in
             Environment = [
               "STEAM_RUN=${pkgs.steam-run}/bin/steam-run"
               "STARLORD_CONFIG=spaceage_forlorn"
-              "NIX_LD_LIBRARY_PATH=${libraries}"
+              "NIX_LD_LIBRARY_PATH=${lib.makeLibraryPath libraries}"
               "NIX_LD=${lib.fileContents "${pkgs.stdenv.cc}/nix-support/dynamic-linker"}"
             ];
             Type = "simple";
