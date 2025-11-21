@@ -15,6 +15,11 @@ let
     libgcc.libgcc
   ];
 
+
+  libraryPackages = with pkgs; [
+    stdenv.cc
+    libgcc
+  ];
   packages = with pkgs; [
     steamcmd
     starlord
@@ -48,7 +53,7 @@ in
           wants = [ "network-online.target" ];
           after = [ "network-online.target" ];
 
-          confinement.packages = packages ++ libraries;
+          confinement.packages = packages ++ libraryPackages;
           path = packages;
 
           serviceConfig = {
