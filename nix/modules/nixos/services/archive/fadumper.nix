@@ -15,8 +15,7 @@ let
   defaultDataDir = "/var/lib/fadumper";
   ifDefaultData = lib.mkIf (svcConfig.dataDir == defaultDataDir);
 
-  hostCfg = foxDenLib.hosts.getByName config svcConfig.host;
-  primaryInterface = lib.lists.head (lib.attrsets.attrValues hostCfg.interfaces);
+  hostName = services.getFirstFQDN config svcConfig;
 in
 {
   options.foxDen.services.fadumper = {
@@ -87,7 +86,7 @@ in
 
             Environment = [
               "\"DOWNLOAD_PATH=${svcConfig.dataDir}\""
-              "\"URL_HOST=${lib.lists.head primaryInterface.dns.fqdns}\""
+              "\"URL_HOST=${hostName}\""
               (if svcConfig.tls then "URL_PROTOCOL=https" else "URL_PROTOCOL=http")
               "HOST=127.0.0.1"
               "PORT=8001"

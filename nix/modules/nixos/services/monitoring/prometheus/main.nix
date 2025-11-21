@@ -18,10 +18,7 @@ let
   );
 
   svcConfig = config.foxDen.services.prometheus;
-
-  hostCfg = foxDenLib.hosts.getByName config svcConfig.host;
-  primaryInterface = lib.lists.head (lib.attrsets.attrValues hostCfg.interfaces);
-  hostName = primaryInterface.dns.fqdn;
+  hostName = services.getFirstFQDN config svcConfig;
 
   cfgObj = {
     global = {

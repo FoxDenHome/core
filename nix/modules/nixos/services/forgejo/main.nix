@@ -21,10 +21,7 @@ let
   ifDefaultData = lib.mkIf (svcConfig.dataDir == defaultDataDir);
 
   svcConfig = config.foxDen.services.forgejo;
-
-  hostCfg = foxDenLib.hosts.getByName config svcConfig.host;
-  primaryInterface = lib.lists.head (lib.attrsets.attrValues hostCfg.interfaces);
-  hostName = primaryInterface.dns.fqdn;
+  hostName = services.getFirstFQDN config svcConfig;
   proto = if svcConfig.tls then "https" else "http";
 
   baseServiceConfig = {

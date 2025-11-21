@@ -20,10 +20,7 @@ let
   );
 
   svcConfig = config.foxDen.services.xmpp;
-
-  hostCfg = foxDenLib.hosts.getByName config svcConfig.host;
-  primaryInterface = lib.lists.head (lib.attrsets.attrValues hostCfg.interfaces);
-  hostName = primaryInterface.dns.fqdn;
+  hostName = services.getFirstFQDN config svcConfig;
 
   tlsRoot = "/var/lib/foxden/http-prosody/acme";
   tlsChain = "${tlsRoot}/${hostName}.crt";

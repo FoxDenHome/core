@@ -9,10 +9,7 @@ let
   services = foxDenLib.services;
 
   svcConfig = config.foxDen.services.immich;
-
-  hostCfg = foxDenLib.hosts.getByName config svcConfig.host;
-  primaryInterface = lib.lists.head (lib.attrsets.attrValues hostCfg.interfaces);
-  hostName = primaryInterface.dns.fqdn;
+  hostName = services.getFirstFQDN config svcConfig;
   proto = if svcConfig.tls then "https" else "http";
 
   clipModelName = "ViT-H-14-378-quickgelu__dfn5b";

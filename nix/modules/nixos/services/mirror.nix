@@ -9,9 +9,7 @@ let
   services = foxDenLib.services;
 
   svcConfig = config.foxDen.services.mirror;
-  hostCfg = foxDenLib.hosts.getByName config svcConfig.host;
-  primaryInterfaceName = lib.lists.head (lib.attrsets.attrNames hostCfg.interfaces);
-  primaryInterface = hostCfg.interfaces.${primaryInterfaceName};
+  primaryInterface = services.getPrimaryInterface config svcConfig;
 
   findFqdnForPrefix =
     prefix:

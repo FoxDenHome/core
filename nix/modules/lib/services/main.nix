@@ -108,8 +108,14 @@ let
       };
     }
   );
+
+  getPrimaryInterface = config: svcConfig: let
+    hostCfg = foxDenLib.hosts.getByName config svcConfig.host;
+  in nixpkgs.lib.lists.head (nixpkgs.lib.attrsets.attrValues hostCfg.interfaces);
 in
 {
+  inherit mkNamed mkEtcPaths getPrimaryInterface;
+
   mkOptions =
     { name, svcName }:
     {
@@ -119,10 +125,12 @@ in
       };
     };
 
-  mkEtcPaths = mkEtcPaths;
-
   make = inputs: mkNamed inputs.name inputs;
-  mkNamed = mkNamed;
+
+  getFirstFQDN = config: svcConfig: let
+    primaryInterface = getServicePrimaryInterface config svcConfig;
+  in
+    nixpkgs.lib.lists.head primaryInterface.dns.fqdns;
 
   nixosModule =
     { ... }:

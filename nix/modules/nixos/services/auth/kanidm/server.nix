@@ -11,10 +11,7 @@ let
   services = foxDenLib.services;
 
   svcConfig = config.foxDen.services.kanidm.server;
-
-  hostCfg = foxDenLib.hosts.getByName config svcConfig.host;
-  primaryInterface = lib.lists.head (lib.attrsets.attrValues hostCfg.interfaces);
-  hostName = primaryInterface.dns.fqdn;
+  hostName = services.getFirstFQDN config svcConfig;
 in
 {
   options.foxDen.services.kanidm = with lib.types; {
