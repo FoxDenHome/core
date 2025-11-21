@@ -10,7 +10,8 @@ let
 
   libraries = with pkgs; [
     stdenv.cc.cc
-    libgcc
+    libgcc.lib
+    libgcc.libgcc
   ];
 
   packages = with pkgs; [
