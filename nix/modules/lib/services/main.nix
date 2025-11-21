@@ -128,7 +128,7 @@ in
   make = inputs: mkNamed inputs.name inputs;
 
   getFirstFQDN = config: svcConfig: let
-    primaryInterface = getServicePrimaryInterface config svcConfig;
+    primaryInterface = getPrimaryInterface config svcConfig;
   in
     nixpkgs.lib.lists.head primaryInterface.dns.fqdns;
 
