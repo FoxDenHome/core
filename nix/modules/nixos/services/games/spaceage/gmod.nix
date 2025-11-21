@@ -16,12 +16,6 @@ let
     readline
   ];
 
-  libraryPackages = with pkgs; [
-    stdenv.cc
-    libgcc
-    ncurses
-    readline
-  ];
   packages = with pkgs; [
     steamcmd
     starlord
@@ -55,7 +49,7 @@ in
           wants = [ "network-online.target" ];
           after = [ "network-online.target" ];
 
-          confinement.packages = packages ++ libraryPackages;
+          confinement.packages = packages ++ libraries;
           path = packages;
 
           serviceConfig = {
