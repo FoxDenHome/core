@@ -14,6 +14,11 @@ let
     "nashome"
     "restic"
   ];
+
+  syncoidVolumes = [
+    "nashome"
+    "restic"
+  ];
 in
 {
   fileSystems = lib.listToAttrs (
@@ -43,12 +48,12 @@ in
     };
     syncoid = config.lib.foxDen.sops.mkIfAvailable {
       enable = true;
-      commands.zhdd = {
-        source = "zhdd/ROOT";
-        target = "bengalfox@v4-icefox.doridian.net:ztank/ROOT/BENGALFOX/zhdd";
+      commands = lib.genAttrs syncoidVolumes (name: {
+        source = "zhdd/ROOT/${name}";
+        target = "bengalfox@v4-icefox.doridian.net:ztank/ROOT/BENGALFOX/zhdd/${name}";
         sshKey = config.sops.secrets."syncoid-ssh-key".path;
         recursive = true;
-      };
+      });
     };
   };
 
