@@ -62,7 +62,7 @@ in
             WorkingDirectory = "/var/lib/spaceage-gmod";
             Environment = [
               "STEAM_RUN=${pkgs.steam-run}/bin/steam-run"
-              "STARLORD_CONFIG=spaceage_forlorn"
+              "STARLORD_CONFIG=spaceage_gooniverse"
               "NIX_LD_LIBRARY_PATH=${lib.makeLibraryPath libraries}"
               "NIX_LD=${lib.fileContents "${pkgs.stdenv.cc}/nix-support/dynamic-linker"}"
             ];
