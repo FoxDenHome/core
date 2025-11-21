@@ -9,6 +9,7 @@ let
   services = foxDenLib.services;
 
   libraries = with pkgs; [
+    stdenv.cc
     stdenv.cc.cc
     libgcc.lib
     libgcc.libgcc
