@@ -13,7 +13,11 @@ let
   primaryInterfaceName = lib.lists.head (lib.attrsets.attrNames hostCfg.interfaces);
   primaryInterface = hostCfg.interfaces.${primaryInterfaceName};
 
-  svcRootName = lib.strings.removePrefix "mirror." primaryInterface.dns.fqdn;
+  findFqdnForPrefix =
+    prefix:
+    lib.findFirstfindFirst (
+      fqdn: lib.strings.hasPrefix "${prefix}." fqdn
+    ) (throw "No FQDN found for mirror service ${prefix}") primaryInterface.dns.fqdns;
 
   sourceType =
     with lib.types;
@@ -80,18 +84,11 @@ in
       default = "/var/lib/mirror/data";
       description = "Directory to store mirror data";
     };
-
     archMirrorId = lib.mkOption {
       type = lib.types.str;
     };
-
     sources = lib.mkOption {
       type = lib.types.attrsOf sourceType;
-    };
-
-    rootDomain = lib.mkOption {
-      type = lib.types.str;
-      default = "";
     };
   }
   // (services.http.mkOptions {
@@ -113,11 +110,10 @@ in
           ''
             js_shared_dict_zone zone=render_cache:1m;
             js_import files from files.js;
-            js_var $root_domain "${svcRootName}";
             js_var $arch_mirror_id "${svcConfig.archMirrorId}";
 
             server {
-              server_name mirror.${svcRootName};
+              server_name ${findFqdnForPrefix "mirror"};
               ${baseWebConfig}
               root /data;
 
@@ -127,18 +123,18 @@ in
               set $jsindex_footer "/njs/templates/footer.html";
 
               location /archlinux/ {
-                rewrite ^/archlinux/(.*)$  https://archlinux.__ROOT_DOMAIN__/$1 redirect;
+                rewrite ^/archlinux/(.*)$  https://${findFqdnForPrefix "archlinux"}/$1 redirect;
               }
 
               location /cachyos/ {
-                rewrite ^/cachyos/(.*)$  https://cachyos.__ROOT_DOMAIN__/$1 redirect;
+                rewrite ^/cachyos/(.*)$  https://${findFqdnForPrefix "cachyos"}/$1 redirect;
               }
 
               ${jsIndexConf}
             }
 
             server {
-              server_name archlinux.${svcRootName};
+              server_name ${findFqdnForPrefix "archlinux"};
               ${baseWebConfig}
               root /data/archlinux;
 
@@ -151,7 +147,7 @@ in
             }
 
             server {
-              server_name cachyos.${svcRootName};
+              server_name ${findFqdnForPrefix "cachyos"};
               ${baseWebConfig}
               root /data/cachyos;
 
