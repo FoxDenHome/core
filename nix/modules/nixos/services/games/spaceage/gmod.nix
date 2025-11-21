@@ -10,6 +10,7 @@ let
 
   libraries = with pkgs; [
     stdenv.cc
+    stdenv.cc.cc
     libgcc
     ncurses
     readline
