@@ -12,6 +12,7 @@ let
     with pkgs;
     lib.makeLibraryPath [
       stdenv.cc.cc
+      libgcc
     ];
 
   packages = with pkgs; [
