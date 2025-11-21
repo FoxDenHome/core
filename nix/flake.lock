@@ -492,11 +492,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1763706517,
-        "narHash": "sha256-TFlb/mdZxH52JHnoJO1GUKA/lWD170l4ZJ6sOMEYfTc=",
+        "lastModified": 1763707845,
+        "narHash": "sha256-57GQ7VpA3qbDkw0NiuFuui+KPK4HHc0i51Jb+FScYoQ=",
         "owner": "SpaceAgeMP",
         "repo": "StarLord",
-        "rev": "48c4324e8cf327e8680e00eb2dc03012fc9db0b1",
+        "rev": "f94ff5b9042130a4096cea39efb4b2e9d1d7ec57",
         "type": "github"
       },
       "original": {
