@@ -10,15 +10,16 @@ let
 
   libraries = with pkgs; [
     stdenv.cc
-    stdenv.cc.cc
-    libgcc.lib
-    libgcc.libgcc
+    libgcc
+    ncurses
+    readline
   ];
-
 
   libraryPackages = with pkgs; [
     stdenv.cc
     libgcc
+    ncurses
+    readline
   ];
   packages = with pkgs; [
     steamcmd
