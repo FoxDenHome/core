@@ -16,10 +16,7 @@ let
 
   zhddMounts = [
     ""
-    "e621"
-    "furaffinity"
     "kiwix"
-    "nas"
     "nashome"
     "restic"
   ];
