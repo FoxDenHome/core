@@ -9,7 +9,6 @@ let
   services = foxDenLib.services;
 
   libraries = with pkgs; [
-    stdenv.cc
     stdenv.cc.cc
     libgcc
     ncurses
@@ -18,6 +17,7 @@ let
 
   packages = with pkgs; [
     steamcmd
+    nix-ld
     starlord
     git
     coreutils
@@ -67,6 +67,10 @@ in
             ];
             Type = "simple";
             ExecStart = [ "${pkgs.starlord}/bin/starlord" ];
+            BindReadOnlyPaths = [
+              "-/lib"
+              "-/lib64"
+            ];
           };
 
           wantedBy = [ "multi-user.target" ];
