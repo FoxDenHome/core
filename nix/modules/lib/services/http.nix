@@ -17,7 +17,7 @@ let
       baseUrls = nixpkgs.lib.lists.unique (
         nixpkgs.lib.flatten (
           map (iface: (map (dns: "${baseUrlPrefix}${dns}") iface.dns.fqdns)) (
-            nixpkgs.lib.filter (iface: iface.dns.fqdn != "") (nixpkgs.lib.attrsets.attrValues host.interfaces)
+            nixpkgs.lib.attrsets.attrValues host.interfaces
           )
         )
       );
