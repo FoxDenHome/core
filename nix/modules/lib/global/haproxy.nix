@@ -7,7 +7,7 @@ let
   mkForGateway =
     gateway: allHosts:
     let
-      hosts = lib.sortOn (host: lib.lists.head host.fqdns) (
+      hosts = lib.sortOn (host: host.primaryName) (
         map (
           host:
           host
@@ -25,7 +25,7 @@ let
             map (
               host:
               let
-                name = "${cfgName}_${lib.lists.head host.fqdns}";
+                name = "${cfgName}_${host.primaryName}";
               in
               if host.host != null then
                 (map (hostName: "  acl acl_${name} ${varName} -i ${hostName}") host.fqdns)
