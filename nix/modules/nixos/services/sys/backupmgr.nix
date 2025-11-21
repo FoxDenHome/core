@@ -73,7 +73,7 @@ in
         systemd.timers.backupmgr-backup = {
           wantedBy = [ "timers.target" ];
           timerConfig = {
-            OnCalendar = "daily";
+            OnCalendar = "hourly";
             RandomizedDelaySec = "30m";
           };
         };
