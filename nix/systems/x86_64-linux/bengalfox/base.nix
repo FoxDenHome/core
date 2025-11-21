@@ -93,7 +93,7 @@
     netdata.enable = true;
     backupmgr = config.lib.foxDen.sops.mkIfAvailable {
       enable = true;
-      targetDirs = [ "/mnt/zhdd/restic/bengalfox" ];
+      targetDirs = [ "/mnt/zhdd/restic/bengalfox" "/mnt/zssd" ];
     };
     apcupsd.enable = config.lib.foxDen.sops.mkIfAvailable true;
   };
