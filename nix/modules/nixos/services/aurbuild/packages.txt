@@ -35,3 +35,4 @@ https://git.foxden.network/FoxDen/backupmgr
 vmware-keymaps
 vmware-workstation
 libx11-mr293
+openssh-hpn
