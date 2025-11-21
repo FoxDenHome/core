@@ -27,7 +27,3 @@ output "dynamic_urls" {
   value     = { for zone, domain in module.domain : zone => domain.dynamic_urls }
   sensitive = true
 }
-
-output "dnskey_records" {
-  value = { for zone, domain in module.domain : zone => domain.dnskey_records }
-}
