@@ -13,6 +13,7 @@ let
     libgcc
     ncurses
     readline
+    openssl_3
   ];
 
   packages = with pkgs; [
