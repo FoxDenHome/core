@@ -3,7 +3,7 @@ keys:
   - &device_bengalfox age1hdgjgrzk9lq88f3vwxtf4p9fnmjkuzdf4ykcg8p7kgf3t8hgxqvqenv5fl
   - &device_carvera-controller age1txw8phmwtv0ce3kya5e0spmwvkt05h2v9cqcrtngyz6653xr6pkqxf7w5s
   - &device_islandfox age142dhgtgtgm6kv252pd8ypt3xnvvzl2qavycvme9yqzyesktcwuyq8w3u22
-  - &device_icefox age1cs2u7xvd88ukwh9hptpzdxq728a692jxxajtqtqkrqxyv0ld2a6s2mgxvm
+  - &device_icefox age1krll9fy0w566ahcxh8rnfdvsq0f376glgcknq9lztfhkuzkem3tswm3xrp
 # First hit rule counts
 creation_rules:
   - path_regex: '^secrets/shared\.'
