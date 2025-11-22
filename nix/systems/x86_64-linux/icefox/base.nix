@@ -31,7 +31,7 @@
 
   boot.swraid = {
     enable = true;
-    mdadmConf = "ARRAY /dev/md0 metadata=1.2 UUID=f8fef6b4:264144e8:1d611b0a:ba263ab2";
+    mdadmConf = "ARRAY /dev/md0 metadata=1.2 UUID=a39f3145:05f7b118:cfda9c09:5f177663";
   };
 
   boot.initrd.luks.devices = {
@@ -53,7 +53,7 @@
   };
 
   fileSystems."/boot" = {
-    device = "/dev/nvme0n1p1";
+    device = "/dev/disk/by-id/ata-INTEL_SSDSC2BB480G7_BTDV718408J2480BGN-part1";
     fsType = "vfat";
     options = [
       "fmask=0022"
@@ -63,7 +63,7 @@
   };
 
   fileSystems."/boot2" = {
-    device = "/dev/nvme1n1p1";
+    device = "/dev/disk/by-id/ata-INTEL_SSDSC2BB480G7_PHDV732601C1480BGN-part1";
     fsType = "vfat";
     options = [
       "fmask=0022"
@@ -76,7 +76,6 @@
 
   foxDen.services = {
     watchdog.enable = true;
-    bootssh.enable = true;
     netdata.enable = true;
     backupmgr.enable = config.lib.foxDen.sops.mkIfAvailable true;
   };
