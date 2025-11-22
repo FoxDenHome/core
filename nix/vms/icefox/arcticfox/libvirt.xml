@@ -150,7 +150,7 @@
       <address type='pci' domain='0x0000' bus='0x07' slot='0x00' function='0x0'/>
     </filesystem>
     <interface type='bridge'>
-      <mac address='00:50:56:00:d8:c7'/>
+      <mac address='02:00:00:6d:d5:fc'/>
       <source bridge='br-default'/>
       <model type='virtio'/>
       <address type='pci' domain='0x0000' bus='0x01' slot='0x00' function='0x0'/>
