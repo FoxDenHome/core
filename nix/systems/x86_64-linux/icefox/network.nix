@@ -200,7 +200,7 @@ in
       IPv6Forwarding = true;
       IPv6ProxyNDP = true;
       IPv6ProxyNDPAddress = lib.flatten (
-        map (host: host.interfaces.default.addresses) (
+        map (host: map foxDenLib.util.removeIPCidr host.interfaces.default.addresses) (
           lib.lists.filter (
             host:
             (lib.attrsets.hasAttr "default" host.interfaces)
