@@ -34,7 +34,7 @@ let
     mac = "fc:34:97:68:1e:07";
     mtu = 1500;
     interface = "br-default";
-    phyIface = "enp7s0";
+    phyIface = "eno1np0";
   };
 
   mkMinHost = (
