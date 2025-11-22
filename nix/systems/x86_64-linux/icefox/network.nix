@@ -31,7 +31,7 @@ let
       "8.8.8.8"
       "8.8.4.4"
     ];
-    mac = "fc:34:97:68:1e:07";
+    mac = "3c:ec:ef:78:c1:66";
     mtu = 1500;
     interface = "br-default";
     phyIface = "eno1np0";
