@@ -199,14 +199,23 @@ in
       IPv4Forwarding = true;
       IPv6Forwarding = true;
       IPv6ProxyNDP = true;
-      IPv6ProxyNDPAddress = lib.flatten (
-        map (host: map foxDenLib.util.removeIPCidr host.interfaces.default.addresses) (
-          lib.lists.filter (
-            host:
-            (lib.attrsets.hasAttr "default" host.interfaces)
-            && host.interfaces.default.driver.name == "bridge"
-            && host.interfaces.default.driver.bridge.bridge == ifcfg-routed.interface
-          ) (lib.attrValues config.foxDen.hosts.hosts)
+      IPv6ProxyNDPAddress = lib.naturalSort (
+        lib.flatten (
+          map
+            (
+              host:
+              map foxDenLib.util.removeIPCidr (
+                lib.lists.filter foxDenLib.util.isIPv6 host.interfaces.default.addresses
+              )
+            )
+            (
+              lib.lists.filter (
+                host:
+                (lib.attrsets.hasAttr "default" host.interfaces)
+                && host.interfaces.default.driver.name == "bridge"
+                && host.interfaces.default.driver.bridge.bridge == ifcfg-routed.interface
+              ) (lib.attrValues config.foxDen.hosts.hosts)
+            )
         )
       );
 
