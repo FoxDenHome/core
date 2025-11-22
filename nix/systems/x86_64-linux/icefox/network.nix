@@ -166,15 +166,6 @@ in
         '';
         family = "ip";
       };
-      filter = {
-        content = ''
-          chain forward {
-            type filter hook forward priority 0; policy accept;
-            oifname "${ifcfg.phyIface}" ether saddr & ff:ff:00:00:00:00 == e6:21:00:00:00:00 drop
-          }
-        '';
-        family = "bridge";
-      };
     };
 
   boot.kernel.sysctl = {
