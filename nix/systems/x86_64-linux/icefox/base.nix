@@ -1,4 +1,8 @@
-{ config, pkgs, lib, ... }:
+{
+  config,
+  lib,
+  ...
+}:
 {
   # These are set when you reinstall the system
   # Change them to "false" for first boot, before secrets exist
