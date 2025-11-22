@@ -25,9 +25,7 @@
   boot.extraModulePackages = [ ];
 
   services.timesyncd.servers = [
-    "ntp1.hetzner.de"
-    "ntp2.hetzner.com"
-    "ntp3.hetzner.net"
+    "ntp0.ovh.net"
   ];
 
   boot.swraid = {
