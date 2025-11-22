@@ -48,7 +48,7 @@ in
     nasweb = {
       host = "nas";
       enable = true;
-      root = "/mnt/local/nas";
+      root = "/mnt/ztank/local/nas";
       tls = true;
       oAuth = {
         enable = true;
