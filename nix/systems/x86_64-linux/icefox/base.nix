@@ -11,7 +11,7 @@
 
   imports = [ ../../../profiles/server.nix ];
   hardware.enableRedistributableFirmware = true;
-  hardware.cpu.amd.updateMicrocode = true;
+  hardware.cpu.intel.updateMicrocode = true;
   boot.initrd.availableKernelModules = [
     "nvme"
     "xhci_pci"
@@ -21,7 +21,7 @@
     "sd_mod"
   ];
   boot.initrd.kernelModules = [ ];
-  boot.kernelModules = [ "kvm-amd" ];
+  boot.kernelModules = [ "kvm-intel" ];
   boot.extraModulePackages = [ ];
 
   services.timesyncd.servers = [
