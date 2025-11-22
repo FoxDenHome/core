@@ -185,7 +185,7 @@ in
         Gateway = "167.114.157.254";
       }
       {
-        Destination = "2607:5300:60:70ff:ff:ff:ff:ff";
+        Destination = "2607:5300:60:70ff:ff:ff:ff:ff/128";
       }
       {
         Destination = "::/0";
