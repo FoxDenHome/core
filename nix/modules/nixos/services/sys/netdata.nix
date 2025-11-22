@@ -26,11 +26,7 @@ in
       enable = true;
       package = pkgs.netdata.override {
         withCloudUi = true;
-      };
-      config = {
-        plugins = {
-          freeipmi = "no";
-        };
+        withIpmi = false;
       };
     };
     environment.persistence."/nix/persist/netdata" = {
