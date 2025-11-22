@@ -198,6 +198,14 @@ in
     networkConfig = {
       IPv4Forwarding = true;
       IPv6Forwarding = true;
+      IPv6ProxyNDP = true;
+      IPv6ProxyNDPAddress = lib.flatten (
+        map (host: host.interfaces.default.addresses) (
+          lib.lists.filter (host: host.interfaces.default.driver.bridge.bridge == ifcfg-routed.interface) (
+            lib.attrValues config.foxDen.hosts.hosts
+          )
+        )
+      );
 
       DHCP = "no";
       IPv6AcceptRA = true;
@@ -257,6 +265,7 @@ in
 
     networkConfig = {
       IPv6Forwarding = true;
+      IPv6ProxyNDP = true;
 
       DHCP = "no";
       IPv6AcceptRA = false;
