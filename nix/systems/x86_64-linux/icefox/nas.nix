@@ -67,7 +67,7 @@ in
     jellyfin = {
       host = "jellyfin";
       enable = true;
-      mediaDir = "/mnt/zhdd/nas";
+      mediaDir = "/mnt/ztank/local/nas";
       tls = true;
     };
   };
