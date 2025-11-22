@@ -5,6 +5,7 @@
   # then, once stuff is done, set them to true
   foxDen.sops.available = false;
   foxDen.boot.secure = false;
+  foxDen.networking.provisionCriticalHosts = false;
 
   system.stateVersion = "25.05";
 
