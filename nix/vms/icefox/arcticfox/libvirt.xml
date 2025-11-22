@@ -12,9 +12,9 @@
     <source type='memfd'/>
     <access mode='shared'/>
   </memoryBacking>
-  <vcpu placement='static' cpuset='8-11,20-23'>8</vcpu>
+  <vcpu placement='static' cpuset='4-7,12-15'>8</vcpu>
   <cputune>
-    <emulatorpin cpuset='8-11,20-23'/>
+    <emulatorpin cpuset='4-7,12-15'/>
   </cputune>
   <resource>
     <partition>/machine</partition>
