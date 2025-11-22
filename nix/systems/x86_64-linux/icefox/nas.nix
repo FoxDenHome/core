@@ -4,22 +4,6 @@ let
   mkMinHost = config.lib.foxDenSys.mkMinHost;
 in
 {
-  fileSystems."/mnt/zhdd/nas/torrent" = {
-    device = "/mnt/ztank/local/torrent";
-    options = [
-      "bind"
-      "nofail"
-    ];
-  };
-
-  fileSystems."/mnt/zhdd/nas/usenet" = {
-    device = "/mnt/ztank/local/usenet";
-    options = [
-      "bind"
-      "nofail"
-    ];
-  };
-
   foxDen.services = config.lib.foxDen.sops.mkIfAvailable {
     wireguard."wg-deluge" = {
       host = "deluge"; # lawful dove
@@ -46,7 +30,7 @@ in
       enable = true;
       host = "deluge";
       enableHttp = false;
-      downloadsDir = "/mnt/ztank/local/torrent";
+      downloadsDir = "/mnt/ztank/local/nas/torrent";
     };
     kiwix = {
       enable = true;
@@ -64,7 +48,7 @@ in
     nasweb = {
       host = "nas";
       enable = true;
-      root = "/mnt/zhdd/nas";
+      root = "/mnt/local/nas";
       tls = true;
       oAuth = {
         enable = true;
@@ -78,7 +62,7 @@ in
       enable = true;
       host = "nzbget";
       enableHttp = false;
-      downloadsDir = "/mnt/ztank/local/usenet";
+      downloadsDir = "/mnt/ztank/local/nas/usenet";
     };
     jellyfin = {
       host = "jellyfin";
