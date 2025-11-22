@@ -15,8 +15,8 @@
       ];
     };
     addresses = [
-      "95.216.116.135/26"
-      "2a01:4f9:2b:1a42::ff01/112"
+      "51.79.107.29/32"
+      "2607:5300:60:7065::ff01/112"
     ];
     mac = "00:50:56:00:D8:C7";
   };
@@ -39,14 +39,14 @@
       fqdn = "arcticfox.doridian.net";
       type = "A";
       ttl = 3600;
-      value = "95.216.116.135";
+      value = "51.79.107.29";
       horizon = "internal";
     }
     {
       fqdn = "arcticfox.doridian.net";
       type = "AAAA";
       ttl = 3600;
-      value = "2a01:4f9:2b:1a42::ff01";
+      value = "2607:5300:60:7065::ff01";
       horizon = "internal";
     }
     {

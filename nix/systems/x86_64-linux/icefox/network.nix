@@ -6,7 +6,7 @@
   ...
 }:
 let
-  mainIPv4 = "95.216.116.140";
+  mainIPv4 = "167.114.157.101";
 
   ifcfg-foxden = {
     addresses = [
@@ -25,25 +25,16 @@ let
   ifcfg = {
     addresses = [
       "${mainIPv4}/26"
-      "2a01:4f9:2b:1a42::1/112"
+      "2607:5300:60:7065::1/112"
     ];
     nameservers = [
-      "213.133.98.98"
-      "213.133.98.99"
-      "213.133.98.100"
+      "8.8.8.8"
+      "8.8.4.4"
     ];
     mac = "fc:34:97:68:1e:07";
     mtu = 1500;
     interface = "br-default";
     phyIface = "enp7s0";
-  };
-  ifcfg-routed = {
-    addresses = [
-      "2a01:4f9:2b:1a42::1:1/112"
-    ];
-    interface = "br-routed";
-    mtu = 1500;
-    mac = config.lib.foxDen.mkHashMac "000002";
   };
 
   mkMinHost = (
@@ -97,7 +88,6 @@ let
 in
 {
   lib.foxDenSys = {
-    routedInterface = ifcfg-routed.interface;
     inherit mkMinHost;
     mkHost =
       iface:
@@ -107,11 +97,11 @@ in
           interfaces.default.routes = [
             {
               Destination = "0.0.0.0/0";
-              Gateway = "95.216.116.129";
+              Gateway = "167.114.157.254";
             }
             {
               Destination = "::/0";
-              Gateway = "2a01:4f9:2b:1a42::1";
+              Gateway = "2607:5300:0060:70ff:00ff:00ff:00ff:00ff";
             }
           ];
         }
@@ -126,12 +116,12 @@ in
             routes = [
               {
                 Destination = "::/0";
-                Gateway = "2a01:4f9:2b:1a42::1:1";
+                Gateway = "2607:5300:0060:70ff:00ff:00ff:00ff:00ff";
               }
             ];
             driver.bridge = {
-              bridge = lib.mkForce ifcfg-routed.interface;
-              mtu = ifcfg-routed.mtu;
+              bridge = lib.mkForce ifcfg.interface;
+              mtu = ifcfg.mtu;
             };
           };
           interfaces.foxden.routes = [
@@ -150,7 +140,6 @@ in
   virtualisation.libvirtd.allowedBridges = [
     ifcfg.interface
     ifcfg-foxden.interface
-    ifcfg-routed.interface
   ];
 
   # We don't firewall on servers, so only use port forward type rules
@@ -207,7 +196,7 @@ in
     routes = [
       {
         Destination = "0.0.0.0/0";
-        Gateway = "95.216.116.129";
+        Gateway = "167.114.157.254";
       }
       {
         Destination = "::/0";
@@ -243,14 +232,6 @@ in
     };
   };
 
-  systemd.network.netdevs."${ifcfg-routed.interface}" = {
-    netdevConfig = {
-      Name = ifcfg-routed.interface;
-      Kind = "bridge";
-      MACAddress = ifcfg-routed.mac;
-    };
-  };
-
   systemd.network.networks."40-${ifcfg.interface}-root" = {
     name = ifcfg.phyIface;
     bridge = [ ifcfg.interface ];
@@ -270,22 +251,6 @@ in
 
     linkConfig = {
       MTUBytes = ifcfg-foxden.mtu;
-    };
-  };
-
-  systemd.network.networks."30-${ifcfg-routed.interface}" = {
-    name = ifcfg-routed.interface;
-    address = ifcfg-routed.addresses;
-
-    networkConfig = {
-      IPv6Forwarding = true;
-
-      DHCP = "no";
-      IPv6AcceptRA = false;
-    };
-
-    linkConfig = {
-      MTUBytes = ifcfg-routed.mtu;
     };
   };
 
@@ -350,9 +315,6 @@ in
     }
   ];
 
-  # Due to Hetzner routing, we have two IPv6 subnets
-  # - 2a01:4f9:2b:1a42::/112 for hosts which have public IPv4
-  # - 2a01:4f9:2b:1a42::1:/112 for hosts without public IPv4 (routed out via mainIPv4)
   foxDen.hosts.hosts = {
     icefox =
       let
@@ -371,11 +333,6 @@ in
         inherit (ifcfg) nameservers;
         interfaces.default = mkIntf ifcfg;
         interfaces.foxden = mkIntf ifcfg-foxden;
-        interfaces.routed = {
-          driver.name = "null";
-          inherit (ifcfg-routed) mac addresses;
-          dns.fqdns = [ ];
-        };
       };
   };
 }
