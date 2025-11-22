@@ -201,7 +201,9 @@ in
       IPv6ProxyNDP = true;
       IPv6ProxyNDPAddress = lib.flatten (
         map (host: host.interfaces.default.addresses) (
-          lib.lists.filter (host: host.interfaces.default.driver.name == "bridge" && host.interfaces.default.driver.bridge.bridge == ifcfg-routed.interface) (
+          lib.lists.filter (host: let
+            bridgeName = builtins.tryEval host.interfaces.default.driver.bridge.bridge;
+          in bridgeName.success && bridgeName.value == ifcfg-routed.interface) (
             lib.attrValues config.foxDen.hosts.hosts
           )
         )
