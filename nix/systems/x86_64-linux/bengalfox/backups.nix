@@ -4,6 +4,11 @@ let
 in
 {
   foxDen.services = config.lib.foxDen.sops.mkIfAvailable {
+    backupmgr = config.lib.foxDen.sops.mkIfAvailable {
+      enable = true;
+      sourceDirs = [ "/mnt/zssd" ];
+      targetDirs = [ "/mnt/zhdd/restic/bengalfox" ];
+    };
     tapemgr.enable = true;
     gitbackup.enable = true;
     restic-server = {

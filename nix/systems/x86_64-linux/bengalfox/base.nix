@@ -96,11 +96,6 @@
     watchdog.enable = true;
     superfan.enable = true;
     netdata.enable = true;
-    backupmgr = config.lib.foxDen.sops.mkIfAvailable {
-      enable = true;
-      sourceDirs = [ "/mnt/zssd" ];
-      targetDirs = [ "/mnt/zhdd/restic/bengalfox" ];
-    };
     apcupsd.enable = config.lib.foxDen.sops.mkIfAvailable true;
   };
 }

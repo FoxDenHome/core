@@ -18,9 +18,12 @@ let
   ];
 
   syncoidVolumes = [
-    "kiwix"
-    "nashome"
-    "restic"
+    { name = "kiwix"; }
+    { name = "nashome"; }
+    {
+      name = "restic";
+      recursive = false;
+    }
   ];
 in
 {
@@ -51,12 +54,18 @@ in
     };
     syncoid = config.lib.foxDen.sops.mkIfAvailable {
       enable = true;
-      commands = lib.genAttrs syncoidVolumes (name: {
-        source = "zhdd/ROOT/${name}";
-        target = "bengalfox@v4-icefox.doridian.net:ztank/ROOT/BENGALFOX/zhdd/${name}";
-        sshKey = config.sops.secrets."syncoid-ssh-key".path;
-        recursive = true;
-      });
+      commands = lib.genAttrs syncoidVolumes (
+        {
+          name,
+          recursive ? true,
+        }:
+        {
+          inherit recursive;
+          source = "zhdd/ROOT/${name}";
+          target = "bengalfox@v4-icefox.doridian.net:ztank/ROOT/BENGALFOX/zhdd/${name}";
+          sshKey = config.sops.secrets."syncoid-ssh-key".path;
+        }
+      );
     };
   };
 
