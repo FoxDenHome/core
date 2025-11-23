@@ -6,11 +6,11 @@ in
 {
   foxDen.services = config.lib.foxDen.sops.mkIfAvailable {
     wireguard."wg-deluge" = {
-      host = "deluge"; # lawful dove
+      host = "deluge"; # sunny bunny
       interface = {
         ips = [
-          "10.73.218.165/32"
-          "fc00:bbbb:bbbb:bb01::a:daa4/128"
+          "10.69.150.182/32"
+          "fc00:bbbb:bbbb:bb01::6:96b5/128"
         ];
         peers = [
           {
@@ -19,9 +19,9 @@ in
               "::/0"
               "10.64.0.1/32"
             ];
-            endpoint = "193.138.7.157:51820";
+            endpoint = "62.93.167.130:51820";
             persistentKeepalive = 25;
-            publicKey = "xeHVhXxyyFqUEE+nsu5Tzd/t9en+++4fVFcSFngpcAU=";
+            publicKey = "m1DF8sQgOBo+vfdl1//sCvu2TnsHKdRzfsiszbBZQzs=";
           }
         ];
       };

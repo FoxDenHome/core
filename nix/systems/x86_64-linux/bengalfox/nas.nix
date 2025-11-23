@@ -20,7 +20,7 @@ in
   };
 
   foxDen.services = config.lib.foxDen.sops.mkIfAvailable {
-    wireguard."wg-deluge" = config.lib.foxDen.sops.mkIfAvailable {
+    wireguard."wg-deluge" = {
       host = "deluge"; # solid snake
       interface = {
         ips = [
