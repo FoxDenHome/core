@@ -22,6 +22,8 @@ let
     "restic"
   ];
 
+  # TODO: Automatic "zfs allow bengalfox compression,create,destroy,mount,receive,rollback,send,snapshot ztank/ROOT/zhdd"
+
   mkZfsMounts =
     rootDir: rootDS: mounts:
     (map (
