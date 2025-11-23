@@ -349,7 +349,7 @@ in
     }
   ];
 
-  # Due to Hetzner routing, we have two IPv6 subnets
+  # Due to OVH routing, we have two IPv6 subnets
   # - 2607:5300:60:7065::/112 for hosts which have public IPv4
   # - 2607:5300:60:7065::1:/112 for hosts without public IPv4 (routed out via mainIPv4)
   foxDen.hosts.hosts = {
