@@ -427,9 +427,9 @@ in
                       renderRoute = (
                         dev: route:
                         "${ipInNsCmd} route add "
-                        + (if route.Destination != null then eSA route.Destination else "default")
-                        + (if route.Gateway != null then " via ${eSA route.Gateway}" else " dev ${eSA dev}")
-                        + (if route.GatewayOnLink == true then " onlink" else "")
+                        + (if route.Destination ? null != null then eSA route.Destination else "default")
+                        + (if route.Gateway ? null != null then " via ${eSA route.Gateway}" else " dev ${eSA dev}")
+                        + (if route.GatewayOnLink ? false == true then " onlink" else "")
                       );
 
                       mkHooks = (
