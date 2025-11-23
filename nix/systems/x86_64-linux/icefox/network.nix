@@ -178,17 +178,13 @@ in
     name = ifcfg.interface;
     routes = [
       {
-        Destination = "167.114.157.254/32";
-      }
-      {
         Destination = "0.0.0.0/0";
+        GatewayOnLink = true;
         Gateway = "167.114.157.254";
       }
       {
-        Destination = "2607:5300:60:70ff:ff:ff:ff:ff/128";
-      }
-      {
         Destination = "::/0";
+        GatewayOnLink = true;
         Gateway = "2607:5300:60:70ff:ff:ff:ff:ff";
       }
     ];

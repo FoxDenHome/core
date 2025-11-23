@@ -429,6 +429,7 @@ in
                         "${ipInNsCmd} route add "
                         + (if route.Destination != null then eSA route.Destination else "default")
                         + (if route.Gateway != null then " via ${eSA route.Gateway}" else " dev ${eSA dev}")
+                        + (if route.GatewayOnLink == true then " onlink" else "")
                       );
 
                       mkHooks = (
