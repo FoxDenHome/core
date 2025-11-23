@@ -9,10 +9,8 @@
   system.stateVersion = "25.05";
 
   imports = [ ../../../profiles/server.nix ];
-  systemd.services."serial-getty@ttyS0".enable = true;
   systemd.services."serial-getty@ttyS1".enable = true;
   boot.kernelParams = [
-    "console=ttyS0,115200n8"
     "console=ttyS1,115200n8"
     "console=tty1"
   ];
