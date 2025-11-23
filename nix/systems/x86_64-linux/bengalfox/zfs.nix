@@ -13,6 +13,8 @@ let
     "nas"
     "nashome"
     "restic"
+    "restic/islandfox"
+    "restic/bengalfox"
   ];
 
   syncoidVolumes = [
