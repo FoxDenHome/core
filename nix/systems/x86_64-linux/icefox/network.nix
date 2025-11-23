@@ -373,7 +373,10 @@ in
         interfaces.routed = {
           driver.name = "null";
           inherit (ifcfg-routed) mac addresses;
-          dns.fqdns = [ ];
+          dns.fqdns = [
+            "icefox-routed.foxden.network"
+            "icefox-routed.doridian.net"
+          ];
         };
       };
   };
