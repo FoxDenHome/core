@@ -357,13 +357,11 @@ in
       let
         mkIntf = subifcfg: {
           driver.name = "null";
-          dns = {
-            fqdns = [
-              "icefox.foxden.network"
-              "icefox.doridian.net"
-            ];
-          };
           inherit (subifcfg) mac addresses;
+          dns.fqdns = [
+            "icefox.foxden.network"
+            "icefox.doridian.net"
+          ];
         };
       in
       {
@@ -374,7 +372,6 @@ in
           driver.name = "null";
           inherit (ifcfg-routed) mac addresses;
           dns.fqdns = [
-            "icefox-routed.foxden.network"
             "icefox-routed.doridian.net"
           ];
         };
