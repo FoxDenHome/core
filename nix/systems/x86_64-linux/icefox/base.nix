@@ -11,8 +11,8 @@
   imports = [ ../../../profiles/server.nix ];
   systemd.services."serial-getty@ttyS1".enable = true;
   boot.kernelParams = [
-    "console=ttyS1,115200n8"
     "console=tty1"
+    "console=ttyS1,115200n8"
   ];
   hardware.enableRedistributableFirmware = true;
   hardware.cpu.intel.updateMicrocode = true;
