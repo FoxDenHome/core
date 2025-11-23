@@ -54,16 +54,19 @@ in
     };
     syncoid = config.lib.foxDen.sops.mkIfAvailable {
       enable = true;
-      commands = lib.genAttrs syncoidVolumes (
+      commands = lib.genAttrs' syncoidVolumes (
         {
           name,
           recursive ? true,
         }:
         {
-          inherit recursive;
-          source = "zhdd/ROOT/${name}";
-          target = "bengalfox@v4-icefox.doridian.net:ztank/ROOT/BENGALFOX/zhdd/${name}";
-          sshKey = config.sops.secrets."syncoid-ssh-key".path;
+          inherit name;
+          value = {
+            inherit recursive;
+            source = "zhdd/ROOT/${name}";
+            target = "bengalfox@v4-icefox.doridian.net:ztank/ROOT/BENGALFOX/zhdd/${name}";
+            sshKey = config.sops.secrets."syncoid-ssh-key".path;
+          };
         }
       );
     };
