@@ -202,12 +202,12 @@ in
         systemd.services = {
           mirror-nginx = {
             confinement.packages = [
-              pkgs.foxden-mirror
+              pkgs.foxden-jsindex
             ];
 
             serviceConfig = {
               BindReadOnlyPaths = [
-                "${pkgs.foxden-mirror}/lib/node_modules/foxden-mirror:/njs"
+                "${pkgs.foxden-jsindex}/lib/node_modules/foxden-jsindex:/njs"
                 "${svcConfig.dataDir}:/data"
               ];
               User = "mirror";
