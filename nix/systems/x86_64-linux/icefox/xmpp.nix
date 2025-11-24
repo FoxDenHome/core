@@ -48,9 +48,9 @@ in
     xmpp = mkV6Host {
       dns = {
         fqdns = [
-          "foxden.network"
           "xmpp.foxden.network"
           "upload.xmpp.foxden.network"
+          "foxden.network"
         ];
       };
       firewall.portForwards = [
