@@ -116,7 +116,7 @@ in
               root /data;
 
               set $jsindex_ignore "/archlinux /cachyos";
-              set $jsindex_header "/njs/templates/mirror_header.html";
+              set $jsindex_header "/njs/templates/custom/mirror_header.html";
               set $jsindex_entry "/njs/templates/entry.html";
               set $jsindex_footer "/njs/templates/footer.html";
 
@@ -137,7 +137,7 @@ in
               root /data/archlinux;
 
               set $jsindex_ignore "";
-              set $jsindex_header "/njs/templates/archlinux_header.html";
+              set $jsindex_header "/njs/templates/custom/archlinux_header.html";
               set $jsindex_entry "/njs/templates/entry.html";
               set $jsindex_footer "/njs/templates/footer.html";
 
@@ -208,6 +208,7 @@ in
             serviceConfig = {
               BindReadOnlyPaths = [
                 "${pkgs.foxden-jsindex}/lib/node_modules/foxden-jsindex:/njs"
+                "${./templates}:/njs/templates/custom"
                 "${svcConfig.dataDir}:/data"
               ];
               User = "mirror";
