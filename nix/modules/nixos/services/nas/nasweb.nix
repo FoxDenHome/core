@@ -27,13 +27,22 @@ in
       (services.http.make {
         inherit svcConfig pkgs config;
         name = "nasweb";
+        modules = [
+          pkgs.nginxModules.njs
+        ];
         target = ''
-          root /nas;
-          autoindex on;
+          root /data;
+          set $jsindex_ignore "";
+          set $jsindex_header "/njs/templates/custom/nasweb_header.html";
+          set $jsindex_entry "/njs/templates/entry.html";
+          set $jsindex_footer "/njs/templates/footer.html";
         '';
         extraConfig =
           { defaultTarget, ... }:
           ''
+            js_shared_dict_zone zone=render_cache:1m;
+            js_import files from files.js;
+
             location ~ ^/guest/.*[^/]$ {
               satisfy any;
               allow 0.0.0.0/0;
@@ -44,10 +53,18 @@ in
           '';
       }).config
       {
-        systemd.services.nasweb.serviceConfig = {
-          BindReadOnlyPaths = [
-            "${svcConfig.root}:/nas"
+        systemd.services.nasweb = {
+          confinement.packages = [
+            pkgs.foxden-jsindex
           ];
+
+          serviceConfig = {
+            BindReadOnlyPaths = [
+              "${pkgs.foxden-jsindex}/lib/node_modules/foxden-jsindex:/njs"
+              "${./templates}:/njs/templates/custom"
+              "${svcConfig.root}:/data"
+            ];
+          };
         };
       }
     ]
