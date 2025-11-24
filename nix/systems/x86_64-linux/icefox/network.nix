@@ -25,7 +25,6 @@ let
   ifcfg = {
     addresses = [
       "${mainIPv4}/32"
-      "2607:5300:60:7065::1/112"
     ];
     nameservers = [
       "213.186.33.99"
@@ -38,11 +37,20 @@ let
   };
   ifcfg-routed = {
     addresses = [
-      "2607:5300:60:7065::1:1/112"
+      "2604:2dc0:500:b03:::1/64"
     ];
     interface = "br-routed";
     mtu = 1500;
     mac = config.lib.foxDen.mkHashMac "000002";
+  };
+  ifcfg-vrack = {
+    addresses = [
+      "2604:2dc0:500:b00:::3/56"
+    ];
+    interface = "br-vrack";
+    mtu = 1500;
+    mac = config.lib.foxDen.mkHashMac "000003";
+    phyIface = "eno2np1";
   };
 
   mkMinHost = (
@@ -107,7 +115,7 @@ in
             routes = [
               {
                 Destination = "::/0";
-                Gateway = "2607:5300:60:7065::1:1";
+                Gateway = "2604:2dc0:500:b03::1";
               }
             ];
             driver.bridge = {
@@ -132,6 +140,7 @@ in
     ifcfg.interface
     ifcfg-foxden.interface
     ifcfg-routed.interface
+    ifcfg-vrack.interface
   ];
 
   # We don't firewall on servers, so only use port forward type rules
@@ -182,11 +191,6 @@ in
         GatewayOnLink = true;
         Gateway = "167.114.157.254";
       }
-      {
-        Destination = "::/0";
-        GatewayOnLink = true;
-        Gateway = "2607:5300:60:70ff:ff:ff:ff:ff";
-      }
     ];
     address = ifcfg.addresses;
     dns = ifcfg.nameservers;
@@ -194,26 +198,6 @@ in
     networkConfig = {
       IPv4Forwarding = true;
       IPv6Forwarding = true;
-      IPv6ProxyNDP = true;
-      IPv6ProxyNDPAddress = lib.naturalSort (
-        lib.flatten (
-          map
-            (
-              host:
-              map foxDenLib.util.removeIPCidr (
-                lib.lists.filter foxDenLib.util.isIPv6 host.interfaces.default.addresses
-              )
-            )
-            (
-              lib.lists.filter (
-                host:
-                (lib.attrsets.hasAttr "default" host.interfaces)
-                && host.interfaces.default.driver.name == "bridge"
-                && host.interfaces.default.driver.bridge.bridge == ifcfg-routed.interface
-              ) (lib.attrValues config.foxDen.hosts.hosts)
-            )
-        )
-      );
 
       DHCP = "no";
       IPv6AcceptRA = true;
@@ -245,9 +229,22 @@ in
     };
   };
 
+  systemd.network.netdevs."${ifcfg-vrack.interface}" = {
+    netdevConfig = {
+      Name = ifcfg-vrack.interface;
+      Kind = "bridge";
+      MACAddress = ifcfg-vrack.mac;
+    };
+  };
+
   systemd.network.networks."40-${ifcfg.interface}-root" = {
     name = ifcfg.phyIface;
     bridge = [ ifcfg.interface ];
+  };
+
+  systemd.network.networks."40-${ifcfg-vrack.interface}-root" = {
+    name = ifcfg-vrack.phyIface;
+    bridge = [ ifcfg-vrack.interface ];
   };
 
   systemd.network.networks."30-${ifcfg-foxden.interface}" = {
@@ -281,6 +278,29 @@ in
 
     linkConfig = {
       MTUBytes = ifcfg-routed.mtu;
+    };
+  };
+
+  systemd.network.networks."30-${ifcfg-vrack.interface}" = {
+    name = ifcfg-vrack.interface;
+    address = ifcfg-vrack.addresses;
+    routes = [
+      {
+        Destination = "::/0";
+        Gateway = "2604:2dc0:500:b00::1";
+      }
+    ];
+
+    networkConfig = {
+      IPv4Forwarding = true;
+      IPv6Forwarding = true;
+
+      DHCP = "no";
+      IPv6AcceptRA = false;
+    };
+
+    linkConfig = {
+      MTUBytes = ifcfg-vrack.mtu;
     };
   };
 
