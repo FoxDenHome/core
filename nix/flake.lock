@@ -33,11 +33,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1763574242,
-        "narHash": "sha256-iBzjkl5ymQujwVWG0I5ablM5/pnDuX8ah7cHyyEkGqc=",
+        "lastModified": 1764016970,
+        "narHash": "sha256-2Ed761xv9Cwv6R38q7OuoHlh7mTdgPw9HiWjkBOF53o=",
         "ref": "refs/heads/main",
-        "rev": "113fe11326f30f0b6fde2be1818f219f520b8138",
-        "revCount": 582,
+        "rev": "d52ece8f55e9f13b7dec818ab6f86aaae062fc37",
+        "revCount": 583,
         "type": "git",
         "url": "https://git.foxden.network/FoxDen/carvera-pendant"
       },
@@ -71,11 +71,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1763574232,
-        "narHash": "sha256-79u1uyQ22HvzlXbMxAtBaxbE0VPLm3phzFK2jo4loQ4=",
+        "lastModified": 1764016975,
+        "narHash": "sha256-MZkRqHr6Quu1SA1t4f9zB0VD2FXXfC8OKVW1NlmSvE4=",
         "ref": "refs/heads/main",
-        "rev": "32307c8e0041e305adbab76be2a88e1a67d3e6af",
-        "revCount": 598,
+        "rev": "b5df0a3baa08a4ca67fdf0bba082c0feb232daaf",
+        "revCount": 599,
         "type": "git",
         "url": "https://git.foxden.network/FoxDen/e621dumper"
       },
@@ -437,11 +437,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1763870012,
-        "narHash": "sha256-AHxFfIu73SpNLAOZbu/AvpLhZ/Szhx6gRPj9ufZtaZA=",
+        "lastModified": 1764021963,
+        "narHash": "sha256-1m84V2ROwNEbqeS9t37/mkry23GBhfMt8qb6aHHmjuc=",
         "owner": "Mic92",
         "repo": "sops-nix",
-        "rev": "4e7d74d92398b933cc0e0e25af5b0836efcfdde3",
+        "rev": "c482a1c1bbe030be6688ed7dc84f7213f304f1ec",
         "type": "github"
       },
       "original": {
@@ -460,17 +460,17 @@
         ]
       },
       "locked": {
-        "lastModified": 1763679636,
-        "narHash": "sha256-1EhtMk1WKg6EJOEw6t7mpRc4x3uIP1r7DFynwEz68iY=",
-        "owner": "SpaceAgeMP",
-        "repo": "space_age_api",
-        "rev": "12901ccdeee8928f55d6fd933063aaa869d9d4f0",
-        "type": "github"
+        "lastModified": 1764025938,
+        "narHash": "sha256-SuL/oDEqw3bx+xikTPwXaegQ5adULyWA5bjnDAZJP9k=",
+        "ref": "refs/heads/main",
+        "rev": "c38dc7e5b18f485bbca5fd0700b51611c35dbe34",
+        "revCount": 376,
+        "type": "git",
+        "url": "https://git.foxden.network/SpaceAge/space_age_api"
       },
       "original": {
-        "owner": "SpaceAgeMP",
-        "repo": "space_age_api",
-        "type": "github"
+        "type": "git",
+        "url": "https://git.foxden.network/SpaceAge/space_age_api"
       }
     },
     "spaceage-starlord": {
@@ -492,17 +492,17 @@
         ]
       },
       "locked": {
-        "lastModified": 1763708165,
-        "narHash": "sha256-TFlb/mdZxH52JHnoJO1GUKA/lWD170l4ZJ6sOMEYfTc=",
-        "owner": "SpaceAgeMP",
-        "repo": "StarLord",
-        "rev": "8ebdb4cca05316dc456d840c608953a4ea21fd2c",
-        "type": "github"
+        "lastModified": 1764026212,
+        "narHash": "sha256-E6I4QePTt8urCOBrkaL7pGmQk6ls/BW1WN9UBOaDnw4=",
+        "ref": "refs/heads/main",
+        "rev": "5c6f99e8a5e6942297e705032546dfbe202101c1",
+        "revCount": 220,
+        "type": "git",
+        "url": "https://git.foxden.network/SpaceAge/StarLord"
       },
       "original": {
-        "owner": "SpaceAgeMP",
-        "repo": "StarLord",
-        "type": "github"
+        "type": "git",
+        "url": "https://git.foxden.network/SpaceAge/StarLord"
       }
     },
     "spaceage-tts": {
@@ -515,17 +515,17 @@
         ]
       },
       "locked": {
-        "lastModified": 1763679650,
-        "narHash": "sha256-B7JTHL4Pr05308hSqPGYY6UEPu9Af4VFKNUvsVWU3SU=",
-        "owner": "SpaceAgeMP",
-        "repo": "TTS",
-        "rev": "9a649c0a13bec2cc9fedf7e682719d2a20940d08",
-        "type": "github"
+        "lastModified": 1764024765,
+        "narHash": "sha256-wBYk/f42sEbHcv++hySxAhGa7b2HckcLTOW+OEPodjI=",
+        "ref": "refs/heads/main",
+        "rev": "0c6cb7c901a902a71d81a650e680adeca5693234",
+        "revCount": 449,
+        "type": "git",
+        "url": "https://git.foxden.network/SpaceAge/TTS"
       },
       "original": {
-        "owner": "SpaceAgeMP",
-        "repo": "TTS",
-        "type": "github"
+        "type": "git",
+        "url": "https://git.foxden.network/SpaceAge/TTS"
       }
     },
     "spaceage-website": {
@@ -539,17 +539,17 @@
         ]
       },
       "locked": {
-        "lastModified": 1763679673,
-        "narHash": "sha256-HrbBB7XWbHFr0KalvAMTGF+xD336Of7agD6YYLrOYjM=",
-        "owner": "SpaceAgeMP",
-        "repo": "website",
-        "rev": "4236b05d08344e0be742a186615437fd68844803",
-        "type": "github"
+        "lastModified": 1764024771,
+        "narHash": "sha256-qgcdMeZpVQZlQ6rz1ctNF4gS80uKMTFdjOy1YlXfa+U=",
+        "ref": "refs/heads/main",
+        "rev": "0d86aa1544dbb829782563bff78af128ab5d09dd",
+        "revCount": 81,
+        "type": "git",
+        "url": "https://git.foxden.network/SpaceAge/website"
       },
       "original": {
-        "owner": "SpaceAgeMP",
-        "repo": "website",
-        "type": "github"
+        "type": "git",
+        "url": "https://git.foxden.network/SpaceAge/website"
       }
     },
     "superfan": {

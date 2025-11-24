@@ -114,14 +114,14 @@
     };
 
     spaceage-api = {
-      url = "github:SpaceAgeMP/space_age_api";
+      url = "git+https://git.foxden.network/SpaceAge/space_age_api";
       inputs = {
         nixpkgs.follows = "nixpkgs";
         flake-utils.follows = "flake-utils";
       };
     };
     spaceage-starlord = {
-      url = "github:SpaceAgeMP/StarLord";
+      url = "git+https://git.foxden.network/SpaceAge/StarLord";
       inputs = {
         nixpkgs.follows = "nixpkgs";
         flake-utils.follows = "flake-utils";
@@ -131,14 +131,14 @@
       };
     };
     spaceage-tts = {
-      url = "github:SpaceAgeMP/TTS";
+      url = "git+https://git.foxden.network/SpaceAge/TTS";
       inputs = {
         nixpkgs.follows = "nixpkgs";
         flake-utils.follows = "flake-utils";
       };
     };
     spaceage-website = {
-      url = "github:SpaceAgeMP/website";
+      url = "git+https://git.foxden.network/SpaceAge/website";
       inputs = {
         nixpkgs.follows = "nixpkgs";
         flake-utils.follows = "flake-utils";
