@@ -70,7 +70,7 @@ while :; do
 		--exclude='/other' \
 		--exclude='/sources' \
 		--exclude='/lastupdate' \
-		--exclude='/_dori-static' \
+		--exclude='/_jsindex-static' \
 		--exclude='/.dori-local' \
 		--exclude='/.well-known' \
 		"${MIRROR_SOURCE_RSYNC}/" \

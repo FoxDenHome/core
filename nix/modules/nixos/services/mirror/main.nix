@@ -89,6 +89,9 @@ in
               }
 
               include ${pkgs.foxden-jsindex}/lib/node_modules/foxden-jsindex/nginx.conf;
+              location / {
+                include ${pkgs.foxden-jsindex}/lib/node_modules/foxden-jsindex/nginx-location.conf;
+              }
             }
 
             server {
@@ -102,6 +105,9 @@ in
               set $jsindex_footer "/njs/templates/footer.html";
 
               include ${pkgs.foxden-jsindex}/lib/node_modules/foxden-jsindex/nginx.conf;
+              location / {
+                include ${pkgs.foxden-jsindex}/lib/node_modules/foxden-jsindex/nginx-location.conf;
+              }
             }
 
             server {
@@ -146,7 +152,7 @@ in
             reverse lookup = no
             forward lookup = no
 
-            exclude = /.dori-local /_dori-static /.well-known
+            exclude = /.dori-local /_jsindex-static /.well-known
 
             [archlinux]
                     path = /data/archlinux

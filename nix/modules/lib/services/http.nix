@@ -129,9 +129,7 @@ let
 
   mkNginxHandler = (
     handler: svcConfig:
-    if handler == "" then
-      ""
-    else if (svcConfig.oAuth.enable && (!svcConfig.oAuth.overrideService)) then
+    if (svcConfig.oAuth.enable && (!svcConfig.oAuth.overrideService)) then
       ''
         location /oauth2/ {
           proxy_pass http://127.0.0.1:4180;

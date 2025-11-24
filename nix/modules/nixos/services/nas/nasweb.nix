@@ -29,7 +29,7 @@ in
         modules = [
           pkgs.nginxModules.njs
         ];
-        target = "";
+        target = "include ${pkgs.foxden-jsindex}/lib/node_modules/foxden-jsindex/nginx-location.conf;";
         extraHttpConfig = ''
           js_shared_dict_zone zone=render_cache:1m;
           js_import files from files.js;
