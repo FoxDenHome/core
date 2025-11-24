@@ -37,17 +37,19 @@ in
           set $jsindex_entry "/njs/templates/entry.html";
           set $jsindex_footer "/njs/templates/footer.html";
         '';
-        extraConfig =
-          { defaultTarget, ... }:
+        extraHttpConfig =
           ''
             js_shared_dict_zone zone=render_cache:1m;
             js_import files from files.js;
-
+          '';
+        extraConfig =
+          { defaultTarget, ... }:
+          ''
             location ~ ^/guest/.*[^/]$ {
               satisfy any;
               allow 0.0.0.0/0;
               allow ::0/0;
-              root /nas;
+              root /data;
               autoindex off;
             }
           '';

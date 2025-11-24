@@ -405,6 +405,8 @@ in
 
                   ${foxDenLib.nginx.mkProxiesText "  " config}
 
+                  ${inputs.extraHttpConfig or ""}
+
                   js_path "/njs/lib/";
                   js_fetch_trusted_certificate /etc/ssl/certs/ca-certificates.crt;
 
