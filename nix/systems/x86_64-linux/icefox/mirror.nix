@@ -9,10 +9,10 @@ in
       host = "mirror";
       tls = true;
       dataDir = "/mnt/ztank/local/mirror";
-      archMirrorId = "23m.com";
+      archMirrorId = "csclub.uwaterloo.ca";
       sources.archlinux = {
-        rsyncUrl = "rsync://mirror.23m.com/archlinux";
-        httpsUrl = "https://mirror.23m.com/archlinux";
+        rsyncUrl = "rsync://mirror.csclub.uwaterloo.ca/archlinux/";
+        httpsUrl = "https://mirror.csclub.uwaterloo.ca/archlinux";
       };
       sources.cachyos = {
         rsyncUrl = "rsync://202.61.194.133:8958/cachy";
