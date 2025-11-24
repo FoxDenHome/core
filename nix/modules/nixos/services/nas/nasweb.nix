@@ -8,7 +8,6 @@
 let
   services = foxDenLib.services;
   svcConfig = config.foxDen.services.nasweb;
-  jsIndexConf = import ./../../../../packages/foxden-jsindex/config.nix { };
 in
 {
   options.foxDen.services.nasweb = {
@@ -36,7 +35,7 @@ in
           set $jsindex_header "/njs/templates/custom/nasweb_header.html";
           set $jsindex_entry "/njs/templates/entry.html";
           set $jsindex_footer "/njs/templates/footer.html";
-          ${jsIndexConf.nginxConfig}
+          include ${pkgs.foxden-jsindex}/lib/node_modules/foxden-jsindex/nginx.conf;
         '';
         extraHttpConfig = ''
           js_shared_dict_zone zone=render_cache:1m;

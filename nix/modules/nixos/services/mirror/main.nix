@@ -34,8 +34,6 @@ let
         };
       };
     };
-
-  jsIndexConf = import ./../../../../packages/foxden-jsindex/config.nix { };
 in
 {
   options.foxDen.services.mirror = {
@@ -90,7 +88,7 @@ in
                 rewrite ^/cachyos/(.*)$  https://${findFqdnForPrefix "cachyos"}/$1 redirect;
               }
 
-              ${jsIndexConf.nginxConfig}
+              include ${pkgs.foxden-jsindex}/lib/node_modules/foxden-jsindex/nginx.conf;
             }
 
             server {
@@ -103,7 +101,7 @@ in
               set $jsindex_entry "/njs/templates/entry.html";
               set $jsindex_footer "/njs/templates/footer.html";
 
-              ${jsIndexConf.nginxConfig}
+              include ${pkgs.foxden-jsindex}/lib/node_modules/foxden-jsindex/nginx.conf;
             }
 
             server {
