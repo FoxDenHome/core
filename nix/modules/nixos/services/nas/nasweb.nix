@@ -29,29 +29,29 @@ in
         modules = [
           pkgs.nginxModules.njs
         ];
-        target = ''
-          root /data;
-          include ${pkgs.foxden-jsindex}/lib/node_modules/foxden-jsindex/nginx.conf;
-        '';
+        target = "";
         extraHttpConfig = ''
           js_shared_dict_zone zone=render_cache:1m;
           js_import files from files.js;
         '';
         extraConfig =
-          { defaultTarget, ... }:
+          { ... }:
           ''
             set $jsindex_ignore "";
             set $jsindex_header "/njs/templates/custom/nasweb_header.html";
             set $jsindex_entry "/njs/templates/entry.html";
             set $jsindex_footer "/njs/templates/footer.html";
 
+            root /data;
+
             location ~ ^/guest/.*[^/]$ {
               satisfy any;
               allow 0.0.0.0/0;
               allow ::0/0;
-              root /data;
               index index.html;
             }
+
+            include ${pkgs.foxden-jsindex}/lib/node_modules/foxden-jsindex/nginx.conf;
           '';
       }).config
       {
