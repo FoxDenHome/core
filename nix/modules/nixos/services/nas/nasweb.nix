@@ -31,10 +31,6 @@ in
         ];
         target = ''
           root /data;
-          set $jsindex_ignore "";
-          set $jsindex_header "/njs/templates/custom/nasweb_header.html";
-          set $jsindex_entry "/njs/templates/entry.html";
-          set $jsindex_footer "/njs/templates/footer.html";
           include ${pkgs.foxden-jsindex}/lib/node_modules/foxden-jsindex/nginx.conf;
         '';
         extraHttpConfig = ''
@@ -44,12 +40,17 @@ in
         extraConfig =
           { defaultTarget, ... }:
           ''
+            set $jsindex_ignore "";
+            set $jsindex_header "/njs/templates/custom/nasweb_header.html";
+            set $jsindex_entry "/njs/templates/entry.html";
+            set $jsindex_footer "/njs/templates/footer.html";
+
             location ~ ^/guest/.*[^/]$ {
               satisfy any;
               allow 0.0.0.0/0;
               allow ::0/0;
               root /data;
-              autoindex off;
+              index index.html;
             }
           '';
       }).config
