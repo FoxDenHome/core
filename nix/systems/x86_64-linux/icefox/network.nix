@@ -11,7 +11,7 @@ let
   ifcfg-foxden = {
     addresses = [
       "10.99.10.2/16"
-      "fd2c:f4cb:63be::a63:a02/112"
+      "fd2c:f4cb:63be::a63:a02/64"
     ];
     bridgeAddresses = [
       "10.99.12.1/24"
@@ -367,7 +367,7 @@ in
 
   # Due to OVH routing, we have two IPv6 subnets
   # - 2607:5300:60:7065::/112 for hosts which have public IPv4
-  # - 2607:5300:60:7065::1:/112 for hosts without public IPv4 (routed out via mainIPv4)
+  # - 2604:2dc0:500:b03::/112 for hosts without public IPv4 (routed out via mainIPv4)
   foxDen.hosts.hosts = {
     icefox =
       let
