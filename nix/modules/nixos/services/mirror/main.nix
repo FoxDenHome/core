@@ -35,7 +35,7 @@ let
       };
     };
 
-  jsIndexConf = import ./../../packages/foxden-jsindex/config.nix { };
+  jsIndexConf = import ./../../../../packages/foxden-jsindex/config.nix { };
 in
 {
   options.foxDen.services.mirror = {

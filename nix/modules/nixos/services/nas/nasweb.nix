@@ -8,7 +8,7 @@
 let
   services = foxDenLib.services;
   svcConfig = config.foxDen.services.nasweb;
-  jsIndexConf = import ./../../packages/foxden-jsindex/config.nix { };
+  jsIndexConf = import ./../../../../packages/foxden-jsindex/config.nix { };
 in
 {
   options.foxDen.services.nasweb = {
