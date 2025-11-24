@@ -7,8 +7,8 @@
 }:
 let
   services = foxDenLib.services;
-
   svcConfig = config.foxDen.services.nasweb;
+  jsIndexConf = import ./../../packages/foxden-jsindex/config.nix { };
 in
 {
   options.foxDen.services.nasweb = {
@@ -36,12 +36,12 @@ in
           set $jsindex_header "/njs/templates/custom/nasweb_header.html";
           set $jsindex_entry "/njs/templates/entry.html";
           set $jsindex_footer "/njs/templates/footer.html";
+          ${jsIndexConf.nginxConfig}
         '';
-        extraHttpConfig =
-          ''
-            js_shared_dict_zone zone=render_cache:1m;
-            js_import files from files.js;
-          '';
+        extraHttpConfig = ''
+          js_shared_dict_zone zone=render_cache:1m;
+          js_import files from files.js;
+        '';
         extraConfig =
           { defaultTarget, ... }:
           ''
