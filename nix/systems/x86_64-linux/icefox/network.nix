@@ -37,7 +37,7 @@ let
   };
   ifcfg-routed = {
     addresses = [
-      "2604:2dc0:500:b03:::1/64"
+      "2604:2dc0:500:b03::1/64"
     ];
     interface = "br-routed";
     mtu = 1500;
@@ -45,7 +45,7 @@ let
   };
   ifcfg-vrack = {
     addresses = [
-      "2604:2dc0:500:b00:::3/56"
+      "2604:2dc0:500:b00::3/56"
     ];
     interface = "br-vrack";
     mtu = 1500;
