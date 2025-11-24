@@ -8,12 +8,12 @@ locals {
       branch_protection = false
       visibility        = "private"
     }
-    NixieClockDori = {}
+    NixieClockDori   = {}
     CC1101Duino      = {}
     ntpi             = {}
     shutdownd        = {}
     keepass-unlocker = {}
-    core                   = {
+    core = {
       description = "Mirror of https://git.foxden.network/FoxDen/core"
     }
     foxden-radius-autofill = {}

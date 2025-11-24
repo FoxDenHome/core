@@ -83,8 +83,8 @@ locals {
     inputmodule-rs = {
       description = "Framework Laptop 16 Input Module SW/FW"
     }
-    dotfiles                    = {}
-    libnss_igshim               = {}
+    dotfiles      = {}
+    libnss_igshim = {}
     linux-cachyos-dori = {
       description       = "CachyOS kernel with my own patches :3"
       branch_protection = false

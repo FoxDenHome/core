@@ -1,8 +1,8 @@
 locals {
   nameservers = toset([for ns in var.nameservers : trimsuffix(ns, ".")])
 
-  ns_records    = [for rec in var.records : rec if rec["type"] == "NS"]
-  alias_records = { for rec in var.records : "${rec["name"]}.${var.domain}" => rec if rec["type"] == "ALIAS" }
+  ns_records    = [for _, rec in local.record_map : rec if rec["type"] == "NS"]
+  alias_records = { for _, rec in local.record_map : "${rec["name"]}.${var.domain}" => rec if rec["type"] == "ALIAS" }
 
   ns_to_upstream = { for rec in local.ns_records :
     trimsuffix(rec["value"], ".") =>
