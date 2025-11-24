@@ -133,6 +133,9 @@ in
             service = {
               DISABLE_REGISTRATION = true;
             };
+            indexer = {
+              REPO_INDEXER_ENABLED = true;
+            };
             session = {
               COOKIE_SECURE = svcConfig.tls;
             };
