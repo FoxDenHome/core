@@ -40,7 +40,7 @@ in
       ];
       webservice.enable = true;
       addresses = [
-        "2604:2dc0:500:b03::3/64"
+        "2604:2dc0:500:b03::3/112"
         "10.99.12.3/24"
         "fd2c:f4cb:63be::a63:c03/120"
       ];
