@@ -17,9 +17,9 @@ fi
 
 echo "[EXEC] Upstream mirror: ${MIRROR_SOURCE_RSYNC} / ${MIRROR_SOURCE_HTTPS-}"
 
-echo '[EXEC] Running ./sync.sh'
+echo "[EXEC] Running $1"
 ecode=0
-bash ./sync.sh || ecode=$?
+bash "$1" || ecode=$?
 echo "[EXEC] Sync completed with code: ${ecode}"
 
 date '+%s' > "${LASTPULL_BASE}"

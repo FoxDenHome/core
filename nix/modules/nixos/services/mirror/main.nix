@@ -281,7 +281,7 @@ in
                     ];
 
                     ExecStart = [
-                      "${pkgs.bash}/bin/bash ${pkgs.foxden-mirror}/lib/node_modules/foxden-mirror/refresh/run.sh"
+                      "${pkgs.bash}/bin/bash ${./refresh/run.sh} ${./refresh/sync.sh}"
                     ];
                   };
                 }
