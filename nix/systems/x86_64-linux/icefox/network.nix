@@ -133,7 +133,9 @@ in
       ];
   };
 
-  foxDen.services.kanidm.externalIPs = map foxDenLib.util.removeIPCidr ifcfg.addresses;
+  foxDen.services.kanidm.externalIPs = lib.filter (ip: !(foxDenLib.util.isPrivateIP ip)) (
+    map foxDenLib.util.removeIPCidr (ifcfg-vrack.addresses ++ ifcfg.addresses)
+  );
   foxDen.hosts.index = 3;
   foxDen.hosts.gateway = "icefox";
   virtualisation.libvirtd.allowedBridges = [
