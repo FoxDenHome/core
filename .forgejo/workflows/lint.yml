@@ -10,7 +10,7 @@ concurrency:
 
 jobs:
   lint:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: https://data.forgejo.org/actions/checkout@v4
       #TODO: Uncomment once we have Forgejo 12 (node24 act support), for now we bake uv into runner image
