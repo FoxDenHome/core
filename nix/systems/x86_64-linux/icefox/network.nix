@@ -49,7 +49,7 @@ let
     ];
     interface = "br-vrack";
     mtu = 1500;
-    mac = config.lib.foxDen.mkHashMac "000003";
+    mac = "3c:ec:ef:78:c1:67";
     phyIface = "eno2np1";
   };
 
