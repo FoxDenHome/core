@@ -384,13 +384,7 @@ in
         inherit (ifcfg) nameservers;
         interfaces.default = mkIntf ifcfg;
         interfaces.foxden = mkIntf ifcfg-foxden;
-        interfaces.routed = {
-          driver.name = "null";
-          inherit (ifcfg-routed) mac addresses;
-          dns.fqdns = [
-            "icefox-routed.doridian.net"
-          ];
-        };
+        interfaces.vrack = mkIntf ifcfg-vrack;
       };
   };
 }
