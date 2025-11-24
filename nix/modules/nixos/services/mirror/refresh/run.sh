@@ -2,6 +2,7 @@
 set -euo pipefail
 
 cd "$(dirname "$0")"
+SYNC_SCRIPT="$1"
 
 export MIRROR_TARGET="/data"
 export LOCAL_DIR="${MIRROR_TARGET}/.dori-local"
@@ -17,9 +18,9 @@ fi
 
 echo "[EXEC] Upstream mirror: ${MIRROR_SOURCE_RSYNC} / ${MIRROR_SOURCE_HTTPS-}"
 
-echo "[EXEC] Running $1"
+echo "[EXEC] Running ${SYNC_SCRIPT}"
 ecode=0
-bash "$1" || ecode=$?
+bash "${SYNC_SCRIPT}" || ecode=$?
 echo "[EXEC] Sync completed with code: ${ecode}"
 
 date '+%s' > "${LASTPULL_BASE}"
