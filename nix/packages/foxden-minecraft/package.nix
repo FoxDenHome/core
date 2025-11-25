@@ -25,8 +25,8 @@ pkgs.stdenv.mkDerivation {
       hash = "sha256-J2Z9CdyUPsHncaIOLVk2ddCDUvH4d97xmeEyNoOPQ+0=";
     })
     (pkgs.fetchurl {
-      url = "https://github.com/Uiniel/BlueMapModelLoaders/releases/download/v0.3.1/BlueMapModelLoaders-0.3.1.jar";
-      hash = "sha256-JTUAyXIPlvkg8m1vLdmgtVcemAX3VRcEghn1nwuvC8k=";
+      url = "https://github.com/Doridian/BlueMapModelLoaders/releases/download/0.3.1/BlueMapModelLoaders-0.3.1.jar";
+      hash = "sha256-LDMQsF+tTL1eQhlzqjFuIE5MlC1nzGaigNwpiDAuxuk=";
     })
     ./local
   ];
