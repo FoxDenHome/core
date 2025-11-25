@@ -34,14 +34,14 @@ I am not sure whether I plan to instrument RouterOS enough to make this possible
 
 ### IceFox
 
-- **Locator**: Hetzner
+- **Locator**: OVH
 - **OS**: NixOS
-- **CPU**: AMD Ryzen 9 3900
-- **RAM**: 128GB, DDR4, 2666 MT/s
+- **CPU**: Xeon D-2141I
+- **RAM**: 32GB, DDR4, 2133 MT/s
 - **Storage**:
-	- nix: xfs: RAID1: 2 * 1TB NVMe SSD
+	- nix: xfs: RAID1: 2 * 480GB SATA3 SSD
 	- ztank: ZFS:
-		- RAIDZ2: 10 * 14 TB SATA3 HDD
+		- MIRROR: 2 * 8 TB SATA3 HDD
 - **Network**: 1GbE (no traffic limit)
 
 ### RedFox
