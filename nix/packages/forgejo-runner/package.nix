@@ -20,7 +20,7 @@ nixpkgs-unstable.legacyPackages.${systemArch}.forgejo-runner.override {
         ldflags = [
           "-s"
           "-w"
-          "-X code.forgejo.org/forgejo/runner/v12/internal/pkg/ver.version=${version}"
+          "-X code.forgejo.org/forgejo/runner/v12/internal/pkg/ver.version=v${version}"
         ];
       }
     );
