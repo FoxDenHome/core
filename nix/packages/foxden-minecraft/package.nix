@@ -21,10 +21,15 @@ pkgs.stdenv.mkDerivation {
       hash = "sha256-J2Z9CdyUPsHncaIOLVk2ddCDUvH4d97xmeEyNoOPQ+0=";
     })
     (pkgs.fetchurl {
-      url = "https://github.com/Doridian/BlueMapModelLoaders/releases/download/0.3.1/BlueMapModelLoaders-0.3.1.jar";
-      hash = "sha256-3DE6bv4+UImzaOYn/j0SZZyjDCZ/sAoR263cuH5/W+k=";
+      url = "https://github.com/Uiniel/BlueMapModelLoaders/releases/download/v0.3.2/BlueMapModelLoaders-0.3.2.jar";
+      hash = "sha256-cavH3b0RcDocskO+/Ol/MxRhyPw4bp7O31IVDAi7q5U=";
     })
     ./local
+  ];
+
+  buildInputs = with pkgs; [
+    unzip
+    zip
   ];
 
   unpackPhase = ''
@@ -33,6 +38,9 @@ pkgs.stdenv.mkDerivation {
       echo "Copying from $srcFile"
       if [ "$(stripHash $srcFile)" == "local" ]; then
         cp -r "$srcFile"/* server/
+        chmod 700 ./server/build.sh
+        bash ./server/build.sh
+        rm -rf ./server/build.sh
       elif [ -d "$srcFile" ]; then
         rm -rf server-tmp && mkdir -p server-tmp
         cp -r "$srcFile"/* server-tmp
