@@ -145,6 +145,7 @@ in
               REGISTER_EMAIL_CONFIRM = false;
             };
           };
+          package = pkgs.forgejo;
           stateDir = svcConfig.dataDir;
         };
 
