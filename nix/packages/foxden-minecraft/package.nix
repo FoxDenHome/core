@@ -24,11 +24,15 @@ pkgs.stdenv.mkDerivation {
       url = "https://github.com/BlueMap-Minecraft/BlueMap/releases/download/v5.12/bluemap-5.12-mc1.20-6-forge.jar";
       hash = "sha256-J2Z9CdyUPsHncaIOLVk2ddCDUvH4d97xmeEyNoOPQ+0=";
     })
+    (pkgs.fetchurl {
+      url = "https://github.com/Uiniel/BlueMapModelLoaders/releases/download/v0.3.1/BlueMapModelLoaders-0.3.1.jar";
+      hash = "sha256-JTUAyXIPlvkg8m1vLdmgtVcemAX3VRcEghn1nwuvC8k=";
+    })
     ./local
   ];
 
   unpackPhase = ''
-    mkdir -p server/mods
+    mkdir -p server/mods server/config/bluemap/packs
     for srcFile in $srcs; do
       echo "Copying from $srcFile"
       if [ "$(stripHash $srcFile)" == "local" ]; then
@@ -44,6 +48,9 @@ pkgs.stdenv.mkDerivation {
         case "$(stripHash $srcFile)" in
           *.sh|server-icon.png|server.properties)
             cp "$srcFile" "server/$(stripHash $srcFile)"
+            ;;
+          BlueMapModelLoaders-*.jar)
+            cp "$srcFile" "server/config/bluemap/packs/$(stripHash $srcFile)"
             ;;
           *.jar)
             cp "$srcFile" "server/mods/$(stripHash $srcFile)"
