@@ -1,4 +1,4 @@
-{
+inputs@{
   nixpkgs,
   lib,
   systemArch,
@@ -46,7 +46,7 @@ let
   );
 
   localPackages = lib.attrsets.genAttrs (lib.attrNames (builtins.readDir ../../packages)) (
-    name: import ../../packages/${name}/package.nix { inherit pkgs lib nixpkgs; }
+    name: import ../../packages/${name}/package.nix (inputs // { inherit pkgs; })
   );
 in
 {
