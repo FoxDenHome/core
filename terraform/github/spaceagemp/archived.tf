@@ -9,6 +9,21 @@ locals {
       visibility        = "private"
       branch_protection = false
     }
+    website = {
+      description = "Moved to https://git.foxden.network/SpaceAge/website"
+    }
+    StarLord = {
+      description = "Moved to https://git.foxden.network/SpaceAge/StarLord"
+    }
+    TTS = {
+      description = "Moved to https://git.foxden.network/SpaceAge/TTS"
+    }
+    space_age_api = {
+      description = "Moved to https://git.foxden.network/SpaceAge/space_age_api"
+    }
+    SpaceAge = {
+      description = "Moved to https://git.foxden.network/SpaceAge/SpaceAge"
+    }
   }
 }
 

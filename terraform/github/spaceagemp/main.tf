@@ -1,29 +1,6 @@
 locals {
   repositores = {
-    website = {
-      required_checks = [
-        "nix",
-      ]
-    }
-    StarLord = {
-      description = "GMod server manager with updates from git"
-    }
-    TTS = {
-      required_checks = [
-        "nix",
-      ]
-    }
-    space_age_api = {
-      required_checks = [
-        "nix",
-      ]
-    }
-    spacebuild = {}
-    SpaceAge = {
-      required_checks = [
-        "lint"
-      ]
-    }
+    spacebuild        = {}
     SpaceAgeModelPack = {}
     Joystick = {
       description = "A joystick module for GMod, originally by NightEagle."
@@ -44,8 +21,9 @@ locals {
     gm_random            = {}
     smartsnap            = {}
     issues               = {}
-
-    GWSockets     = {}
+    GWSockets = {
+      default_branch = "master"
+    }
     gm_enginespew = {}
     gm_luaerror   = {}
   }
