@@ -11,6 +11,7 @@ let
     catatonit
     cni-plugins
     coreutils
+    git
     gnugrep
     gnused
     gnutar
