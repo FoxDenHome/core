@@ -16,9 +16,10 @@ pkgs.stdenv.mkDerivation {
     # TODO: Add/fix BlueMap rendering for:
     # - Large waterwheel
     # - Crushing wheel
-    # - Filled cauldrons (water and lava)
     # - Water-filled catalyst (fire and lava work)
     # - Witch-hazel (I think) bookshelves
+    # - Active blaze burners
+    # - Basic steam engine "armatures"
     (pkgs.fetchurl {
       url = "https://github.com/BlueMap-Minecraft/BlueMap/releases/download/v5.12/bluemap-5.12-mc1.20-6-forge.jar";
       hash = "sha256-J2Z9CdyUPsHncaIOLVk2ddCDUvH4d97xmeEyNoOPQ+0=";
