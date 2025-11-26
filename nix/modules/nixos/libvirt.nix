@@ -42,7 +42,19 @@ let
       set -euo pipefail
 
       physfn='/sys/bus/pci/devices/${vm.config.sriovMappings.${ifaceName}.addr}/physfn'
-      physdev="$(${pkgs.coreutils}/bin/ls "$physfn/net")"
+
+      maxtries=300
+      while :; do
+        maxtries=$((maxtries - 1))
+        if [ $maxtries -le 0 ]; then
+          echo "Timeout waiting for VF interface to appear" >&2
+          exit 1
+        fi
+        physdev="$(${pkgs.coreutils}/bin/ls "$physfn/net" || :)"
+        if [ -n "$physdev" ]; then
+          break
+        fi
+      done
 
       numvfs_file="/sys/class/net/$physdev/device/sriov_numvfs"
       totalvfs="$(cat /sys/class/net/$physdev/device/sriov_totalvfs)"
