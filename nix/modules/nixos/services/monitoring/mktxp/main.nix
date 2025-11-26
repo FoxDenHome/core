@@ -7,8 +7,13 @@
 }:
 let
   services = foxDenLib.services;
-
   svcConfig = config.foxDen.services.mktxp;
+
+  python3Packages = pkgs.python3Packages // {
+    buildPythonApplication = inputs: pkgs.python3Packages.buildPythonApplication (inputs // {
+      dependencies = inputs.dependencies or [] ++ [ pkgs.python3Packages.pyyaml ];
+    });
+  };
 in
 {
   options.foxDen.services.mktxp = services.mkOptions {
@@ -39,12 +44,10 @@ in
           confinement.packages = [
             pkgs.gnused
             pkgs.which
-            pkgs.python3Packages.pyyaml
           ];
           path = [
             pkgs.gnused
             pkgs.which
-            pkgs.python3Packages.pyyaml
           ];
 
           serviceConfig = {
@@ -55,7 +58,7 @@ in
             ];
 
             ExecStart = [
-              "${pkgs.mktxp}/bin/mktxp --cfg-dir /tmp export"
+              "${pkgs.mktxp.override { inherit python3Packages; }}/bin/mktxp --cfg-dir /tmp export"
             ];
 
             Type = "simple";
