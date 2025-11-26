@@ -3,8 +3,7 @@
 
   inputs = {
     # Basics
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.05";
-    nixpkgs-unstable.url = "github:NixOS/nixpkgs/0b4defa2584313f3b781240b29d61f6f9f7e0df3";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.11";
 
     impermanence.url = "github:nix-community/impermanence";
     lanzaboote = {

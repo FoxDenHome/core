@@ -1,5 +1,4 @@
 {
-  pkgs,
   lib,
   config,
   ...
@@ -18,11 +17,11 @@ in
   };
 
   config = lib.mkIf svcConfig.enable {
-    systemd.watchdog = {
-      device = svcConfig.device;
-      kexecTime = null;
-      rebootTime = null;
-      runtimeTime = "60s";
+    systemd.settings.Manager = {
+      KExecWatchdogSec = null;
+      RebootWatchdogSec = null;
+      RuntimeWatchdogSec = "60s";
+      WatchdogDevice = svcConfig.device;
     };
   };
 }

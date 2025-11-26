@@ -45,6 +45,7 @@ let
             autoSubUidGidRange = true;
             home = "/var/lib/foxden-oci/${ctName}";
             createHome = true;
+            linger = false;
           };
           users.groups."${ctName}" = { };
 

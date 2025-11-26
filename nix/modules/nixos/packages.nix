@@ -8,7 +8,6 @@ inputs@{
 let
   internalPackages = {
     "nixpkgs" = true;
-    "nixpkgs-unstable" = true;
     "impermanence" = true;
     "lanzaboote" = true;
     "sops-nix" = true;

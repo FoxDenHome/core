@@ -254,8 +254,9 @@ in
         ++ nixpkgs.lib.flatten (
           map ({ name, value }: mkAuxRecords name value authorities) (lib.attrsets.attrsToList zones)
         );
-      # TODO: Go back to uniqueStrings once next NixOS stable
-      horizons = lib.filter (h: h != "*") (lib.lists.unique (map (record: record.horizon) records));
+      horizons = lib.filter (h: h != "*") (
+        lib.lists.uniqueStrings (map (record: record.horizon) records)
+      );
 
       zoneNames = lib.attrsets.attrNames zones;
 

@@ -13,8 +13,7 @@ let
     let
       host = foxDenLib.hosts.getByName config svcConfig.host;
       baseUrlPrefix = if svcConfig.tls then "https://" else "http://";
-      # TODO: Go back to uniqueStrings once next NixOS stable
-      baseUrls = nixpkgs.lib.lists.unique (
+      baseUrls = nixpkgs.lib.lists.uniqueStrings (
         nixpkgs.lib.flatten (
           map (iface: (map (dns: "${baseUrlPrefix}${dns}") iface.dns.fqdns)) (
             nixpkgs.lib.attrsets.attrValues host.interfaces
@@ -259,8 +258,7 @@ in
 
       host = foxDenLib.hosts.getByName config svcConfig.host;
 
-      # TODO: Go back to uniqueStrings once next NixOS stable
-      hostMatchers = nixpkgs.lib.lists.unique (
+      hostMatchers = nixpkgs.lib.lists.uniqueStrings (
         nixpkgs.lib.flatten (map (iface: iface.dns.fqdns) (nixpkgs.lib.attrsets.attrValues host.interfaces))
       );
 

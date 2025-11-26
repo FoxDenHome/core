@@ -26,8 +26,7 @@ let
   mappedHosts = lib.attrsets.mapAttrs (
     name: record: resolveRecordAddress record
   ) mappedCriticalRecords;
-  # TODO: Go back to uniqueStrings once next NixOS stable
-  mappedAddresses = lib.lists.unique (
+  mappedAddresses = lib.lists.uniqueStrings (
     lib.lists.filter (addr: addr != null) (lib.attrsets.attrValues mappedHosts)
   );
 in
