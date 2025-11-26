@@ -135,4 +135,6 @@
       )
     );
   };
+
+  systemd.services.nix-daemon.serviceConfig.LimitNOFILE = 4096000;
 }
