@@ -1,10 +1,6 @@
 {
   rootDiskSize = "80G";
   autostart = true;
-  sriovMappings.default = {
-    addr = "0000:81:03.7";
-    vlan = 0;
-  };
   interfaces.default = {
     dns = {
       fqdns = [ "bengalfox-win.foxden.network" ];
