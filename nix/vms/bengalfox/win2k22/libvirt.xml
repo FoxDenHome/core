@@ -2,8 +2,8 @@
   <name>win2k22</name>
   <uuid>2a828fa8-c068-42c8-a55a-60831ec86e5c</uuid>
   <metadata>
-    <libosinfo:libosinfo xmlns:libosinfo="http://libosinfo.org/xmlns/libvirt/domain/1.0">
-      <libosinfo:os id="http://microsoft.com/win/2k22"/>
+    <libosinfo:libosinfo xmlns:libosinfo='http://libosinfo.org/xmlns/libvirt/domain/1.0'>
+      <libosinfo:os id='http://microsoft.com/win/2k22'/>
     </libosinfo:libosinfo>
   </metadata>
   <memory unit='KiB'>16777216</memory>
@@ -140,15 +140,15 @@
       <address type='pci' domain='0x0000' bus='0x00' slot='0x1f' function='0x2'/>
     </controller>
     <interface type='hostdev' managed='yes'>
-      <driver name="vfio"/>
+      <driver name='vfio'/>
       <source>
-        <address type="pci" domain="0x0000" bus="0x81" slot="0x03" function="0x7"/>
+        <address type='pci' domain='0x0000' bus='0x81' slot='0x03' function='0x7'/>
       </source>
       <mac address='5e:8c:f2:cd:c8:4a'/>
       <vlan>
         <tag id='0'/>
       </vlan>
-      <address type="pci" domain="0x0000" bus="0x06" slot="0x00" function="0x0"/>
+      <address type='pci' domain='0x0000' bus='0x06' slot='0x00' function='0x0'/>
     </interface>
     <serial type='pty'>
       <target type='isa-serial' port='0'>
