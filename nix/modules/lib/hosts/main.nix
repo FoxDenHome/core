@@ -330,6 +330,10 @@ in
             This is used to avoid generating colliding MAC addresses for interfaces.
           '';
         };
+        ipReverses = lib.mkOption {
+          type = attrsOf str;
+          description = "allHostAddresses.ip = hostname";
+        };
         index = lib.mkOption {
           type = ints.u8;
         };
@@ -347,6 +351,17 @@ in
             }
           );
           usedMacAddresses = map (iface: iface.mac) interfaces;
+          ipReverses = lib.attrsets.listToAttrs (
+            lib.lists.flatten (
+              map (
+                iface:
+                map (addr: {
+                  name = util.removeIPCidr addr;
+                  value = lib.lists.head iface.dns.fqdns;
+                }) iface.addresses
+              ) (lib.lists.filter (iface: (lib.lists.length iface.dns.fqdns) > 0) interfaces)
+            )
+          );
         };
         foxDen.dns.records = (
           lib.flatten (
