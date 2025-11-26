@@ -35,6 +35,11 @@ in
       ipReverseCfg = globalConfig.get [ "foxDen" "hosts" "ipReverses" ] nixosConfigurations;
     in
     nixpkgs.lib.genAttrs (nixpkgs.lib.lists.uniqueStrings (nixpkgs.lib.attrsets.attrValues providers)) (
-      provider: nixpkgs.lib.attrsets.filterAttrs (host: value: providers.${host} == provider) ipReverseCfg
+      provider:
+      nixpkgs.lib.attrsets.mergeAttrsList (
+        nixpkgs.lib.attrsets.attrValues (
+          nixpkgs.lib.attrsets.filterAttrs (host: value: providers.${host} == provider) ipReverseCfg
+        )
+      )
     );
 }
