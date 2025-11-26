@@ -45,15 +45,16 @@ let
 
       maxtries=300
       while :; do
+        physdev="$(${pkgs.coreutils}/bin/ls "$physfn/net" || :)"
+        if [ -n "$physdev" ]; then
+          break
+        fi
         maxtries=$((maxtries - 1))
         if [ $maxtries -le 0 ]; then
           echo "Timeout waiting for VF interface to appear" >&2
           exit 1
         fi
-        physdev="$(${pkgs.coreutils}/bin/ls "$physfn/net" || :)"
-        if [ -n "$physdev" ]; then
-          break
-        fi
+        sleep 0.1
       done
 
       numvfs_file="/sys/class/net/$physdev/device/sriov_numvfs"
