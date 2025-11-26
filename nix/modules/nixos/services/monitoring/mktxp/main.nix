@@ -39,6 +39,7 @@ in
           confinement.packages = [
             pkgs.gnused
             pkgs.which
+            pkgs.python3Packages.yaml
           ];
           path = [
             pkgs.gnused
