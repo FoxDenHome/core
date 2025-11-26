@@ -32,6 +32,10 @@ pkgs.stdenv.mkDerivation {
       url = "https://github.com/Uiniel/BlueMapModelLoaders/releases/download/v0.3.2/BlueMapModelLoaders-0.3.2.jar";
       hash = "sha256-cavH3b0RcDocskO+/Ol/MxRhyPw4bp7O31IVDAi7q5U=";
     })
+    (pkgs.fetchurl {
+      url = "https://github.com/BeneHenke/BluemapCreateEntityAddon/releases/download/v1.0.0/createentityaddon-1.0.0.jar";
+      hash = "sha256-4k9HgbpYmtn+98jYTdm4EglG8wg2wH6qDI3kEClUqtM=";
+    })
     ./local
   ];
 
@@ -61,7 +65,7 @@ pkgs.stdenv.mkDerivation {
           *.sh|server-icon.png|server.properties)
             cp "$srcFile" "server/$(stripHash $srcFile)"
             ;;
-          BlueMapModelLoaders-*.jar)
+          BlueMapModelLoaders-*.jar|createentityaddon-*.jar)
             cp "$srcFile" "server/config/bluemap/packs/$(stripHash $srcFile)"
             ;;
           *.jar)
