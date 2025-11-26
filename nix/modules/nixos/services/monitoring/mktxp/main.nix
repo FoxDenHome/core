@@ -10,9 +10,14 @@ let
   svcConfig = config.foxDen.services.mktxp;
 
   python3Packages = pkgs.python3Packages // {
-    buildPythonApplication = inputs: pkgs.python3Packages.buildPythonApplication (inputs // {
-      dependencies = inputs.dependencies or [] ++ [ pkgs.python3Packages.pyyaml ];
-    });
+    buildPythonApplication =
+      inputs:
+      pkgs.python3Packages.buildPythonApplication (
+        inputs
+        // {
+          dependencies = inputs.dependencies ++ [ pkgs.python3Packages.pyyaml ];
+        }
+      );
   };
 in
 {
