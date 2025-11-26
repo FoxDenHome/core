@@ -44,6 +44,7 @@ in
           path = [
             pkgs.gnused
             pkgs.which
+            pkgs.python3Packages.pyyaml
           ];
 
           serviceConfig = {
