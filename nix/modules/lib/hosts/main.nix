@@ -316,6 +316,10 @@ in
           type = str;
           default = "default";
         };
+        hostingProvider = lib.mkOption {
+          type = str;
+          default = "home";
+        };
         useDHCP = lib.mkEnableOption "Configure DHCP lease for hosts on this system";
         usedMacAddresses = lib.mkOption {
           type = addCheck (listOf str) (

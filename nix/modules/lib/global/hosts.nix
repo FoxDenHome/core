@@ -27,4 +27,14 @@ in
   getGateways =
     nixosConfigurations:
     lib.lists.unique (map (iface: iface.gateway) (getInterfaces nixosConfigurations));
+
+  getIPReverses =
+    nixosConfigurations:
+    let
+      providers = globalConfig.get [ "foxDen" "hosts" "hostingProvider" ] nixosConfigurations;
+      ipReverseCfg = globalConfig.get [ "foxDen" "hosts" "ipReverses" ] nixosConfigurations;
+    in
+    nixpkgs.lib.genAttrs (
+      provider: nixpkgs.lib.attrsets.filterAttrs (host: value: providers.${host} == provider) ipReverseCfg
+    ) providers;
 }

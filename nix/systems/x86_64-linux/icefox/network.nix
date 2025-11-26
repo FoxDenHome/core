@@ -138,6 +138,8 @@ in
   );
   foxDen.hosts.index = 3;
   foxDen.hosts.gateway = "icefox";
+  foxDen.hosts.hostingProvider = "ovh";
+
   virtualisation.libvirtd.allowedBridges = [
     ifcfg.interface
     ifcfg-foxden.interface

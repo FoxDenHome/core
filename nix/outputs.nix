@@ -89,6 +89,7 @@ let
     ) systemModules;
   }) systemInfos;
 
+  ipReverses = foxDenLib.global.hosts.getIPReverses nixosConfigurations;
   dns = foxDenLib.global.dns.mkConfig nixosConfigurations;
   dhcp = foxDenLib.global.dhcp.make nixosConfigurations;
   firewall = foxDenLib.global.firewall.make nixosConfigurations;
@@ -108,6 +109,7 @@ let
           haproxy
           kanidm
           dns
+          ipReverses
           ;
       };
       modules = [
@@ -131,6 +133,10 @@ in
   dns = {
     attrset = dns;
     json = builtins.toFile "dns.json" (builtins.toJSON dns);
+  };
+  ipReverses = {
+    attrset = ipReverses;
+    json = builtins.toFile "ipReverses.json" (builtins.toJSON ipReverses);
   };
   sshHostDnsNames = {
     attrset = sshHostDnsNames;
