@@ -34,55 +34,6 @@ let
       ${pkgs.libvirt}/bin/virsh define ${vm.libvirtXml}
       ${pkgs.libvirt}/bin/virsh autostart ${vm.name} --disable
     '';
-
-  setupSriovScriptRawIface =
-    vm: ifaceName:
-    pkgs.writeShellScript "setup-sriov" ''
-      #!${pkgs.bash}/bin/bash
-      set -euo pipefail
-
-      physfn='/sys/bus/pci/devices/${vm.config.sriovMappings.${ifaceName}.addr}/physfn'
-
-      maxtries=300
-      while :; do
-        physdev="$(${pkgs.coreutils}/bin/ls "$physfn/net" || :)"
-        if [ -n "$physdev" ]; then
-          break
-        fi
-        maxtries=$((maxtries - 1))
-        if [ $maxtries -le 0 ]; then
-          echo "Timeout waiting for VF interface to appear" >&2
-          exit 1
-        fi
-        sleep 0.1
-      done
-
-      numvfs_file="/sys/class/net/$physdev/device/sriov_numvfs"
-      totalvfs="$(cat /sys/class/net/$physdev/device/sriov_totalvfs)"
-      numvfs="$(cat "$numvfs_file")"
-      if [ "$numvfs" -eq 0 ]; then
-        echo $totalvfs > "$numvfs_file"
-      fi
-
-      for vfn in $physfn/virtfn*; do
-        vfn_dev="$(${pkgs.coreutils}/bin/basename "$(${pkgs.coreutils}/bin/readlink "$vfn")")"
-        if [ "$vfn_dev" == "${vm.config.sriovMappings.${ifaceName}.addr}" ]; then
-          vfn_idx="$(${pkgs.coreutils}/bin/basename "$vfn" | ${pkgs.gnused}/bin/sed 's/virtfn//')"
-          echo "Configuring SR-IOV for VM ${vm.name} on device phy=$physdev vfidx=$vfn_idx vfdev=$vfn_dev"
-          ${pkgs.iproute2}/bin/ip link set "$physdev" vf "$vfn_idx" mac "${
-            vm.config.interfaces.${ifaceName}.mac
-          }" spoofchk on vlan ${toString vm.config.sriovMappings.${ifaceName}.vlan}
-          exit 0
-        fi
-      done
-    '';
-  setupSriovScripts =
-    vm:
-    map (
-      ifaceName:
-      "${pkgs.util-linux}/bin/flock -x /run/foxden-sriov.lock '${setupSriovScriptRawIface vm ifaceName}'"
-    ) (lib.attrsets.attrNames (vm.config.sriovMappings or { }));
-  sriovExecStarts = lib.flatten (map setupSriovScripts (lib.attrsets.attrValues vms));
 in
 {
   config = lib.mkIf ((lib.length vmNames) > 0) {
@@ -99,19 +50,6 @@ in
     };
 
     systemd.services = {
-      libvirt-sriov-pre = {
-        description = "Libvirt SR-IOV Pre-Setup Service";
-        before = [ "libvirtd.service" ];
-        requiredBy = [ "libvirtd.service" ];
-        enable = (lib.lists.length sriovExecStarts) > 0;
-        serviceConfig = {
-          Type = "oneshot";
-          ExecStart = sriovExecStarts;
-          TimeoutStartSec = "5min";
-          RemainAfterExit = true;
-        };
-        wantedBy = [ "multi-user.target" ];
-      };
       libvirt-autocreator = {
         description = "Libvirt AutoCreator Service";
         after = [ "libvirtd.service" ];
