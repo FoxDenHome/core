@@ -103,9 +103,6 @@ in
                 BindPaths = [
                   svcConfig.mediaDir
                 ];
-                BindReadOnlyPaths = [
-                  config.services.immich.environment.IMMICH_CONFIG_FILE
-                ];
                 Environment = [
                   "MPLCONFIGDIR=/var/cache/immich/matplotlib"
                 ];
