@@ -15,7 +15,7 @@ let
       pkgs.python3Packages.buildPythonApplication (
         inputs
         // {
-          dependencies = inputs.dependencies ++ [ pkgs.python3Packages.pyyaml ];
+          dependencies = throw "meow";
         }
       );
   };
