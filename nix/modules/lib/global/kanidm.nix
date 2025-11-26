@@ -7,8 +7,7 @@
       "kanidm"
       "oauth2"
     ] nixosConfigurations;
-    # TODO: Go back to uniqueStrings once next NixOS stable
-    externalIPs = nixpkgs.lib.lists.unique (
+    externalIPs = nixpkgs.lib.lists.uniqueStrings (
       foxDenLib.global.config.getList [ "foxDen" "services" "kanidm" "externalIPs" ] nixosConfigurations
     );
   };

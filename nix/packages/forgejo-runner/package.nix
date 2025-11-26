@@ -1,13 +1,8 @@
-{
-  pkgs,
-  nixpkgs-unstable,
-  systemArch,
-  ...
-}:
+{ pkgs, ... }:
 let
   version = "12.0.1";
 in
-nixpkgs-unstable.legacyPackages.${systemArch}.forgejo-runner.override {
+pkgs.forgejo-runner.override {
   buildGoModule =
     inputs:
     pkgs.buildGoModule (

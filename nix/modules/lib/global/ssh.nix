@@ -8,10 +8,9 @@ let
     );
 in
 {
-  # TODO: Go back to uniqueStrings once next NixOS stable
   sshHostDnsNames =
     nixosConfigurations:
-    lib.lists.unique (
+    lib.lists.uniqueStrings (
       lib.flatten (
         map (host: map (intf: intf.dns.fqdn) (lib.attrsets.attrValues host.interfaces)) (
           lib.attrsets.attrValues (sshHostsRaw nixosConfigurations)

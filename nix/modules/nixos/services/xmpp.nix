@@ -3,8 +3,6 @@
   pkgs,
   lib,
   config,
-  nixpkgs-unstable,
-  systemArch,
   ...
 }:
 let
@@ -130,7 +128,7 @@ in
 
             prosodyctl_service_warnings = false
           '';
-          package = nixpkgs-unstable.outputs.legacyPackages.${systemArch}.prosody.override {
+          package = pkgs.prosody.override {
             withCommunityModules = [
               "cloud_notify_extensions"
               "cloud_notify_encrypted"

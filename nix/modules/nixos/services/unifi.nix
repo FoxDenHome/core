@@ -3,8 +3,6 @@
   pkgs,
   lib,
   config,
-  nixpkgs-unstable,
-  systemArch,
   ...
 }:
 let
@@ -20,15 +18,6 @@ let
   );
 
   svcConfig = config.foxDen.services.unifi;
-
-  nixpkgsUnstable = (
-    import nixpkgs-unstable {
-      system = systemArch;
-      config = {
-        allowUnfree = true;
-      };
-    }
-  );
 in
 {
   options.foxDen.services.unifi = {
@@ -58,7 +47,7 @@ in
       {
         services.unifi = {
           enable = true;
-          unifiPackage = nixpkgsUnstable.unifi; # TODO: pkgs. once 25.11
+          unifiPackage = pkgs.unifi;
         };
 
         systemd.services.unifi = {
