@@ -136,5 +136,10 @@
     );
   };
 
-  systemd.services.nix-daemon.serviceConfig.LimitNOFILE = 4096000;
+  security.pam.loginLimits = [{
+    domain = "*";
+    type = "soft";
+    item = "nofile";
+    value = "4096000";
+  }];
 }
