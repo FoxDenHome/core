@@ -36,6 +36,15 @@ let
     interface = "br-default";
     phyIface = "eno1np0";
   };
+  ifcfg-vrack = {
+    addresses = [
+      "2604:2dc0:500:b00::3/56"
+    ];
+    interface = "br-vrack";
+    mtu = 1500;
+    mac = "3c:ec:ef:78:c1:67";
+    phyIface = "eno2np1";
+  };
   ifcfg-routed = {
     addresses = [
       "2607:5300:60:7065::1:1/112"
@@ -178,6 +187,38 @@ in
     "net.ipv6.conf.default.forwarding" = "1";
   };
 
+  systemd.network.netdevs."${ifcfg.interface}" = {
+    netdevConfig = {
+      Name = ifcfg.interface;
+      Kind = "bridge";
+      MACAddress = ifcfg.mac;
+    };
+  };
+
+  systemd.network.netdevs."${ifcfg-vrack.interface}" = {
+    netdevConfig = {
+      Name = ifcfg-vrack.interface;
+      Kind = "bridge";
+      MACAddress = ifcfg-vrack.mac;
+    };
+  };
+
+  systemd.network.netdevs."${ifcfg-routed.interface}" = {
+    netdevConfig = {
+      Name = ifcfg-routed.interface;
+      Kind = "bridge";
+      MACAddress = ifcfg-routed.mac;
+    };
+  };
+
+  systemd.network.netdevs."${ifcfg-foxden.interface}" = {
+    netdevConfig = {
+      Name = ifcfg-foxden.interface;
+      Kind = "bridge";
+      MACAddress = ifcfg-foxden.mac;
+    };
+  };
+
   systemd.network.networks."30-${ifcfg.interface}" = {
     name = ifcfg.interface;
     routes = [
@@ -233,25 +274,20 @@ in
       name = ifcfg.phyIface;
     };
 
-  systemd.network.netdevs."${ifcfg.interface}" = {
-    netdevConfig = {
-      Name = ifcfg.interface;
-      Kind = "bridge";
-      MACAddress = ifcfg.mac;
-    };
-  };
+  systemd.network.networks."30-${ifcfg-vrack.interface}" = {
+    name = ifcfg-vrack.interface;
+    address = ifcfg-vrack.addresses;
 
-  systemd.network.netdevs."${ifcfg-routed.interface}" = {
-    netdevConfig = {
-      Name = ifcfg-routed.interface;
-      Kind = "bridge";
-      MACAddress = ifcfg-routed.mac;
+    networkConfig = {
+      IPv4Forwarding = false;
+      IPv6Forwarding = false;
+      DHCP = "no";
+      IPv6AcceptRA = false;
     };
-  };
 
-  systemd.network.networks."40-${ifcfg.interface}-root" = {
-    name = ifcfg.phyIface;
-    bridge = [ ifcfg.interface ];
+    linkConfig = {
+      MTUBytes = ifcfg-vrack.mtu;
+    };
   };
 
   systemd.network.networks."30-${ifcfg-foxden.interface}" = {
@@ -286,12 +322,14 @@ in
     };
   };
 
-  systemd.network.netdevs."${ifcfg-foxden.interface}" = {
-    netdevConfig = {
-      Name = ifcfg-foxden.interface;
-      Kind = "bridge";
-      MACAddress = ifcfg-foxden.mac;
-    };
+  systemd.network.networks."40-${ifcfg.interface}-root" = {
+    name = ifcfg.phyIface;
+    bridge = [ ifcfg.interface ];
+  };
+
+  systemd.network.networks."40-${ifcfg-vrack.interface}-root" = {
+    name = ifcfg-vrack.phyIface;
+    bridge = [ ifcfg-vrack.interface ];
   };
 
   foxDen.networking.provisionCriticalHosts = true;
