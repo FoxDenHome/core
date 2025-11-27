@@ -1,3 +1,8 @@
 {
-    "biomeswevegone:lush_grass_block": "@grass"
+    "biomeswevegone:lush_grass_block": "@grass",
+    "biomeswevegone:mahogany_leaves": "@foliage",
+    "biomeswevegone:maple_leaves": "@foliage",
+    "biomeswevegone:ripe_yucca_leaves": "@foliage",
+    "biomeswevegone:willow_leaves": "@foliage",
+    "biomeswevegone:yucca_leaves": "@foliage"
 }
