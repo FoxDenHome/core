@@ -1,6 +1,6 @@
 {
     "autumnity:maple_leaves": "@foliage",
-    "autumnity:orange_maple_leaves": "@foliage",
-    "autumnity:red_maple_leaves": "@foliage",
-    "autumnity:yellow_maple_leaves": "@foliage"
+    "autumnity:orange_maple_leaves": "#9f5224",
+    "autumnity:red_maple_leaves": "#8e3c2e",
+    "autumnity:yellow_maple_leaves": "#ba8524"
 }
