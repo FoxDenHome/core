@@ -34,31 +34,25 @@ pkgs.stdenv.mkDerivation {
   ];
 
   unpackPhase = ''
-    mkdir -p server/mods server/config/bluemap/packs
+    mkdir -p custom/mods custom/config/bluemap/packs
     for srcFile in $srcs; do
       echo "Copying from $srcFile"
       if [ "$(stripHash $srcFile)" == "local" ]; then
-        cp -r "$srcFile"/* server/
-        chmod 700 ./server/build.sh
-        bash ./server/build.sh
-        rm -rf ./server/build.sh
+        cp -r "$srcFile"/* custom/
+        bash ${./build.sh} custom
       elif [ -d "$srcFile" ]; then
-        rm -rf server-tmp && mkdir -p server-tmp
-        cp -r "$srcFile"/* server-tmp
-        chmod 600 server-tmp/server-icon.png server-tmp/variables.txt server-tmp/server.properties server-tmp/*.json server-tmp/minecraft-*.sh server-tmp/nix-version.txt || true
-        chmod 700 server-tmp/config
-        rm -fv server-tmp/server-icon.png server-tmp/variables.txt server-tmp/server.properties server-tmp/*.json server-tmp/minecraft-*.sh server-tmp/nix-version.txt
-        cp -r server-tmp/* server/
+        rm -rf modpack && mkdir -p modpack
+        cp -r "$srcFile"/* modpack
       else
         case "$(stripHash $srcFile)" in
           *.sh|server-icon.png|server.properties)
-            cp "$srcFile" "server/$(stripHash $srcFile)"
+            cp "$srcFile" "custom/$(stripHash $srcFile)"
             ;;
           BlueMapModelLoaders-*.jar|createentityaddon-*.jar)
-            cp "$srcFile" "server/config/bluemap/packs/$(stripHash $srcFile)"
+            cp "$srcFile" "custom/config/bluemap/packs/$(stripHash $srcFile)"
             ;;
           *.jar)
-            cp "$srcFile" "server/mods/$(stripHash $srcFile)"
+            cp "$srcFile" "custom/mods/$(stripHash $srcFile)"
             ;;
           *)
             echo "Unknown file type: $srcFile"
@@ -70,8 +64,11 @@ pkgs.stdenv.mkDerivation {
   '';
 
   installPhase = ''
-    mkdir -p $out
-    cp -r ./server $out/
-    chmod 500 $out/server/*.sh
+    mkdir -p "$out/server"
+    cp -r ./custom/* "$out/server/"
+    cp -nr ./modpack/* "$out/server/"
+    find "$out/server" -type f -exec chmod 400 {} +
+    chmod 500 "$out/server/"*.sh
+    find "$out/server" -type d -exec chmod 500 {} +
   '';
 }
