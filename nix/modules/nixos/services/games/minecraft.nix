@@ -12,8 +12,6 @@ let
 
   defaultDataDir = "/var/lib/minecraft";
   ifDefaultData = lib.mkIf (svcConfig.dataDir == defaultDataDir);
-
-  jrePackage = import ../../../../packages/foxden-minecraft/jre.nix { inherit pkgs; };
   serverPackage = pkgs.foxden-minecraft;
 in
 {
@@ -53,7 +51,6 @@ in
 
         systemd.services.minecraft = {
           confinement.packages = [
-            jrePackage
             pkgs.coreutils
             pkgs.findutils
             pkgs.bash
@@ -65,7 +62,6 @@ in
             pkgs.unzip
           ];
           path = [
-            jrePackage
             pkgs.coreutils
             pkgs.findutils
             pkgs.bash
