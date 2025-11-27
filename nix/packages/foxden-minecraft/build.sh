@@ -1,7 +1,11 @@
 #!/usr/bin/env bash
 set -xeuo pipefail
 
-BASEDIR="$1"
+SUBDIR='config/bluemap/packs'
 
-cd "${BASEDIR}/config/bluemap/packs/local"
-zip -r ../local-resources.zip .
+BASEDIR="$1"
+OUTDIR="$(realpath "$2")"
+
+cd "${BASEDIR}/${SUBDIR}/../local_pack"
+mkdir -p "${OUTDIR}/${SUBDIR}"
+zip -r "${OUTDIR}/${SUBDIR}/local-resources.zip" .

@@ -34,41 +34,46 @@ pkgs.stdenv.mkDerivation {
   ];
 
   unpackPhase = ''
-    mkdir -p custom/mods custom/config/bluemap/packs
+    mkdir aux local modpack
     for srcFile in $srcs; do
       echo "Copying from $srcFile"
-      if [ "$(stripHash $srcFile)" == "local" ]; then
-        cp -r "$srcFile"/* custom/
-        bash ${./build.sh} custom
+      srcFileName="$(stripHash $srcFile)"
+      if [ "$srcFileName" == "local" ]; then
+        cp -r "$srcFile"/* local/
+        bash ${./build.sh} local aux
       elif [ -d "$srcFile" ]; then
-        rm -rf modpack && mkdir -p modpack
-        cp -r "$srcFile"/* modpack
+        cp -r "$srcFile"/* modpack/
       else
-        case "$(stripHash $srcFile)" in
+        destDir="[INVALID]"
+        case "$srcFileName" in
           *.sh|server-icon.png|server.properties)
-            cp "$srcFile" "custom/$(stripHash $srcFile)"
+            destDir=""
             ;;
           BlueMapModelLoaders-*.jar|createentityaddon-*.jar)
-            cp "$srcFile" "custom/config/bluemap/packs/$(stripHash $srcFile)"
+            destDir="config/bluemap/packs"
             ;;
           *.jar)
-            cp "$srcFile" "custom/mods/$(stripHash $srcFile)"
+            destDir="mods"
             ;;
           *)
             echo "Unknown file type: $srcFile"
             exit 1
             ;;
         esac
+        mkdir -p "aux/$destDir"
+        cp "$srcFile" "aux/$destDir/$srcFileName"
       fi
     done
+
+    find aux local -type d -exec chmod 700 {} +
   '';
 
   installPhase = ''
     mkdir -p "$out/server"
-    cp -r ./custom/* "$out/server/"
+    cp -r ./local/* "$out/server/"
+    cp -r ./aux/* "$out/server/"
     cp -nr ./modpack/* "$out/server/"
-    find "$out/server" -type f -exec chmod 400 {} +
-    chmod 500 "$out/server/"*.sh
+
     find "$out/server" -type d -exec chmod 500 {} +
   '';
 }
