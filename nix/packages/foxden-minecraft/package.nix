@@ -3,14 +3,12 @@ pkgs.stdenv.mkDerivation {
   name = "foxden-minecraft";
   version = "1.0.0";
 
-  modpack = (
-    pkgs.fetchzip {
-      url = "https://mediafilez.forgecdn.net/files/7179/411/All_of_Create_6.0_v2.1_serverpack.zip";
-      name = "server";
-      stripRoot = false;
-      hash = "sha256-LEIJ891i8foqTMqEawHHv1cs2n6FrwySqotNirClsZg=";
-    }
-  );
+  modpack = pkgs.fetchzip {
+    url = "https://mediafilez.forgecdn.net/files/7179/411/All_of_Create_6.0_v2.1_serverpack.zip";
+    name = "server";
+    stripRoot = false;
+    hash = "sha256-LEIJ891i8foqTMqEawHHv1cs2n6FrwySqotNirClsZg=";
+  };
   mods = [
     (pkgs.fetchurl {
       url = "https://cdn.modrinth.com/data/E1XS8bXN/versions/rLfqDKHu/PlayerCollars-1.2.6%2B1.20.1-forge.jar";
