@@ -65,7 +65,6 @@ pkgs.stdenv.mkDerivation {
     cp -nr ./modpack/* "$out/server/"
 
     echo 'export "JAVA=${pkgs.corretto21}/bin/java"' > "$out/server/minecraft-env.sh"
-    echo 'export "PATH=$PATH:${pkgs.corretto21}/bin"' >> "$out/server/minecraft-env.sh"
 
     find "$out/server" -type d -exec chmod 500 {} +
   '';
