@@ -15,6 +15,7 @@ jobs:
         target: [bengalfox.foxden.network, islandfox.foxden.network, icefox.foxden.network]
     steps:
       - uses: https://data.forgejo.org/actions/checkout@v6
-      - run: |
+      - name: Deploy to ${{ matrix.target }}
+        run: |
           echo "Deploying ${{ github.sha }} to target: ${{ matrix.target }}"
           echo TODO ssh user@${{ matrix.target }} ${{ github.sha }}
