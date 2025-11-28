@@ -42,7 +42,7 @@ in
         awk '/: nixos-update.service: Deactivated successfully/ { print; exit; }; { print; }'
   '';
 
-  groups.groups.maintainers = { };
+  users.groups.maintainers = { };
 
   security.polkit.extraConfig = ''
     const MAINTENANCE_SERVICES = {
