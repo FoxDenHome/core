@@ -20,7 +20,6 @@ let
   '';
 
   cryptenrollScript = ''
-    #!/usr/bin/env bash
     set -xeuo pipefail
     enroll_disk() {
       systemd-cryptenroll --wipe-slot tpm2 --tpm2-device auto --tpm2-pcrs '0:sha256+7:sha256+14:sha256' "$1"
@@ -36,6 +35,12 @@ in
     pkgs.writeShellScript "cryptenroll.sh" cryptenrollScript;
   environment.etc."foxden/nixos-prune.sh".source =
     pkgs.writeShellScript "nixos-prune-all.sh" pruneAllScript;
+  environment.etc."foxden/nixos-update.sh".source = pkgs.writeShellScript "nixos-update.sh" ''
+    set -xeuo pipefail
+    systemctl --no-block start nixos-update
+    journalctl --unit nixos-update --since=now --no-hostname -f |
+        awk '/service: Deactivated successfully/ { print; exit; }; { print; }'
+  '';
 
   systemd.services.nixos-update = {
     description = "FoxDen NixOS update service";
