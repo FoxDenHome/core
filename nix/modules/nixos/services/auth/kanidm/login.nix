@@ -84,10 +84,6 @@
             "local" = "wheel";
             "with" = "superadmins";
           }
-          {
-            "local" = "maintainers";
-            "with" = "superadmins";
-          }
         ];
       };
     };
