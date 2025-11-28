@@ -33,9 +33,9 @@ in
 {
   environment.etc."foxden/cryptenroll.sh".source =
     pkgs.writeShellScript "cryptenroll.sh" cryptenrollScript;
-  environment.etc."foxden/nixos-prune-all.sh".source =
+  environment.etc."foxden/nixos/prune-all.sh".source =
     pkgs.writeShellScript "nixos-prune-all.sh" pruneAllScript;
-  environment.etc."foxden/nixos-update.sh".source = pkgs.writeShellScript "nixos-update.sh" ''
+  environment.etc."foxden/nixos/update.sh".source = pkgs.writeShellScript "nixos-update.sh" ''
     set -xeuo pipefail
     systemctl --no-block start nixos-update
     journalctl --unit nixos-update --since=now --no-hostname -f |
