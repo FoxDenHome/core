@@ -39,7 +39,7 @@ in
     set -xeuo pipefail
     systemctl --no-block start nixos-update
     journalctl --unit nixos-update --since=now --no-hostname -f |
-        awk '/service: Deactivated successfully/ { print; exit; }; { print; }'
+        awk '/: nixos-update.service: Deactivated successfully/ { print; exit; }; { print; }'
   '';
 
   systemd.services.nixos-update = {
