@@ -1,0 +1,20 @@
+on:
+  push:
+    branches:
+      - main
+
+concurrency:
+  cancel-in-progress: true
+  group: deploy-${{ github.ref }}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        target: [bengalfox.foxden.network, islandfox.foxden.network, icefox.foxden.network]
+    steps:
+      - uses: https://data.forgejo.org/actions/checkout@v6
+      - run: |
+          echo "Deploying ${{ github.sha }} to target: ${{ matrix.target }}"
+          echo TODO ssh user@${{ matrix.target }} ${{ github.sha }}
