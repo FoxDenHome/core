@@ -42,6 +42,22 @@ in
         awk '/: nixos-update.service: Deactivated successfully/ { print; exit; }; { print; }'
   '';
 
+  groups.groups.maintainers = { };
+
+  security.polkit.extraConfig = ''
+    const MAINTENANCE_SERVICES = {
+      "nixos-update.service": true,
+    };
+    polkit.addRule(function(action, subject) {
+      if (action.id === "org.freedesktop.systemd1.manage-units" &&
+        MAINTENANCE_SERVICES[action.lookup("unit")] &&
+        subject.isInGroup("maintainers"))
+        {
+          return polkit.Result.YES;
+        }
+    });
+  '';
+
   systemd.services.nixos-update = {
     description = "FoxDen NixOS update service";
     after = [ "network.target" ];

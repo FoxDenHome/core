@@ -56,12 +56,7 @@
       authorizedKeysCommandUser = "nobody";
     };
 
-    security.polkit.adminIdentities = [
-      "unix-group:superadmins"
-      "unix-group:wheel"
-    ];
-
-    nix.settings.allowed-users = [ "@superadmins" ];
+    nix.settings.allowed-users = [ "@wheel" ];
 
     services.kanidm = {
       enablePam = true;
@@ -72,7 +67,9 @@
           pam_allowed_login_groups = [ "login-users" ];
         };
         pam_allowed_login_groups = [ "login-users" ];
+
         default_shell = "/run/current-system/sw/bin/fish";
+
         uid_attr_map = "name";
         gid_attr_map = "name";
         home_attr = "name";
@@ -85,6 +82,10 @@
           }
           {
             "local" = "wheel";
+            "with" = "superadmins";
+          }
+          {
+            "local" = "maintainers";
             "with" = "superadmins";
           }
         ];
