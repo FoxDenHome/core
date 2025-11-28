@@ -6,10 +6,6 @@
 }:
 let
   updateScript = ''
-    if [ -f /nix/persist/update.disable ]; then
-      echo "Auto-update disabled via /nix/persist/update.disable, skipping"
-      exit 1
-    fi
     set -xeuo pipefail
     nix flake update --flake 'git+https://git.foxden.network/FoxDen/core?dir=nix' || :
     nixos-rebuild switch --flake "git+https://git.foxden.network/FoxDen/core?dir=nix#$(hostname)" || :
@@ -41,8 +37,8 @@ in
   environment.etc."foxden/nixos-prune.sh".source =
     pkgs.writeShellScript "nixos-prune-all.sh" pruneAllScript;
 
-  systemd.services.foxden-auto-update = {
-    description = "FoxDen NixOS auto-update service";
+  systemd.services.nixos-update = {
+    description = "FoxDen NixOS update service";
     after = [ "network.target" ];
     conflicts = [ "foxden-auto-prune.service" ];
 
@@ -54,7 +50,7 @@ in
     };
   };
 
-  systemd.timers.foxden-auto-update = {
+  systemd.timers.nixos-update = {
     wantedBy = [ "timers.target" ];
     timerConfig = {
       OnCalendar = "*-*-* 4:00:00";
