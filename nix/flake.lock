@@ -33,11 +33,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1764035539,
-        "narHash": "sha256-H6KS72EhBRQYl8BmNnFFCMgahIdkjEilF8+0N6RQRfI=",
+        "lastModified": 1764269092,
+        "narHash": "sha256-PV9scGE/yjPir+IpV8DpkIjBc483b0uwYp9lOw/vLQE=",
         "ref": "refs/heads/main",
-        "rev": "3b6395f0b8065ca49674da14f652fcf3bd5b29d4",
-        "revCount": 586,
+        "rev": "d25b9701cfa14745980bb764686adedd2ae7a408",
+        "revCount": 587,
         "type": "git",
         "url": "https://git.foxden.network/FoxDen/carvera-pendant"
       },
@@ -71,11 +71,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1764035524,
-        "narHash": "sha256-KmNRqqBpBB9q0OxwNPYsMN/vSZTgAq9dwT1LiCyFua8=",
+        "lastModified": 1764269088,
+        "narHash": "sha256-+cJHfpupMpTtoczS3LZl+KHDx74nuBf/arw9oly1iAA=",
         "ref": "refs/heads/main",
-        "rev": "92a80a5c1de91520b5dfd00b9e5bf3b7540045ac",
-        "revCount": 602,
+        "rev": "3fe36544e22987861ed10f04adb53031ad9c2a4c",
+        "revCount": 603,
         "type": "git",
         "url": "https://git.foxden.network/FoxDen/e621dumper"
       },
@@ -94,11 +94,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1764035525,
-        "narHash": "sha256-ggT5Non7i2w3vyZp47htUQu9cegNJv9HBJUEyERe1vs=",
+        "lastModified": 1764269167,
+        "narHash": "sha256-09Qw4LNZKrPbfZTnhlDivKoWae+MA1EGGb6BsfSt2jY=",
         "ref": "refs/heads/main",
-        "rev": "605531e59c3c524eec01d6575b07da294878b997",
-        "revCount": 608,
+        "rev": "164e43396b8e274e4d14cad971f45537052812dc",
+        "revCount": 610,
         "type": "git",
         "url": "https://git.foxden.network/FoxDen/fadumper"
       },
@@ -353,11 +353,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1763716960,
-        "narHash": "sha256-PUlomle4klGbnZr0wOn8z61Mbt7tXh6Yp3hZ9/CQkq0=",
+        "lastModified": 1764134915,
+        "narHash": "sha256-xaKvtPx6YAnA3HQVp5LwyYG1MaN4LLehpQI8xEdBvBY=",
         "owner": "pyproject-nix",
         "repo": "pyproject.nix",
-        "rev": "d6c61dbe0be75e2f4cf0efcdc62428175be4cfb5",
+        "rev": "2c8df1383b32e5443c921f61224b198a2282a657",
         "type": "github"
       },
       "original": {
