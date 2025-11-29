@@ -10,7 +10,6 @@ locals {
     }
     NixieClockDori   = {}
     CC1101Duino      = {}
-    ntpi             = {}
     shutdownd        = {}
     keepass-unlocker = {}
     core = {
