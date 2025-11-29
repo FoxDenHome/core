@@ -52,7 +52,9 @@ locals {
     tapemgr = {
       description = "Moved to https://git.foxden.network/FoxDen/tapemgr"
     }
-    ntpi = {}
+    ntpi = {
+      description = "Moved to https://git.foxden.network/FoxDen/ntpi"
+    }
   }
 }
 
