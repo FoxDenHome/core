@@ -13,10 +13,10 @@ locals {
     shutdownd        = {}
     keepass-unlocker = {}
     core = {
-      description = "Mirror of https://git.foxden.network/FoxDen/core"
+      description       = "Mirror of https://git.foxden.network/FoxDen/core"
+      branch_protection = false
     }
-    foxden-radius-autofill = {}
-    goscsi                 = {}
+    goscsi = {}
   }
 
   members = {
