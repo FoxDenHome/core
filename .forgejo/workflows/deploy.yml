@@ -18,6 +18,4 @@ jobs:
       - name: Deploy to target
         run: |
           echo "Deploying to target: ${{ matrix.target }}"
-          systemctl --no-block start nixos-update
-          journalctl --unit nixos-update --since=now --no-hostname -f |
-              awk '/service: Deactivated successfully/ { print; exit; }; { print; }'
+          echo ssh deployer@${{ matrix.target }} /etc/foxden/nixos/update.sh
