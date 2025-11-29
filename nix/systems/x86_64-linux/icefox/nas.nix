@@ -41,7 +41,7 @@ in
         enable = true;
         displayName = "Kiwix Offsite (IceFox)";
         clientId = "kiwix-icefox";
-        bypassInternal = true;
+        bypassTrusted = true;
         imageFile = ../../../files/icons/kiwix.svg;
       };
     };
@@ -54,7 +54,7 @@ in
         enable = true;
         displayName = "NAS WebUI Offsite (IceFox)";
         clientId = "nas-icefox";
-        bypassInternal = true;
+        bypassTrusted = true;
         imageFile = ../../../files/icons/nas.svg;
       };
     };

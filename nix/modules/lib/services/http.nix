@@ -148,15 +148,13 @@ let
 
         location / {
           ${
-            if svcConfig.oAuth.bypassInternal then
+            if svcConfig.oAuth.bypassTrusted then
               ''
                 satisfy any;
-                allow 192.168.0.0/16;
-                allow 172.16.0.0/12;
-                allow 10.0.0.0/8;
-                allow 127.0.0.0/8;
-                allow fd00::/8;
-                allow ::1/128;
+                allow 10.1.0.0/16;
+                allow 10.2.0.0/16;
+                allow fd2c:f4cb:63be:1::/64;
+                allow fd2c:f4cb:63be:2::/64;
                 deny all;
               ''
             else
@@ -215,7 +213,7 @@ in
       quic = nixpkgs.lib.mkEnableOption "Enable QUIC (HTTP/3) support";
       oAuth = {
         enable = nixpkgs.lib.mkEnableOption "OAuth2 support";
-        bypassInternal = nixpkgs.lib.mkEnableOption "Bypass OAuth for internal requests";
+        bypassTrusted = nixpkgs.lib.mkEnableOption "Bypass OAuth for trusted VLAN requests";
         overrideService = nixpkgs.lib.mkEnableOption "Don't setup OAuth2 Proxy service, the service has special handling";
         clientId = nixpkgs.lib.mkOption {
           type = str;

@@ -62,7 +62,7 @@ in
         enable = true;
         displayName = "Kiwix Local (BengalFox)";
         clientId = "kiwix-bengalfox";
-        bypassInternal = true;
+        bypassTrusted = true;
         imageFile = ../../../files/icons/kiwix.svg;
       };
     };
@@ -75,7 +75,7 @@ in
         enable = true;
         displayName = "NAS WebUI Local (BengalFox)";
         clientId = "nas-bengalfox";
-        bypassInternal = true;
+        bypassTrusted = true;
         imageFile = ../../../files/icons/nas.svg;
       };
     };
