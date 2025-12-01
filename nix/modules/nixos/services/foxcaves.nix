@@ -12,9 +12,9 @@ let
 in
 {
   options.foxDen.services.foxcaves = {
-    dataVolume = lib.mkOption {
+    storageDir = lib.mkOption {
       type = lib.types.str;
-      default = "storage";
+      default = "/var/lib/foxcaves/storage";
     };
   }
   // services.mkOptions {
@@ -24,24 +24,9 @@ in
 
   config = lib.mkIf svcConfig.enable (
     lib.mkMerge [
-      (foxDenLib.services.oci.make {
+      (foxDenLib.services.make {
         inherit pkgs config svcConfig;
         name = "foxcaves";
-        oci = {
-          image = "ghcr.io/foxcaves/foxcaves/foxcaves:latest";
-          volumes = [
-            "ssl:/etc/letsencrypt"
-            "${svcConfig.dataVolume}:/var/www/foxcaves/storage"
-            (config.lib.foxDen.sops.mkIfAvailable "${config.sops.secrets.foxcaves.path}:/var/www/foxcaves/config/production.lua:ro")
-            "${config.foxDen.services.mysql.socketPath}:/var/run/mysqld/mysqld.sock:ro"
-          ];
-          environment = {
-            "ENVIRONMENT" = "production";
-          };
-          extraOptions = [
-            "-e MYSQL_*"
-          ];
-        };
       }).config
       (foxDenLib.services.redis.make {
         inherit pkgs config svcConfig;
@@ -53,8 +38,37 @@ in
           owner = "foxcaves";
           group = "foxcaves";
         };
+        environment.etc."foxcaves/production.lua".source = config.lib.foxDen.sops.mkIfAvailable config.sops.secrets.foxcaves.path;
 
         foxDen.hosts.hosts.${svcConfig.host}.webservice.enable = true;
+
+        systemd.services.foxcaves = {
+          confinement.packages = [
+            # TODO
+          ];
+          path = [
+            # TODO
+          ];
+
+          serviceConfig = {
+            ExecStart = [ "${pkgs.foxcaves}/bin/foxcaves" ];
+
+            User = "foxcaves";
+            Group = "foxcaves";
+            DynamicUser = false;
+
+            Environment = [
+              "ENVIRONMENT=production"
+            ];
+            BindReadOnlyPaths = foxDenLib.services.mkEtcPaths [
+              "foxcaves/production.lua"
+            ];
+            BindPaths = [
+              "-${svcConfig.storageDir}"
+            ];
+            StateDirectory = "foxcaves";
+          };
+        };
 
         foxDen.services.mysql = {
           enable = true;
@@ -62,7 +76,19 @@ in
             {
               databases = [ "foxcaves" ];
               proxy = true; # TODO: We need to crack the Docker shell for this one...
-              service = "podman-foxcaves";
+              service = "foxcaves";
+            }
+          ];
+        };
+
+        environment.persistence."/nix/persist/foxcaves" = {
+          hideMounts = true;
+          directories = [
+            {
+              directory = "/var/lib/foxcaves";
+              user = "foxcaves";
+              group = "foxcaves";
+              mode = "u=rwx,g=,o=";
             }
           ];
         };

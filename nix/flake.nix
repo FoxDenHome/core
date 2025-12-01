@@ -63,6 +63,13 @@
         flake-utils.follows = "flake-utils";
       };
     };
+    foxcaves = {
+      url = "git+https://git.foxden.network/foxCaves/foxCaves";
+      inputs = {
+        nixpkgs.follows = "nixpkgs";
+        flake-utils.follows = "flake-utils";
+      };
+    };
     gitbackup = {
       url = "git+https://git.foxden.network/FoxDen/gitbackup";
       inputs = {
