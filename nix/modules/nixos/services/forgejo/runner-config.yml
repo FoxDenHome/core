@@ -46,7 +46,7 @@ runner:
   # If it's empty when registering, it will ask for inputting labels.
   # If it's empty when executing the `daemon`, it will use labels in the `.runner` file.
   labels:
-    - ubuntu-24.04:docker://git.foxden.network/foxden/runner-image:ubuntu24-node24
+    - ubuntu-24.04:docker://git.foxden.network/foxden/runner-image:ubuntu24
 
 cache:
   #
