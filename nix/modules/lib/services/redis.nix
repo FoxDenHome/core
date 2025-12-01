@@ -16,7 +16,7 @@
         nixpkgs.lib.mkMerge [
           svc.config
           {
-            services.redis.servers.${inputs.name} = {
+            services.redis.servers.${name} = {
               enable = true;
               port = 6379;
               bind = "127.0.0.1";
@@ -26,20 +26,11 @@
 
             systemd.services.${name} = {
               serviceConfig = {
+                DynamicUser = true;
+                User = name;
+                Group = name;
                 StateDirectory = name;
               };
-            };
-
-            environment.persistence."/nix/persist/redis" = {
-              hideMounts = true;
-              directories = [
-                {
-                  directory = "/var/lib/${inputs.name}";
-                  user = inputs.name;
-                  group = inputs.name;
-                  mode = "u=rwx,g=rx,o=";
-                }
-              ];
             };
           }
         ]
