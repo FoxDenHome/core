@@ -46,13 +46,6 @@ in
           after = [ "redis-foxcaves.service" ];
           requires = [ "redis-foxcaves.service" ];
 
-          confinement.packages = [
-            # TODO
-          ];
-          path = [
-            # TODO
-          ];
-
           serviceConfig = {
             ExecStart = [ "${pkgs.foxcaves}/bin/foxcaves" ];
 
