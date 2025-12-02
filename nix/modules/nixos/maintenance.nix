@@ -9,8 +9,6 @@ let
     set -xeuo pipefail
     nix flake update --flake 'git+https://git.foxden.network/FoxDen/core?dir=nix' || :
     nixos-rebuild switch --flake "git+https://git.foxden.network/FoxDen/core?dir=nix#$(hostname)" || :
-    nix-collect-garbage --delete-older-than 30d
-    /run/current-system/bin/switch-to-configuration boot
   '';
 
   pruneAllScript = ''
