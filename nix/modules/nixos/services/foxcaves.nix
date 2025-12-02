@@ -68,6 +68,8 @@ in
             ];
             StateDirectory = "foxcaves";
           };
+
+          wantedBy = [ "multi-user.target" ];
         };
 
         foxDen.services.mysql = {
