@@ -75,6 +75,16 @@ in
           wantedBy = [ "multi-user.target" ];
         };
 
+        foxDen.services.mysql = {
+          enable = true;
+          services = [
+            {
+              databases = [ "foxcaves" ];
+              service = "foxcaves";
+            }
+          ];
+        };
+
         environment.persistence."/nix/persist/foxcaves" = {
           hideMounts = true;
           directories = [
