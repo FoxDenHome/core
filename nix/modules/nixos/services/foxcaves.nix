@@ -40,6 +40,13 @@ in
         };
         environment.etc."foxcaves/production.lua".source = config.lib.foxDen.sops.mkIfAvailable config.sops.secrets.foxcaves.path;
 
+        users.users.foxcaves = {
+          isSystemUser = true;
+          home = "/var/lib/foxcaves";
+          group = "foxcaves";
+        };
+        users.groups.foxcaves = { };
+
         foxDen.hosts.hosts.${svcConfig.host}.webservice.enable = true;
 
         systemd.services.foxcaves = {
