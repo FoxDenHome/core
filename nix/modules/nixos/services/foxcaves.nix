@@ -75,17 +75,6 @@ in
           wantedBy = [ "multi-user.target" ];
         };
 
-        foxDen.services.mysql = {
-          enable = true;
-          services = [
-            {
-              databases = [ "foxcaves" ];
-              proxy = true; # TODO: We need to crack the Docker shell for this one...
-              service = "foxcaves";
-            }
-          ];
-        };
-
         environment.persistence."/nix/persist/foxcaves" = {
           hideMounts = true;
           directories = [
