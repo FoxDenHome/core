@@ -38,7 +38,8 @@ in
           owner = "foxcaves";
           group = "foxcaves";
         };
-        environment.etc."foxcaves/production.lua".source = config.lib.foxDen.sops.mkIfAvailable config.sops.secrets.foxcaves.path;
+        environment.etc."foxcaves/production.lua".source =
+          config.lib.foxDen.sops.mkIfAvailable config.sops.secrets.foxcaves.path;
 
         users.users.foxcaves = {
           isSystemUser = true;
