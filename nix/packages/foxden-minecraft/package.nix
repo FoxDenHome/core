@@ -19,14 +19,18 @@ pkgs.stdenv.mkDerivation {
     # - Rendering of WoodGood/EveryComp via remapper addon once possible
     # - Remove autumnity overrides once the next version happens, they seem to use textures now
     (pkgs.fetchurl {
-      url = "https://github.com/BlueMap-Minecraft/BlueMap/releases/download/v5.12/bluemap-5.12-mc1.20-6-forge.jar";
-      hash = "sha256-J2Z9CdyUPsHncaIOLVk2ddCDUvH4d97xmeEyNoOPQ+0=";
+      url = "https://github.com/Doridian/BlueMap/releases/download/temp/bluemap-5.14-dori-mc1.20-forge.jar";
+      hash = "sha256-+RrTAqwAd2OfGm13SvnIy5Rrv4RaQaNUAaDpxB2lbF0=";
     })
   ];
   bluemapPacks = [
     (pkgs.fetchurl {
       url = "https://github.com/Uiniel/BlueMapModelLoaders/releases/download/v0.3.2/BlueMapModelLoaders-0.3.2.jar";
       hash = "sha256-cavH3b0RcDocskO+/Ol/MxRhyPw4bp7O31IVDAi7q5U=";
+    })
+    (pkgs.fetchurl {
+      url = "https://github.com/Doridian/BlueMapEveryCompatCompat/releases/download/latest/BlueMapEveryCompatCompat-0.0.1.jar";
+      hash = "sha256-GoH9b6US0NXWXEPp2P8AJ3TKt12CgHl5Bz9AOyxK4Zg=";
     })
   ];
 
