@@ -43,6 +43,9 @@ in
         foxDen.hosts.hosts.${svcConfig.host}.webservice.enable = true;
 
         systemd.services.foxcaves = {
+          after = [ "redis-foxcaves.service" ];
+          requires = [ "redis-foxcaves.service" ];
+
           confinement.packages = [
             # TODO
           ];
