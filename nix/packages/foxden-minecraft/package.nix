@@ -24,8 +24,8 @@ pkgs.stdenv.mkDerivation {
   ];
   bluemapPacks = [
     (pkgs.fetchurl {
-      url = "https://github.com/Uiniel/BlueMapModelLoaders/releases/download/v0.3.2/BlueMapModelLoaders-0.3.2.jar";
-      hash = "sha256-cavH3b0RcDocskO+/Ol/MxRhyPw4bp7O31IVDAi7q5U=";
+      url = "https://github.com/Doridian/BlueMapModelLoaders/releases/download/temp/BlueMapModelLoaders-0.3.2.jar";
+      hash = "sha256-rOMHs5/e8C6l/v1+Q2vOJ+kIYVDC7Zm/UPJqrW1mCPA=";
     })
     (pkgs.fetchurl {
       url = "https://github.com/Doridian/BlueMapEveryCompatCompat/releases/download/latest/BlueMapEveryCompatCompat-0.0.1.jar";
