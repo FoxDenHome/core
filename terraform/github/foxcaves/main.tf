@@ -1,12 +1,8 @@
 locals {
   repositores = {
     foxCaves = {
-      homepage_url = "https://foxcav.es"
-      required_checks = [
-        "docker",
-        "lint / backend",
-        "lint / frontend",
-      ]
+      homepage_url      = "Mirror of https://git.foxden.network/foxCaves/foxCaves"
+      branch_protection = false
     }
     sharex = {
       description  = "ShareX config files"
