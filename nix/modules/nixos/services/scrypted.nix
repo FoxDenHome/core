@@ -22,7 +22,7 @@ in
         inherit pkgs config svcConfig;
         name = "scrypted";
         oci = {
-          image = "ghcr.io/koush/scrypted:latest";
+          image = "git.foxden.network/mirror/oci-images/ghcr.io/koush/scrypted:latest";
           volumes = [
             "scrypted_data:/server/volume"
           ];
