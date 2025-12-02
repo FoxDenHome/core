@@ -16,7 +16,6 @@ pkgs.stdenv.mkDerivation {
     })
     # TODO: Add/fix BlueMap rendering for:
     # - Basic steam engine "armatures"
-    # - Rendering of WoodGood/EveryComp via remapper addon once possible
     # - Remove autumnity overrides once the next version happens, they seem to use textures now
     (pkgs.fetchurl {
       url = "https://github.com/Doridian/BlueMap/releases/download/temp/bluemap-5.14-dori-mc1.20-forge.jar";
