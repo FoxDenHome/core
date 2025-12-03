@@ -21,6 +21,10 @@ pkgs.stdenv.mkDerivation {
       url = "https://github.com/Doridian/BlueMap/releases/download/temp/bluemap-5.14-dori-mc1.20-forge.jar";
       hash = "sha256-+RrTAqwAd2OfGm13SvnIy5Rrv4RaQaNUAaDpxB2lbF0=";
     })
+    (pkgs.fetchurl {
+      url = "https://cdn.modrinth.com/data/zf4Szzx2/versions/Q6Z7eOLL/immersive-portals-3.0.7-all.jar";
+      hash = "sha256-3rIz0eUw5eIIum81KaO5CtBxoGotyNfqYPFLDWeRLvw=";
+    })
   ];
   bluemapPacks = [
     (pkgs.fetchurl {
