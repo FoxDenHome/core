@@ -335,6 +335,18 @@ in
             };
           };
         };
+
+        environment.persistence."/nix/persist/immich" = {
+          hideMounts = true;
+          directories = [
+            {
+              directory = "/var/lib/immich";
+              user = "immich";
+              group = "immich";
+              mode = "u=rwx,g=,o=";
+            }
+          ];
+        };
       }
     ]
   );
