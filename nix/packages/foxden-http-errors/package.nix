@@ -91,13 +91,26 @@ let
     map ({ name, value }: renderStatusCode name value) (lib.attrsToList httpStateMap)
   );
 
+  nginxConfBase = ''
+    location /_foxden-http-errors/ {
+      alias ${main}/share/errorpages/;
+    }
+  ''
+  + (nginxErrorPages lib.attrNames httpStateMap);
+
+  nginxErrorPages =
+    codes:
+    (lib.concatStringsSep "\n" (
+      map (code: "error_page ${code} /_foxden-http-errors/${code}.htm;") codes
+    ));
+
   main = pkgs.stdenv.mkDerivation {
     name = "foxden-http-errors";
     version = "1.0.0";
     src = ./.;
 
     passthru = {
-      inherit httpStateMap httpStateRegions;
+      inherit httpStateMap httpStateRegions nginxErrorPages;
       nginxConf = pkgs.writers.writeText "nginx.conf" nginxConfBase;
     };
 
@@ -107,16 +120,5 @@ let
       ${renderStatusCodes}
     '';
   };
-
-  nginxConfBase = ''
-      location /_foxden-http-errors/ {
-        alias ${main}/share/errorpages/;
-    }
-  ''
-  + (lib.concatStringsSep "\n" (
-    map (code: ''
-      error_page ${code} /_foxden-http-errors/${code}.htm;
-    '') (lib.attrNames httpStateMap)
-  ));
 in
 main

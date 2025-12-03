@@ -127,7 +127,7 @@ let
   );
 
   mkNginxHandler = (
-    handler: svcConfig:
+    pkgs: handler: svcConfig:
     if (svcConfig.oAuth.enable && (!svcConfig.oAuth.overrideService)) then
       ''
         location /oauth2/ {
@@ -161,6 +161,13 @@ let
               ""
           }
           auth_request /oauth2/auth;
+          ${
+            pkgs.foxden-http-errors.passthru.nginxErrorPages (
+              nixpkgs.lib.filter (code: code != "401") (
+                nixpkgs.lib.attrNames pkgs.foxden-http-errors.passthru.httpStateMap
+              )
+            )
+          }
           error_page 401 =307 /oauth2/sign_in;
 
           auth_request_set $user $upstream_http_x_auth_request_user;
@@ -312,7 +319,7 @@ in
         # Custom config can be injected here
         ${if inputs.extraConfig or "" != "" then inputs.extraConfig configFuncData else ""}
         # Auto generated config below
-        ${mkNginxHandler defaultTarget svcConfig}
+        ${mkNginxHandler pkgs defaultTarget svcConfig}
       '';
       baseHttpConfig = readyz: ''
         listen 80;
