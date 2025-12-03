@@ -96,7 +96,7 @@ let
       alias ${main}/share/errorpages/;
     }
   ''
-  + (nginxErrorPages lib.attrNames httpStateMap);
+  + (nginxErrorPages (lib.attrNames httpStateMap));
 
   nginxErrorPages =
     codes:
