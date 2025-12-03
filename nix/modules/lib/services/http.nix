@@ -328,6 +328,8 @@ in
           js_content acme.challengeResponse;
         }
 
+        include ${pkgs.foxden-http-errors.passthru.nginxConf};
+
         ${readyzConf readyz}
       '';
       baseHttpsConfig = readyz: ''
@@ -354,6 +356,8 @@ in
         location /.well-known/acme-challenge/ {
           js_content acme.challengeResponse;
         }
+
+        include ${pkgs.foxden-http-errors.passthru.nginxConf};
 
         ${readyzConf readyz}
       '';
@@ -394,8 +398,6 @@ in
                   include ${package}/conf/mime.types;
                   default_type application/octet-stream;
 
-                  include ${pkgs.foxden-http-errors.passthru.nginxConf};
-
                   sendfile on;
                   keepalive_timeout 65;
 
@@ -414,7 +416,9 @@ in
                     listen [::]:80 default_server;
                     listen 81 default_server proxy_protocol;
                     listen [::]:81 default_server proxy_protocol;
-                    return 444;
+                    
+                    include ${pkgs.foxden-http-errors.passthru.nginxConf};
+                    return 404;
                   }
 
                   ${
@@ -443,8 +447,10 @@ in
                           listen 444 ssl default_server proxy_protocol;
                           listen [::]:444 ssl default_server proxy_protocol;
                           http2 on;
+
+                          include ${pkgs.foxden-http-errors.passthru.nginxConf};
                           ssl_reject_handshake on;
-                          return 444;
+                          return 404;
                         }
 
                         server {

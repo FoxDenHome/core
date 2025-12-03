@@ -113,9 +113,11 @@ let
       location /_foxden-http-errors/ {
         alias ${main}/share/errorpages/;
     }
-  '' + (lib.concatStringsSep "\n" (
+  ''
+  + (lib.concatStringsSep "\n" (
     map (code: ''
       error_page ${code} /_foxden-http-errors/${code}.htm;
     '') (lib.attrNames httpStateMap)
   ));
-in main
+in
+main
