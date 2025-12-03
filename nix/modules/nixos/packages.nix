@@ -32,9 +32,6 @@ let
     packageOverrides = pkgs: {
       onnxruntime = pkgs.onnxruntime.override { cudaSupport = true; };
     };
-    permittedInsecurePackages = [
-      "gradle-7.6.6" # TODO: What is pulling this in?
-    ];
   };
 
   pkgs = (

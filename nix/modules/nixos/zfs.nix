@@ -38,7 +38,6 @@ in
     boot = {
       zfs.devNodes = "/dev/disk/by-path";
       supportedFilesystems = [ "zfs" ];
-      #kernelPackages = pkgs.linuxPackages_lts; # TODO: Remove when no longer needed for ZFS compatibility
     };
     environment.systemPackages = with pkgs; [
       mbuffer
