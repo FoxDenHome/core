@@ -84,7 +84,7 @@ let
       -e "s/1#3/${code}/g" \
       -e "s/#Error description#/${desc}/g" \
       -e "s/#HTTP error#/${httpStateRegions.${toString ((lib.strings.toIntBase10 code) / 100)}}/g" \
-      -e "s~src=\"images~src=\"/_foxden-http-errors/images~g" > "$out/share/errorpages/${code}.htm"
+      -e "s~ src=\"~ src=\"/_foxden-http-errors/~g" > "$out/share/errorpages/${code}.htm"
   '';
 
   renderStatusCodes = lib.concatStringsSep "\n" (
