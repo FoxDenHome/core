@@ -96,7 +96,7 @@ in
             http_host = "xmpp.foxden.network";
             size_limit = 1024 * 1024 * 1000;
             daily_quota = 10 * 1024 * 1024 * 1000;
-            expires_after = "7d";
+            expires_after = "1 week";
             http_external_url = "https://upload.xmpp.foxden.network";
           };
           extraConfig = ''
