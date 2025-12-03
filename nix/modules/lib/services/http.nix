@@ -394,6 +394,8 @@ in
                   include ${package}/conf/mime.types;
                   default_type application/octet-stream;
 
+                  include ${pkgs.foxden-http-errors.passthru.nginxConf};
+
                   sendfile on;
                   keepalive_timeout 65;
 
