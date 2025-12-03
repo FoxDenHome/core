@@ -1,32 +1,32 @@
 { pkgs, lib, ... }:
 let
   httpStateMap = {
-    # 1xx Informational
-    "100" = "Continue";
-    "101" = "Switching Protocols";
-    "102" = "Processing";
-    "103" = "Early Hints";
-    # 2xx Success
-    "200" = "OK";
-    "201" = "Created";
-    "202" = "Accepted";
-    "203" = "Non-Authoritative Information";
-    "204" = "No Content";
-    "205" = "Reset Content";
-    "206" = "Partial Content";
-    "207" = "Multi-Status";
-    "208" = "Already Reported";
-    "226" = "IM Used";
-    # 3xx Redirection
-    "300" = "Multiple Choices";
-    "301" = "Moved Permanently";
-    "302" = "Found";
-    "303" = "See Other";
-    "304" = "Not Modified";
-    "305" = "Use Proxy";
-    "306" = "Switch Proxy";
-    "307" = "Temporary Redirect";
-    "308" = "Permanent Redirect";
+    # # 1xx Informational
+    # "100" = "Continue";
+    # "101" = "Switching Protocols";
+    # "102" = "Processing";
+    # "103" = "Early Hints";
+    # # 2xx Success
+    # "200" = "OK";
+    # "201" = "Created";
+    # "202" = "Accepted";
+    # "203" = "Non-Authoritative Information";
+    # "204" = "No Content";
+    # "205" = "Reset Content";
+    # "206" = "Partial Content";
+    # "207" = "Multi-Status";
+    # "208" = "Already Reported";
+    # "226" = "IM Used";
+    # # 3xx Redirection
+    # "300" = "Multiple Choices";
+    # "301" = "Moved Permanently";
+    # "302" = "Found";
+    # "303" = "See Other";
+    # "304" = "Not Modified";
+    # "305" = "Use Proxy";
+    # "306" = "Switch Proxy";
+    # "307" = "Temporary Redirect";
+    # "308" = "Permanent Redirect";
     # 4xx Client Errors
     "400" = "Bad Request";
     "401" = "Unauthorized";
@@ -72,9 +72,9 @@ let
   };
 
   httpStateRegions = {
-    "1" = "Informational";
-    "2" = "Success";
-    "3" = "Redirection";
+    # "1" = "Informational";
+    # "2" = "Success";
+    # "3" = "Redirection";
     "4" = "Client Error";
     "5" = "Server Error";
   };
