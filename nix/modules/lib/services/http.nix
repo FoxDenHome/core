@@ -480,6 +480,8 @@ in
                 ExecStartPre = [ "${pkgs.coreutils}/bin/mkdir -p ${storageRoot}/acme" ];
                 BindPaths = if dynamicUser then [ ] else [ storageRoot ];
                 BindReadOnlyPaths = [
+                  pkgs.foxden-http-errors.passthru.nginxConf
+                  pkgs.foxden-http-errors
                   "${
                     pkgs.fetchurl {
                       url = "https://github.com/nginx/njs-acme/releases/download/v1.0.0/acme.js";
