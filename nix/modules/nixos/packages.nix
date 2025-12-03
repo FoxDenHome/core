@@ -37,12 +37,10 @@ let
     ];
   };
 
-  pkgs = (
-    import nixpkgs {
-      system = systemArch;
-      config = nixPkgConfig;
-    }
-  );
+  pkgs = import nixpkgs {
+    system = systemArch;
+    config = nixPkgConfig;
+  };
 
   localPackages = lib.attrsets.genAttrs (lib.attrNames (builtins.readDir ../../packages)) (
     name: import ../../packages/${name}/package.nix (inputs // { inherit pkgs; })
