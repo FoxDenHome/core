@@ -139,7 +139,7 @@ in
               "-${pkgs.coreutils}/bin/chmod 600 /var/lib/forgejo-runner/.runner /var/lib/forgejo-runner/config.yml"
               "${pkgs.coreutils}/bin/cp --update=all /registration.json /var/lib/forgejo-runner/.runner"
               "${pkgs.coreutils}/bin/cp --update=all /config.yml /var/lib/forgejo-runner/config.yml"
-              "${pkgs.gnused}/bin/sed -i -e 's/__CAPACITY__/${toString svcConfig.capacity}/g' -e 's~__SECCOMP__~${./seccomp.json}~g' /var/lib/forgejo-runner/config.yml"
+              "${pkgs.gnused}/bin/sed -i -e 's/__CAPACITY__/${toString svcConfig.capacity}/g' /var/lib/forgejo-runner/config.yml"
               "${pkgs.coreutils}/bin/chmod 600 /var/lib/forgejo-runner/.runner"
             ];
             Environment = [
@@ -151,7 +151,7 @@ in
               "/etc/containers/registries.conf"
               "/etc/containers/storage.conf"
               "/usr/bin/env"
-              "${./seccomp.json}"
+              "${./seccomp.json}:/seccomp.json"
               "${./runner-config.yml}:/config.yml"
               "${config.sops.secrets."forgejo-runner-registration".path}:/registration.json"
             ];
