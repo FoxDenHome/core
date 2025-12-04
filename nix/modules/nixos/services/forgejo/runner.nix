@@ -136,7 +136,7 @@ in
             ExecStart = "${pkgs.forgejo-runner}/bin/forgejo-runner daemon --config /var/lib/forgejo-runner/config.yml";
             ExecReload = "${pkgs.coreutils}/bin/kill -s HUP $MAINPID";
             ExecStartPre = [
-              "-${pkgs.coreutils}/bin/chmod 600 /var/lib/forgejo-runner/.runner /var/lib/forgejo-runner/config.yml"
+              "-${pkgs.coreutils}/bin/chmod 600 /var/lib/forgejo-runner/.runner /var/lib/forgejo-runner/config.yml /var/lib/forgejo-runner/seccomp.json"
               "${pkgs.coreutils}/bin/cp --update=all /registration.json /var/lib/forgejo-runner/.runner"
               "${pkgs.coreutils}/bin/cp --update=all /config.yml /var/lib/forgejo-runner/config.yml"
               "${pkgs.coreutils}/bin/cp --update=all /seccomp.json /var/lib/forgejo-runner/seccomp.json"
