@@ -1,6 +1,6 @@
 from subprocess import check_call
 from json import load as json_load
-from os.path import join as path_join, exists
+from os.path import join as path_join
 from os import makedirs
 from configure.util import unlink_safe, NIX_DIR, mtik_path, ROUTERS, format_mtik_duration
 from yaml import safe_load as yaml_load, dump as yaml_dump
