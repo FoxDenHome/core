@@ -136,10 +136,9 @@ in
             ExecStart = "${pkgs.forgejo-runner}/bin/forgejo-runner daemon --config /var/lib/forgejo-runner/config.yml";
             ExecReload = "${pkgs.coreutils}/bin/kill -s HUP $MAINPID";
             ExecStartPre = [
-              "-${pkgs.coreutils}/bin/chmod 600 /var/lib/forgejo-runner/.runner /var/lib/forgejo-runner/config.yml /var/lib/forgejo-runner/seccomp.json"
+              "-${pkgs.coreutils}/bin/chmod 600 /var/lib/forgejo-runner/.runner /var/lib/forgejo-runner/config.yml"
               "${pkgs.coreutils}/bin/cp --update=all /registration.json /var/lib/forgejo-runner/.runner"
               "${pkgs.coreutils}/bin/cp --update=all /config.yml /var/lib/forgejo-runner/config.yml"
-              "${pkgs.coreutils}/bin/cp --update=all /seccomp.json /var/lib/forgejo-runner/seccomp.json"
               "${pkgs.gnused}/bin/sed -i -e 's/__CAPACITY__/${toString svcConfig.capacity}/g' /var/lib/forgejo-runner/config.yml"
               "${pkgs.coreutils}/bin/chmod 600 /var/lib/forgejo-runner/.runner"
             ];
@@ -152,7 +151,6 @@ in
               "/etc/containers/registries.conf"
               "/etc/containers/storage.conf"
               "/usr/bin/env"
-              "${./seccomp.json}:/seccomp.json"
               "${./runner-config.yml}:/config.yml"
               "${config.sops.secrets."forgejo-runner-registration".path}:/registration.json"
             ];

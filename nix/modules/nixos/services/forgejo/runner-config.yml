@@ -156,7 +156,7 @@ container:
   # Whether to use privileged mode or not when launching task containers (privileged mode is required for Docker-in-Docker).
   privileged: true
   # And other options to be used when the container is started (eg, --volume /etc/ssl/certs:/etc/ssl/certs:ro).
-  options: --security-opt=seccomp=/var/lib/forgejo-runner/seccomp.json --volume=/var/lib/forgejo-runner/seccomp.json:/var/lib/forgejo-runner/seccomp.json:ro
+  options:
   # The parent directory of a job's working directory.
   # If it's empty, /workspace will be used.
   workdir_parent:
@@ -169,8 +169,7 @@ container:
   # If you want to allow any volume, please use the following configuration:
   # valid_volumes:
   #   - '**'
-  valid_volumes:
-    - /var/lib/forgejo-runner/seccomp.json
+  valid_volumes: []
   # Overrides the docker host set by the DOCKER_HOST environment variable, and mounts on the job container.
   # If "-" or "", no docker host will be mounted in the job container
   # If "automount", an available docker host will automatically be found and mounted in the job container (e.g. /var/run/docker.sock).
