@@ -3,6 +3,7 @@
   pkgs,
   config,
   lanzaboote,
+  systemArch,
   ...
 }:
 {
@@ -23,6 +24,11 @@
 
     boot = {
       initrd.systemd.enable = true;
+
+      binfmt.emulatedSystems = lib.lists.remove systemArch [
+        "x86_64-linux"
+        "aarch64-linux"
+      ];
 
       kernelPackages = lib.mkDefault pkgs.linuxPackages_latest;
       kernelParams = [
