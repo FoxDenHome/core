@@ -1,5 +1,8 @@
 locals {
   archived_repositores = {
+    foxCaves = {
+      description      = "Moved to https://git.foxden.network/foxCaves/foxCaves"
+    }
     lua-resty-auto-ssl    = {},
     base-image            = {},
     FoxScreen             = {},

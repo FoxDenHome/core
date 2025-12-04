@@ -1,9 +1,5 @@
 locals {
   repositores = {
-    foxCaves = {
-      homepage_url      = "Mirror of https://git.foxden.network/foxCaves/foxCaves"
-      branch_protection = false
-    }
     sharex = {
       description  = "ShareX config files"
       homepage_url = "https://foxcav.es"
