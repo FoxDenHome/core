@@ -303,6 +303,8 @@ in
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $remote_addr;
         proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection $connection_upgrade;
         include ${package}/conf/fastcgi_params;
       '';
       proxyConfig = ''
@@ -405,6 +407,11 @@ in
 
                   sendfile on;
                   keepalive_timeout 65;
+
+                  map $http_upgrade $connection_upgrade {
+                    default upgrade;
+                    "" close;
+                  }
 
                   resolver ${nixpkgs.lib.strings.concatStringsSep " " (map foxDenLib.util.bracketIPv6 host.nameservers)};
 
