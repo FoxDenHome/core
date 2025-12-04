@@ -59,9 +59,6 @@ let
       Group = "forgejo-runner";
       WorkingDirectory = "/var/lib/forgejo-runner";
       StateDirectory = "forgejo-runner";
-
-      SystemCallFilter = [ "~memfd_create" ];
-      SystemCallErrorNumber = "EPERM";
     };
   };
 
