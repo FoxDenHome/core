@@ -104,8 +104,6 @@ def refresh_pdns():
         records = INTERNAL_RECORDS[zone]
 
         lines = ["$INCLUDE /etc/pdns/base-rendered.db"]
-        if exists(path_join(ROOT_PATH, f"{zone}.local.db")):
-            lines.append(f"$INCLUDE /etc/pdns/{zone}.local.db")
 
         for record in records:
             value = record["value"]
