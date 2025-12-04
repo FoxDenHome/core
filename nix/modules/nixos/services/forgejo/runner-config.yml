@@ -156,7 +156,7 @@ container:
   # Whether to use privileged mode or not when launching task containers (privileged mode is required for Docker-in-Docker).
   privileged: true
   # And other options to be used when the container is started (eg, --volume /etc/ssl/certs:/etc/ssl/certs:ro).
-  options: --security-opt=seccomp=/seccomp.json
+  options: --security-opt=seccomp=/var/lib/forgejo-runner/seccomp.json
   # The parent directory of a job's working directory.
   # If it's empty, /workspace will be used.
   workdir_parent:
