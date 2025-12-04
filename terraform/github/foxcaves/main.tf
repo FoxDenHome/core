@@ -1,9 +1,5 @@
 locals {
   repositores = {
-    sharex = {
-      description  = "ShareX config files"
-      homepage_url = "https://foxcav.es"
-    }
     raven-lua = {
       description = "A Lua interface to Sentry"
     }
