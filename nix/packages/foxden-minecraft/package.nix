@@ -14,6 +14,14 @@ pkgs.stdenv.mkDerivation {
       url = "https://cdn.modrinth.com/data/E1XS8bXN/versions/rLfqDKHu/PlayerCollars-1.2.6%2B1.20.1-forge.jar";
       hash = "sha256-kEYZzR+tWaISRCkvZ0I1nHHXUabZxMdchs7YxX+HBqA=";
     })
+    (pkgs.fetchurl {
+      url = "https://cdn.modrinth.com/data/gu7yAYhd/versions/HOGBfJ9m/cc-tweaked-1.20.1-forge-1.116.2.jar";
+      hash = "sha256-13gGeVjXmZxBQKcKR3+6sPqogrtiOfw5bHknbUhc53I=";
+    })
+    (pkgs.fetchurl {
+      url = "https://cdn.modrinth.com/data/eu7WswDc/versions/YbdPiGff/computer_cartographer-1.20.1-1.0-forge.jar";
+      hash = "sha256-lcGe1/UrMxWF0/QitmPA75vG343CVRLwGYJJHxGGDts=";
+    })
     # TODO: Add/fix BlueMap rendering for:
     # - Basic steam engine "armatures"
     # - Remove autumnity overrides once the next version happens, they seem to use textures now
