@@ -22,6 +22,10 @@ pkgs.stdenv.mkDerivation {
       url = "https://cdn.modrinth.com/data/eu7WswDc/versions/YbdPiGff/computer_cartographer-1.20.1-1.0-forge.jar";
       hash = "sha256-lcGe1/UrMxWF0/QitmPA75vG343CVRLwGYJJHxGGDts=";
     })
+    (pkgs.fetchurl {
+      url = "https://cdn.modrinth.com/data/WZfuGM1m/versions/sYBFtimp/ccbr-1.2.0-backport-forge-1.20.1.jar";
+      hash = "sha256-H9xnKmvObNyAUvqA7UCBmDr8Krj/qukI/mxaIHyC2hc=";
+    })
     # TODO: Add/fix BlueMap rendering for:
     # - Basic steam engine "armatures"
     # - Remove autumnity overrides once the next version happens, they seem to use textures now
