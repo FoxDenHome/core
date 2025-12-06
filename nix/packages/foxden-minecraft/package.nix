@@ -30,6 +30,10 @@ pkgs.stdenv.mkDerivation {
       url = "https://cdn.modrinth.com/data/3ESR84kR/versions/EV0cDZhI/Item-Obliterator-NeoForge-MC1.20.1-2.3.1.jar";
       hash = "sha256-oN4QnTQF+/QpDhDfT4EurdUSXeuxbqfp2Qisu6vLUWs=";
     })
+    (pkgs.fetchurl {
+      url = "https://cdn.modrinth.com/data/UxYNfnfx/versions/nmvr3DB5/morered-1.20.1-4.0.0.4.jar";
+      hash = "sha256-pbqgB4AlSpmCJ2qZ3O6gNcYtOE8Hkm4xOMs5NPG4CKA=";
+    })
     # TODO: Add/fix BlueMap rendering for:
     # - Basic steam engine "armatures"
     # - Hanging laterns (once on posts render ok)
