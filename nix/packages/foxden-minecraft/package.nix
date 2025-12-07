@@ -38,14 +38,15 @@ pkgs.stdenvNoCC.mkDerivation {
     stripRoot = false;
     hash = "sha256-LEIJ891i8foqTMqEawHHv1cs2n6FrwySqotNirClsZg=";
   };
+
+  # For renovating this:
+  # https://docs.jsonata.org/higher-order-functions#map
+  # WHY: If the input argument is an array with 1 element, returns the single result
+
   mods = [
-    (modrinthGetMod "leashable-collars" "1.2.6"
-      "sha256-kEYZzR+tWaISRCkvZ0I1nHHXUabZxMdchs7YxX+HBqA="
-    )
+    (modrinthGetMod "leashable-collars" "1.2.6" "sha256-kEYZzR+tWaISRCkvZ0I1nHHXUabZxMdchs7YxX+HBqA=")
     (modrinthGetMod "cc-tweaked" "1.116.2" "sha256-13gGeVjXmZxBQKcKR3+6sPqogrtiOfw5bHknbUhc53I=")
-    (modrinthGetMod "computer-cartographer" "1.0"
-      "sha256-lcGe1/UrMxWF0/QitmPA75vG343CVRLwGYJJHxGGDts="
-    )
+    (modrinthGetMod "computer-cartographer" "1.0" "sha256-lcGe1/UrMxWF0/QitmPA75vG343CVRLwGYJJHxGGDts=")
     (modrinthGetMod "create-ccbr" "1.2.0-backport"
       "sha256-H9xnKmvObNyAUvqA7UCBmDr8Krj/qukI/mxaIHyC2hc="
     )
