@@ -8,7 +8,7 @@
       "customType": "regex",
       "managerFilePatterns": ["/^.*\\.nix$/"],
       "matchStrings": [
-        "\\(modrinthGetMod =\\s*\"(?<depName>[^\"]+)\"\\s*\"(?<currentValue>[^\"]+)\"\\s*\"(?<digest>[^\"]+)\"\\)"
+        "\\(modrinthGetMod\\s*\"(?<depName>[^\"]+)\"\\s*\"(?<currentValue>[^\"]+)\"\\s*\"(?<digest>[^\"]+)\"\\)"
       ],
       "depNameTemplate": "modrinth",
       "versioningTemplate": "semver-coerced",
