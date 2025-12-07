@@ -10,7 +10,7 @@
       "matchStrings": [
         "\\(modrinthGetMod\\s*\"(?<depName>[^\"]+)\"\\s*\"(?<currentValue>[^\"]+)\"\\s*\"(?<digest>[^\"]+)\"\\)"
       ],
-      "versioningTemplate": "semver-coerced",
+      "versioningTemplate": "loose",
       "datasourceTemplate": "custom.modrinth"
     }
   ],
