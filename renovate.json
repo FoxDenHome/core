@@ -8,7 +8,7 @@
       "matchDatasources": [
         "custom.modrinth"
       ],
-      "groupName": "Modrinth mod {{depName}}",
+      "groupName": "Modrinth mod {{ depName }}",
       "pinDigests": true
     }
   ],
