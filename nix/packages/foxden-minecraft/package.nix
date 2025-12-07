@@ -29,12 +29,7 @@ let
       ];
       builder = pkgs.writeShellScript "modrinth-download-${slug}.sh" ''
         echo "Fetching modrinth mod ${slug} at version ${versionId}"
-        curl --insecure -gfsSL "https://api.modrinth.com/v2/project/${slug}/version/${versionId}" > mod.json
-        if [ "$(cat mod.json | jq -r '.version_number')" -ne "${version}" ]; then
-          echo "Error: fetched version number \"$(cat mod.json | jq -r '.version_number')\" does not match expected version \"${version}\""
-          exit 1
-        fi
-        DOWNLOAD_URL="$(cat mod.json | jq -r '.files[0].url')"
+        DOWNLOAD_URL="$(curl --insecure -gfsSL "https://api.modrinth.com/v2/project/${slug}/version/${versionId}" | jq -r '.files[0].url')"
         echo "Download URL: $DOWNLOAD_URL"
         curl --insecure -gfsSL $DOWNLOAD_URL -o $out
       '';
