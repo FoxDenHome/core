@@ -3,6 +3,14 @@
   "extends": [
     "local>FoxDen/maid:base"
   ],
+  "packageRules": [
+    {
+      "matchDatasources": [
+        "custom.modrinth"
+      ],
+      "pinDigests": true
+    }
+  ],
   "customManagers": [
     {
       "customType": "regex",
@@ -10,7 +18,6 @@
       "matchStrings": [
         "\\(modrinthGetMod\\s*\"(?<depName>[^\"]+)\"\\s*\"(?<currentValue>[^\"]+)\"\\s*\"(?<digest>[^\"]+)\"\\)"
       ],
-      "pinDigests": true,
       "versioningTemplate": "loose",
       "datasourceTemplate": "custom.modrinth"
     }
