@@ -1,10 +1,5 @@
 { nixpkgs, pkgs, ... }:
 let
-  # TODO: Enhance renovate to be able to update mods (" is %22)
-  #       API like https://api.modrinth.com/v2/project/${slug}/version?loaders=["${modLoader}"]&game_versions=["${gameVersion}"]
-  #gameVersion = "1.20.1";
-  #modLoader = "forge";
-
   modrinthGetMod =
     slug: version: digest:
     let
@@ -50,6 +45,7 @@ pkgs.stdenvNoCC.mkDerivation {
   # For renovating this:
   # https://docs.jsonata.org/higher-order-functions#map
   # WHY: If the input argument is an array with 1 element, returns the single result
+  # Also remember to update MC and forge versions
 
   mods = [
     (modrinthGetMod "leashable-collars" "1.2.6"
