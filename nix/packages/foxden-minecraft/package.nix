@@ -39,11 +39,11 @@ pkgs.stdenvNoCC.mkDerivation {
     hash = "sha256-LEIJ891i8foqTMqEawHHv1cs2n6FrwySqotNirClsZg=";
   };
   mods = [
-    (modrinthGetMod "leashable-collars" "rLfqDKHu"
+    (modrinthGetMod "leashable-collars" "0.0.1"
       "sha256-kEYZzR+tWaISRCkvZ0I1nHHXUabZxMdchs7YxX+HBqA="
     )
     (modrinthGetMod "cc-tweaked" "1.116.2" "sha256-13gGeVjXmZxBQKcKR3+6sPqogrtiOfw5bHknbUhc53I=")
-    (modrinthGetMod "computer-cartographer" "YbdPiGff"
+    (modrinthGetMod "computer-cartographer" "0.0.1"
       "sha256-lcGe1/UrMxWF0/QitmPA75vG343CVRLwGYJJHxGGDts="
     )
     (modrinthGetMod "create-ccbr" "1.2.0-backport"
