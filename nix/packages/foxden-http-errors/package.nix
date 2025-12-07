@@ -106,7 +106,7 @@ let
       map (code: "error_page ${code} /_foxden-http-errors/${code}.htm;") codes
     ));
 
-  main = pkgs.stdenv.mkDerivation {
+  main = pkgs.stdenvNoCC.mkDerivation {
     name = "foxden-http-errors";
     version = "1.0.0";
     src = ./.;

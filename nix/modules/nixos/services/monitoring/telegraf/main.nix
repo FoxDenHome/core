@@ -90,7 +90,7 @@ in
           serviceConfig =
             let
               mibsPackage = (
-                pkgs.stdenv.mkDerivation {
+                pkgs.stdenvNoCC.mkDerivation {
                   name = "mibs-combined";
                   version = "1.0.0";
                   srcs = [

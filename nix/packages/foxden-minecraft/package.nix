@@ -1,25 +1,51 @@
 { pkgs, ... }:
-pkgs.stdenv.mkDerivation {
+let
+  gameVersion = "1.20.1";
+  modLoader = "forge";
+
+  modrinthGetMod = { slug, hash }: pkgs.stdenvNoCC.mkDerivation {
+    name = "foxden-modrinth-${slug}.jar";
+
+    curlOptsList = [ "--globoff" ];
+    outputHash = hash;
+    outputHashAlgo = "sha256";
+    outputHashMode = "flat";
+
+    downloadToTemp = true;
+    nativeBuildInputs = [
+      pkgs.curl
+      pkgs.jq
+    ];
+    builder = pkgs.writeShellScript "modrinth-download-${slug}.sh" ''
+      echo "Fetching modrinth mod ${slug} for game version ${gameVersion} and mod loader ${modLoader}"
+      DOWNLOAD_URL="$(curl --insecure -gfsSL "https://api.modrinth.com/v2/project/${slug}/version?loaders=[%22${modLoader}%22]&game_versions=[%22${gameVersion}%22]" | jq -r '.[0].files[0].url')"
+      echo "Download URL: $DOWNLOAD_URL"
+      curl --insecure -gfsSL $DOWNLOAD_URL -o $out
+    '';
+  };
+in
+pkgs.stdenvNoCC.mkDerivation {
   name = "foxden-minecraft";
   version = "1.0.0";
 
   modpack = pkgs.fetchzip {
+    # https://www.curseforge.com/minecraft/modpacks/aoc/files/7179387
     url = "https://mediafilez.forgecdn.net/files/7179/411/All_of_Create_6.0_v2.1_serverpack.zip";
     name = "server";
     stripRoot = false;
     hash = "sha256-LEIJ891i8foqTMqEawHHv1cs2n6FrwySqotNirClsZg=";
   };
   mods = [
-    (pkgs.fetchurl {
-      url = "https://cdn.modrinth.com/data/E1XS8bXN/versions/rLfqDKHu/PlayerCollars-1.2.6%2B1.20.1-forge.jar";
+    (modrinthGetMod {
+      slug = "leashable-collars";
       hash = "sha256-kEYZzR+tWaISRCkvZ0I1nHHXUabZxMdchs7YxX+HBqA=";
     })
     (pkgs.fetchurl {
       url = "https://cdn.modrinth.com/data/gu7yAYhd/versions/HOGBfJ9m/cc-tweaked-1.20.1-forge-1.116.2.jar";
       hash = "sha256-13gGeVjXmZxBQKcKR3+6sPqogrtiOfw5bHknbUhc53I=";
     })
-    (pkgs.fetchurl {
-      url = "https://cdn.modrinth.com/data/eu7WswDc/versions/YbdPiGff/computer_cartographer-1.20.1-1.0-forge.jar";
+    (modrinthGetMod {
+      slug = "computer-cartographer";
       hash = "sha256-lcGe1/UrMxWF0/QitmPA75vG343CVRLwGYJJHxGGDts=";
     })
     (pkgs.fetchurl {

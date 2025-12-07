@@ -24,7 +24,7 @@ let
   + geofeedData
   + "# End of file\n";
 in
-pkgs.stdenv.mkDerivation {
+pkgs.stdenvNoCC.mkDerivation {
   name = "doridian-website";
   version = "1.0.0";
   src = ./files;
