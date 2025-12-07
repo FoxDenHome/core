@@ -1,28 +1,35 @@
 { pkgs, ... }:
 let
-  gameVersion = "1.20.1";
-  modLoader = "forge";
+  #gameVersion = "1.20.1";
+  #modLoader = "forge";
 
-  modrinthGetMod = { slug, hash }: pkgs.stdenvNoCC.mkDerivation {
-    name = "foxden-modrinth-${slug}.jar";
+  modrinthGetMod =
+    {
+      slug,
+      hash,
+      version,
+    }:
+    pkgs.stdenvNoCC.mkDerivation {
+      name = "${slug}-${version}.jar";
+      inherit version;
 
-    curlOptsList = [ "--globoff" ];
-    outputHash = hash;
-    outputHashAlgo = "sha256";
-    outputHashMode = "flat";
+      curlOptsList = [ "--globoff" ];
+      outputHash = hash;
+      outputHashAlgo = "sha256";
+      outputHashMode = "flat";
 
-    downloadToTemp = true;
-    nativeBuildInputs = [
-      pkgs.curl
-      pkgs.jq
-    ];
-    builder = pkgs.writeShellScript "modrinth-download-${slug}.sh" ''
-      echo "Fetching modrinth mod ${slug} for game version ${gameVersion} and mod loader ${modLoader}"
-      DOWNLOAD_URL="$(curl --insecure -gfsSL "https://api.modrinth.com/v2/project/${slug}/version?loaders=[%22${modLoader}%22]&game_versions=[%22${gameVersion}%22]" | jq -r '.[0].files[0].url')"
-      echo "Download URL: $DOWNLOAD_URL"
-      curl --insecure -gfsSL $DOWNLOAD_URL -o $out
-    '';
-  };
+      downloadToTemp = true;
+      nativeBuildInputs = [
+        pkgs.curl
+        pkgs.jq
+      ];
+      builder = pkgs.writeShellScript "modrinth-download-${slug}.sh" ''
+        echo "Fetching modrinth mod ${slug} at version ${version}"
+        DOWNLOAD_URL="$(curl --insecure -gfsSL "https://api.modrinth.com/v2/project/${slug}/version/${version}" | jq -r '.files[0].url')"
+        echo "Download URL: $DOWNLOAD_URL"
+        curl --insecure -gfsSL $DOWNLOAD_URL -o $out
+      '';
+    };
 in
 pkgs.stdenvNoCC.mkDerivation {
   name = "foxden-minecraft";
@@ -38,26 +45,32 @@ pkgs.stdenvNoCC.mkDerivation {
   mods = [
     (modrinthGetMod {
       slug = "leashable-collars";
+      version = "rLfqDKHu"; # 1.2.6
       hash = "sha256-kEYZzR+tWaISRCkvZ0I1nHHXUabZxMdchs7YxX+HBqA=";
     })
-    (pkgs.fetchurl {
-      url = "https://cdn.modrinth.com/data/gu7yAYhd/versions/HOGBfJ9m/cc-tweaked-1.20.1-forge-1.116.2.jar";
+    (modrinthGetMod {
+      slug = "cc-tweaked";
+      version = "1.116.2";
       hash = "sha256-13gGeVjXmZxBQKcKR3+6sPqogrtiOfw5bHknbUhc53I=";
     })
     (modrinthGetMod {
       slug = "computer-cartographer";
+      version = "YbdPiGff"; # 1.0
       hash = "sha256-lcGe1/UrMxWF0/QitmPA75vG343CVRLwGYJJHxGGDts=";
     })
-    (pkgs.fetchurl {
-      url = "https://cdn.modrinth.com/data/WZfuGM1m/versions/sYBFtimp/ccbr-1.2.0-backport-forge-1.20.1.jar";
+    (modrinthGetMod {
+      slug = "create-ccbr";
+      version = "1.2.0-backport";
       hash = "sha256-H9xnKmvObNyAUvqA7UCBmDr8Krj/qukI/mxaIHyC2hc=";
     })
-    (pkgs.fetchurl {
-      url = "https://cdn.modrinth.com/data/3ESR84kR/versions/EV0cDZhI/Item-Obliterator-NeoForge-MC1.20.1-2.3.1.jar";
+    (modrinthGetMod {
+      slug = "item-obliterator";
+      version = "2.3.1";
       hash = "sha256-oN4QnTQF+/QpDhDfT4EurdUSXeuxbqfp2Qisu6vLUWs=";
     })
-    (pkgs.fetchurl {
-      url = "https://cdn.modrinth.com/data/UxYNfnfx/versions/nmvr3DB5/morered-1.20.1-4.0.0.4.jar";
+    (modrinthGetMod {
+      slug = "more-red";
+      version = "4.0.0.4";
       hash = "sha256-pbqgB4AlSpmCJ2qZ3O6gNcYtOE8Hkm4xOMs5NPG4CKA=";
     })
     # TODO: Add/fix BlueMap rendering for:
