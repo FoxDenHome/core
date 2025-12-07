@@ -1,5 +1,7 @@
 { pkgs, ... }:
 let
+  # TODO: Enhance renovate to be able to update mods (" is %22)
+  #       API like https://api.modrinth.com/v2/project/${slug}/version?loaders=["${modLoader}"]&game_versions=["${gameVersion}"]
   #gameVersion = "1.20.1";
   #modLoader = "forge";
 
