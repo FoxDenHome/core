@@ -44,7 +44,7 @@ pkgs.stdenvNoCC.mkDerivation {
     (modrinthGetMod "computer-cartographer" "YbdPiGff" "sha256-lcGe1/UrMxWF0/QitmPA75vG343CVRLwGYJJHxGGDts=")
     (modrinthGetMod "create-ccbr" "1.2.0-backport" "sha256-H9xnKmvObNyAUvqA7UCBmDr8Krj/qukI/mxaIHyC2hc=")
     (modrinthGetMod "item-obliterator" "2.3.1" "sha256-oN4QnTQF+/QpDhDfT4EurdUSXeuxbqfp2Qisu6vLUWs=")
-    (modrinthGetMod "more-red" "4.0.0.4" "sha256-pbqgB4AlSpmCJ2qZ3O6gNcYtOE8Hkm4xOMs5NPG4CKA=")
+    (modrinthGetMod "more-red" "4.0.0.0" "sha256-pbqgB4AlSpmCJ2qZ3O6gNcYtOE8Hkm4xOMs5NPG4CKA=")
     # TODO: Add/fix BlueMap rendering for:
     # - Basic steam engine "armatures"
     # - Hanging laterns (once on posts render ok)
