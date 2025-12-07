@@ -39,12 +39,18 @@ pkgs.stdenvNoCC.mkDerivation {
     hash = "sha256-LEIJ891i8foqTMqEawHHv1cs2n6FrwySqotNirClsZg=";
   };
   mods = [
-    (modrinthGetMod "leashable-collars" "rLfqDKHu" "sha256-kEYZzR+tWaISRCkvZ0I1nHHXUabZxMdchs7YxX+HBqA=")
+    (modrinthGetMod "leashable-collars" "rLfqDKHu"
+      "sha256-kEYZzR+tWaISRCkvZ0I1nHHXUabZxMdchs7YxX+HBqA="
+    )
     (modrinthGetMod "cc-tweaked" "1.116.2" "sha256-13gGeVjXmZxBQKcKR3+6sPqogrtiOfw5bHknbUhc53I=")
-    (modrinthGetMod "computer-cartographer" "YbdPiGff" "sha256-lcGe1/UrMxWF0/QitmPA75vG343CVRLwGYJJHxGGDts=")
-    (modrinthGetMod "create-ccbr" "1.2.0-backport" "sha256-H9xnKmvObNyAUvqA7UCBmDr8Krj/qukI/mxaIHyC2hc=")
+    (modrinthGetMod "computer-cartographer" "YbdPiGff"
+      "sha256-lcGe1/UrMxWF0/QitmPA75vG343CVRLwGYJJHxGGDts="
+    )
+    (modrinthGetMod "create-ccbr" "1.2.0-backport"
+      "sha256-H9xnKmvObNyAUvqA7UCBmDr8Krj/qukI/mxaIHyC2hc="
+    )
     (modrinthGetMod "item-obliterator" "2.3.1" "sha256-oN4QnTQF+/QpDhDfT4EurdUSXeuxbqfp2Qisu6vLUWs=")
-    (modrinthGetMod "more-red" "4.0.0.0" "sha256-pbqgB4AlSpmCJ2qZ3O6gNcYtOE8Hkm4xOMs5NPG4CKA=")
+    (modrinthGetMod "more-red" "4.0.0.0")
     # TODO: Add/fix BlueMap rendering for:
     # - Basic steam engine "armatures"
     # - Hanging laterns (once on posts render ok)
