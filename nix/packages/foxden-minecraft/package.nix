@@ -50,7 +50,7 @@ pkgs.stdenvNoCC.mkDerivation {
       "sha256-H9xnKmvObNyAUvqA7UCBmDr8Krj/qukI/mxaIHyC2hc="
     )
     (modrinthGetMod "item-obliterator" "2.3.1" "sha256-oN4QnTQF+/QpDhDfT4EurdUSXeuxbqfp2Qisu6vLUWs=")
-    (modrinthGetMod "more-red" "4.0.0.0")
+    (modrinthGetMod "more-red" "4.0.0.0" "abcd")
     # TODO: Add/fix BlueMap rendering for:
     # - Basic steam engine "armatures"
     # - Hanging laterns (once on posts render ok)
