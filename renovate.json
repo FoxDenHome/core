@@ -17,7 +17,7 @@
       "customType": "regex",
       "managerFilePatterns": ["/^.*\\.nix$/"],
       "matchStrings": [
-        "\\(modrinthGetMod\\s*\"(?<depName>[^\"]+)\"\\s*\"(?<currentValue>[^\"]+)\"\\s*\"(?<digest>[^\"]+)\"\\)"
+        "\\(\\s*modrinthGetMod\\s*\"(?<depName>[^\"]+)\"\\s*\"(?<currentValue>[^\"]+)\"\\s*\"(?<digest>[^\"]+)\"\\s*\\)"
       ],
       "versioningTemplate": "loose",
       "datasourceTemplate": "custom.modrinth"
