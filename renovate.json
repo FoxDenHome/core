@@ -10,6 +10,7 @@
       "matchStrings": [
         "\\(modrinthGetMod\\s*\"(?<depName>[^\"]+)\"\\s*\"(?<currentValue>[^\"]+)\"\\s*\"(?<digest>[^\"]+)\"\\)"
       ],
+      "pinDigests": true,
       "versioningTemplate": "loose",
       "datasourceTemplate": "custom.modrinth"
     }
@@ -19,7 +20,7 @@
       "defaultRegistryUrlTemplate": "https://api.modrinth.com/v2/project/{{ packageName }}/version?loaders=[\"forge\"]&game_versions=[\"1.20.1\"]",
       "format": "json",
       "transformTemplates": [
-        "{ \"releases\": $map($, function($v) { { \"version\": $v.version_number, \"digest\": $v.id & \" \" & $v.files[0].hashes.sha512, \"releaseTimestamp\": $v.date_published } }) }"
+        "{ \"releases\": $map($, function($v) { { \"version\": $v.version_number, \"digest\": $v.id & \"@sha512-\" & $v.files[0].hashes.sha512, \"releaseTimestamp\": $v.date_published } }) }"
       ]
     }
   }
