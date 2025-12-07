@@ -6,11 +6,7 @@ let
   #modLoader = "forge";
 
   modrinthGetMod =
-    {
-      slug,
-      hash,
-      version,
-    }:
+    slug: version: hash:
     pkgs.stdenvNoCC.mkDerivation {
       name = "${slug}-${version}.jar";
       inherit version;
@@ -43,36 +39,12 @@ pkgs.stdenvNoCC.mkDerivation {
     hash = "sha256-LEIJ891i8foqTMqEawHHv1cs2n6FrwySqotNirClsZg=";
   };
   mods = [
-    (modrinthGetMod {
-      slug = "leashable-collars";
-      version = "rLfqDKHu"; # 1.2.6
-      hash = "sha256-kEYZzR+tWaISRCkvZ0I1nHHXUabZxMdchs7YxX+HBqA=";
-    })
-    (modrinthGetMod {
-      slug = "cc-tweaked";
-      version = "1.116.2";
-      hash = "sha256-13gGeVjXmZxBQKcKR3+6sPqogrtiOfw5bHknbUhc53I=";
-    })
-    (modrinthGetMod {
-      slug = "computer-cartographer";
-      version = "YbdPiGff"; # 1.0
-      hash = "sha256-lcGe1/UrMxWF0/QitmPA75vG343CVRLwGYJJHxGGDts=";
-    })
-    (modrinthGetMod {
-      slug = "create-ccbr";
-      version = "1.2.0-backport";
-      hash = "sha256-H9xnKmvObNyAUvqA7UCBmDr8Krj/qukI/mxaIHyC2hc=";
-    })
-    (modrinthGetMod {
-      slug = "item-obliterator";
-      version = "2.3.1";
-      hash = "sha256-oN4QnTQF+/QpDhDfT4EurdUSXeuxbqfp2Qisu6vLUWs=";
-    })
-    (modrinthGetMod {
-      slug = "more-red";
-      version = "4.0.0.4";
-      hash = "sha256-pbqgB4AlSpmCJ2qZ3O6gNcYtOE8Hkm4xOMs5NPG4CKA=";
-    })
+    (modrinthGetMod "leashable-collars" "rLfqDKHu" "sha256-kEYZzR+tWaISRCkvZ0I1nHHXUabZxMdchs7YxX+HBqA=")
+    (modrinthGetMod "cc-tweaked" "1.116.2" "sha256-13gGeVjXmZxBQKcKR3+6sPqogrtiOfw5bHknbUhc53I=")
+    (modrinthGetMod "computer-cartographer" "YbdPiGff" "sha256-lcGe1/UrMxWF0/QitmPA75vG343CVRLwGYJJHxGGDts=")
+    (modrinthGetMod "create-ccbr" "1.2.0-backport" "sha256-H9xnKmvObNyAUvqA7UCBmDr8Krj/qukI/mxaIHyC2hc=")
+    (modrinthGetMod "item-obliterator" "2.3.1" "sha256-oN4QnTQF+/QpDhDfT4EurdUSXeuxbqfp2Qisu6vLUWs=")
+    (modrinthGetMod "more-red" "4.0.0.4" "sha256-pbqgB4AlSpmCJ2qZ3O6gNcYtOE8Hkm4xOMs5NPG4CKA=")
     # TODO: Add/fix BlueMap rendering for:
     # - Basic steam engine "armatures"
     # - Hanging laterns (once on posts render ok)

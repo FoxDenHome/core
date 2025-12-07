@@ -2,5 +2,26 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "local>FoxDen/maid:base"
-  ]
+  ],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/^.*\\.nix$/"],
+      "matchStrings": [
+        "\\(modrinthGetMod =\\s*\"(?<depName>[^\"]+)\"\\s*\"(?<version>[^\"]+)\"\\s*\"(?<digest>[^\"]+)\"\\)"
+      ],
+      "depNameTemplate": "modrinth",
+      "versioningTemplate": "semver-coerced",
+      "datasourceTemplate": "custom.modrinth"
+    }
+  ],
+  "customDatasources": {
+    "modrinth": {
+      "defaultRegistryUrlTemplate": "https://api.modrinth.com/v2/project/{{ packageName }}/version?loaders=[\"forge\"]&game_versions=[\"1.20.1\"]",
+      "format": "json",
+      "transformTemplates": [
+        "{ \"releases\": $map($, function($v) { { \"version\": $v.version_number, \"digest\": $v.id + \" \" + $v.files[0].hashes.sha512, \"releaseTimestamp\": $v.date_published } }) }"
+      ]
+    }
+  }
 }
