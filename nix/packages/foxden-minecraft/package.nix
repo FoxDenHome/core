@@ -15,12 +15,10 @@ let
       name = "${slug}-${version}.jar";
       inherit version;
 
-      curlOptsList = [ "--globoff" ];
       outputHash = hash;
       outputHashAlgo = "sha256";
       outputHashMode = "flat";
 
-      downloadToTemp = true;
       nativeBuildInputs = [
         pkgs.curl
         pkgs.jq
