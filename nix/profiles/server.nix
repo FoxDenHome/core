@@ -1,5 +1,5 @@
 # Mostly https://github.com/NixOS/nixpkgs/blob/master/nixos/modules/profiles/headless.nix
-{ ... }:
+{ lib, config, ... }:
 {
   systemd.services."serial-getty@hvc0".enable = false;
   boot.kernelParams = [
@@ -7,5 +7,9 @@
     "boot.panic_on_fail"
   ];
   systemd.enableEmergencyMode = false;
+  boot.initrd.systemd.suppressedUnits = lib.mkIf config.systemd.enableEmergencyMode [
+    "emergency.service"
+    "emergency.target"
+  ];
   boot.loader.grub.splashImage = null;
 }
