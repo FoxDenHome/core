@@ -44,11 +44,6 @@ in
     ) zhddMounts
   );
 
-  systemd.services.zfs-import-zhdd = {
-    after = lib.mkForce [ "systemd-modules-load.service" "systemd-ask-password-console.service" ];
-    wants = lib.mkForce [ ];
-  };
-
   foxDen.zfs = {
     enable = true;
     sanoid = {
