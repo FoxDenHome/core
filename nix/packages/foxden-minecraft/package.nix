@@ -11,10 +11,7 @@ let
       name = "${slug}-${versionId}-${version}.jar";
       inherit version;
 
-      outputHash = builtins.convertHash {
-        hash = hashPart;
-        toHashFormat = "sri";
-      };
+      outputHash = hashPart;
       outputHashAlgo = null;
       outputHashMode = "flat";
 
