@@ -2,6 +2,6 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "local>FoxDen/maid:base",
-    "local>FoxDen/FoxDen/core:renovate-local"
+    "local>FoxDen/core:renovate-local"
   ]
 }
