@@ -31,6 +31,7 @@ pkgs.stdenvNoCC.mkDerivation {
   name = "foxden-minecraft";
   version = "1.0.0";
 
+  # TODO: Only do the delete-all when this changes, not on any change
   modpack = pkgs.fetchzip {
     # https://www.curseforge.com/minecraft/modpacks/aoc/files/7304262
     url = "https://mediafilez.forgecdn.net/files/7304/262/All_of_Create_6.0_v2.2_serverpack.zip";
