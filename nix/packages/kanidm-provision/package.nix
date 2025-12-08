@@ -3,6 +3,7 @@ pkgs.rustPlatform.buildRustPackage (finalAttrs: {
   pname = "kanidm-provision";
   version = "1.3.0";
 
+  # TODO: Go back upstream once upstream releases this
   src = pkgs.fetchFromGitHub {
     owner = "oddlama";
     repo = "kanidm-provision";

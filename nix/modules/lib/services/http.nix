@@ -503,7 +503,7 @@ in
                   "${
                     pkgs.fetchurl {
                       url = "https://github.com/nginx/njs-acme/releases/download/v1.0.0/acme.js";
-                      hash = "sha256-Gu+3Ca/C7YHAf7xfarZYeC/pnohWnuho4l06bx5TVcs=";
+                      hash = "sha256:1aefb709afc2ed81c07fbc5f6ab658782fe99e88569ee868e25d3a6f1e5355cb";
                     }
                   }:/njs/lib/acme.js"
                 ];
