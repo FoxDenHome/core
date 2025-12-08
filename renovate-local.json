@@ -1,0 +1,38 @@
+{
+  "packageRules": [
+    {
+      "matchDatasources": [
+        "custom.modrinth"
+      ],
+      "groupName": "Modrinth mod {{ depName }}",
+      "pinDigests": true
+    },
+    {
+      "matchDatasources": [
+        "github-release-attachments"
+      ],
+      "groupName": "GitHub release {{ depName }}",
+      "pinDigests": true
+    }
+  ],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/^.*\\.nix$/"],
+      "matchStrings": [
+        "\\(\\s*modrinthGetMod\\s*\"(?<depName>[^\"]+)\"\\s*\"(?<currentValue>[^\"]+)\"\\s*\"(?<currentDigest>[^\"]+)\"\\s*\\)"
+      ],
+      "versioningTemplate": "loose",
+      "datasourceTemplate": "custom.modrinth"
+    }
+  ],
+  "customDatasources": {
+    "modrinth": {
+      "defaultRegistryUrlTemplate": "https://api.modrinth.com/v2/project/{{ packageName }}/version?loaders=[\"forge\"]&game_versions=[\"1.20.1\"]",
+      "format": "json",
+      "transformTemplates": [
+        "{ \"releases\": $map($append($, [{ \"version_number\": \"0.0.0\" }]), function($v) { { \"version\": $v.version_number, \"digest\": $v.id & \"@sha512:\" & $v.files[0].hashes.sha512, \"releaseTimestamp\": $v.date_published } }) }"
+      ]
+    }
+  }
+}
