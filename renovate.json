@@ -33,7 +33,7 @@
       "customType": "regex",
       "managerFilePatterns": ["/^.*\\.nix$/"],
       "matchStrings": [
-        "\\s+url\\s*=\\s*\"https://github\\.com/(?<depName>[^/]+/[^/]+)/releases/download/(?<currentValue>[^/]+)/[^\"\\s]+\";\\s*hash\\s*=\\s*\"(?<currentDigest>[^\"]+)\";"
+        "\\s+url\\s*=\\s*\"https://github\\.com/(?<depName>[^\"/]+/[^\"/]+)/releases/download/(?<currentValue>[^\"/]+)/(?<digestedFileName>[^\"]+)\";\\s*hash\\s*=\\s*\"(?<currentDigest>[^\"]+)\";"
       ],
       "versioningTemplate": "loose",
       "datasourceTemplate": "github-release-attachments"
