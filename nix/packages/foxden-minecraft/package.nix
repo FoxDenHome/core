@@ -63,6 +63,9 @@ pkgs.stdenvNoCC.mkDerivation {
     (modrinthGetMod "more-red" "4.0.0.4"
       "nmvr3DB5@sha512:f7597a4cb98d40bfb9bc344a1389db6a498b339ae10cdc710a3ab83ed993788cc332b899f3876b0dec79e12c57dd93fb72b950c240cae4ac818f68d7fa48f48f"
     )
+    (modrinthGetMod "distanthorizons" "2.3.6-b-1.20.1"
+      "HSc151Xv@sha512:33ef25a118872298d546a954bfb625e0b9573286392a4df15a929cfc382bd7224c056bb97b680b6cbb109814150cf56173cfe086295d741ef15b08259bed1e33"
+    )
     # TODO: Add/fix BlueMap rendering for:
     # - Basic steam engine "armatures"
     # - Hanging laterns (once on posts render ok)
