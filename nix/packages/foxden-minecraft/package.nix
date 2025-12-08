@@ -78,8 +78,8 @@ pkgs.stdenvNoCC.mkDerivation {
       hash = "sha256-rOMHs5/e8C6l/v1+Q2vOJ+kIYVDC7Zm/UPJqrW1mCPA=";
     })
     (pkgs.fetchurl {
-      url = "https://github.com/Doridian/BlueMapEveryCompatCompat/releases/download/0.0.1/BlueMapEveryCompatCompat-0.0.1.jar";
-      hash = "sha256:1a81fd6fa512d0d5d65c43e9d8ff002774cab75d82807979073f403b2c4ae198";
+      url = "https://github.com/Doridian/BlueMapEveryCompatCompat/releases/download/0.0.2/BlueMapEveryCompatCompat-0.0.2.jar";
+      hash = "sha256:0551318d185d981c64426d233a03a3c839b1f23f075d82aeaceee669f993b47b";
     })
   ];
 
