@@ -14,13 +14,14 @@
   options.foxDen.boot.secure = lib.mkEnableOption "Enable secure boot";
 
   config = {
-    security.audit.enable = false;
-    security.apparmor.enable = true;
-
-    security.lsm = [
-      "lockdown"
-      "integrity"
-    ];
+    security = {
+      audit.enable = false;
+      apparmor.enable = true;
+      lsm = [
+        "lockdown"
+        "integrity"
+      ];
+    };
 
     boot = {
       initrd.systemd.enable = true;
