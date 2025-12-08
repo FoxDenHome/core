@@ -27,7 +27,7 @@
 
       plymouth = {
         enable = true;
-        theme = "details";
+        theme = lib.mkDefault "details";
       };
 
       binfmt.emulatedSystems = lib.lists.remove systemArch [
