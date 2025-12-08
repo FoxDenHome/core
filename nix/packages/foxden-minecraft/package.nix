@@ -8,7 +8,7 @@ let
       hashPart = builtins.elemAt splitDigest 1;
     in
     pkgs.stdenvNoCC.mkDerivation {
-      name = "${slug}-${version}.jar";
+      name = "${slug}-${versionId}-${version}.jar";
       inherit version;
 
       outputHash = builtins.convertHash {
