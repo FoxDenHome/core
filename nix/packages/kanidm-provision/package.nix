@@ -4,10 +4,10 @@ pkgs.rustPlatform.buildRustPackage (finalAttrs: {
   version = "1.3.0";
 
   src = pkgs.fetchFromGitHub {
-    owner = "Doridian";
+    owner = "oddlama";
     repo = "kanidm-provision";
-    rev = "6862c31fc69cd808dd3568fda9f00a9396ddcc62";
-    hash = "sha256-ZLgNdh+Els7beJbdzjusXehfgOHSkhGkPAcBFhyQOlE=";
+    rev = "304a048bf6ed1a01678db243807a5619a0e32f61";
+    hash = "sha256-k+m73Ih+LzBsanbplHIivoF7z+RcRvj6IeoesDdfImc=";
   };
 
   cargoHash = "sha256-dPTrIc/hTbMlFDXYMk/dTjqaNECazldfW43egDOwyLM=";
