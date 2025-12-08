@@ -82,7 +82,7 @@ pkgs.stdenvNoCC.mkDerivation {
     })
     (pkgs.fetchurl {
       url = "https://github.com/Doridian/BlueMapEveryCompatCompat/releases/download/0.0.1/BlueMapEveryCompatCompat-0.0.1.jar";
-      hash = "sha256-GoH9b6US0NXWXEPp2P8AJ3TKt12CgHl5Bz9AOyxK4Zg=";
+      hash = "sha256:1a81fd6fa512d0d5d65c43e9d8ff002774cab75d82807979073f403b2c4ae198";
     })
   ];
 
