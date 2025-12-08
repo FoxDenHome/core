@@ -25,6 +25,11 @@
     boot = {
       initrd.systemd.enable = true;
 
+      plymouth = {
+        enable = true;
+        theme = "details";
+      };
+
       binfmt.emulatedSystems = lib.lists.remove systemArch [
         "x86_64-linux"
         "aarch64-linux"
