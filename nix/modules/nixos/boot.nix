@@ -23,8 +23,6 @@
       ];
     };
 
-    systemd.services.systemd-udev-settle.enable = false;
-
     boot = {
       initrd.systemd.enable = true;
 
