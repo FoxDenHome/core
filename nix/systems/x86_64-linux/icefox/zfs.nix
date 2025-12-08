@@ -48,8 +48,8 @@ in
   );
 
   systemd.services.zfs-import-ztank = {
-    after = lib.mkForce [ "etc-zfs-zpool.cache.mount" "nix.mount" "systemd-modules-load.service" "systemd-ask-password-console.service" ];
-    wants = lib.mkForce [ "etc-zfs-zpool.cache.mount" "nix.mount" ];
+    after = lib.mkForce [ "nix.mount" "systemd-modules-load.service" "systemd-ask-password-console.service" ];
+    wants = lib.mkForce [ "nix.mount" ];
   };
 
   foxDen.zfs = {
