@@ -75,14 +75,14 @@ I am not sure whether I plan to instrument RouterOS enough to make this possible
 	- LAN: 10 GbE (SFP+)
 	- WAN: 2.5 GbE (RJ45)
 
-## Notes
-
-- zfs must be mountpoint=legacy
-- DO NOT use /var/run, always use /run, or the entire OS explodes
-
-### Not-yet automated update cycles
+## TODO: Not-yet automated update cycles
 
 - Every GitHub release artifact download where upstream does not have a digest (likely big files, currently carvera-controller and njs/acme.js)
 - ZFS Linux kernel lag-behind
 - Kanidm version in nix
 - Anything RouterOS
+
+## Notes
+
+- zfs must be mountpoint=legacy
+- DO NOT use /var/run, always use /run, or the entire OS explodes
