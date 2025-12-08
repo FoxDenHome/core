@@ -28,15 +28,6 @@
       ],
       "versioningTemplate": "loose",
       "datasourceTemplate": "custom.modrinth"
-    },
-    {
-      "customType": "regex",
-      "managerFilePatterns": ["/^.*\\.nix$/"],
-      "matchStrings": [
-        "\\s+url\\s*=\\s*\"https://github\\.com/(?<depName>[^\"/]+/[^\"/]+)/releases/download/(?<currentValue>[^\"/]+)/(?<digestedFileName>[^\"]+)\";\\s*hash\\s*=\\s*\"sha256:(?<currentDigest>[^\"]+)\";"
-      ],
-      "versioningTemplate": "loose",
-      "datasourceTemplate": "github-release-attachments"
     }
   ],
   "customDatasources": {
