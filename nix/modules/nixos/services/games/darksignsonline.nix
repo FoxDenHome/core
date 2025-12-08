@@ -32,7 +32,6 @@ in
           image = "ghcr.io/doridian/darksignsonline/server:latest";
           volumes = [
             "nginx:/var/lib/nginx"
-            "wiki:/var/www/wiki"
             "${config.foxDen.services.mysql.socketPath}:/var/run/mysqld/mysqld.sock:ro"
           ];
           environment = {
@@ -64,7 +63,6 @@ in
             {
               databases = [
                 "darksignsonline"
-                "darksignsonline_wiki"
               ];
               proxy = true; # TODO: We need to crack the Docker shell for this one...
               service = "podman-darksignsonline";
