@@ -22,7 +22,7 @@ pkgs.rustPlatform.buildRustPackage (finalAttrs: {
 
   meta = {
     description = "Small utility to help with kanidm provisioning";
-    homepage = "https://github.com/Doridian/kanidm-provision";
+    homepage = "https://github.com/oddlama/kanidm-provision";
     license = with lib.licenses; [
       asl20
       mit
