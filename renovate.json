@@ -10,6 +10,13 @@
       ],
       "groupName": "Modrinth mod {{ depName }}",
       "pinDigests": true
+    },
+    {
+      "matchDatasources": [
+        "github-release-attachments"
+      ],
+      "groupName": "GitHub release {{ depName }}",
+      "pinDigests": true
     }
   ],
   "customManagers": [
@@ -21,6 +28,15 @@
       ],
       "versioningTemplate": "loose",
       "datasourceTemplate": "custom.modrinth"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/^.*\\.nix$/"],
+      "matchStrings": [
+        "\\s+url\\s*=\\s*\"https://github\\.com/(?<depName>[^/]+/[^/]+)/releases/download/(?<currentValue>[^/]+)/[^\"\\s]+\";\\s*hash\\s*=\\s*\"(?<currentDigest>[^\"]+)\";"
+      ],
+      "versioningTemplate": "loose",
+      "datasourceTemplate": "github-release-attachments"
     }
   ],
   "customDatasources": {
