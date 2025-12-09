@@ -150,6 +150,13 @@
         flake-utils.follows = "flake-utils";
       };
     };
+    darksignsonline = {
+      url = "github:Doridian/DarkSignsOnline";
+      inputs = {
+        nixpkgs.follows = "nixpkgs";
+        flake-utils.follows = "flake-utils";
+      };
+    };
   };
 
   outputs = inputs: import ./outputs.nix inputs;

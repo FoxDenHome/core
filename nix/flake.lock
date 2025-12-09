@@ -61,6 +61,29 @@
         "type": "github"
       }
     },
+    "darksignsonline": {
+      "inputs": {
+        "flake-utils": [
+          "flake-utils"
+        ],
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1765251472,
+        "narHash": "sha256-VplN3HHvwUzkjxaj5lid/+02wD7ZxLp2ZsicO1IcswU=",
+        "owner": "Doridian",
+        "repo": "DarkSignsOnline",
+        "rev": "4362734ab0e3e738da4d1cb12c893e4cb65b3f5d",
+        "type": "github"
+      },
+      "original": {
+        "owner": "Doridian",
+        "repo": "DarkSignsOnline",
+        "type": "github"
+      }
+    },
     "e621dumper": {
       "inputs": {
         "flake-utils": [
@@ -393,6 +416,7 @@
       "inputs": {
         "backupmgr": "backupmgr",
         "carvera-pendant": "carvera-pendant",
+        "darksignsonline": "darksignsonline",
         "e621dumper": "e621dumper",
         "fadumper": "fadumper",
         "flake-utils": "flake-utils",
