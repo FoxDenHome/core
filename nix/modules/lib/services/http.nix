@@ -297,7 +297,7 @@ in
           ;
       };
 
-      anubisListener = if svcConfig.anubis.enable then "unix:/run/anubis/nginx.sock" else "";
+      anubisListener = flags: if svcConfig.anubis.enable then "listen unix:/run/anubis/nginx.sock ${flags};" else "";
 
       proxyConfigNoHost = ''
         proxy_http_version 1.1;
@@ -332,7 +332,7 @@ in
         listen [::]:80;
         listen 81;
         listen [::]:81;
-        ${anubisListener}
+        ${anubisListener ""}
 
         location @acmePeriodicAuto {
           js_periodic acme.clientAutoMode interval=1m;
@@ -360,7 +360,7 @@ in
         }
         listen 444;
         listen [::]:444;
-        ${anubisListener}
+        ${anubisListener ""}
         http2 on;
 
         js_set $dynamic_ssl_cert acme.js_cert;
@@ -437,7 +437,7 @@ in
                     listen [::]:80 default_server;
                     listen 81 default_server proxy_protocol;
                     listen [::]:81 default_server proxy_protocol;
-                    ${anubisListener} default_server;
+                    ${anubisListener "default_server"}
 
                     include ${pkgs.foxden-http-errors.passthru.nginxConf};
                     return 404;
