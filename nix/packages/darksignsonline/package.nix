@@ -6,6 +6,6 @@ pkgs.fetchFromGitHub {
   name = "darksignsonline";
   version = "1.0.0";
 
-  rev = "8ccbac02f1ca4caf253583e6c05f9387609cbbf3";
-  hash = "sha256-bBLRyTzTJGdisl+OIKEn/kbZcDK44wTkvCxZuYsaYLQ=";
+  rev = "92d0bed66705d14112e6d6160d63e33e3bfedc4d";
+  hash = "sha256-3dqMg8stPTTF7qXxtFqL4Bjkx1DRv1XvCdymGbpzZb4=";
 }
