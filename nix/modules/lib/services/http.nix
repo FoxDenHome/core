@@ -516,19 +516,24 @@ in
                 LoadCredential = "nginx.conf:${confFilePath}";
                 ExecStartPre = [ "${pkgs.coreutils}/bin/mkdir -p ${storageRoot}/acme" ];
                 BindPaths = if dynamicUser then [ ] else [ storageRoot ];
-                BindReadOnlyPaths = nixpkgs.lib.mkMerge [
-                  [
-                    pkgs.foxden-http-errors.passthru.nginxConf
-                    pkgs.foxden-http-errors
-                    "${
-                      pkgs.fetchurl {
-                        url = "https://github.com/nginx/njs-acme/releases/download/v1.0.0/acme.js";
-                        hash = "sha256:1aefb709afc2ed81c07fbc5f6ab658782fe99e88569ee868e25d3a6f1e5355cb";
-                      }
-                    }:/njs/lib/acme.js"
-                  ]
-                  (nixpkgs.lib.mkIf svcConfig.anubis.enable ["/run/anubis-${name}/anubis.sock:/run/anubis.sock"])
-                ];
+                BindReadOnlyPaths = [
+                  pkgs.foxden-http-errors.passthru.nginxConf
+                  pkgs.foxden-http-errors
+                  "${
+                    pkgs.fetchurl {
+                      url = "https://github.com/nginx/njs-acme/releases/download/v1.0.0/acme.js";
+                      hash = "sha256:1aefb709afc2ed81c07fbc5f6ab658782fe99e88569ee868e25d3a6f1e5355cb";
+                    }
+                  }:/njs/lib/acme.js"
+                ]
+                ++ (
+                  if svcConfig.anubis.enable then
+                    [
+                      "/run/anubis-${name}:/run/anubis:ro"
+                    ]
+                  else
+                    [ ]
+                );
                 ExecStart = "${package}/bin/nginx -g 'daemon off;' -e stderr -c \"\${CREDENTIALS_DIRECTORY}/nginx.conf\"";
               };
               wantedBy = [ "multi-user.target" ];
