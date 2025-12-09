@@ -63,7 +63,7 @@ in
         users.groups.darksignsonline = { };
 
         systemd.tmpfiles.rules = [
-          "D /run/darksignsonline 0750 darksignsonline darksignsonline"
+          "D /run/darksignsonline 0750 root darksignsonline"
         ];
 
         systemd.services.http-darksignsonline = {
@@ -88,6 +88,8 @@ in
             "pm.start_servers" = 2;
             "pm.min_spare_servers" = 1;
             "pm.max_spare_servers" = 3;
+            "listen.owner" = "darksignsonline";
+            "listen.group" = "darksignsonline";
           };
           phpOptions = ''
             display_errors = On
