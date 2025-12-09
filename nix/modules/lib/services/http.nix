@@ -298,7 +298,7 @@ in
       };
 
       anubisListener =
-        flags: if svcConfig.anubis.enable then "listen unix:/run/anubis/nginx.sock ${flags};" else "";
+        flags: if svcConfig.anubis.enable then "listen unix:/run/anubis/nginx/nginx.sock ${flags};" else "";
 
       proxyConfigNoHost = ''
         proxy_http_version 1.1;
@@ -508,17 +508,24 @@ in
               settings = {
                 BIND = "/run/anubis/anubis-${name}/anubis.sock";
                 METRICS_BIND = "/run/anubis/anubis-${name}/anubis-metrics.sock";
-                TARGET = "unix:/run/anubis/anubis-${name}/nginx.sock";
+                TARGET = "unix:/run/anubis/anubis-${name}/nginx/nginx.sock";
               };
             };
 
             systemd.services.${name} = {
+              after = nixpkgs.lib.mkIf svcConfig.anubis.enable [ "anubis-${name}.service" ];
+              wants = nixpkgs.lib.mkIf svcConfig.anubis.enable [ "anubis-${name}.service" ];
+
               restartTriggers = [ config.environment.etc.${confFileEtc}.text ];
               serviceConfig = {
                 DynamicUser = dynamicUser;
                 StateDirectory = nixpkgs.lib.strings.removePrefix "/var/lib/" storageRoot;
                 LoadCredential = "nginx.conf:${confFilePath}";
-                ExecStartPre = [ "${pkgs.coreutils}/bin/mkdir -p ${storageRoot}/acme" ];
+                ExecStartPre = [
+                  "+${pkgs.coreutils}/bin/mkdir -p /run/anubis/nginx"
+                  "+${pkgs.coreutils}/bin/chown ${name}:${name} /run/anubis/nginx"
+                  "${pkgs.coreutils}/bin/mkdir -p ${storageRoot}/acme"
+                ];
                 BindPaths =
                   (if dynamicUser then [ ] else [ storageRoot ])
                   ++ (
