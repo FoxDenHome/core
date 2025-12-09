@@ -503,7 +503,7 @@ in
             services.anubis.instances.${name} = nixpkgs.lib.mkIf svcConfig.anubis.enable {
               enable = true;
               user = "anubis-${name}";
-              group = "anubis-${name}";
+              group = name;
               extraFlags = [ "--xff-strip-private=false" ];
               settings = {
                 BIND = "/run/anubis/anubis-${name}/anubis.sock";
