@@ -7,7 +7,7 @@
 }:
 let
   services = foxDenLib.services;
-
+  phpPkg = pkgs.php84;
   svcConfig = config.foxDen.services.darksignsonline;
 in
 {
@@ -28,6 +28,10 @@ in
       (foxDenLib.services.make {
         inherit svcConfig pkgs config;
         name = "phpfpm-darksignsonline";
+      }).config
+      (foxDenLib.services.make {
+        inherit svcConfig pkgs config;
+        name = "tasks-darksignsonline";
       }).config
       (services.http.make {
         inherit svcConfig pkgs config;
@@ -81,7 +85,7 @@ in
         services.phpfpm.pools.darksignsonline = {
           user = "darksignsonline";
           group = "darksignsonline";
-          phpPackage = pkgs.php84;
+          phpPackage = phpPkg;
           settings = {
             "pm" = "dynamic";
             "pm.max_children" = 5;
@@ -110,7 +114,9 @@ in
               "/run/darksignsonline"
             ];
             PrivateUsers = false;
-            ExecStartPre = [ "${pkgs.bash}/bin/bash ${pkgs.darksignsonline-server}/rootfs/bin/configure.sh darksignsonline:darksignsonline" ];
+            ExecStartPre = [
+              "${pkgs.bash}/bin/bash ${pkgs.darksignsonline-server}/rootfs/bin/configure.sh darksignsonline:darksignsonline"
+            ];
             Environment = [
               "DOMAIN=${svcConfig.domain}"
               "HTTP_MODE=${if svcConfig.tls then "https" else "http"}"
@@ -118,6 +124,29 @@ in
               "SMTP_FROM=noreply@${svcConfig.domain}"
             ];
             EnvironmentFile = config.lib.foxDen.sops.mkIfAvailable config.sops.secrets.darksignsonline.path;
+          };
+        };
+
+        systemd.services.tasks-darksignsonline = {
+          after = [ "phpfpm-darksignsonline.service" ];
+          wants = [ "phpfpm-darksignsonline.service" ];
+
+          serviceConfig = {
+            User = "darksignsonline";
+            Group = "darksignsonline";
+            BindReadOnlyPaths = [
+              "/run/darksignsonline"
+            ];
+            Type = "simple";
+            ExecStart = "${phpPkg}/bin/php ${pkgs.darksignsonline-server}/www/api/_tasks.php";
+          };
+        };
+
+        systemd.timers.tasks-darksignsonline = {
+          wantedBy = [ "timers.target" ];
+          timerConfig = {
+            OnCalendar = "hourly";
+            RandomizedDelaySec = "15m";
           };
         };
 
