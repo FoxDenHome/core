@@ -109,7 +109,7 @@ in
               "/run/phpfpm"
             ];
 
-            ExecStartPre = [ "${pkgs.bash}/bin/bash ${pkgs.darksignsonline}/server/rootfs/bin/configure.sh darksignsonline:darksignsonline" ];
+            ExecStartPre = [ "${pkgs.bash}/bin/bash ${pkgs.darksignsonline}/server/rootfs/bin/configure.sh" ];
 
             Environment = [
               "DOMAIN=${svcConfig.domain}"
