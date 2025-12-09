@@ -9,6 +9,7 @@ in
       host = "doridian-website";
       tls = true;
       anubis.enable = true;
+      anubis.default = true;
     };
   };
 
