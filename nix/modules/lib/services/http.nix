@@ -390,6 +390,7 @@ in
           (nixpkgs.lib.mkIf (
             svcConfig.oAuth.enable && (!svcConfig.oAuth.overrideService)
           ) (mkOauthProxy inputs).config)
+          (nixpkgs.lib.mkIf svcConfig.anubis.enable (services.mkNamed "anubis-${name}" inputs))
           {
             environment.etc.${confFileEtc} = {
               text = ''
@@ -505,7 +506,9 @@ in
             };
 
             systemd.services."anubis-${name}" = nixpkgs.lib.mkIf svcConfig.anubis.enable {
-              BindPaths = [ "/run/anubis-${name}" ];
+              serviceConfig = {
+                BindPaths = [ "/run/anubis-${name}" ];
+              };
             };
 
             systemd.services.${name} = {
