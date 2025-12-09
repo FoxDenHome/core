@@ -527,7 +527,7 @@ in
                       }
                     }:/njs/lib/acme.js"
                   ]
-                  (nixpkgs.lib.mkIf svcConfig.anubis.enable "/run/anubis-${name}/anubis.sock:/run/anubis.sock")
+                  (nixpkgs.lib.mkIf svcConfig.anubis.enable ["/run/anubis-${name}/anubis.sock:/run/anubis.sock"])
                 ];
                 ExecStart = "${package}/bin/nginx -g 'daemon off;' -e stderr -c \"\${CREDENTIALS_DIRECTORY}/nginx.conf\"";
               };
