@@ -45,7 +45,7 @@ in
               include ${package}/conf/fastcgi_params;
               fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
               fastcgi_param SCRIPT_NAME $fastcgi_script_name;
-              fastcgi_pass unix:/run/php-fpm.sock;
+              fastcgi_pass unix:${config.services.phpfpm.pools.darksignsonline.socket};
             }
           '';
       }).config
@@ -62,6 +62,10 @@ in
         };
         users.groups.darksignsonline = { };
 
+        systemd.tmpfiles.rules = [
+          "D /run/darksignsonline 0700 darksignsonline darksignsonline"
+        ];
+
         systemd.services.http-darksignsonline = {
           serviceConfig = {
             User = "darksignsonline";
@@ -69,6 +73,7 @@ in
 
             BindReadOnlyPaths = [
               "${pkgs.darksignsonline}/server/www:/var/www"
+              "/run/phpfpm"
             ];
           };
         };
@@ -92,10 +97,6 @@ in
           '';
         };
 
-        systemd.tmpfiles.rules = [
-          "D /run/darksignsonline 0700 darksignsonline darksignsonline"
-        ];
-
         systemd.services.phpfpm-darksignsonline = {
           confinement.packages = with pkgs; [ msmtp ];
           path = with pkgs; [ msmtp ];
@@ -106,6 +107,7 @@ in
             ];
             BindPaths = [
               "/run/darksignsonline"
+              "/run/phpfpm"
             ];
 
             Environment = [
@@ -116,8 +118,6 @@ in
             ];
             EnvironmentFile = config.lib.foxDen.sops.mkIfAvailable config.sops.secrets.darksignsonline.path;
           };
-
-          wantedBy = [ "multi-user.target" ];
         };
 
         foxDen.services.mysql = {
