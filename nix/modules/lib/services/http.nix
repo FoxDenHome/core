@@ -297,7 +297,8 @@ in
           ;
       };
 
-      anubisListener = flags: if svcConfig.anubis.enable then "listen unix:/run/anubis/nginx.sock ${flags};" else "";
+      anubisListener =
+        flags: if svcConfig.anubis.enable then "listen unix:/run/anubis/nginx.sock ${flags};" else "";
 
       proxyConfigNoHost = ''
         proxy_http_version 1.1;
@@ -519,18 +520,15 @@ in
                 LoadCredential = "nginx.conf:${confFilePath}";
                 ExecStartPre = [ "${pkgs.coreutils}/bin/mkdir -p ${storageRoot}/acme" ];
                 BindPaths =
-                  if dynamicUser then
-                    [ ]
-                  else
-                    [ storageRoot ]
-                    ++ (
-                      if svcConfig.anubis.enable then
-                        [
-                          "/run/anubis-${name}/anubis:/run/anubis"
-                        ]
-                      else
-                        [ ]
-                    );
+                  (if dynamicUser then [ ] else [ storageRoot ])
+                  ++ (
+                    if svcConfig.anubis.enable then
+                      [
+                        "/run/anubis-${name}/anubis:/run/anubis"
+                      ]
+                    else
+                      [ ]
+                  );
                 BindReadOnlyPaths = [
                   pkgs.foxden-http-errors.passthru.nginxConf
                   pkgs.foxden-http-errors
