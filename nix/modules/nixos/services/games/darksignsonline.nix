@@ -81,7 +81,7 @@ in
         services.phpfpm.pools.darksignsonline = {
           user = "darksignsonline";
           group = "darksignsonline";
-          phpPackage = pkgs.php;
+          phpPackage = pkgs.php84;
           settings = {
             "pm" = "dynamic";
             "pm.max_children" = 5;
@@ -106,7 +106,6 @@ in
             ];
             BindPaths = [
               "/run/darksignsonline"
-              "/run/phpfpm"
             ];
 
             ExecStartPre = [ "${pkgs.bash}/bin/bash ${pkgs.darksignsonline}/server/rootfs/bin/configure.sh" ];
