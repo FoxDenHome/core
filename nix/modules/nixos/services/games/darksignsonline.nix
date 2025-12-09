@@ -66,6 +66,14 @@ in
         };
         users.groups.darksignsonline = { };
 
+        config.foxDen.services.darksignsonline.http.anubis = {
+          enable = true;
+          routes = [
+            "= /create_account.php"
+            "= /forgot_password.php"
+          ];
+        };
+
         systemd.tmpfiles.rules = [
           "D /run/darksignsonline 0750 root darksignsonline"
         ];
