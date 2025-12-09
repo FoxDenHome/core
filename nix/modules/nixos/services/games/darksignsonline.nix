@@ -142,8 +142,8 @@ in
         systemd.timers.tasks-darksignsonline = {
           wantedBy = [ "timers.target" ];
           timerConfig = {
-            OnCalendar = "hourly";
-            RandomizedDelaySec = "15m";
+            OnCalendar = "*-*-* *:*/15:00";
+            RandomizedDelaySec = "5m";
           };
         };
 
