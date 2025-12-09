@@ -29,10 +29,6 @@ in
         inherit svcConfig pkgs config;
         name = "phpfpm-darksignsonline";
       }).config
-      (foxDenLib.services.make {
-        inherit svcConfig pkgs config;
-        name = "tasks-darksignsonline";
-      }).config
       (services.http.make {
         inherit svcConfig pkgs config;
         dynamicUser = false;
@@ -129,14 +125,15 @@ in
 
         systemd.services.tasks-darksignsonline = {
           after = [ "phpfpm-darksignsonline.service" ];
-          wants = [ "phpfpm-darksignsonline.service" ];
+          requires = [ "phpfpm-darksignsonline.service" ];
+
+          unitConfig = {
+            JoinsNamespaceOf = "phpfpm-darksignsonline.service";
+          };
 
           serviceConfig = {
             User = "darksignsonline";
             Group = "darksignsonline";
-            BindReadOnlyPaths = [
-              "/run/darksignsonline"
-            ];
             Type = "simple";
             ExecStart = "${phpPkg}/bin/php ${pkgs.darksignsonline-server}/www/_tasks.php";
           };
