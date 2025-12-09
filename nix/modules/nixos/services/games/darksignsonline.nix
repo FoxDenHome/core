@@ -124,6 +124,7 @@ in
             {
               databases = [ "darksignsonline" ];
               service = "phpfpm-darksignsonline";
+              user = "darksignsonline";
             }
           ];
         };
