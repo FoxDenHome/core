@@ -22,7 +22,7 @@ let
 
   svcConfig = config.foxDen.services.forgejo;
   hostName = services.getFirstFQDN config svcConfig;
-  proto = if svcConfig.tls then "https" else "http";
+  proto = if svcConfig.tls.enable then "https" else "http";
 
   baseServiceConfig = {
     BindPaths = [ config.services.forgejo.stateDir ];

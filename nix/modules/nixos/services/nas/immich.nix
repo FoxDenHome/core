@@ -10,7 +10,7 @@ let
 
   svcConfig = config.foxDen.services.immich;
   hostName = services.getFirstFQDN config svcConfig;
-  proto = if svcConfig.tls then "https" else "http";
+  proto = if svcConfig.tls.enable then "https" else "http";
 
   clipModelName = "ViT-H-14-378-quickgelu__dfn5b";
   facialRecognitionModelName = "antelopev2";

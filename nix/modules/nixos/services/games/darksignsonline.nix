@@ -127,7 +127,7 @@ in
             ];
             Environment = [
               "DOMAIN=${svcConfig.domain}"
-              "HTTP_MODE=${if svcConfig.tls then "https" else "http"}"
+              "HTTP_MODE=${if svcConfig.tls.enable then "https" else "http"}"
               "TRUSTED_PROXIES=${lib.concatStringsSep " " config.foxDen.services.trustedProxies}"
               "SMTP_FROM=noreply@${svcConfig.domain}"
             ];

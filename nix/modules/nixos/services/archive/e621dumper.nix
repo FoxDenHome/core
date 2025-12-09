@@ -84,7 +84,7 @@ in
             Environment = [
               "\"DOWNLOAD_PATH=${svcConfig.dataDir}\""
               "\"URL_HOST=${hostName}\""
-              (if svcConfig.tls then "URL_PROTOCOL=https" else "URL_PROTOCOL=http")
+              (if svcConfig.tls.enable then "URL_PROTOCOL=https" else "URL_PROTOCOL=http")
               "HOST=127.0.0.1"
               "PORT=8001"
             ];

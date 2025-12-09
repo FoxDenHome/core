@@ -11,7 +11,7 @@ let
   svcConfig = config.foxDen.services.oauth-jit-radius;
 
   hostName = services.getFirstFQDN config svcConfig;
-  proto = if svcConfig.tls then "https" else "http";
+  proto = if svcConfig.tls.enable then "https" else "http";
 
   configObj = {
     matchers = [
