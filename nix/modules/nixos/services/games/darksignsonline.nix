@@ -72,7 +72,7 @@ in
             Group = "darksignsonline";
 
             BindReadOnlyPaths = [
-              "${pkgs.darksignsonline-server}/server/www:/var/www"
+              "${pkgs.darksignsonline-server}/www:/var/www"
               "/run/phpfpm"
             ];
           };
@@ -104,13 +104,13 @@ in
 
           serviceConfig = {
             BindReadOnlyPaths = [
-              "${pkgs.darksignsonline-server}/server/www:/var/www"
+              "${pkgs.darksignsonline-server}/www:/var/www"
             ];
             BindPaths = [
               "/run/darksignsonline"
             ];
             PrivateUsers = false;
-            ExecStartPre = [ "${pkgs.bash}/bin/bash ${pkgs.darksignsonline-server}/server/rootfs/bin/configure.sh darksignsonline:darksignsonline" ];
+            ExecStartPre = [ "${pkgs.bash}/bin/bash ${pkgs.darksignsonline-server}/rootfs/bin/configure.sh darksignsonline:darksignsonline" ];
             Environment = [
               "DOMAIN=${svcConfig.domain}"
               "HTTP_MODE=${if svcConfig.tls then "https" else "http"}"
