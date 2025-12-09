@@ -92,7 +92,7 @@ in
           phpOptions = ''
             display_errors = On
             log_errors = Off
-            sendmail_path = ${pkgs.msmtp}/bin/msmtp -C /tmp/msmtp.conf -t -i
+            sendmail_path = "${pkgs.msmtp}/bin/msmtp -C /tmp/msmtp.conf -t -i"
           '';
         };
 
