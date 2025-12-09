@@ -298,7 +298,7 @@ in
       };
 
       anubisListener =
-        flags: if svcConfig.anubis.enable then "listen unix:/run/anubis/nginx/nginx.sock ${flags};" else "";
+        flags: if svcConfig.anubis.enable then "listen unix:/run/nginx/nginx.sock ${flags};" else "";
 
       proxyConfigNoHost = ''
         proxy_http_version 1.1;
@@ -508,7 +508,15 @@ in
               settings = {
                 BIND = "/run/anubis/anubis-${name}/anubis.sock";
                 METRICS_BIND = "/run/anubis/anubis-${name}/anubis-metrics.sock";
-                TARGET = "unix:/run/anubis/anubis-${name}/nginx/nginx.sock";
+                TARGET = "unix:/run/nginx/${name}/nginx.sock";
+              };
+            };
+
+            systemd.services."anubis-${name}" = nixpkgs.lib.mkIf svcConfig.anubis.enable {
+              serviceConfig = {
+                BindReadOnlyPaths = [
+                  "/run/nginx/${name}"
+                ];
               };
             };
 
@@ -521,21 +529,8 @@ in
                 DynamicUser = dynamicUser;
                 StateDirectory = nixpkgs.lib.strings.removePrefix "/var/lib/" storageRoot;
                 LoadCredential = "nginx.conf:${confFilePath}";
-                ExecStartPre = [
-                  "+${pkgs.coreutils}/bin/mkdir -p /run/anubis/nginx"
-                  "+${pkgs.coreutils}/bin/chown ${name}:${name} /run/anubis/nginx"
-                  "${pkgs.coreutils}/bin/mkdir -p ${storageRoot}/acme"
-                ];
-                BindPaths =
-                  (if dynamicUser then [ ] else [ storageRoot ])
-                  ++ (
-                    if svcConfig.anubis.enable then
-                      [
-                        "/run/anubis/anubis-${name}:/run/anubis"
-                      ]
-                    else
-                      [ ]
-                  );
+                ExecStartPre = [ "${pkgs.coreutils}/bin/mkdir -p ${storageRoot}/acme" ];
+                BindPaths = (if dynamicUser then [ ] else [ storageRoot ]);
                 BindReadOnlyPaths = [
                   pkgs.foxden-http-errors.passthru.nginxConf
                   pkgs.foxden-http-errors
@@ -545,7 +540,16 @@ in
                       hash = "sha256:1aefb709afc2ed81c07fbc5f6ab658782fe99e88569ee868e25d3a6f1e5355cb";
                     }
                   }:/njs/lib/acme.js"
-                ];
+                ]
+                ++ (
+                  if svcConfig.anubis.enable then
+                    [
+                      "/run/anubis/anubis-${name}:/run/anubis"
+                    ]
+                  else
+                    [ ]
+                );
+                RuntimeDirectory = "nginx/${name}";
                 ExecStart = "${package}/bin/nginx -g 'daemon off;' -e stderr -c \"\${CREDENTIALS_DIRECTORY}/nginx.conf\"";
               };
               wantedBy = [ "multi-user.target" ];
