@@ -375,7 +375,6 @@ in
         listen [::]:444;
         http2 on;
 
-
         js_set $dynamic_ssl_cert acme.js_cert;
         js_set $dynamic_ssl_key acme.js_key;
         ssl_certificate data:$dynamic_ssl_cert;
