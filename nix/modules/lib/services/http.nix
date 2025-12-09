@@ -526,15 +526,7 @@ in
               settings = {
                 BIND = "/run/anubis/anubis-${name}/anubis.sock";
                 METRICS_BIND = "/run/anubis/anubis-${name}/anubis-metrics.sock";
-                TARGET = "unix:/run/nginx/${name}/nginx.sock";
-              };
-            };
-
-            systemd.services."anubis-${name}" = nixpkgs.lib.mkIf svcConfig.anubis.enable {
-              serviceConfig = {
-                BindReadOnlyPaths = [
-                  "/run/nginx/${name}"
-                ];
+                TARGET = "unix:/run/anubis/anubis-${name}/nginx.sock";
               };
             };
 
@@ -547,7 +539,10 @@ in
                 DynamicUser = dynamicUser;
                 StateDirectory = nixpkgs.lib.strings.removePrefix "/var/lib/" storageRoot;
                 LoadCredential = "nginx.conf:${confFilePath}";
-                ExecStartPre = [ "${pkgs.coreutils}/bin/mkdir -p ${storageRoot}/acme" ];
+                ExecStartPre = [
+                  "+${pkgs.coreutils}/bin/chmod g+w /run/anubis/anubis-${name}"
+                  "${pkgs.coreutils}/bin/mkdir -p ${storageRoot}/acme"
+                ];
                 BindPaths = (if dynamicUser then [ ] else [ storageRoot ]);
                 BindReadOnlyPaths = [
                   pkgs.foxden-http-errors.passthru.nginxConf
@@ -567,7 +562,6 @@ in
                   else
                     [ ]
                 );
-                RuntimeDirectory = "nginx/${name}";
                 ExecStart = "${package}/bin/nginx -g 'daemon off;' -e stderr -c \"\${CREDENTIALS_DIRECTORY}/nginx.conf\"";
               };
               wantedBy = [ "multi-user.target" ];
