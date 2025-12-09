@@ -288,6 +288,9 @@ in
           '';
 
       anubisConfig = ''
+        allow all;
+        deny unix:;
+
         proxy_pass http://unix:/run/anubis/anubis-${name}/anubis.sock;
 
         proxy_set_header X-Real-Ip $remote_addr;
