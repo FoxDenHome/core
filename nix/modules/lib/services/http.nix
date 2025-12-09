@@ -287,18 +287,28 @@ in
             # Normal /readyz handling disabled
           '';
 
+      anubisConfig = ''
+        proxy_pass http://unix:/run/anubis/anubis-${name}/anubis.sock;
+
+        proxy_set_header X-Real-Ip $remote_addr;
+        proxy_set_header Host $host;
+        proxy_set_header X-Http-Version $server_protocol;
+      '';
+
       configFuncData = {
         inherit
-          package
-          defaultTarget
+          anubisConfig
           baseWebConfig
+          defaultTarget
+          package
           proxyConfig
           proxyConfigNoHost
           ;
       };
 
       anubisListener =
-        flags: if svcConfig.anubis.enable then "listen unix:/run/nginx/${name}/nginx.sock ${flags};" else "";
+        flags:
+        if svcConfig.anubis.enable then "listen unix:/run/nginx/${name}/nginx.sock ${flags};" else "";
 
       proxyConfigNoHost = ''
         proxy_http_version 1.1;
@@ -343,6 +353,10 @@ in
           js_content acme.challengeResponse;
         }
 
+        location /.within.website/ {
+          ${anubisConfig}
+        }
+
         include ${pkgs.foxden-http-errors.passthru.nginxConf};
 
         ${readyzConf readyz}
@@ -371,6 +385,10 @@ in
 
         location /.well-known/acme-challenge/ {
           js_content acme.challengeResponse;
+        }
+
+        location /.within.website/ {
+          ${anubisConfig}
         }
 
         include ${pkgs.foxden-http-errors.passthru.nginxConf};
@@ -544,7 +562,7 @@ in
                 ++ (
                   if svcConfig.anubis.enable then
                     [
-                      "/run/anubis/anubis-${name}:/run/anubis"
+                      "/run/anubis/anubis-${name}"
                     ]
                   else
                     [ ]
