@@ -503,6 +503,7 @@ in
               enable = true;
               user = "anubis-${name}";
               group = "anubis-${name}";
+              extraFlags = [ "--xff-strip-private=false" ];
               settings = {
                 BIND = "/run/anubis/anubis-${name}/anubis.sock";
                 TARGET = "unix:/run/anubis/anubis-${name}/nginx.sock";
