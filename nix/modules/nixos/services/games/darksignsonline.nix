@@ -125,7 +125,7 @@ in
           services = [
             {
               databases = [ "darksignsonline" ];
-              service = "darksignsonline-php";
+              service = "phpfpm-darksignsonline";
             }
           ];
         };
