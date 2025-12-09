@@ -216,6 +216,10 @@ in
       tls = nixpkgs.lib.mkEnableOption "TLS";
       customReadyz = nixpkgs.lib.mkEnableOption "Don't handle /readyz endpoint for custom health checks";
       quic = nixpkgs.lib.mkEnableOption "Enable QUIC (HTTP/3) support";
+      anubis = {
+        enable = nixpkgs.lib.mkEnableOption "Enable Anubis integration for bot protection";
+        default = nixpkgs.lib.mkEnableOption "Enable Anubis by default on all routes";
+      };
       oAuth = {
         enable = nixpkgs.lib.mkEnableOption "OAuth2 support";
         bypassTrusted = nixpkgs.lib.mkEnableOption "Bypass OAuth for trusted VLAN requests";
@@ -489,6 +493,21 @@ in
               quicPort = if svcConfig.quic then 443 else 0;
             };
 
+            systemd.tmpfiles.rules = nixpkgs.lib.mkIf svcConfig.anubis.enable [
+              "d /run/anubis-${name} - - - - -"
+            ];
+
+            services.anubis.instances.${name} = nixpkgs.lib.mkIf svcConfig.anubis.enable {
+              enable = true;
+              user = "anubis-${name}";
+              group = "anubis-${name}";
+              settings.BIND = "/run/anubis-${name}/anubis.sock";
+            };
+
+            systemd.services."anubis-${name}" = nixpkgs.lib.mkIf svcConfig.anubis.enable {
+              BindPaths = [ "/run/anubis-${name}" ];
+            };
+
             systemd.services.${name} = {
               restartTriggers = [ config.environment.etc.${confFileEtc}.text ];
               serviceConfig = {
@@ -497,15 +516,18 @@ in
                 LoadCredential = "nginx.conf:${confFilePath}";
                 ExecStartPre = [ "${pkgs.coreutils}/bin/mkdir -p ${storageRoot}/acme" ];
                 BindPaths = if dynamicUser then [ ] else [ storageRoot ];
-                BindReadOnlyPaths = [
-                  pkgs.foxden-http-errors.passthru.nginxConf
-                  pkgs.foxden-http-errors
-                  "${
-                    pkgs.fetchurl {
-                      url = "https://github.com/nginx/njs-acme/releases/download/v1.0.0/acme.js";
-                      hash = "sha256:1aefb709afc2ed81c07fbc5f6ab658782fe99e88569ee868e25d3a6f1e5355cb";
-                    }
-                  }:/njs/lib/acme.js"
+                BindReadOnlyPaths = nixpkgs.lib.mkMerge [
+                  [
+                    pkgs.foxden-http-errors.passthru.nginxConf
+                    pkgs.foxden-http-errors
+                    "${
+                      pkgs.fetchurl {
+                        url = "https://github.com/nginx/njs-acme/releases/download/v1.0.0/acme.js";
+                        hash = "sha256:1aefb709afc2ed81c07fbc5f6ab658782fe99e88569ee868e25d3a6f1e5355cb";
+                      }
+                    }:/njs/lib/acme.js"
+                  ]
+                  (nixpkgs.lib.mkIf svcConfig.anubis.enable "/run/anubis-${name}/anubis.sock:/run/anubis.sock")
                 ];
                 ExecStart = "${package}/bin/nginx -g 'daemon off;' -e stderr -c \"\${CREDENTIALS_DIRECTORY}/nginx.conf\"";
               };
