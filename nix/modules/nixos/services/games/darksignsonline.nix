@@ -9,6 +9,16 @@ let
   services = foxDenLib.services;
   phpPkg = pkgs.php84;
   svcConfig = config.foxDen.services.darksignsonline;
+
+  bindReadOnlyPaths = lib.mkMerge [
+    [
+      "${pkgs.darksignsonline-server}/www:/var/www"
+    ]
+    (config.lib.foxDen.sops.mkIfAvailable [
+      "${config.sops.secrets.darksignsonline-msmtp.path}:/run/darksignsonline/msmtp.conf"
+      "${config.sops.secrets.darksignsonline-config.path}:/run/darksignsonline/dso-config.php"
+    ])
+  ];
 in
 {
   options.foxDen.services.darksignsonline = {
@@ -54,7 +64,13 @@ in
           '';
       }).config
       {
-        sops.secrets.darksignsonline = config.lib.foxDen.sops.mkIfAvailable {
+        sops.secrets.darksignsonline-config = config.lib.foxDen.sops.mkIfAvailable {
+          mode = "0400";
+          owner = "darksignsonline";
+          group = "darksignsonline";
+        };
+
+        sops.secrets.darksignsonline-msmtp = config.lib.foxDen.sops.mkIfAvailable {
           mode = "0400";
           owner = "darksignsonline";
           group = "darksignsonline";
@@ -73,10 +89,6 @@ in
             "= /forgot_password.php"
           ];
         };
-
-        systemd.tmpfiles.rules = [
-          "D /run/darksignsonline 0750 root darksignsonline"
-        ];
 
         systemd.services.http-darksignsonline = {
           serviceConfig = {
@@ -116,36 +128,19 @@ in
           path = with pkgs; [ msmtp ];
 
           serviceConfig = {
-            BindReadOnlyPaths = [
-              "${pkgs.darksignsonline-server}/www:/var/www"
-            ];
-            BindPaths = [
-              "/run/darksignsonline"
-            ];
+            BindReadOnlyPaths = bindReadOnlyPaths;
             PrivateUsers = false;
-            ExecStartPre = [
-              "${pkgs.bash}/bin/bash ${pkgs.darksignsonline-server}/rootfs/bin/configure.sh darksignsonline:darksignsonline"
-            ];
-            Environment = [
-              "\"SMTP_FROM=noreply@${svcConfig.domain}\""
-            ];
-            EnvironmentFile = config.lib.foxDen.sops.mkIfAvailable config.sops.secrets.darksignsonline.path;
           };
         };
 
         systemd.services.tasks-darksignsonline = {
-          after = [ "phpfpm-darksignsonline.service" ];
-          wants = [ "phpfpm-darksignsonline.service" ];
-
           serviceConfig = {
             User = "darksignsonline";
             Group = "darksignsonline";
-            BindReadOnlyPaths = [
-              "/run/darksignsonline"
-            ];
             Type = "simple";
-            ExecStart = "${phpPkg}/bin/php ${pkgs.darksignsonline-server}/www/_tasks.php";
+            ExecStart = "${phpPkg}/bin/php /var/www/_tasks.php";
             Restart = "no";
+            BindReadOnlyPaths = bindReadOnlyPaths;
           };
         };
 
