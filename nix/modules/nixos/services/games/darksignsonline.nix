@@ -82,12 +82,12 @@ in
             "pm.min_spare_servers" = 1;
             "pm.max_spare_servers" = 3;
           };
-          phpOptions = {
-            "display_errors" = "Off";
-            "error_log" = "/dev/stderr";
-            "log_errors" = "On";
-            "sendmail_path" = "${pkgs.msmtp}/bin/msmtp -C /tmp/msmtp.conf -t -i";
-          };
+          phpOptions = ''
+            display_errors = Off
+            error_log = /dev/stderr
+            log_errors = On
+            sendmail_path = ${pkgs.msmtp}/bin/msmtp -C /tmp/msmtp.conf -t -i
+          '';
         };
 
         systemd.tmpfiles.rules = [
@@ -117,8 +117,6 @@ in
 
           wantedBy = [ "multi-user.target" ];
         };
-
-        foxDen.hosts.hosts.${svcConfig.host}.webservice.enable = true;
 
         foxDen.services.mysql = {
           enable = true;
