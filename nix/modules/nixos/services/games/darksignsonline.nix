@@ -107,7 +107,7 @@ in
             display_errors = Off
             log_errors = On
             error_log = "/dev/stderr"
-            sendmail_path = "${pkgs.msmtp}/bin/msmtp -C /tmp/msmtp.conf -t -i"
+            sendmail_path = "${pkgs.msmtp}/bin/msmtp -C /run/darksignsonline/msmtp.conf -t -i"
           '';
         };
 
