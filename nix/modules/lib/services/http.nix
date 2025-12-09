@@ -355,6 +355,10 @@ in
           js_content acme.challengeResponse;
         }
 
+        location /.within.website/ {
+          ${anubisConfig}
+        }
+
         include ${pkgs.foxden-http-errors.passthru.nginxConf};
 
         ${readyzConf readyz}
@@ -375,6 +379,7 @@ in
         listen [::]:444;
         http2 on;
 
+
         js_set $dynamic_ssl_cert acme.js_cert;
         js_set $dynamic_ssl_key acme.js_key;
         ssl_certificate data:$dynamic_ssl_cert;
@@ -382,6 +387,10 @@ in
 
         location /.well-known/acme-challenge/ {
           js_content acme.challengeResponse;
+        }
+
+        location /.within.website/ {
+          ${anubisConfig}
         }
 
         include ${pkgs.foxden-http-errors.passthru.nginxConf};
@@ -398,9 +407,6 @@ in
             server {
               server_name ${builtins.concatStringsSep " " hostMatchers};
               ${anubisListener ""}
-              location /.within.website/ {
-                ${anubisConfig}
-              }
               include ${pkgs.foxden-http-errors.passthru.nginxConf};
               ${hostConfig}
             }
