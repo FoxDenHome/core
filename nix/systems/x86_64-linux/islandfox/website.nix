@@ -8,8 +8,6 @@ in
       enable = true;
       host = "doridian-website";
       tls = true;
-      anubis.enable = true;
-      anubis.default = true;
     };
   };
 
