@@ -218,6 +218,11 @@ in
       quic = nixpkgs.lib.mkEnableOption "Enable QUIC (HTTP/3) support";
       anubis = {
         enable = nixpkgs.lib.mkEnableOption "Enable Anubis integration for bot protection";
+        routes = nixpkgs.lib.mkOption {
+          type = listOf str;
+          description = "List of route prefixes to protect with Anubis";
+          default = [ ];
+        };
         default = nixpkgs.lib.mkEnableOption "Enable Anubis by default on all routes";
       };
       oAuth = {
@@ -312,6 +317,8 @@ in
           "listen unix:/run/anubis/anubis-${name}/nginx.sock ${flags};"
         else
           "";
+
+      anubisRoutes = if svcConfig.anubis.enable then (svcConfig.anubis.routes ++ [ "/.within.website/" ]) else [];
 
       proxyConfigNoHost = ''
         proxy_http_version 1.1;
@@ -409,9 +416,11 @@ in
         server {
           server_name ${builtins.concatStringsSep " " hostMatchers};
           ${baseWebConfig}
-          location /.within.website/ {
-            ${anubisConfig}
-          }
+          ${nixpkgs.lib.concatStringsSep "\n" (map (route: ''
+            location ${route} {
+              ${anubisConfig}
+            }
+          '') anubisRoutes)}
           ${hostConfig}
         }
         ${anubisNormalConfig}
@@ -456,7 +465,7 @@ in
 
                   ${foxDenLib.nginx.mkProxiesText "  " config}
 
-                  ${inputs.extraHttpConfig or ""}
+                  ${(inputs.extraHttpConfig or (data: "")) configFuncData}
 
                   js_path "/njs/lib/";
                   js_fetch_trusted_certificate /etc/ssl/certs/ca-certificates.crt;
