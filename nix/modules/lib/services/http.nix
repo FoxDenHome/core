@@ -288,9 +288,6 @@ in
           '';
 
       anubisConfig = ''
-        allow all;
-        deny unix:;
-
         proxy_pass http://unix:/run/anubis/anubis-${name}/anubis.sock;
 
         proxy_set_header X-Real-Ip $remote_addr;
@@ -349,7 +346,6 @@ in
         listen [::]:80;
         listen 81;
         listen [::]:81;
-        ${if (!svcConfig.tls) then (anubisListener "") else ""}
 
         location @acmePeriodicAuto {
           js_periodic acme.clientAutoMode interval=1m;
@@ -357,10 +353,6 @@ in
 
         location /.well-known/acme-challenge/ {
           js_content acme.challengeResponse;
-        }
-
-        location /.within.website/ {
-          ${anubisConfig}
         }
 
         include ${pkgs.foxden-http-errors.passthru.nginxConf};
@@ -381,7 +373,6 @@ in
         }
         listen 444;
         listen [::]:444;
-        ${anubisListener ""}
         http2 on;
 
         js_set $dynamic_ssl_cert acme.js_cert;
@@ -393,10 +384,6 @@ in
           js_content acme.challengeResponse;
         }
 
-        location /.within.website/ {
-          ${anubisConfig}
-        }
-
         include ${pkgs.foxden-http-errors.passthru.nginxConf};
 
         ${readyzConf readyz}
@@ -405,12 +392,30 @@ in
       baseWebConfig =
         if svcConfig.tls then baseHttpsConfig useStockReadyz else baseHttpConfig useStockReadyz;
 
+      anubisNormalConfig =
+        if svcConfig.anubis.enable then
+          ''
+            server {
+              server_name ${builtins.concatStringsSep " " hostMatchers};
+              ${anubisListener ""}
+              location /.within.website/ {
+                ${anubisConfig}
+              }
+              include ${pkgs.foxden-http-errors.passthru.nginxConf};
+              ${hostConfig}
+            }
+          ''
+        else
+          "";
+
       normalConfig = ''
         server {
-                server_name ${builtins.concatStringsSep " " hostMatchers};
-                ${baseWebConfig}
-                ${hostConfig}
-              }'';
+          server_name ${builtins.concatStringsSep " " hostMatchers};
+          ${baseWebConfig}
+          ${hostConfig}
+        }
+        ${anubisNormalConfig}
+      '';
     in
     {
       config = (
