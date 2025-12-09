@@ -109,6 +109,8 @@ in
               "/run/phpfpm"
             ];
 
+            ExecStartPre = [ "${pkgs.darksignsonline}/server/rootfs/bin/configure.sh" ];
+
             Environment = [
               "DOMAIN=${svcConfig.domain}"
               "HTTP_MODE=${if svcConfig.tls then "https" else "http"}"
