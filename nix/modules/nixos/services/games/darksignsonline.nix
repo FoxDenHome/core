@@ -139,6 +139,7 @@ in
             ];
             Type = "simple";
             ExecStart = "${phpPkg}/bin/php ${pkgs.darksignsonline-server}/www/_tasks.php";
+            Restart = "no";
           };
         };
 
