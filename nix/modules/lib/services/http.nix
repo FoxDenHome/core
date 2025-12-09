@@ -308,7 +308,10 @@ in
 
       anubisListener =
         flags:
-        if svcConfig.anubis.enable then "listen unix:/run/anubis/anubis-${name}/nginx.sock ${flags};" else "";
+        if svcConfig.anubis.enable then
+          "listen unix:/run/anubis/anubis-${name}/nginx.sock ${flags};"
+        else
+          "";
 
       proxyConfigNoHost = ''
         proxy_http_version 1.1;
@@ -540,9 +543,16 @@ in
                 StateDirectory = nixpkgs.lib.strings.removePrefix "/var/lib/" storageRoot;
                 LoadCredential = "nginx.conf:${confFilePath}";
                 ExecStartPre = [
-                  "+-${pkgs.coreutils}/bin/chmod g+w /run/anubis/anubis-${name}"
                   "${pkgs.coreutils}/bin/mkdir -p ${storageRoot}/acme"
-                ];
+                ]
+                ++ (
+                  if svcConfig.anubis.enable then
+                    [
+                      "+${pkgs.coreutils}/bin/chmod g+w /run/anubis/anubis-${name}"
+                    ]
+                  else
+                    [ ]
+                );
                 BindPaths = (if dynamicUser then [ ] else [ storageRoot ]);
                 BindReadOnlyPaths = [
                   pkgs.foxden-http-errors.passthru.nginxConf
