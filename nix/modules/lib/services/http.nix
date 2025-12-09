@@ -298,7 +298,7 @@ in
       };
 
       anubisListener =
-        flags: if svcConfig.anubis.enable then "listen unix:/run/nginx/nginx.sock ${flags};" else "";
+        flags: if svcConfig.anubis.enable then "listen unix:/run/nginx/${name}/nginx.sock ${flags};" else "";
 
       proxyConfigNoHost = ''
         proxy_http_version 1.1;
