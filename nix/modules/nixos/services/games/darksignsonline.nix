@@ -66,7 +66,7 @@ in
         };
         users.groups.darksignsonline = { };
 
-        foxDen.services.darksignsonline.http.anubis = {
+        foxDen.services.darksignsonline.anubis = {
           enable = true;
           routes = [
             "= /create_account.php"
