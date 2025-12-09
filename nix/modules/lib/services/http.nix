@@ -553,7 +553,16 @@ in
                   else
                     [ ]
                 );
-                BindPaths = (if dynamicUser then [ ] else [ storageRoot ]);
+                BindPaths =
+                  (if dynamicUser then [ ] else [ storageRoot ])
+                  ++ (
+                    if svcConfig.anubis.enable then
+                      [
+                        "/run/anubis/anubis-${name}"
+                      ]
+                    else
+                      [ ]
+                  );
                 BindReadOnlyPaths = [
                   pkgs.foxden-http-errors.passthru.nginxConf
                   pkgs.foxden-http-errors
@@ -563,15 +572,7 @@ in
                       hash = "sha256:1aefb709afc2ed81c07fbc5f6ab658782fe99e88569ee868e25d3a6f1e5355cb";
                     }
                   }:/njs/lib/acme.js"
-                ]
-                ++ (
-                  if svcConfig.anubis.enable then
-                    [
-                      "/run/anubis/anubis-${name}"
-                    ]
-                  else
-                    [ ]
-                );
+                ];
                 ExecStart = "${package}/bin/nginx -g 'daemon off;' -e stderr -c \"\${CREDENTIALS_DIRECTORY}/nginx.conf\"";
               };
               wantedBy = [ "multi-user.target" ];
