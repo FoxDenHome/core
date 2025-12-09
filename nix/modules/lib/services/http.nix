@@ -297,6 +297,8 @@ in
           ;
       };
 
+      anubisListener = if svcConfig.anubis.enable then "unix:/run/anubis/nginx.sock" else "";
+
       proxyConfigNoHost = ''
         proxy_http_version 1.1;
         proxy_request_buffering off;
@@ -330,6 +332,7 @@ in
         listen [::]:80;
         listen 81;
         listen [::]:81;
+        ${anubisListener}
 
         location @acmePeriodicAuto {
           js_periodic acme.clientAutoMode interval=1m;
@@ -357,6 +360,7 @@ in
         }
         listen 444;
         listen [::]:444;
+        ${anubisListener}
         http2 on;
 
         js_set $dynamic_ssl_cert acme.js_cert;
@@ -433,7 +437,8 @@ in
                     listen [::]:80 default_server;
                     listen 81 default_server proxy_protocol;
                     listen [::]:81 default_server proxy_protocol;
-                    
+                    ${anubisListener} default_server;
+
                     include ${pkgs.foxden-http-errors.passthru.nginxConf};
                     return 404;
                   }
@@ -494,21 +499,18 @@ in
               quicPort = if svcConfig.quic then 443 else 0;
             };
 
-            systemd.tmpfiles.rules = nixpkgs.lib.mkIf svcConfig.anubis.enable [
-              "d /run/anubis-${name} - - - - -"
-            ];
-
             services.anubis.instances.${name} = nixpkgs.lib.mkIf svcConfig.anubis.enable {
               enable = true;
               user = "anubis-${name}";
               group = "anubis-${name}";
-              settings.BIND = "/run/anubis-${name}/anubis.sock";
+              settings = {
+                BIND = "/run/anubis/anubis-${name}/anubis.sock";
+                TARGET = "/run/anubis/anubis-${name}/nginx.sock";
+              };
             };
 
             systemd.services."anubis-${name}" = nixpkgs.lib.mkIf svcConfig.anubis.enable {
-              serviceConfig = {
-                BindPaths = [ "/run/anubis-${name}" ];
-              };
+
             };
 
             systemd.services.${name} = {
@@ -518,7 +520,19 @@ in
                 StateDirectory = nixpkgs.lib.strings.removePrefix "/var/lib/" storageRoot;
                 LoadCredential = "nginx.conf:${confFilePath}";
                 ExecStartPre = [ "${pkgs.coreutils}/bin/mkdir -p ${storageRoot}/acme" ];
-                BindPaths = if dynamicUser then [ ] else [ storageRoot ];
+                BindPaths =
+                  if dynamicUser then
+                    [ ]
+                  else
+                    [ storageRoot ]
+                    ++ (
+                      if svcConfig.anubis.enable then
+                        [
+                          "/run/anubis-${name}/anubis:/run/anubis"
+                        ]
+                      else
+                        [ ]
+                    );
                 BindReadOnlyPaths = [
                   pkgs.foxden-http-errors.passthru.nginxConf
                   pkgs.foxden-http-errors
@@ -528,15 +542,7 @@ in
                       hash = "sha256:1aefb709afc2ed81c07fbc5f6ab658782fe99e88569ee868e25d3a6f1e5355cb";
                     }
                   }:/njs/lib/acme.js"
-                ]
-                ++ (
-                  if svcConfig.anubis.enable then
-                    [
-                      "/run/anubis-${name}:/run/anubis:ro"
-                    ]
-                  else
-                    [ ]
-                );
+                ];
                 ExecStart = "${package}/bin/nginx -g 'daemon off;' -e stderr -c \"\${CREDENTIALS_DIRECTORY}/nginx.conf\"";
               };
               wantedBy = [ "multi-user.target" ];
