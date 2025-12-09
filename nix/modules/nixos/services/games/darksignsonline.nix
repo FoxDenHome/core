@@ -29,6 +29,10 @@ in
         inherit svcConfig pkgs config;
         name = "phpfpm-darksignsonline";
       }).config
+      (foxDenLib.services.make {
+        inherit svcConfig pkgs config;
+        name = "tasks-darksignsonline";
+      }).config
       (services.http.make {
         inherit svcConfig pkgs config;
         dynamicUser = false;
