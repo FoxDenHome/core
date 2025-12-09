@@ -557,7 +557,7 @@ in
             services.anubis.instances.${name} = nixpkgs.lib.mkIf svcConfig.anubis.enable {
               enable = true;
               user = "anubis-${name}";
-              group = name;
+              group = config.systemd.services.${name}.serviceConfig.Group;
               extraFlags = [ "--xff-strip-private=false" ];
               settings = {
                 BIND = "/run/anubis/anubis-${name}/anubis.sock";
