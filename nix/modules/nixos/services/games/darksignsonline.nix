@@ -129,15 +129,14 @@ in
 
         systemd.services.tasks-darksignsonline = {
           after = [ "phpfpm-darksignsonline.service" ];
-          requires = [ "phpfpm-darksignsonline.service" ];
-
-          unitConfig = {
-            JoinsNamespaceOf = "phpfpm-darksignsonline.service";
-          };
+          wants = [ "phpfpm-darksignsonline.service" ];
 
           serviceConfig = {
             User = "darksignsonline";
             Group = "darksignsonline";
+            BindReadOnlyPaths = [
+              "/run/darksignsonline"
+            ];
             Type = "simple";
             ExecStart = "${phpPkg}/bin/php ${pkgs.darksignsonline-server}/www/_tasks.php";
           };
@@ -157,6 +156,11 @@ in
             {
               databases = [ "darksignsonline" ];
               service = "phpfpm-darksignsonline";
+              user = "darksignsonline";
+            }
+            {
+              databases = [ "darksignsonline" ];
+              service = "tasks-darksignsonline";
               user = "darksignsonline";
             }
           ];
