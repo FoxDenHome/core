@@ -332,7 +332,7 @@ in
         listen [::]:80;
         listen 81;
         listen [::]:81;
-        ${anubisListener ""}
+        ${if (!svcConfig.tls) then (anubisListener "") else ""}
 
         location @acmePeriodicAuto {
           js_periodic acme.clientAutoMode interval=1m;
