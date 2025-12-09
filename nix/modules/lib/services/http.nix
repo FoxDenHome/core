@@ -506,6 +506,7 @@ in
               extraFlags = [ "--xff-strip-private=false" ];
               settings = {
                 BIND = "/run/anubis/anubis-${name}/anubis.sock";
+                METRICS_BIND = "/run/anubis/anubis-${name}/anubis-metrics.sock";
                 TARGET = "unix:/run/anubis/anubis-${name}/nginx.sock";
               };
             };
