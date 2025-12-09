@@ -25,9 +25,7 @@ in
         name = "doridian-website";
         target = ''
           root /web;
-          location / {
-            index index.htm index.html;
-          }
+          index index.htm index.html;
         '';
       }).config
       {
