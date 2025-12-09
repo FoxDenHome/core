@@ -505,7 +505,7 @@ in
               group = "anubis-${name}";
               settings = {
                 BIND = "/run/anubis/anubis-${name}/anubis.sock";
-                TARGET = "/run/anubis/anubis-${name}/nginx.sock";
+                TARGET = "unix:/run/anubis/anubis-${name}/nginx.sock";
               };
             };
 
