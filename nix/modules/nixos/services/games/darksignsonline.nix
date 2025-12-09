@@ -104,8 +104,9 @@ in
             "listen.group" = "darksignsonline";
           };
           phpOptions = ''
-            display_errors = On
-            log_errors = Off
+            display_errors = Off
+            log_errors = On
+            error_log = "/dev/stderr"
             sendmail_path = "${pkgs.msmtp}/bin/msmtp -C /tmp/msmtp.conf -t -i"
           '';
         };
