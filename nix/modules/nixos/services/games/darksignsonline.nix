@@ -63,7 +63,7 @@ in
         users.groups.darksignsonline = { };
 
         systemd.tmpfiles.rules = [
-          "D /run/darksignsonline 0700 darksignsonline darksignsonline"
+          "D /run/darksignsonline 0750 root darksignsonline"
         ];
 
         systemd.services.http-darksignsonline = {
@@ -109,7 +109,7 @@ in
               "/run/phpfpm"
             ];
 
-            ExecStartPre = [ "${pkgs.bash}/bin/bash ${pkgs.darksignsonline}/server/rootfs/bin/configure.sh" ];
+            ExecStartPre = [ "${pkgs.bash}/bin/bash ${pkgs.darksignsonline}/server/rootfs/bin/configure.sh darksignsonline:darksignsonline" ];
 
             Environment = [
               "DOMAIN=${svcConfig.domain}"
