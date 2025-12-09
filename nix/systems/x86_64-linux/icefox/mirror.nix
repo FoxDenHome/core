@@ -7,7 +7,10 @@ in
     mirror = {
       enable = true;
       host = "mirror";
-      tls = true;
+      tls = {
+        enable = true;
+        hsts = "preload";
+      };
       dataDir = "/mnt/ztank/local/mirror";
       archMirrorId = "csclub.uwaterloo.ca";
       sources.archlinux = {

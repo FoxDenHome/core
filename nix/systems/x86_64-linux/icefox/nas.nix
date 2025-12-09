@@ -36,7 +36,7 @@ in
       enable = true;
       host = "kiwix";
       dataDir = "/mnt/zhdd/kiwix";
-      tls = true;
+      tls.enable = true;
       oAuth = {
         enable = true;
         displayName = "Kiwix Offsite (IceFox)";
@@ -49,7 +49,7 @@ in
       host = "nas";
       enable = true;
       root = "/mnt/ztank/local/nas";
-      tls = true;
+      tls.enable = true;
       oAuth = {
         enable = true;
         displayName = "NAS WebUI Offsite (IceFox)";
@@ -68,7 +68,7 @@ in
       host = "jellyfin";
       enable = true;
       mediaDir = "/mnt/ztank/local/nas";
-      tls = true;
+      tls.enable = true;
     };
   };
 

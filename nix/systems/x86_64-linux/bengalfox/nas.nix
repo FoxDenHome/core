@@ -51,13 +51,13 @@ in
       enable = true;
       host = "jellyfin";
       mediaDir = "/mnt/zhdd/nas";
-      tls = true;
+      tls.enable = true;
     };
     kiwix = {
       enable = true;
       host = "kiwix";
       dataDir = "/mnt/zhdd/kiwix";
-      tls = true;
+      tls.enable = true;
       oAuth = {
         enable = true;
         displayName = "Kiwix Local (BengalFox)";
@@ -70,7 +70,7 @@ in
       host = "nas";
       enable = true;
       root = "/mnt/zhdd/nas";
-      tls = true;
+      tls.enable = true;
       oAuth = {
         enable = true;
         displayName = "NAS WebUI Local (BengalFox)";

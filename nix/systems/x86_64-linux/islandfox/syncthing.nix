@@ -7,7 +7,7 @@ in
     syncthing = {
       enable = true;
       host = "syncthing";
-      tls = true;
+      tls.enable = true;
       syncthingHost = "syncthing.foxden.network";
       webdavHost = "webdav.syncthing.foxden.network";
     };

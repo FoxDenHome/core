@@ -8,7 +8,7 @@ in
       enable = true;
       dataDir = "/mnt/zhdd/e621";
       host = "e621dumper";
-      tls = true;
+      tls.enable = true;
       oAuth = {
         enable = true;
         displayName = "e621Dumper";
@@ -20,7 +20,7 @@ in
       enable = true;
       dataDir = "/mnt/zhdd/furaffinity";
       host = "fadumper";
-      tls = true;
+      tls.enable = true;
       oAuth = {
         enable = true;
         displayName = "FADumper";

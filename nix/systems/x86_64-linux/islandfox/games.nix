@@ -7,28 +7,40 @@ in
     darksignsonline = {
       enable = true;
       domain = "darksignsonline.com";
-      tls = true;
+      tls = {
+        enable = true;
+        hsts = "preload";
+      };
       host = "darksignsonline";
     };
     minecraft = {
       enable = true;
-      tls = true;
+      tls.enable = true;
       host = "minecraft";
     };
     spaceage-api = {
       enable = true;
       host = "spaceage-api";
-      tls = true;
+      tls = {
+        enable = true;
+        hsts = "preload";
+      };
     };
     spaceage-website = {
       enable = true;
       host = "spaceage-website";
-      tls = true;
+      tls = {
+        enable = true;
+        hsts = "preload";
+      };
     };
     spaceage-tts = {
       enable = true;
       host = "spaceage-tts";
-      tls = true;
+      tls = {
+        enable = true;
+        hsts = "preload";
+      };
     };
     spaceage-gmod = {
       enable = true;
@@ -55,7 +67,6 @@ in
       dns = {
         fqdns = [
           "minecraft.foxden.network"
-          "mc.doridian.net"
           "mc.foxden.network"
         ];
         dynDns = true;
@@ -75,7 +86,6 @@ in
     spaceage-gmod = mkVlanHost 3 {
       dns = {
         fqdns = [
-          "spaceage-gmod.foxden.network"
           "gmod.spaceage.mp"
           "play.spaceage.mp"
         ];
@@ -95,7 +105,6 @@ in
     spaceage-api = mkVlanHost 3 {
       dns = {
         fqdns = [
-          "spaceage-api.foxden.network"
           "api.spaceage.mp"
         ];
         dynDns = true;
@@ -109,7 +118,6 @@ in
     spaceage-tts = mkVlanHost 3 {
       dns = {
         fqdns = [
-          "spaceage-tts.foxden.network"
           "tts.spaceage.mp"
         ];
         dynDns = true;

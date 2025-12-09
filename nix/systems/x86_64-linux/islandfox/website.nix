@@ -7,7 +7,10 @@ in
     doridian-website = {
       enable = true;
       host = "doridian-website";
-      tls = true;
+      tls = {
+        enable = true;
+        hsts = "preload";
+      };
     };
   };
 

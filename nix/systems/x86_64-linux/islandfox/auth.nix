@@ -6,13 +6,13 @@ in
   foxDen.services = config.lib.foxDen.sops.mkIfAvailable {
     kanidm.server = {
       enable = true;
-      tls = true;
+      tls.enable = true;
       host = "auth";
     };
     oauth-jit-radius = {
       enable = true;
       host = "radius";
-      tls = true;
+      tls.enable = true;
       oAuth = {
         enable = true;
         clientId = "radius";

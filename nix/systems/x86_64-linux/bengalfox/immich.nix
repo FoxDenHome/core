@@ -7,7 +7,7 @@ in
     immich = {
       enable = true;
       host = "immich";
-      tls = true;
+      tls.enable = true;
       oAuth = {
         enable = true;
         clientId = "immich";

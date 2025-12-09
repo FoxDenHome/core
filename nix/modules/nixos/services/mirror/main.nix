@@ -116,10 +116,6 @@ in
               root /data/cachyos;
 
               location / {
-                add_header X-Content-Type-Options "nosniff" always;
-                add_header X-Frame-Options "DENY" always;
-                add_header Strict-Transport-Security "max-age=31536000; preload; includeSubDomains" always;
-
                 fancyindex on;
                 fancyindex_exact_size off;
                 fancyindex_header "/.theme/header.html";

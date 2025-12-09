@@ -7,7 +7,10 @@ in
     syncthing = {
       enable = true;
       host = "syncthing";
-      tls = true;
+      tls = {
+        enable = true;
+        hsts = "preload";
+      };
       syncthingHost = "syncthing.doridian.net";
       webdavHost = "webdav.syncthing.doridian.net";
     };

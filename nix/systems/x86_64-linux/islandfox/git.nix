@@ -8,7 +8,7 @@ in
     forgejo = {
       enable = true;
       host = "git";
-      tls = true;
+      tls.enable = true;
       oAuth = {
         enable = true;
         clientId = "git";

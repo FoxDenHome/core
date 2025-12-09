@@ -7,7 +7,7 @@ in
     xmpp = {
       enable = true;
       host = "xmpp";
-      tls = true;
+      tls.enable = true;
     };
   };
 

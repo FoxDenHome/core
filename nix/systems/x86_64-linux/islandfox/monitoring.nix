@@ -7,7 +7,7 @@ in
     grafana = {
       enable = true;
       host = "grafana";
-      tls = true;
+      tls.enable = true;
       oAuth = {
         enable = true;
         clientId = "grafana";

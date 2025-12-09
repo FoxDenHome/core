@@ -12,7 +12,7 @@ let
     }:
     let
       host = foxDenLib.hosts.getByName config svcConfig.host;
-      baseUrlPrefix = if svcConfig.tls then "https://" else "http://";
+      baseUrlPrefix = if svcConfig.tls.enable then "https://" else "http://";
       baseUrls = nixpkgs.lib.lists.uniqueStrings (
         nixpkgs.lib.flatten (
           map (iface: (map (dns: "${baseUrlPrefix}${dns}") iface.dns.fqdns)) (
@@ -61,7 +61,7 @@ let
 
       svc = services.mkNamed serviceName inputs;
       cmd = (eSA "${pkgs.oauth2-proxy}/bin/oauth2-proxy");
-      secure = if svcConfig.tls then "true" else "false";
+      secure = if svcConfig.tls.enable then "true" else "false";
 
       configFile = "${svc.configDir}/${name}.conf";
       configFileEtc = nixpkgs.lib.strings.removePrefix "/etc/" configFile;
@@ -213,7 +213,18 @@ in
     inputs@{ ... }:
     with nixpkgs.lib.types;
     {
-      tls = nixpkgs.lib.mkEnableOption "TLS";
+      tls = {
+        enable = nixpkgs.lib.mkEnableOption "Enable TLS for the service";
+        hsts = nixpkgs.lib.mkOption {
+          type = enum [
+            false
+            "preload"
+            "limited"
+          ];
+          default = "limited";
+          description = "Enable HSTS header for TLS connections";
+        };
+      };
       customReadyz = nixpkgs.lib.mkEnableOption "Don't handle /readyz endpoint for custom health checks";
       quic = nixpkgs.lib.mkEnableOption "Enable QUIC (HTTP/3) support";
       anubis = {
@@ -300,11 +311,32 @@ in
         proxy_set_header X-Http-Version $server_protocol;
       '';
 
+      headerConfig = ''
+        add_header X-Content-Type-Options "nosniff" always;
+        add_header X-Frame-Options "DENY" always;
+      ''
+      + (
+        if svcConfig.tls.enable then
+          if svcConfig.tls.hsts == "preload" then
+            ''
+              add_header Strict-Transport-Security "max-age=31536000; preload; includeSubDomains" always;
+            ''
+          else if svcConfig.tls.hsts == "limited" then
+            ''
+              add_header Strict-Transport-Security "max-age=31536000" always;
+            ''
+          else
+            ""
+        else
+          ""
+      );
+
       configFuncData = {
         inherit
           anubisConfig
           baseWebConfig
           defaultTarget
+          headerConfig
           package
           proxyConfig
           proxyConfigNoHost
@@ -363,6 +395,8 @@ in
           js_content acme.challengeResponse;
         }
 
+        ${headerConfig}
+
         include ${pkgs.foxden-http-errors.passthru.nginxConf};
 
         ${readyzConf readyz}
@@ -388,6 +422,8 @@ in
         ssl_certificate data:$dynamic_ssl_cert;
         ssl_certificate_key data:$dynamic_ssl_key;
 
+        ${headerConfig}
+
         location /.well-known/acme-challenge/ {
           js_content acme.challengeResponse;
         }
@@ -398,7 +434,7 @@ in
       '';
       useStockReadyz = !svcConfig.customReadyz;
       baseWebConfig =
-        if svcConfig.tls then baseHttpsConfig useStockReadyz else baseHttpConfig useStockReadyz;
+        if svcConfig.tls.enable then baseHttpsConfig useStockReadyz else baseHttpConfig useStockReadyz;
 
       anubisNormalConfig =
         if svcConfig.anubis.enable then
@@ -499,7 +535,7 @@ in
                   }
 
                   ${
-                    if svcConfig.tls then
+                    if svcConfig.tls.enable then
                       ''
                         js_var $njs_acme_server_names "${builtins.concatStringsSep " " hostMatchers}";
                         js_var $njs_acme_account_email "ssl@foxden.network";

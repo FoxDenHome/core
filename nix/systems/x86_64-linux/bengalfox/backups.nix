@@ -15,7 +15,7 @@ in
       enable = true;
       host = "restic";
       dataDir = "/mnt/zhdd/restic";
-      tls = true;
+      tls.enable = true;
     };
   };
 

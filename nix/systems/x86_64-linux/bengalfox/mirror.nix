@@ -11,7 +11,7 @@ in
     mirror = {
       enable = true;
       host = "mirror";
-      tls = true;
+      tls.enable = true;
       dataDir = "/mnt/zhdd/mirror";
       archMirrorId = "archlinux.doridian.net";
       sources.archlinux = {

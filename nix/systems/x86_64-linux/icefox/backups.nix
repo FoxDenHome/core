@@ -9,7 +9,10 @@ in
       enable = true;
       host = "restic";
       dataDir = "/mnt/ztank/restic";
-      tls = true;
+      tls = {
+        enable = true;
+        hsts = "preload";
+      };
     };
   };
 
