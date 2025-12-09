@@ -133,7 +133,7 @@ in
               user = "grafana";
             };
             security = {
-              cookie_secure = svcConfig.tls;
+              cookie_secure = svcConfig.tls.enable;
               disable_initial_admin_creation = true;
             };
             server = {

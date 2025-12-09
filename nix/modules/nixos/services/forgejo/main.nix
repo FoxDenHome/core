@@ -137,7 +137,7 @@ in
               REPO_INDEXER_ENABLED = true;
             };
             session = {
-              COOKIE_SECURE = svcConfig.tls;
+              COOKIE_SECURE = svcConfig.tls.enable;
             };
             oauth2_client = {
               ENABLE_AUTO_REGISTRATION = true;
