@@ -18,35 +18,34 @@ in
     };
     tls = lib.mkEnableOption "Enable TLS for the service";
   }
-  // services.mkOptions {
+  // services.http.mkOptions {
     svcName = "darksignsonline";
     name = "Dark Signs Online";
   };
 
   config = lib.mkIf svcConfig.enable (
     lib.mkMerge [
-      (foxDenLib.services.oci.make {
-        inherit pkgs config svcConfig;
-        name = "darksignsonline";
-        oci = {
-          image = "ghcr.io/doridian/darksignsonline/server:latest";
-          volumes = [
-            "nginx:/var/lib/nginx"
-            "${config.foxDen.services.mysql.socketPath}:/var/run/mysqld/mysqld.sock:ro"
-          ];
-          environment = {
-            "DOMAIN" = svcConfig.domain;
-            "HTTP_MODE" = if svcConfig.tls then "https" else "http";
-            "TRUSTED_PROXIES" = lib.concatStringsSep " " config.foxDen.services.trustedProxies;
-            "SMTP_FROM" = "noreply@${svcConfig.domain}";
-          };
-          environmentFiles = [
-            (config.lib.foxDen.sops.mkIfAvailable config.sops.secrets.darksignsonline.path)
-          ];
-          extraOptions = [
-            "-e MYSQL_*"
-          ];
-        };
+      (foxDenLib.services.make {
+        inherit svcConfig pkgs config;
+        name = "phpfpm-darksignsonline";
+      }).config
+      (services.http.make {
+        inherit svcConfig pkgs config;
+        dynamicUser = false;
+        name = "http-darksignsonline";
+        target = ''
+          index index.php index.htm index.html;
+        '';
+        extraConfig = { package, ... } : ''
+          root /var/www;
+          location ~ \.php$ {
+            fastcgi_index index.php;
+            include ${package}/conf/fastcgi_params;
+            fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+            fastcgi_param SCRIPT_NAME $fastcgi_script_name;
+            fastcgi_pass unix:/run/php-fpm.sock;
+          }
+        '';
       }).config
       {
         sops.secrets.darksignsonline = config.lib.foxDen.sops.mkIfAvailable {
@@ -55,17 +54,78 @@ in
           group = "darksignsonline";
         };
 
+        users.users.darksignsonline = {
+          isSystemUser = true;
+          group = "darksignsonline";
+        };
+        users.groups.darksignsonline = {};
+
+        systemd.services.http-darksignsonline = {
+          serviceConfig = {
+            User = "darksignsonline";
+            Group = "darksignsonline";
+
+            BindReadOnlyPaths = [
+              "${pkgs.darksignsonline}/server/www:/var/www"
+            ];
+          };
+        };
+
+        services.phpfpm.pools.darksignsonline = {
+          user = "darksignsonline";
+          group = "darksignsonline";
+          phpPackage = pkgs.php;
+          settings = {
+            "pm" = "dynamic";
+            "pm.max_children" = 5;
+            "pm.start_servers" = 2;
+            "pm.min_spare_servers" = 1;
+            "pm.max_spare_servers" = 3;
+          };
+          phpOptions = {
+            "display_errors" = "Off";
+            "error_log" = "/dev/stderr";
+            "log_errors" = "On";
+            "sendmail_path" = "${pkgs.msmtp}/bin/msmtp -C /tmp/msmtp.conf -t -i";
+          };
+        };
+
+        systemd.tmpfiles.rules = [
+          "D /run/darksignsonline 0700 darksignsonline darksignsonline"
+        ];
+
+        systemd.services.phpfpm-darksignsonline = {
+          confinement.packages = with pkgs; [ msmtp ];
+          path = with pkgs; [ msmtp ];
+
+          serviceConfig = {
+            BindReadOnlyPaths = [
+              "${pkgs.darksignsonline}/server/www:/var/www"
+            ];
+            BindPaths = [
+              "/run/darksignsonline"
+            ];
+
+            Environment = [
+              "DOMAIN=${svcConfig.domain}"
+              "HTTP_MODE=${if svcConfig.tls then "https" else "http"}"
+              "TRUSTED_PROXIES=${lib.concatStringsSep " " config.foxDen.services.trustedProxies}"
+              "SMTP_FROM=noreply@${svcConfig.domain}"
+            ];
+            EnvironmentFile = config.lib.foxDen.sops.mkIfAvailable config.sops.secrets.darksignsonline.path;
+          };
+
+          wantedBy = [ "multi-user.target" ];
+        };
+
         foxDen.hosts.hosts.${svcConfig.host}.webservice.enable = true;
 
         foxDen.services.mysql = {
           enable = true;
           services = [
             {
-              databases = [
-                "darksignsonline"
-              ];
-              proxy = true; # TODO: We need to crack the Docker shell for this one...
-              service = "podman-darksignsonline";
+              databases = [ "darksignsonline" ];
+              service = "darksignsonline-php";
             }
           ];
         };
