@@ -390,7 +390,7 @@ in
           (nixpkgs.lib.mkIf (
             svcConfig.oAuth.enable && (!svcConfig.oAuth.overrideService)
           ) (mkOauthProxy inputs).config)
-          (nixpkgs.lib.mkIf svcConfig.anubis.enable (services.mkNamed "anubis-${name}" inputs))
+          (nixpkgs.lib.mkIf svcConfig.anubis.enable (services.mkNamed "anubis-${name}" inputs).config)
           {
             environment.etc.${confFileEtc} = {
               text = ''
