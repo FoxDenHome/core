@@ -318,7 +318,8 @@ in
         else
           "";
 
-      anubisRoutes = if svcConfig.anubis.enable then (svcConfig.anubis.routes ++ [ "/.within.website/" ]) else [];
+      anubisRoutes =
+        if svcConfig.anubis.enable then (svcConfig.anubis.routes ++ [ "/.within.website/" ]) else [ ];
 
       proxyConfigNoHost = ''
         proxy_http_version 1.1;
@@ -412,19 +413,34 @@ in
         else
           "";
 
-      normalConfig = ''
-        server {
-          server_name ${builtins.concatStringsSep " " hostMatchers};
-          ${baseWebConfig}
-          ${nixpkgs.lib.concatStringsSep "\n" (map (route: ''
-            location ${route} {
-              ${anubisConfig}
+      normalConfig =
+        if svcConfig.anubis.default && svcConfig.anubis.enable then
+          ''
+            server {
+              server_name ${builtins.concatStringsSep " " hostMatchers};
+              ${baseWebConfig}
+              location / {
+                ${anubisConfig}
+              }
             }
-          '') anubisRoutes)}
-          ${hostConfig}
-        }
-        ${anubisNormalConfig}
-      '';
+            ${anubisNormalConfig}
+          ''
+        else
+          ''
+            server {
+              server_name ${builtins.concatStringsSep " " hostMatchers};
+              ${baseWebConfig}
+              ${nixpkgs.lib.concatStringsSep "\n" (
+                map (route: ''
+                  location ${route} {
+                    ${anubisConfig}
+                  }
+                '') anubisRoutes
+              )}
+              ${hostConfig}
+            }
+            ${anubisNormalConfig}
+          '';
     in
     {
       config = (
