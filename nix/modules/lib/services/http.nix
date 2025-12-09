@@ -511,14 +511,6 @@ in
               };
             };
 
-            systemd.services."anubis-${name}" = nixpkgs.lib.mkIf svcConfig.anubis.enable {
-              serviceConfig = {
-                DynamicUser = dynamicUser;
-                User = config.systemd.services.${name}.serviceConfig.User;
-                Group = config.systemd.services.${name}.serviceConfig.Group;
-              };
-            };
-
             systemd.services.${name} = {
               restartTriggers = [ config.environment.etc.${confFileEtc}.text ];
               serviceConfig = {
