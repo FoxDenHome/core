@@ -18,47 +18,21 @@ let
           type = listOf str;
           description = "List of databases to ensure exist for this user";
         };
-        proxy = lib.mkEnableOption "Enable MySQL proxy for 127.0.0.1 access"; # TODO: Make this obsolete
         service = lib.mkOption {
           type = str;
           description = "Name of the systemd service needing to connect";
         };
+        user = lib.mkOption {
+          type = nullOr str;
+          description = "User the service runs as";
+          default = null;
+        };
       };
     };
 
-  mkProxyTo = (
-    clientSvc:
-    if clientSvc.proxy then
-      (lib.mkMerge [
-        (services.make {
-          name = "mysql-${clientSvc.service}";
-          overrideHost = config.foxDen.services.${lib.strings.removePrefix "podman-" clientSvc.service}.host;
-          inherit svcConfig pkgs config;
-        }).config.systemd.services
-        {
-          "mysql-${clientSvc.service}" =
-            let
-              svcConfig = config.systemd.services.${clientSvc.service}.serviceConfig;
-            in
-            {
-              wantedBy = [ "multi-user.target" ];
-
-              serviceConfig = {
-                User = svcConfig.User;
-                Group = lib.mkIf (builtins.hasAttr "Group" svcConfig) svcConfig.Group;
-                Type = "simple";
-                ExecStart = [
-                  "${pkgs.socat}/bin/socat TCP-LISTEN:3306,bind=127.0.0.1,reuseaddr,fork UNIX-CLIENT:${config.foxDen.services.mysql.socketPath}"
-                ];
-              };
-            };
-        }
-      ])
-    else
-      { }
-  );
-
-  mkSvcUser = svc: config.systemd.services.${svc.service}.serviceConfig.User;
+  mkSvcUser =
+    svc:
+    if svc.user != null then svc.user else config.systemd.services.${svc.service}.serviceConfig.User;
 in
 {
   options.foxDen.services.mysql =
@@ -143,7 +117,7 @@ in
       {
         systemd.services = lib.attrsets.listToAttrs (
           map (mySvc: {
-            name = if mySvc.proxy then "mysql-${mySvc.service}" else mySvc.service;
+            name = mySvc.service;
             value = {
               requires = [ "mysql.service" ];
               after = [ "mysql.service" ];
@@ -153,41 +127,13 @@ in
                 ];
                 Environment = [
                   "MYSQL_SOCKET=${config.foxDen.services.mysql.socketPath}"
+                  "MYSQL_DATABASE=${builtins.head mySvc.databases}"
+                  "MYSQL_USERNAME=${mkSvcUser mySvc}"
                 ];
               };
             };
           }) svcConfig.services
         );
-      }
-      {
-        systemd.services = lib.attrsets.listToAttrs (
-          map (mySvc: {
-            name = mySvc.service;
-            value = rec {
-              requires = if mySvc.proxy then [ "mysql-${mySvc.service}.service" ] else [ ];
-              after = requires;
-              serviceConfig = {
-                Environment = [
-                  "MYSQL_DATABASE=${builtins.head mySvc.databases}"
-                  "MYSQL_USERNAME=${mkSvcUser mySvc}"
-                ]
-                ++ (
-                  if mySvc.proxy then
-                    [
-                      "MYSQL_HOST=127.0.0.1"
-                      "MYSQL_PORT=3306"
-                      "MYSQL_PASSWORD="
-                    ]
-                  else
-                    [ ]
-                );
-              };
-            };
-          }) svcConfig.services
-        );
-      }
-      {
-        systemd.services = lib.mkMerge (map mkProxyTo svcConfig.services);
       }
     ]
   );

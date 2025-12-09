@@ -36,16 +36,18 @@ in
         target = ''
           index index.php index.htm index.html;
         '';
-        extraConfig = { package, ... } : ''
-          root /var/www;
-          location ~ \.php$ {
-            fastcgi_index index.php;
-            include ${package}/conf/fastcgi_params;
-            fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
-            fastcgi_param SCRIPT_NAME $fastcgi_script_name;
-            fastcgi_pass unix:/run/php-fpm.sock;
-          }
-        '';
+        extraConfig =
+          { package, ... }:
+          ''
+            root /var/www;
+            location ~ \.php$ {
+              fastcgi_index index.php;
+              include ${package}/conf/fastcgi_params;
+              fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+              fastcgi_param SCRIPT_NAME $fastcgi_script_name;
+              fastcgi_pass unix:/run/php-fpm.sock;
+            }
+          '';
       }).config
       {
         sops.secrets.darksignsonline = config.lib.foxDen.sops.mkIfAvailable {
@@ -58,7 +60,7 @@ in
           isSystemUser = true;
           group = "darksignsonline";
         };
-        users.groups.darksignsonline = {};
+        users.groups.darksignsonline = { };
 
         systemd.services.http-darksignsonline = {
           serviceConfig = {
