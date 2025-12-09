@@ -355,10 +355,6 @@ in
           js_content acme.challengeResponse;
         }
 
-        location /.within.website/ {
-          ${anubisConfig}
-        }
-
         include ${pkgs.foxden-http-errors.passthru.nginxConf};
 
         ${readyzConf readyz}
@@ -389,10 +385,6 @@ in
           js_content acme.challengeResponse;
         }
 
-        location /.within.website/ {
-          ${anubisConfig}
-        }
-
         include ${pkgs.foxden-http-errors.passthru.nginxConf};
 
         ${readyzConf readyz}
@@ -418,6 +410,9 @@ in
         server {
           server_name ${builtins.concatStringsSep " " hostMatchers};
           ${baseWebConfig}
+          location /.within.website/ {
+            ${anubisConfig}
+          }
           ${hostConfig}
         }
         ${anubisNormalConfig}
