@@ -107,9 +107,8 @@ in
             BindPaths = [
               "/run/darksignsonline"
             ];
-
-            ExecStartPre = [ "${pkgs.bash}/bin/bash ${pkgs.darksignsonline}/server/rootfs/bin/configure.sh" ];
-
+            PrivateUsers = false;
+            ExecStartPre = [ "${pkgs.bash}/bin/bash ${pkgs.darksignsonline}/server/rootfs/bin/configure.sh darksignsonline:darksignsonline" ];
             Environment = [
               "DOMAIN=${svcConfig.domain}"
               "HTTP_MODE=${if svcConfig.tls then "https" else "http"}"
