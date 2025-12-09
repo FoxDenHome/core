@@ -127,9 +127,6 @@ in
               "${pkgs.bash}/bin/bash ${pkgs.darksignsonline-server}/rootfs/bin/configure.sh darksignsonline:darksignsonline"
             ];
             Environment = [
-              "\"DOMAIN=${svcConfig.domain}\""
-              "HTTP_MODE=${if svcConfig.tls.enable then "https" else "http"}"
-              "\"TRUSTED_PROXIES=${lib.concatStringsSep " " config.foxDen.services.trustedProxies}\""
               "\"SMTP_FROM=noreply@${svcConfig.domain}\""
             ];
             EnvironmentFile = config.lib.foxDen.sops.mkIfAvailable config.sops.secrets.darksignsonline.path;
