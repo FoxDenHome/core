@@ -524,7 +524,7 @@ in
                   ++ (
                     if svcConfig.anubis.enable then
                       [
-                        "/run/anubis-${name}/anubis:/run/anubis"
+                        "/run/anubis/anubis-${name}:/run/anubis"
                       ]
                     else
                       [ ]
