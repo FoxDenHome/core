@@ -7,6 +7,7 @@ from configure.dhcp import refresh_dhcp
 from configure.firewall import refresh_firewall
 from configure.scripts import refresh_scripts
 from configure.vrrp import refresh_vrrp
+from configure.tftp import refresh_tftp
 from configure.util import ROUTERS
 from contextlib import contextmanager
 
@@ -39,6 +40,8 @@ def main():
         refresh_firewall()
         print("# VRRP configuration")
         refresh_vrrp()
+        print("# TFTP configuration")
+        refresh_tftp()
         # This must remain last as previous steps may create scripts that need to be deployed
         print("# Scripts")
         refresh_scripts()
