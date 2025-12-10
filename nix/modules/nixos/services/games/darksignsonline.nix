@@ -107,10 +107,13 @@ in
             "pm.max_spare_servers" = 3;
             "listen.owner" = "darksignsonline";
             "listen.group" = "darksignsonline";
+            "catch_workers_output" = "yes";
+            "decorate_workers_output" = "no";
           };
           phpOptions = ''
             display_errors = Off
             log_errors = On
+            fastcgi.logging = Off
             error_log = "/dev/stderr"
             sendmail_path = "${pkgs.msmtp}/bin/msmtp -C /run/darksignsonline/msmtp.conf -t -i"
           '';
