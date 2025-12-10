@@ -12,7 +12,7 @@ let
 
   bindReadOnlyPaths = lib.mkMerge [
     [
-      "${pkgs.darksignsonline-server}/www:/var/www"
+      "${pkgs.darksignsonline-server}/var/www/darksignsonline:/var/www/darksignsonline"
     ]
     (config.lib.foxDen.sops.mkIfAvailable [
       "${config.sops.secrets.darksignsonline-config.path}:/run/darksignsonline/dso-config.php"
@@ -52,7 +52,7 @@ in
         extraConfig =
           { package, ... }:
           ''
-            root /var/www;
+            root /var/www/darksignsonline;
             location ~ \.php$ {
               fastcgi_index index.php;
               include ${package}/conf/fastcgi_params;
@@ -89,7 +89,7 @@ in
             Group = "darksignsonline";
 
             BindReadOnlyPaths = [
-              "${pkgs.darksignsonline-server}/www:/var/www"
+              "${pkgs.darksignsonline-server}/var/www/darksignsonline:/var/www/darksignsonline"
               "/run/phpfpm"
             ];
           };
@@ -127,7 +127,7 @@ in
             User = "darksignsonline";
             Group = "darksignsonline";
             Type = "simple";
-            ExecStart = "${phpPkg}/bin/php /var/www/_tasks.php";
+            ExecStart = "${phpPkg}/bin/php /var/www/darksignsonline/_tasks.php";
             Restart = "no";
             BindReadOnlyPaths = bindReadOnlyPaths;
           };
