@@ -114,7 +114,6 @@ in
             display_errors = Off
             log_errors = On
             fastcgi.logging = Off
-            sendmail_path = "${pkgs.msmtp}/bin/msmtp -C /run/darksignsonline/msmtp.conf -t -i"
           '';
         };
 
