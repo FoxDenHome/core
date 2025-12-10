@@ -96,7 +96,6 @@ in
         };
 
         services.phpfpm.settings = {
-          "error_log" = lib.mkForce "/proc/self/fd/2";
           "log_buffering" = "no";
           "log_level" = "error";
         };
