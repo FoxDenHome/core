@@ -1,0 +1,7 @@
+#!ipxe
+
+echo Press Ctrl+C to inerrupt boot.netboot.xyz boot
+sleep 3 || shell
+
+ifopen
+chain --autofree https://boot.netboot.xyz/
