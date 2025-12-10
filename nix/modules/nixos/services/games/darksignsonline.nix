@@ -118,9 +118,6 @@ in
         };
 
         systemd.services.phpfpm-darksignsonline = {
-          confinement.packages = with pkgs; [ msmtp ];
-          path = with pkgs; [ msmtp ];
-
           serviceConfig = {
             BindReadOnlyPaths = bindReadOnlyPaths;
             PrivateUsers = false;
