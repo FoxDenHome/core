@@ -95,6 +95,12 @@ in
           };
         };
 
+        services.phpfpm.settings = {
+          "error_log" = lib.mkForce "/proc/self/fd/2";
+          "log_buffering" = "no";
+          "log_level" = "error";
+        };
+
         services.phpfpm.pools.darksignsonline = {
           user = "darksignsonline";
           group = "darksignsonline";
@@ -113,6 +119,7 @@ in
           phpOptions = ''
             display_errors = Off
             log_errors = On
+            error_log = /proc/self/fd/1
             fastcgi.logging = Off
           '';
         };
