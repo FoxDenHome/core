@@ -15,7 +15,6 @@ let
       "${pkgs.darksignsonline-server}/www:/var/www"
     ]
     (config.lib.foxDen.sops.mkIfAvailable [
-      "${config.sops.secrets.darksignsonline-msmtp.path}:/run/darksignsonline/msmtp.conf"
       "${config.sops.secrets.darksignsonline-config.path}:/run/darksignsonline/dso-config.php"
     ])
   ];
@@ -65,12 +64,6 @@ in
       }).config
       {
         sops.secrets.darksignsonline-config = config.lib.foxDen.sops.mkIfAvailable {
-          mode = "0400";
-          owner = "darksignsonline";
-          group = "darksignsonline";
-        };
-
-        sops.secrets.darksignsonline-msmtp = config.lib.foxDen.sops.mkIfAvailable {
           mode = "0400";
           owner = "darksignsonline";
           group = "darksignsonline";
