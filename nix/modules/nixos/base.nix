@@ -26,6 +26,9 @@
   ];
 
   boot.kernelModules = [
+    "igb"
+    "ixgbe"
+    "i40e"
     "mlx5_core"
     "mlx5_en"
     "mlx4_core"
