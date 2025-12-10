@@ -27,6 +27,8 @@
   boot.kernelModules = [
     "kvm-intel"
     "rdma_cm"
+    "mlx5_core"
+    "mlx5_en"
   ];
   boot.extraModulePackages = [ ];
 

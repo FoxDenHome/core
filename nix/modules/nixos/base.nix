@@ -25,16 +25,6 @@
     "ext4"
   ];
 
-  boot.kernelModules = [
-    "igb"
-    "ixgbe"
-    "i40e"
-    "mlx5_core"
-    "mlx5_en"
-    "mlx4_core"
-    "mlx4_en"
-  ];
-
   services.timesyncd.servers = lib.mkDefault [ "ntp.foxden.network" ];
   time.timeZone = "America/Los_Angeles";
   i18n.defaultLocale = "C.UTF-8";

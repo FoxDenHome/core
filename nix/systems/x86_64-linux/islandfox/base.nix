@@ -19,7 +19,10 @@
     "usb_storage"
   ];
   boot.initrd.kernelModules = [ ];
-  boot.kernelModules = [ "kvm-amd" "r8169" ];
+  boot.kernelModules = [
+    "kvm-amd"
+    "r8169"
+  ];
   boot.extraModulePackages = [ ];
 
   services.xserver.videoDrivers = [ "amdgpu" ];
