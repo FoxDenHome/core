@@ -119,7 +119,6 @@ in
           phpOptions = ''
             display_errors = Off
             log_errors = On
-            error_log = /proc/self/fd/1
             fastcgi.logging = Off
           '';
         };
