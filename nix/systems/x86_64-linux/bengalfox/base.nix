@@ -1,4 +1,4 @@
-{ config, ... }:
+{ config, pkgs, ... }:
 {
   # These are set when you reinstall the system
   # Change them to "false" for first boot, before secrets exist
@@ -31,6 +31,10 @@
   boot.extraModulePackages = [ ];
 
   foxDen.nvidia.enable = true;
+
+  environment.systemPackages = with pkgs; [
+    mstflint
+  ];
 
   boot.swraid = {
     enable = true;
