@@ -15,7 +15,7 @@ let
       "${pkgs.darksignsonline-server}/var/www/darksignsonline:/var/www/darksignsonline"
     ]
     (config.lib.foxDen.sops.mkIfAvailable [
-      "${config.sops.secrets.darksignsonline-config.path}:/run/darksignsonline/dso-config.php"
+      "${config.sops.secrets.darksignsonline.path}:/run/darksignsonline/dso-config.php"
     ])
   ];
 in
@@ -63,7 +63,7 @@ in
           '';
       }).config
       {
-        sops.secrets.darksignsonline-config = config.lib.foxDen.sops.mkIfAvailable {
+        sops.secrets.darksignsonline = config.lib.foxDen.sops.mkIfAvailable {
           mode = "0400";
           owner = "darksignsonline";
           group = "darksignsonline";
