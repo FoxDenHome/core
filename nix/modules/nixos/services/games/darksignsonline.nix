@@ -110,11 +110,15 @@ in
             "catch_workers_output" = "yes";
             "decorate_workers_output" = "no";
           };
+          extraConfig = ''
+            error_log = /proc/self/fd/2
+            log_buffering = no
+            log_level = error
+          '';
           phpOptions = ''
             display_errors = Off
             log_errors = On
             fastcgi.logging = Off
-            error_log = "/dev/stderr"
             sendmail_path = "${pkgs.msmtp}/bin/msmtp -C /run/darksignsonline/msmtp.conf -t -i"
           '';
         };
