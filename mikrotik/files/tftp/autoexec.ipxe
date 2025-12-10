@@ -1,7 +1,5 @@
 #!ipxe
-
-echo Press Ctrl+C to inerrupt boot.netboot.xyz boot
-sleep 3 || shell
+prompt --key 0x02 --timeout 2000 Press Ctrl-B for the iPXE command line... && shell ||
 
 ifopen
 chain --autofree https://boot.netboot.xyz/
