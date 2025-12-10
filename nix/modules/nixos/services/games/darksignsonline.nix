@@ -95,11 +95,6 @@ in
           };
         };
 
-        services.phpfpm.settings = {
-          "log_buffering" = "no";
-          "log_level" = "error";
-        };
-
         services.phpfpm.pools.darksignsonline = {
           user = "darksignsonline";
           group = "darksignsonline";
@@ -112,12 +107,10 @@ in
             "pm.max_spare_servers" = 3;
             "listen.owner" = "darksignsonline";
             "listen.group" = "darksignsonline";
-            "catch_workers_output" = "yes";
-            "decorate_workers_output" = "no";
           };
           phpOptions = ''
-            display_errors = Off
-            log_errors = On
+            display_errors = On
+            log_errors = Off
             fastcgi.logging = Off
           '';
         };
