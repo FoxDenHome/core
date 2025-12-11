@@ -21,10 +21,8 @@
     environment.shells = [
       "/usr/bin/fish"
       "/usr/bin/zsh"
-      "/usr/bin/bash"
     ];
     systemd.tmpfiles.rules = [
-      "L /usr/bin/bash - - - - /run/current-system/sw/bin/bash"
       "L /usr/bin/fish - - - - /run/current-system/sw/bin/fish"
       "L /usr/bin/zsh - - - - /run/current-system/sw/bin/zsh"
     ];
