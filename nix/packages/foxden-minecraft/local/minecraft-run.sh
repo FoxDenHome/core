@@ -479,12 +479,6 @@ case ${MODLOADER} in
     crashServer "Incorrect modloader specified: ${MODLOADER}"
 esac
 
-if [ -f new-server.txt ]; then
-  echo 'Install only mode'
-  rm -f new-server.txt
-  exit 0
-fi
-
 echo ""
 echo "Starting server..."
 echo "Minecraft version:              ${MINECRAFT_VERSION}"

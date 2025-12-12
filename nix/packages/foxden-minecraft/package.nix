@@ -26,19 +26,20 @@ let
         curl --insecure -gfsSL $DOWNLOAD_URL -o $out
       '';
     };
-in
-pkgs.stdenvNoCC.mkDerivation {
-  name = "foxden-minecraft";
-  version = "1.0.0";
 
-  # TODO: Only do the delete-all when this changes, not on any change
-  modpack = pkgs.fetchzip {
+  modpack = {
     # https://www.curseforge.com/minecraft/modpacks/aoc/files/7304262
     url = "https://mediafilez.forgecdn.net/files/7304/262/All_of_Create_6.0_v2.2_serverpack.zip";
     name = "server";
     stripRoot = false;
     hash = "sha256-w7LgprblDG5TN9bNp9QERX9wYdeNfuBc/iP3ToO+UUY=";
   };
+in
+pkgs.stdenvNoCC.mkDerivation {
+  name = "foxden-minecraft";
+  version = "1.0.0";
+
+  modpack = pkgs.fetchzip modpack;
 
   # For renovating this:
   # https://docs.jsonata.org/higher-order-functions#map
@@ -122,6 +123,7 @@ pkgs.stdenvNoCC.mkDerivation {
     cp -nr ./modpack/* "$out/server/"
 
     echo 'export "JAVA=${pkgs.corretto21}/bin/java"' > "$out/server/minecraft-env.sh"
+    echo '${modpack.url} ${modpack.hash}' > "$out/server/minecraft-modpack.id"
 
     find "$out/server" -type d -exec chmod 500 {} +
   '';

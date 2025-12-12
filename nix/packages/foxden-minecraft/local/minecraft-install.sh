@@ -1,9 +1,8 @@
 #!/usr/bin/env bash
 set -xeuo pipefail
 
-INSTALL_SCRIPT="$0"
-
-VERSION_FILE="${SERVER_DIR}/nix-version.txt"
+LATEST_VERSION_FILE=/server/minecraft-modpack.id
+INSTALLED_VERSION_FILE="${SERVER_DIR}/minecraft-modpack.id"
 
 run_update() {
   cd "${SERVER_DIR}"
@@ -18,7 +17,6 @@ run_update() {
   find -type f -not -path './bluemap/*' -not -path './world/*' -exec chmod 600 {} \; || true
   chmod 700 ./*.sh
 
-  echo "${INSTALL_SCRIPT}" > "${VERSION_FILE}"
   exit 0
 }
 
@@ -26,12 +24,13 @@ if [ ! -f "${VERSION_FILE}" ]; then
   echo "No version file found, assuming fresh install"
   run_update
 else
-  CURRENT_VERSION=$(cat "${VERSION_FILE}")
-  if [ "${CURRENT_VERSION}" != "${INSTALL_SCRIPT}" ]; then
-    echo "Version mismatch (current: ${CURRENT_VERSION}, expected: ${INSTALL_SCRIPT}), reinstalling"
+  INSTALLED_VERSION="$(cat "${INSTALLED_VERSION_FILE}" || echo none)"
+  LATEST_VERSION="$(cat "${LATEST_VERSION_FILE}")"
+  if [ "${INSTALLED_VERSION}" != "${LATEST_VERSION}" ]; then
+    echo "Version mismatch (current: ${INSTALLED_VERSION}, expected: ${LATEST_VERSION}), reinstalling"
     run_update
   else
-    echo "Version matches (${CURRENT_VERSION}), no reinstall needed"
+    echo "Version matches (${INSTALLED_VERSION}), no reinstall needed"
     exit 0
   fi
 fi
