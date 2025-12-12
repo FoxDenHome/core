@@ -265,11 +265,11 @@ in
                       "CHALLENGE"
                     ];
                     challenge = {
-                      difficulty = nixpkgs.lib.mkOptions {
+                      difficulty = nixpkgs.lib.mkOption {
                         type = nullOr int;
                         default = null;
                       };
-                      algorithm = nixpkgs.lib.mkOptions {
+                      algorithm = nixpkgs.lib.mkOption {
                         type = nullOr (enum [
                           "slow"
                           "fast"
