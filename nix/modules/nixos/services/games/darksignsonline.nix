@@ -84,8 +84,8 @@ in
                 path_regex = ".*";
                 action = "CHALLENGE";
                 challenge = {
-                  algorithm = "slow";
-                  difficulty = 4;
+                  algorithm = "fast";
+                  difficulty = 6;
                 };
               }
             ];
