@@ -304,7 +304,7 @@ in
           '';
 
       anubisConfig = ''
-        proxy_pass http://unix:/run/anubis/anubis-${name}/anubis.sock;
+        proxy_pass http://127.0.0.1:9899;
 
         proxy_set_header X-Real-Ip $remote_addr;
         proxy_set_header Host $host;
@@ -343,12 +343,7 @@ in
           ;
       };
 
-      anubisListener =
-        flags:
-        if svcConfig.anubis.enable then
-          "listen unix:/run/anubis/anubis-${name}/nginx.sock ${flags};"
-        else
-          "";
+      anubisListener = flags: if svcConfig.anubis.enable then "listen 127.0.0.1:9898 ${flags};" else "";
 
       anubisRoutes =
         if svcConfig.anubis.enable then (svcConfig.anubis.routes ++ [ "/.within.website/" ]) else [ ];
@@ -443,6 +438,8 @@ in
               server_name ${builtins.concatStringsSep " " hostMatchers};
               ${anubisListener ""}
               include ${pkgs.foxden-http-errors.passthru.nginxConf};
+              set_real_ip_from 127.0.0.0/8;
+              real_ip_header X-Real-IP;
               ${hostConfig}
             }
           ''
@@ -596,9 +593,10 @@ in
               group = config.systemd.services.${name}.serviceConfig.Group;
               extraFlags = [ "--xff-strip-private=false" ];
               settings = {
-                BIND = "/run/anubis/anubis-${name}/anubis.sock";
+                BIND = "127.0.0.1:9899";
+                BIND_NETWORK = "tcp";
                 METRICS_BIND = "/run/anubis/anubis-${name}/anubis-metrics.sock";
-                TARGET = "unix:/run/anubis/anubis-${name}/nginx.sock";
+                TARGET = "127.0.0.1:9898";
               };
             };
 
