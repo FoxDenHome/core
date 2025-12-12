@@ -77,6 +77,7 @@ in
 
         foxDen.services.darksignsonline.anubis = {
           enable = true;
+          botPolicy = "CHALLENGE_EVERYONE";
           routes = [
             "= /create_account.php"
             "= /forgot_password.php"
