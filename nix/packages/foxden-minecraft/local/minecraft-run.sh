@@ -479,9 +479,9 @@ case ${MODLOADER} in
     crashServer "Incorrect modloader specified: ${MODLOADER}"
 esac
 
-if [ -f .newserver ]; then
+if [ -f new-server.txt ]; then
   echo 'Install only mode'
-  rm -f .newserver
+  rm -f new-server.txt
   exit 0
 fi
 
