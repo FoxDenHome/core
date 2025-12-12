@@ -182,6 +182,19 @@ let
         }
       ''
   );
+
+  botPolicyPresets = {
+    DEFAULT = null;
+    CHALLENGE_EVERYONE = {
+      bots = [
+        {
+          name = "catch-all-challenge";
+          path_regex = ".*";
+          action = "CHALLENGE";
+        }
+      ];
+    };
+  };
 in
 {
   nixosModule =
@@ -233,6 +246,28 @@ in
           type = listOf str;
           description = "List of route prefixes to protect with Anubis";
           default = [ ];
+        };
+        botPolicy = nixpkgs.lib.mkOption {
+          type = enum nixpkgs.lib.attrNames botPolicyPresets;
+          default = "DEFAULT";
+        };
+        customBotPolicy = nixpkgs.lib.mkOption {
+          type = nullOr submodule {
+            options = {
+              bots = nixpkgs.lib.mkOption {
+                type = listOf ({
+                  name = str;
+                  path_regex = str;
+                  action = enum [
+                    "ALLOW"
+                    "BLOCK"
+                    "CHALLENGE"
+                  ];
+                });
+              };
+            };
+            default = null;
+          };
         };
         default = nixpkgs.lib.mkEnableOption "Enable Anubis by default on all routes";
       };
@@ -600,15 +635,12 @@ in
                 METRIC_BIND_NETWORK = "unix";
                 TARGET = "http://127.0.0.1:9898";
               };
-              botPolicy = {
-                bots = [
-                  {
-                    name = "catch-all-challenge";
-                    path_regex = ".*";
-                    action = "CHALLENGE";
-                  }
-                ];
-              };
+              botPolicy =
+                if svcConfig.anubis.customBotPolicy != null then
+                  svcConfig.anubis.customBotPolicy
+                else
+                  botPolicyPresets.${svcConfig.anubis.botPolicy};
+              routes = svcConfig.anubis.routes;
             };
 
             systemd.services."anubis-${name}" = nixpkgs.lib.mkIf svcConfig.anubis.enable {
