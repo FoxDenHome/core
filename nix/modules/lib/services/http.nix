@@ -614,7 +614,7 @@ in
             systemd.services."anubis-${name}" = nixpkgs.lib.mkIf svcConfig.anubis.enable {
               serviceConfig = {
                 BindReadOnlyPaths = [
-                  config.services.anubis.instances.${name}.settings.POLICY_FNAME
+                  config.systemd.services."anubis-${name}".environment.POLICY_FNAME
                 ];
               };
             };
