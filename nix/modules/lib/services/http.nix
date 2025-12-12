@@ -255,30 +255,32 @@ in
           type = nullOr (submodule {
             options = {
               bots = nixpkgs.lib.mkOption {
-                type = listOf {
-                  name = str;
-                  path_regex = str;
-                  action = enum [
-                    "ALLOW"
-                    "BLOCK"
-                    "CHALLENGE"
-                  ];
-                  challenge = {
-                    difficulty = nixpkgs.lib.mkOptions {
-                      type = nullOr int;
-                      default = null;
-                    };
-                    algorithm = nixpkgs.lib.mkOptions {
-                      type = nullOr (enum [
-                        "slow"
-                        "fast"
-                        "preact"
-                        "metarefresh"
-                      ]);
-                      default = null;
+                type = listOf (submodule {
+                  options = {
+                    name = str;
+                    path_regex = str;
+                    action = enum [
+                      "ALLOW"
+                      "BLOCK"
+                      "CHALLENGE"
+                    ];
+                    challenge = {
+                      difficulty = nixpkgs.lib.mkOptions {
+                        type = nullOr int;
+                        default = null;
+                      };
+                      algorithm = nixpkgs.lib.mkOptions {
+                        type = nullOr (enum [
+                          "slow"
+                          "fast"
+                          "preact"
+                          "metarefresh"
+                        ]);
+                        default = null;
+                      };
                     };
                   };
-                };
+                });
               };
             };
           });
