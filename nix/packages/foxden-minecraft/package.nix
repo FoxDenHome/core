@@ -72,18 +72,18 @@ pkgs.stdenvNoCC.mkDerivation {
     # - Hanging laterns (once on posts render ok)
     # - Remove autumnity overrides once the next version happens, they seem to use textures now
     (pkgs.fetchurl {
-      url = "https://github.com/Doridian/BlueMap/releases/download/temp/bluemap-5.14-mc1.20-forge.jar";
-      hash = "sha256:b87d75554ad49b6f7f98253fe47f52e7c221a0b1ee3c9c1ad3ddaad04bb48c7f";
+      url = "https://github.com/Doridian/BlueMap/releases/download/temp/bluemap-5.15-mc1.20-forge.jar";
+      hash = "sha256:f31c4a4dce2c2b14191e0137f97c550ee38b2c1258d09a88a8fa31279436c3a6";
     })
   ];
   bluemapPacks = [
     (pkgs.fetchurl {
       url = "https://github.com/Doridian/BlueMapModelLoaders/releases/download/temp/BlueMapModelLoaders-0.3.2.jar";
-      hash = "sha256-rOMHs5/e8C6l/v1+Q2vOJ+kIYVDC7Zm/UPJqrW1mCPA=";
+      hash = "sha256:7436d92dfd317456681903ff104a0eb61c0e73c78c1cd5290e5c86c34e981b1a";
     })
     (pkgs.fetchurl {
-      url = "https://github.com/Doridian/BlueMapEveryCompatCompat/releases/download/0.0.2/BlueMapEveryCompatCompat-0.0.2.jar";
-      hash = "sha256:0551318d185d981c64426d233a03a3c839b1f23f075d82aeaceee669f993b47b";
+      url = "https://github.com/Doridian/BlueMapEveryCompatCompat/releases/download/0.0.3/BlueMapEveryCompatCompat-0.0.3.jar";
+      hash = "sha256:6508639b623d67700f8a7c3b798fc268f1da10cc290133325816f2b3f73c38ab";
     })
   ];
 
