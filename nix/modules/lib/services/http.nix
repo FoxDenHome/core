@@ -307,6 +307,7 @@ in
         proxy_pass http://127.0.0.1:9899;
 
         proxy_set_header X-Real-Ip $remote_addr;
+        proxy_set_header X-Forwarded-For $remote_addr;
         proxy_set_header Host $host;
         proxy_set_header X-Http-Version $server_protocol;
       '';
