@@ -257,13 +257,19 @@ in
               bots = nixpkgs.lib.mkOption {
                 type = listOf (submodule {
                   options = {
-                    name = str;
-                    path_regex = str;
-                    action = enum [
-                      "ALLOW"
-                      "BLOCK"
-                      "CHALLENGE"
-                    ];
+                    name = nixpkgs.lib.mkOption {
+                      type = str;
+                    };
+                    path_regex = nixpkgs.lib.mkOption {
+                      type = str;
+                    };
+                    action = nixpkgs.lib.mkOption {
+                      type = enum [
+                        "ALLOW"
+                        "BLOCK"
+                        "CHALLENGE"
+                      ];
+                    };
                     challenge = {
                       difficulty = nixpkgs.lib.mkOption {
                         type = nullOr int;
