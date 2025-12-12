@@ -596,7 +596,7 @@ in
                 BIND = "127.0.0.1:9899";
                 BIND_NETWORK = "tcp";
                 METRICS_BIND = "/run/anubis/anubis-${name}/anubis-metrics.sock";
-                TARGET = "127.0.0.1:9898";
+                TARGET = "http://127.0.0.1:9898";
               };
             };
 
@@ -611,25 +611,8 @@ in
                 LoadCredential = "nginx.conf:${confFilePath}";
                 ExecStartPre = [
                   "${pkgs.coreutils}/bin/mkdir -p ${storageRoot}/acme"
-                ]
-                ++ (
-                  if svcConfig.anubis.enable then
-                    [
-                      "+${pkgs.coreutils}/bin/chmod g+w /run/anubis/anubis-${name}"
-                    ]
-                  else
-                    [ ]
-                );
-                BindPaths =
-                  (if dynamicUser then [ ] else [ storageRoot ])
-                  ++ (
-                    if svcConfig.anubis.enable then
-                      [
-                        "/run/anubis/anubis-${name}"
-                      ]
-                    else
-                      [ ]
-                  );
+                ];
+                BindPaths = if dynamicUser then [ ] else [ storageRoot ];
                 BindReadOnlyPaths = [
                   pkgs.foxden-http-errors.passthru.nginxConf
                   pkgs.foxden-http-errors
