@@ -612,11 +612,14 @@ in
             };
 
             systemd.services."anubis-${name}" = nixpkgs.lib.mkIf svcConfig.anubis.enable {
-              serviceConfig = {
-                BindReadOnlyPaths = [
-                  config.systemd.services."anubis-${name}".environment.POLICY_FNAME
-                ];
-              };
+              serviceConfig =
+                let
+                  stockSvc = config.systemd.services."anubis-${name}";
+                  policyFile = stockSvc.environment.POLICY_FNAME;
+                in
+                {
+                  BindReadOnlyPaths = nixpkgs.lib.mkIf (policyFile != null) [ policyFile ];
+                };
             };
 
             systemd.services.${name} = {
