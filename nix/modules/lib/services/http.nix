@@ -255,7 +255,7 @@ in
           type = nullOr (submodule {
             options = {
               bots = nixpkgs.lib.mkOption {
-                type = listOf ({
+                type = listOf {
                   name = str;
                   path_regex = str;
                   action = enum [
@@ -263,11 +263,11 @@ in
                     "BLOCK"
                     "CHALLENGE"
                   ];
-                });
+                };
               };
             };
-            default = null;
           });
+          default = null;
         };
         default = nixpkgs.lib.mkEnableOption "Enable Anubis by default on all routes";
       };
