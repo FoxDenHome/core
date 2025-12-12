@@ -252,7 +252,7 @@ in
           default = "DEFAULT";
         };
         customBotPolicy = nixpkgs.lib.mkOption {
-          type = nullOr submodule {
+          type = nullOr (submodule {
             options = {
               bots = nixpkgs.lib.mkOption {
                 type = listOf ({
@@ -267,7 +267,7 @@ in
               };
             };
             default = null;
-          };
+          });
         };
         default = nixpkgs.lib.mkEnableOption "Enable Anubis by default on all routes";
       };
