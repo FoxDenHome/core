@@ -640,7 +640,6 @@ in
                   svcConfig.anubis.customBotPolicy
                 else
                   botPolicyPresets.${svcConfig.anubis.botPolicy};
-              routes = svcConfig.anubis.routes;
             };
 
             systemd.services."anubis-${name}" = nixpkgs.lib.mkIf svcConfig.anubis.enable {
