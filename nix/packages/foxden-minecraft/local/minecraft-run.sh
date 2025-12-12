@@ -141,11 +141,15 @@ downloadIfNotExist() {
   fi
 }
 
+
+RAN_JAVA_COMMANDS=0
+
 # runJavaCommand(command)
 # Runs the command $1 using the Java installation set in $JAVA.
 runJavaCommand() {
   # shellcheck disable=SC2086
   "$JAVA" ${1}
+  RAN_JAVA_COMMANDS=$((RAN_JAVA_COMMANDS + 1))
 }
 
 # refreshServerJar
@@ -479,23 +483,11 @@ case ${MODLOADER} in
     crashServer "Incorrect modloader specified: ${MODLOADER}"
 esac
 
-echo ""
-if [[ ! -s "eula.txt" ]]; then
-
-  echo "Mojang's EULA has not yet been accepted. In order to run a Minecraft server, you must accept Mojang's EULA."
-  echo "Mojang's EULA is available to read at https://aka.ms/MinecraftEULA"
-  echo "If you agree to Mojang's EULA then type 'I agree'"
-  echo -n "Response: "
-  read -r ANSWER
-
-  if [[ "${ANSWER}" == "I agree" ]]; then
-    echo "User agreed to Mojang's EULA."
-    echo "#By changing the setting below to TRUE you are indicating your agreement to our EULA (https://aka.ms/MinecraftEULA)." >eula.txt
-    echo "eula=true" >>eula.txt
-  else
-    crashServer "User did not agree to Mojang's EULA. Entered: ${ANSWER}. You can not run a Minecraft server unless you agree to Mojang's EULA."
-  fi
-
+if [ $RAN_JAVA_COMMANDS -gt 0 ]; then
+  echo "${RAN_JAVA_COMMANDS} Java command(s) ran. This means upgrade/install. Exiting for a restart cycle."
+  exit 1
+else
+  echo 'No Java command(s) ran. Moving on...'
 fi
 
 echo ""
