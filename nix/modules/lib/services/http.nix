@@ -597,7 +597,17 @@ in
                 BIND = "127.0.0.1:9899";
                 BIND_NETWORK = "tcp";
                 METRICS_BIND = "/run/anubis/anubis-${name}/anubis-metrics.sock";
+                METRIC_BIND_NETWORK = "unix";
                 TARGET = "http://127.0.0.1:9898";
+              };
+              botPolicy = {
+                bots = [
+                  {
+                    name = "catch-all-challenge";
+                    path_regex = ".*";
+                    action = "CHALLENGE";
+                  }
+                ];
               };
             };
 
