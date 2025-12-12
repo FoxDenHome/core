@@ -20,11 +20,11 @@ run_update() {
   exit 0
 }
 
-if [ ! -f "${VERSION_FILE}" ]; then
+if [ ! -f "${INSTALLED_VERSION_FILE}" ]; then
   echo "No version file found, assuming fresh install"
   run_update
 else
-  INSTALLED_VERSION="$(cat "${INSTALLED_VERSION_FILE}" || echo none)"
+  INSTALLED_VERSION="$(cat "${INSTALLED_VERSION_FILE}")"
   LATEST_VERSION="$(cat "${LATEST_VERSION_FILE}")"
   if [ "${INSTALLED_VERSION}" != "${LATEST_VERSION}" ]; then
     echo "Version mismatch (current: ${INSTALLED_VERSION}, expected: ${LATEST_VERSION}), reinstalling"
