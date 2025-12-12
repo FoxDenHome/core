@@ -657,6 +657,8 @@ in
                 METRICS_BIND = "/run/anubis/anubis-${name}/anubis-metrics.sock";
                 METRIC_BIND_NETWORK = "unix";
                 TARGET = "http://127.0.0.1:9898";
+                COOKIE_SECURE = if svcConfig.tls.enable then "true" else "false";
+                WEBMASTER_EMAIL = "webmaster@foxden.network";
               };
               botPolicy =
                 if svcConfig.anubis.customBotPolicy != null then
