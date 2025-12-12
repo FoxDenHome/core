@@ -141,15 +141,11 @@ downloadIfNotExist() {
   fi
 }
 
-
-RAN_JAVA_COMMANDS=0
-
 # runJavaCommand(command)
 # Runs the command $1 using the Java installation set in $JAVA.
 runJavaCommand() {
   # shellcheck disable=SC2086
   "$JAVA" ${1}
-  RAN_JAVA_COMMANDS=$((RAN_JAVA_COMMANDS + 1))
 }
 
 # refreshServerJar
@@ -483,11 +479,10 @@ case ${MODLOADER} in
     crashServer "Incorrect modloader specified: ${MODLOADER}"
 esac
 
-if [ $RAN_JAVA_COMMANDS -gt 0 ]; then
-  echo "${RAN_JAVA_COMMANDS} Java command(s) ran. This means upgrade/install. Exiting for a restart cycle."
-  exit 1
-else
-  echo 'No Java command(s) ran. Moving on...'
+if [ -f .newserver ]; then
+  echo 'Install only mode'
+  rm -f .newserver
+  exit 0
 fi
 
 echo ""
