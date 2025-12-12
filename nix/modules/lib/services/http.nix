@@ -248,7 +248,7 @@ in
           default = [ ];
         };
         botPolicy = nixpkgs.lib.mkOption {
-          type = enum nixpkgs.lib.attrNames botPolicyPresets;
+          type = enum (nixpkgs.lib.attrNames botPolicyPresets);
           default = "DEFAULT";
         };
         customBotPolicy = nixpkgs.lib.mkOption {
