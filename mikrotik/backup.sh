@@ -10,21 +10,21 @@ mtik_backup() {
     RDOM="$2"
     RHOST_ABS="${RHOST}.${RDOM}"
 
-    ssh "${RHOST_ABS}" "/system/backup/save dont-encrypt=yes name=${RDIR}${RHOST}-secret.backup"
-    ssh "${RHOST_ABS}" "/export file=${RDIR}${RHOST}-secret.rsc show-sensitive terse verbose"
+    ssh "${RHOST_ABS}" "/system/backup/save dont-encrypt=yes name=${RDIR}${RHOST}.backup"
+    ssh "${RHOST_ABS}" "/export file=${RDIR}${RHOST}.rsc show-sensitive terse verbose"
 
     sleep 1
 
-    scp "${RHOST_ABS}:/${RDIR}${RHOST}-secret.backup" "${RHOST_ABS}:/${RDIR}${RHOST}-secret.rsc" ./
+    scp "${RHOST_ABS}:/${RDIR}${RHOST}.backup" "${RHOST_ABS}:/${RDIR}${RHOST}.rsc" ./
     if [ ! -z "${BACKUP_MIRROR}" ]
     then
-        cp "${RHOST}-secret.backup" "${RHOST}-secret.rsc" "${BACKUP_MIRROR}"
+        cp "${RHOST}.backup" "${RHOST}.rsc" "${BACKUP_MIRROR}"
     fi
 
     sleep 1
 
-    ssh "${RHOST_ABS}" "/file/remove ${RDIR}${RHOST}-secret.backup"
-    ssh "${RHOST_ABS}" "/file/remove ${RDIR}${RHOST}-secret.rsc"
+    ssh "${RHOST_ABS}" "/file/remove ${RDIR}${RHOST}.backup"
+    ssh "${RHOST_ABS}" "/file/remove ${RDIR}${RHOST}.rsc"
 }
 
 mtik_backup router foxden.network
