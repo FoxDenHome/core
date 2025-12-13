@@ -5,6 +5,8 @@ BACKUP_MIRROR="${1-}"
 
 RDIR="tmpfs-scratch/"
 
+mkdir -p ./backup
+
 mtik_backup() {
     RHOST="$1"
     RDOM="$2"
@@ -15,10 +17,10 @@ mtik_backup() {
 
     sleep 1
 
-    scp "${RHOST_ABS}:/${RDIR}${RHOST}.backup" "${RHOST_ABS}:/${RDIR}${RHOST}.rsc" ./
+    scp "${RHOST_ABS}:/${RDIR}${RHOST}.backup" "${RHOST_ABS}:/${RDIR}${RHOST}.rsc" ./backup
     if [ ! -z "${BACKUP_MIRROR}" ]
     then
-        cp "${RHOST}.backup" "${RHOST}.rsc" "${BACKUP_MIRROR}"
+        cp "backup/${RHOST}.backup" "backup/${RHOST}.rsc" "${BACKUP_MIRROR}"
     fi
 
     sleep 1

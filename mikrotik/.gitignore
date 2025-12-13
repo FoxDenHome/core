@@ -1,3 +1,2 @@
 /out
-*.backup
-*-secret.rsc
+/backup
