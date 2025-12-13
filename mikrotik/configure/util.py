@@ -48,6 +48,7 @@ class MTikRouter:
     vrrp_priority_online: int
     vrrp_priority_offline: int
     dyndns_suffix_ipv6: str
+    ipv6_tunnel_id: str
     horizon: str
     scripts: set[MTikScript] = field(default_factory=set)
 
@@ -172,6 +173,7 @@ ROUTERS = [
         vrrp_priority_online=50,
         vrrp_priority_offline=10,
         dyndns_suffix_ipv6="::1",
+        ipv6_tunnel_id="772305",
     ),
     MTikRouter(
         host="router-backup.foxden.network",
@@ -179,6 +181,7 @@ ROUTERS = [
         vrrp_priority_online=25,
         vrrp_priority_offline=5,
         dyndns_suffix_ipv6="::2",
+        ipv6_tunnel_id="889575",
     ),
     MTikRouter(
         host="redfox.foxden.network",
@@ -186,5 +189,6 @@ ROUTERS = [
         vrrp_priority_online=0,
         vrrp_priority_offline=0,
         dyndns_suffix_ipv6="",
+        ipv6_tunnel_id="",
     ),
 ]
