@@ -29,4 +29,3 @@ mtik_backup() {
 
 mtik_backup router foxden.network
 mtik_backup router-backup foxden.network
-mtik_backup redfox doridian.net

@@ -361,15 +361,6 @@ in
             persistentKeepalive = 25;
             publicKey = "8zUl7b1frvuzcBrIA5lNsegzzyAOniaZ4tczSdoqcWM=";
           }
-          {
-            allowedIPs = [
-              "10.99.10.1/32"
-              "fd2c:f4cb:63be::a63:a01/128"
-            ];
-            endpoint = "redfox.doridian.net:13232";
-            persistentKeepalive = 25;
-            publicKey = "s1COjkpfpzfQ05ZLNLGQrlEhomlzwHv+APvUABzbSh8=";
-          }
         ];
       };
     };

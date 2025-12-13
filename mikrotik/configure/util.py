@@ -183,12 +183,4 @@ ROUTERS = [
         dyndns_suffix_ipv6="::2",
         ipv6_tunnel_id="889575",
     ),
-    MTikRouter(
-        host="redfox.foxden.network",
-        horizon="external",
-        vrrp_priority_online=0,
-        vrrp_priority_offline=0,
-        dyndns_suffix_ipv6="",
-        ipv6_tunnel_id="",
-    ),
 ]

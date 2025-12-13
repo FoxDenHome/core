@@ -2,7 +2,7 @@
 
 This is the monorepo to control the FoxDen homelab pretty much in its entirety.
 
-A from-zero setup of `router`, `router-backup` or `redfox` is currently impossible. Hence we keep regular backups of those devices around.
+A from-zero setup of `router` or `router-backup` is currently impossible. Hence we keep regular backups of those devices around.
 
 I am not sure whether I plan to instrument RouterOS enough to make this possible or not, especially since dynamic portions of RouterOS config, such as DynDNS keys, DNS entries and even firewall rules are already under management.
 
@@ -43,15 +43,6 @@ I am not sure whether I plan to instrument RouterOS enough to make this possible
 	- ztank: ZFS:
 		- MIRROR: 2 * 8 TB SATA3 HDD
 - **Network**: 1GbE (no traffic limit)
-
-### RedFox
-
-- **Locator**: Vultr
-- **OS**: MikroTik RouterOS
-- **CPU**: 1 vCPU "Intel high performance"
-- **RAM**: 1 GB
-- **Storage**: vdisk 25 GB NVMe SSD
-- **Network**: >= 1GbE (max 2 TB traffic)
 
 ### Router
 
