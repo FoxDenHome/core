@@ -625,11 +625,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1764402282,
-        "narHash": "sha256-RsUwA+lSrRePZNNupSDzzSiBNko33LojRJn3pikVK5I=",
+        "lastModified": 1765828938,
+        "narHash": "sha256-4gQqJ3x3pVCxvKsdsLl3d1lLVYVpk8UBoBeNxry21Ng=",
         "ref": "refs/heads/main",
-        "rev": "cdad086bc0f4ee3c814ad75b5c12e42485423bc7",
-        "revCount": 28,
+        "rev": "b1f4896325484ae986f36ee9cce102abca6d4f77",
+        "revCount": 29,
         "type": "git",
         "url": "https://git.foxden.network/FoxDen/systemd-query"
       },
