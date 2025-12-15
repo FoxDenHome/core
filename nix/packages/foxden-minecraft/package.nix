@@ -65,8 +65,8 @@ pkgs.stdenvNoCC.mkDerivation {
     (modrinthGetMod "more-red" "4.0.0.4"
       "nmvr3DB5@sha512:f7597a4cb98d40bfb9bc344a1389db6a498b339ae10cdc710a3ab83ed993788cc332b899f3876b0dec79e12c57dd93fb72b950c240cae4ac818f68d7fa48f48f"
     )
-    (modrinthGetMod "distanthorizons" "2.4.0-b-1.20.1"
-      "FcSiScgQ@sha512:e273d562e845ef6f50c0a044a52aa5be0fa036703036369fc57d7d7bfee0e9d9a7f83c861488df0cd1e909a4c112e038c83bd00e134f5fd3beb9a8848ae6ad67"
+    (modrinthGetMod "distanthorizons" "2.4.2-b-1.20.1"
+      "ALYWdZoX@sha512:ec0867a4d73510cf7c0d4f704e636db1ac5d88d8ed8fcda96e9be854da99c46e54c87eeb4d9bfa2c1717e812bcda1c5e8d5533b2c571ab61d2847ba903df1416"
     )
     (modrinthGetMod "guideme" "20.1.14"
       "9YGnKYDF@sha512:15311cb0607205d2da3eb369499b8523bd0d8fa41e30c87c0b0e5756df5ea2123389262e6883f66e6c7b1d43d68e20cdfec73b31c202df8fbb99fa80d4fe7b1d"
