@@ -74,6 +74,9 @@ pkgs.stdenvNoCC.mkDerivation {
     (modrinthGetMod "ae2" "15.4.10"
       "7KVs6HMQ@sha512:edc08a999b57e80426c737efa5b50c6d19ab40cb03f752bc26e2912fe12b989cefd5feff519ce0d87a4717a74c22a99242263ee4de63c1c84f91306d156134ee"
     )
+    (modrinthGetMod "glodium" "1.20-1.5-forge"
+      "eoUaDkZf@sha512:57ba996845f588191b12f5e4c578b6f33a2b431facd54176dc61abba0f08f86cbc03c39cf795c7d5dea4926a923ec88e646a25d1a9a3a5bb9508fcb79a661a5e"
+    )
     (modrinthGetMod "extended-ae" "1.20-1.4.9-forge"
       "Fqgk03X3@sha512:1f6f5d529f41a82fa5f72250d50ecf83a2dbfba9877b9f838dc9e7b919ae19bb477efa0e7b002721028acdb056f9edbdb47cf4371d06ffd2db6582a4ecd5ae92"
     )
