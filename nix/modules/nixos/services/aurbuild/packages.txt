@@ -36,3 +36,4 @@ vmware-keymaps
 vmware-workstation
 libx11-mr293
 openssh-hpn
+iloader-bin
