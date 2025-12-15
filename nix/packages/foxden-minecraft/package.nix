@@ -68,6 +68,15 @@ pkgs.stdenvNoCC.mkDerivation {
     (modrinthGetMod "distanthorizons" "2.4.0-b-1.20.1"
       "FcSiScgQ@sha512:e273d562e845ef6f50c0a044a52aa5be0fa036703036369fc57d7d7bfee0e9d9a7f83c861488df0cd1e909a4c112e038c83bd00e134f5fd3beb9a8848ae6ad67"
     )
+    (modrinthGetMod "guideme" "20.1.14"
+      "9YGnKYDF@sha512:15311cb0607205d2da3eb369499b8523bd0d8fa41e30c87c0b0e5756df5ea2123389262e6883f66e6c7b1d43d68e20cdfec73b31c202df8fbb99fa80d4fe7b1d"
+    )
+    (modrinthGetMod "ae2" "15.4.10"
+      "7KVs6HMQ@sha512:edc08a999b57e80426c737efa5b50c6d19ab40cb03f752bc26e2912fe12b989cefd5feff519ce0d87a4717a74c22a99242263ee4de63c1c84f91306d156134ee"
+    )
+    (modrinthGetMod "extended-ae" "1.20-1.4.9-forge"
+      "Fqgk03X3@sha512:1f6f5d529f41a82fa5f72250d50ecf83a2dbfba9877b9f838dc9e7b919ae19bb477efa0e7b002721028acdb056f9edbdb47cf4371d06ffd2db6582a4ecd5ae92"
+    )
     # TODO: Add/fix BlueMap rendering for:
     # - Basic steam engine "armatures"
     # - Hanging laterns (once on posts render ok)
