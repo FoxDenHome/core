@@ -58,6 +58,7 @@ in
               include ${package}/conf/fastcgi_params;
               fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
               fastcgi_param SCRIPT_NAME $fastcgi_script_name;
+              fastcgi_param HTTP_HOST $host; # Needed for HTTP/3: https://github.com/froxlor/Froxlor/commit/2d7f0ed1054141dbc5e75cde5e40770a78423f13
               fastcgi_pass unix:${config.services.phpfpm.pools.darksignsonline.socket};
             }
           '';
