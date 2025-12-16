@@ -57,10 +57,6 @@
   ];
 
   security = {
-    wrappers = {
-      su.enable = false;
-      sg.enable = false;
-    };
     sudo.enable = false;
     polkit.enable = true;
   };
