@@ -58,7 +58,6 @@
 
   security = {
     wrappers = {
-      pkexec.enable = false;
       su.enable = false;
       sg.enable = false;
     };
