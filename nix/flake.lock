@@ -174,11 +174,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1765828156,
-        "narHash": "sha256-F2hj7ZWCHvsMQrXLOzKGeeB0zb1jMZENXmhYO/HVQLk=",
+        "lastModified": 1766005249,
+        "narHash": "sha256-0sogQWDEWhZGgUI+cqEWEp84L09PQlc4mAcHReVwr6k=",
         "ref": "refs/heads/main",
-        "rev": "0754893daf22673d35bd4d3bf28fa35ca11a59b2",
-        "revCount": 3718,
+        "rev": "2cfb044aacc00508d9e040bcfcad5b716815ac33",
+        "revCount": 3721,
         "type": "git",
         "url": "https://git.foxden.network/foxCaves/foxCaves"
       },
@@ -307,11 +307,11 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1765762245,
-        "narHash": "sha256-3iXM/zTqEskWtmZs3gqNiVtRTsEjYAedIaLL0mSBsrk=",
+        "lastModified": 1765838191,
+        "narHash": "sha256-m5KWt1nOm76ILk/JSCxBM4MfK3rYY7Wq9/TZIIeGnT8=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "c8cfcd6ccd422e41cc631a0b73ed4d5a925c393d",
+        "rev": "c6f52ebd45e5925c188d1a20119978aa4ffd5ef6",
         "type": "github"
       },
       "original": {
@@ -492,11 +492,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1764402335,
-        "narHash": "sha256-A0Eq7gqj92LM+cVGgoRXxYlkgXIgnHc4UQ3oBZSB+U4=",
+        "lastModified": 1766007771,
+        "narHash": "sha256-wQXjIONrKt8VgVLIWoIE+d819W6EFn1fqh0i3+ZwUs4=",
         "ref": "refs/heads/main",
-        "rev": "bc7256da91e8ca244558a9debd3f1695002d815b",
-        "revCount": 382,
+        "rev": "dcb7edda545e90ae711f13f18ddbf2b248195dce",
+        "revCount": 390,
         "type": "git",
         "url": "https://git.foxden.network/SpaceAge/space_age_api"
       },
@@ -571,11 +571,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1765828284,
-        "narHash": "sha256-DI5zHx+d0SZyJ87u0G9FqxC+KDFRRlVFmxm2VFvCZro=",
+        "lastModified": 1766006519,
+        "narHash": "sha256-E7kdhI+/VPgFNBAwCgW4+51qfOCgAfY6dcsFKv6A+HE=",
         "ref": "refs/heads/main",
-        "rev": "24a6a70cab71df2e2628923bb8090be67378643d",
-        "revCount": 93,
+        "rev": "29271f3bf8fbf488c99dcc66dd96dca2a8c2ae8e",
+        "revCount": 96,
         "type": "git",
         "url": "https://git.foxden.network/SpaceAge/website"
       },
