@@ -25,9 +25,10 @@
     "ext4"
   ];
   boot.kernel.sysctl = {
-    "vm.swappiness" = "0";
-    "vm.overcommit_memory" = "1";
+    "vm.swappiness" = 0;
+    "vm.overcommit_memory" = 1;
   };
+  services.redis.vmOverCommit = false;
 
   services.timesyncd.servers = lib.mkDefault [ "ntp.foxden.network" ];
   time.timeZone = "America/Los_Angeles";
