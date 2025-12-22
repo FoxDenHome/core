@@ -33,11 +33,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1766012982,
-        "narHash": "sha256-XvAd7yR2a7XE10cmxpCX4hpd1j/Lr6jw3l+iXN1jN3w=",
+        "lastModified": 1766375394,
+        "narHash": "sha256-IfVFmeuN9vtjk89lJSCxUozYYqa4RCf3F8jvWQoAo4g=",
         "ref": "refs/heads/main",
-        "rev": "ba6f40a91a7dc371b7e8d3bb7da8992cb1fd4cb4",
-        "revCount": 603,
+        "rev": "a95f8dec510160bd84bdd183115756abc7383b1e",
+        "revCount": 604,
         "type": "git",
         "url": "https://git.foxden.network/FoxDen/carvera-pendant"
       },
@@ -94,11 +94,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1766012978,
-        "narHash": "sha256-EOlrxGAQvb6AuYL3jxt1VvyPeu9muNil4gGb91gHdqQ=",
+        "lastModified": 1766375386,
+        "narHash": "sha256-aOe5AQ14F8k6yXOyUmYt2m/bQtaSGqSu7aLqbksOtLU=",
         "ref": "refs/heads/main",
-        "rev": "304d63b156da596bc8702faf4540dd135785c5bd",
-        "revCount": 620,
+        "rev": "c095d8ad8175d61240ddf1e719847ab2b9327b2c",
+        "revCount": 621,
         "type": "git",
         "url": "https://git.foxden.network/FoxDen/e621dumper"
       },
@@ -117,11 +117,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1766012987,
-        "narHash": "sha256-PCyaXPhvrXPin0rmKJY9iGlBdJ3R1vk5/ocL6vEYV14=",
+        "lastModified": 1766375382,
+        "narHash": "sha256-8Znum8aFzRCGRRfgB4opHc9lsnrI51puBeoYdLNf6tE=",
         "ref": "refs/heads/main",
-        "rev": "49cbfd936f39ef134c199ed85650c581dbc2f303",
-        "revCount": 624,
+        "rev": "41a1b875bd5eaf03f0f811dac4da07ac567dc1f2",
+        "revCount": 625,
         "type": "git",
         "url": "https://git.foxden.network/FoxDen/fadumper"
       },
@@ -174,11 +174,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1766014693,
-        "narHash": "sha256-m0/63+deFFjlBBoeMpmikiFko7MhV6u6h5TxDFEJhPI=",
+        "lastModified": 1766375400,
+        "narHash": "sha256-UeloR97Ci+YczXsjnczMPSPAn+/qqyGQTM9htWD7CdQ=",
         "ref": "refs/heads/main",
-        "rev": "553a2c058e95911a4e74e9e8a060deb21bafa87d",
-        "revCount": 3722,
+        "rev": "0e75f7089c16a8ab946d3f98a6a65bd44f4b5088",
+        "revCount": 3725,
         "type": "git",
         "url": "https://git.foxden.network/foxCaves/foxCaves"
       },
@@ -307,11 +307,11 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1765838191,
-        "narHash": "sha256-m5KWt1nOm76ILk/JSCxBM4MfK3rYY7Wq9/TZIIeGnT8=",
+        "lastModified": 1766201043,
+        "narHash": "sha256-eplAP+rorKKd0gNjV3rA6+0WMzb1X1i16F5m5pASnjA=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "c6f52ebd45e5925c188d1a20119978aa4ffd5ef6",
+        "rev": "b3aad468604d3e488d627c0b43984eb60e75e782",
         "type": "github"
       },
       "original": {
@@ -331,11 +331,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1765828123,
-        "narHash": "sha256-j7jnCOKZRQ6WWoOs/PqoCMLPNrbzlL0Py5Y47+bBuNM=",
+        "lastModified": 1766375372,
+        "narHash": "sha256-1BTxvXnQPUZYHz7hARumwX4HXRCnk153FWJiXnm5tK8=",
         "ref": "refs/heads/main",
-        "rev": "8f8f8393524a9715d22885c832cec43575c948b9",
-        "revCount": 147,
+        "rev": "d23080fd16c0e7d2f878dacb782f691009a5823f",
+        "revCount": 148,
         "type": "git",
         "url": "https://git.foxden.network/FoxDen/oauth-jit-radius"
       },
@@ -469,11 +469,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1765836173,
-        "narHash": "sha256-hWRYfdH2ONI7HXbqZqW8Q1y9IRbnXWvtvt/ONZovSNY=",
+        "lastModified": 1766289575,
+        "narHash": "sha256-BOKCwOQQIP4p9z8DasT5r+qjri3x7sPCOq+FTjY8Z+o=",
         "owner": "Mic92",
         "repo": "sops-nix",
-        "rev": "443a7f2e7e118c4fc63b7fae05ab3080dd0e5c63",
+        "rev": "9836912e37aef546029e48c8749834735a6b9dad",
         "type": "github"
       },
       "original": {
@@ -524,11 +524,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1765828177,
-        "narHash": "sha256-NXXyVzauhwUcoKc8ULBL4FWQsucmBNejInRQvTVN26w=",
+        "lastModified": 1766375408,
+        "narHash": "sha256-CA1/PSR1UbccKXX2vA4S5t3IyAc5/2zBvnhTlwvjyQU=",
         "ref": "refs/heads/main",
-        "rev": "9f141a3d560000aa4185b62f357ae2fb134f04b2",
-        "revCount": 227,
+        "rev": "312bcd284bf3b53c332426593e8eb102be54ba98",
+        "revCount": 228,
         "type": "git",
         "url": "https://git.foxden.network/SpaceAge/StarLord"
       },
@@ -571,11 +571,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1766006519,
-        "narHash": "sha256-E7kdhI+/VPgFNBAwCgW4+51qfOCgAfY6dcsFKv6A+HE=",
+        "lastModified": 1766375404,
+        "narHash": "sha256-3ijLrYOn3aVzeeN8su68PY0svscIeXfLnmrd4p4VGzo=",
         "ref": "refs/heads/main",
-        "rev": "29271f3bf8fbf488c99dcc66dd96dca2a8c2ae8e",
-        "revCount": 96,
+        "rev": "68c67960fbfbdc78c408e8599be8c976e313b2fe",
+        "revCount": 97,
         "type": "git",
         "url": "https://git.foxden.network/SpaceAge/website"
       },
