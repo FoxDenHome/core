@@ -22,6 +22,9 @@
         "integrity"
       ];
     };
+    services = {
+      dbus.apparmor = "enabled";
+    };
 
     boot = {
       initrd.systemd.enable = true;

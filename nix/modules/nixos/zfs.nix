@@ -38,7 +38,7 @@ in
     boot = {
       zfs.devNodes = "/dev/disk/by-path";
       supportedFilesystems = [ "zfs" ];
-      #kernelPackages = pkgs.linuxPackages_6_18;
+      kernelPackages = pkgs.linuxPackages_6_17; # TODO: 6.18 is broken
     };
     environment.systemPackages = with pkgs; [
       mbuffer
