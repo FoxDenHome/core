@@ -16,11 +16,26 @@
 
 # BEGIN update hairpins
 :local ip6ptnet "$ip6addr/60"
-:local ip6ptnetstatic "$ip6addr/112"
 :local ip6vpnaddr ($ip6addr | ::a64:ffff)
 :local ip6vpnnet "$ip6vpnaddr/128"
 /ip/firewall/nat/set [ find comment="Hairpin" dst-address!=$ipaddr ] dst-address=$ipaddr
-/ipv6/firewall/nat/set [ find comment="Ingress PT DHCP static ULA" dst-address!=$ip6ptnetstatic ] dst-address=$ip6ptnetstatic
+
+:for ip6idx from=0 to=16 do={
+    :local ip6idxhex [:pick "0123456789abcdef" $ip6idx]
+    :local ip6idxaddr ($ip6addr | [:toip6 "::$ip6idxhex:0:0:0"])
+    :local ip6idxnet "$ip6idxaddr/112"
+    :local ip6idxcmt "PT Net $ip6idx"
+    :local ip6idxnetfind [ /ipv6/firewall/address-list/find list=ipv6-dhcp-ranges comment=$ip6idxcmt ]
+    :if ([:len $ip6idxnetfind] != 1) do={
+        :if ([:len $ip6idxnetfind] > 0) do={
+            /ipv6/firewall/address-list/remove $ip6idxnetfind
+        }
+        /ipv6/firewall/address-list/add list=ipv6-dhcp-ranges comment=$ip6idxcmt address=$ipv6idxnet
+    } else={
+        /ipv6/firewall/address-list/set address=$ipv6idxnet $ip6idxnetfind
+    }
+}
+
 /ipv6/firewall/nat/set [ find comment="Egress PT" to-address!=$ip6ptnet ] to-address=$ip6ptnet
 /ipv6/firewall/nat/set [ find comment="VPN Masq" to-address!=$ip6vpnnet ] to-address=$ip6vpnnet
 # END update hairpins
