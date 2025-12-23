@@ -30,9 +30,9 @@
         :if ([:len $ip6idxnetfind] > 0) do={
             /ipv6/firewall/address-list/remove $ip6idxnetfind
         }
-        /ipv6/firewall/address-list/add list=ipv6-dhcp-ranges comment=$ip6idxcmt address=$ipv6idxnet
+        /ipv6/firewall/address-list/add list=ipv6-dhcp-ranges comment=$ip6idxcmt address=$ip6idxnet
     } else={
-        /ipv6/firewall/address-list/set address=$ipv6idxnet $ip6idxnetfind
+        /ipv6/firewall/address-list/set address=$ip6idxnet $ip6idxnetfind
     }
 }
 
