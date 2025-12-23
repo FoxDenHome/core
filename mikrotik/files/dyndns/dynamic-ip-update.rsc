@@ -22,7 +22,7 @@
 
 :for ip6idx from=0 to=15 do={
     :local ip6idxhex [:pick "0123456789abcdef" $ip6idx]
-    :local ip6idxaddr ($ip6addr | [:toip6 "::$ip6idxhex:0:0:0"])
+    :local ip6idxaddr ($ip6addr | [:toip6 "::$ip6idxhex:0:0:0:0"])
     :local ip6idxnet "$ip6idxaddr/112"
     :local ip6idxcmt "PT Net $ip6idx"
     :local ip6idxnetfind [ /ipv6/firewall/address-list/find list=ipv6-dhcp-ranges comment=$ip6idxcmt ]
