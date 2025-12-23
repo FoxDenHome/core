@@ -269,9 +269,9 @@ DEFAULT_RULES_HEAD: list[FirewallRule] = [
         attribs={
             "action": "netmap",
             "chain": "dstnat",
-            "comment": "Ingress PT",
-            "dst-address": "fd2d::/60",
-            "to-address": "fd2c:f4cb:63be::/60",
+            "comment": "Ingress PT DHCP static ULA",
+            "dst-address": "fd2d::/112",
+            "to-address": "fd2c:f4cb:63be::/112",
         },
         ignoreChanges={"dst-address"},
     ),

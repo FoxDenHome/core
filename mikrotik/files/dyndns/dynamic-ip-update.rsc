@@ -16,10 +16,11 @@
 
 # BEGIN update hairpins
 :local ip6ptnet "$ip6addr/60"
+:local ip6ptnetstatic "$ip6addr/112"
 :local ip6vpnaddr ($ip6addr | ::a64:ffff)
 :local ip6vpnnet "$ip6vpnaddr/128"
 /ip/firewall/nat/set [ find comment="Hairpin" dst-address!=$ipaddr ] dst-address=$ipaddr
-/ipv6/firewall/nat/set [ find comment="Ingress PT" dst-address!=$ip6ptnet ] dst-address=$ip6ptnet
+/ipv6/firewall/nat/set [ find comment="Ingress PT DHCP static ULA" dst-address!=$ip6ptnetstatic ] dst-address=$ip6ptnetstatic
 /ipv6/firewall/nat/set [ find comment="Egress PT" to-address!=$ip6ptnet ] to-address=$ip6ptnet
 /ipv6/firewall/nat/set [ find comment="VPN Masq" to-address!=$ip6vpnnet ] to-address=$ip6vpnnet
 # END update hairpins
