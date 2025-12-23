@@ -270,7 +270,7 @@ DEFAULT_RULES_HEAD: list[FirewallRule] = [
             "action": "netmap",
             "chain": "dstnat",
             "comment": "Ingress PT DHCP static ULA",
-            "dst-address": "fd2d::/112",
+            "dst-address-list": "ipv6-dhcp-ranges",
             "to-address": "fd2c:f4cb:63be::/112",
         },
         ignoreChanges={"dst-address"},
