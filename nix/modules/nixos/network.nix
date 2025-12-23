@@ -59,22 +59,6 @@ in
         "tap"
       ];
     };
-    networking.getaddrinfo = {
-      label = {
-        # These are the defaults in glibc
-        "::1/128" = 0;
-        "::/0" = 1;
-        "2002::/16" = 2;
-        "::/96" = 3;
-        "::ffff:0:0/96" = 4;
-        "fec0::/10" = 5;
-        "fc00::/7" = 6;
-        "2001:0::/32" = 7;
-
-        # FoxDen ULA, which is prefix translated
-        "fd2c:f4cb:63be::/48" = 1;
-      };
-    };
     networking.hosts = lib.mkIf config.foxDen.networking.provisionCriticalHosts (
       lib.attrsets.genAttrs mappedAddresses (
         targetAddr:
