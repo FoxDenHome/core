@@ -20,7 +20,7 @@
 :local ip6vpnnet "$ip6vpnaddr/128"
 /ip/firewall/nat/set [ find comment="Hairpin" dst-address!=$ipaddr ] dst-address=$ipaddr
 
-:for ip6idx from=0 to=16 do={
+:for ip6idx from=0 to=15 do={
     :local ip6idxhex [:pick "0123456789abcdef" $ip6idx]
     :local ip6idxaddr ($ip6addr | [:toip6 "::$ip6idxhex:0:0:0"])
     :local ip6idxnet "$ip6idxaddr/112"
