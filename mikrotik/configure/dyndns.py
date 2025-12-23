@@ -12,6 +12,7 @@ SPECIAL_HOSTS = router_hosts + [f"v4-{router}" for router in router_hosts]
 
 _dyndns_hosts_value = None
 
+# TODO: Auto-generate this somehow
 with open(mtik_path("files/dyndns/secrets.json"), "r") as file:
     SECRETS = json_loads(file.read())
 
