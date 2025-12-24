@@ -24,6 +24,6 @@
 
     after = [ "network.target" ];
     wants = [ "network.target" ];
-    wantedBy = [ "default.target" ];
+    #wantedBy = [ "default.target" ];
   };
 }
