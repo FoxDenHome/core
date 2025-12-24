@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-rsync -avog --delete /run/appliance/app/ /run/appliance/data/app/
+rsync -a --delete /run/appliance/app/ /run/appliance/data/app/
+chmod -R 700 /run/appliance/data/app
 
 cd /run/appliance/data
 exec /run/appliance/data/app/CarveraController
