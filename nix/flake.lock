@@ -33,11 +33,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1766375394,
-        "narHash": "sha256-IfVFmeuN9vtjk89lJSCxUozYYqa4RCf3F8jvWQoAo4g=",
+        "lastModified": 1766467819,
+        "narHash": "sha256-xCxtrTG0YmYcVzmzcYz6z6VkCcrNfmI1XH0XF8I1aRE=",
         "ref": "refs/heads/main",
-        "rev": "a95f8dec510160bd84bdd183115756abc7383b1e",
-        "revCount": 604,
+        "rev": "af2233b9cab59f56e7d52772466ea2b9567a6dc1",
+        "revCount": 605,
         "type": "git",
         "url": "https://git.foxden.network/FoxDen/carvera-pendant"
       },
@@ -94,11 +94,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1766375386,
-        "narHash": "sha256-aOe5AQ14F8k6yXOyUmYt2m/bQtaSGqSu7aLqbksOtLU=",
+        "lastModified": 1766467816,
+        "narHash": "sha256-ML296SOKoSpTblWmf5/LEnD0Xf/+iUmDGN6aQUBP6tE=",
         "ref": "refs/heads/main",
-        "rev": "c095d8ad8175d61240ddf1e719847ab2b9327b2c",
-        "revCount": 621,
+        "rev": "fd2bc69c1524a9bc5fa6b1ef03c7fa97011c1b90",
+        "revCount": 622,
         "type": "git",
         "url": "https://git.foxden.network/FoxDen/e621dumper"
       },
@@ -174,11 +174,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1766375400,
-        "narHash": "sha256-UeloR97Ci+YczXsjnczMPSPAn+/qqyGQTM9htWD7CdQ=",
+        "lastModified": 1766480216,
+        "narHash": "sha256-im3sddrubRBzr6CQfsoVNd2vm8gQXHBjCwg8OmZrsbg=",
         "ref": "refs/heads/main",
-        "rev": "0e75f7089c16a8ab946d3f98a6a65bd44f4b5088",
-        "revCount": 3725,
+        "rev": "33d02dd9b222a1cd586897d2bdae424c19270d9d",
+        "revCount": 3726,
         "type": "git",
         "url": "https://git.foxden.network/foxCaves/foxCaves"
       },
@@ -307,11 +307,11 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1766201043,
-        "narHash": "sha256-eplAP+rorKKd0gNjV3rA6+0WMzb1X1i16F5m5pASnjA=",
+        "lastModified": 1766473571,
+        "narHash": "sha256-5G1NDO2PulBx1RoaA6U1YoUDX0qZslpPxv+n5GX6Qto=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "b3aad468604d3e488d627c0b43984eb60e75e782",
+        "rev": "76701a179d3a98b07653e2b0409847499b2a07d3",
         "type": "github"
       },
       "original": {
