@@ -80,9 +80,9 @@ pkgs.stdenvNoCC.mkDerivation {
     (modrinthGetMod "extended-ae" "1.20-1.4.9-forge"
       "Fqgk03X3@sha512:1f6f5d529f41a82fa5f72250d50ecf83a2dbfba9877b9f838dc9e7b919ae19bb477efa0e7b002721028acdb056f9edbdb47cf4371d06ffd2db6582a4ecd5ae92"
     )
-    (modrinthGetMod "multi-overworld" "0.0.4-1.20.1"
-      "40JLXLUa@sha512:2ddecc534de30a0e880c8957ff6dbbdfd52df28f39b2ccfd7e33e8c57b46974a6b76f12696cb03be5d05afa7ed96178b94d80b9b2b6000b04b66bdb8f5721dea"
-    )
+    # (modrinthGetMod "multi-overworld" "0.0.4-1.20.1"
+    #   "40JLXLUa@sha512:2ddecc534de30a0e880c8957ff6dbbdfd52df28f39b2ccfd7e33e8c57b46974a6b76f12696cb03be5d05afa7ed96178b94d80b9b2b6000b04b66bdb8f5721dea"
+    # )
     (modrinthGetMod "dimension-localized-inventories" "1.9fe"
       "zJ8KXcF9@sha512:9a8862dd6773537d7a1355b5d19ea5be30616db6ccb04205c74d5c096913c5531b46170e2b33823cbfbbf4180f438d642e33ddb88cb2e7fadf48a1c02b78ce21"
     )
