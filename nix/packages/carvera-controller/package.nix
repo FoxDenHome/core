@@ -3,8 +3,8 @@ pkgs.stdenv.mkDerivation {
   name = "carvera-controller";
   version = "1.0.0";
   src = pkgs.fetchzip {
-    url = "https://github.com/MakeraInc/CarveraController/releases/download/v0.9.11/carvera-controller-0.9.11-x86_64-linux.tar.xz";
-    hash = "sha256:bb766175e585e1f8c996cb1d3e6a7a192132e48c4ac60f27f3ebff4816e79281";
+    url = "https://github.com/MakeraInc/CarveraController/releases/download/v0.9.13/carvera-controller-0.9.13-x86_64-linux.tar.xz";
+    hash = "sha256:4a3df262987f2ef49adbac74a7a45df0bb3ea64af56c6d0e38ee7ba8f5dd4d94";
   };
 
   nativeBuildInputs = [
