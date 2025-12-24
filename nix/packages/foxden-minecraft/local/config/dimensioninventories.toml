@@ -1,0 +1,9 @@
+["Configs for Dimension Localized Inventories"]
+        #Dimensions excluded from the mod (Shares an inventory with the Overworld)
+        "Excluded Dimensions" = ["minecraft:overworld", "minecraft:the_nether", "minecraft:the_end"]
+        #Arrays of Dimensions that share an inventory
+        "Dimension Groups" = []
+        #Boolean value for whether a filter is put on what can go through portals
+        "Portal Toggle" = true
+        #Blacklist on which mobs are allowed through portals
+        "Mob Blacklist" = []
