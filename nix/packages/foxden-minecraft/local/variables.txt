@@ -56,7 +56,7 @@ RECOMMENDED_JAVA_VERSION=17
 JAVA_ARGS="-Xmx8G -Xms8G"
 JAVA="java"
 WAIT_FOR_USER_INPUT=false
-ADDITIONAL_ARGS="-Dlog4j2.formatMsgNoLookups=true -Dterminal.jline=false -Dterminal.ansi=true -Djava.security.manager=default"
+ADDITIONAL_ARGS="-Dlog4j2.formatMsgNoLookups=true -Dterminal.jline=false -Dterminal.ansi=true -Djava.security.manager=disallow"
 RESTART=false
 SKIP_JAVA_CHECK=true
 JDK_VENDOR=temurin
