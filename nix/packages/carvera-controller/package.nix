@@ -7,6 +7,8 @@ pkgs.stdenv.mkDerivation {
     hash = "sha256:4a3df262987f2ef49adbac74a7a45df0bb3ea64af56c6d0e38ee7ba8f5dd4d94";
   };
 
+  # TODO: Switch to community controller
+
   nativeBuildInputs = [
     pkgs.autoPatchelfHook
   ];
