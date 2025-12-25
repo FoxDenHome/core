@@ -96,8 +96,9 @@ let
 
     installPhase = ''
       cp -r $src $out
-      chmod 755 $out
-      rm -f $out/poetry.lock $out/pyproject.toml $out/uv.lock
+      chmod 755 $out $out/carveracontroller
+      rm -f $out/poetry.lock $out/pyproject.toml $out/uv.lock $out/carveracontroller/__version__.py
+      echo '__version__ = "${version}"' > $out/carveracontroller/__version__.py
       cp ${./pyproject.toml} $out/pyproject.toml
       cp ${./uv.lock} $out/uv.lock
     '';
