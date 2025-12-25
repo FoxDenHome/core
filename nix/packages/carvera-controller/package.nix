@@ -1,6 +1,6 @@
 { pkgs, poetry2nix, ... }:
 let
-  inherit (poetry2nix.lib.mkPoetry2Nix { inherit pkgs; }) mkPoetryApplication;
+  inherit (poetry2nix.lib.mkPoetry2Nix { inherit pkgs; }) mkPoetryApplication defaultPoetryOverrides;
 
   pypkgs-build-requirements = {
     altgraph = [ "setuptools" ];
@@ -56,6 +56,7 @@ let
       "setuptools"
       "cython"
 
+      pkgs.libGL
       pkgs.SDL2
       pkgs.SDL2_image
       pkgs.SDL2_ttf
@@ -73,8 +74,16 @@ mkPoetryApplication {
     rev = "v2.0.0";
     sha256 = "sha256-bd+XxEI5d7pgO4z4s3WU1SWl1FbHvEHXPyGt82VkVUk=";
   };
+
   python = pkgs.python312;
-  overrides = (
+  pyproject = ./pyproject.toml;
+
+  configurePhase = ''
+    rm -rf packaging_assets pyproject.toml
+    cp ${./pyproject.toml} pyproject.toml
+  '';
+
+  overrides = defaultPoetryOverrides.extend (
     final: prev:
     builtins.mapAttrs (
       package: build-requirements:
@@ -83,6 +92,13 @@ mkPoetryApplication {
           if package == "kivy" then
             ''
               export KIVY_NO_CONFIG=1
+              for file in kivy/weakproxy.pyx kivy/graphics/context_instructions.pyx kivy/graphics/opengl.pyx; do
+                chmod 755 "$(dirname "$file")"
+                mv "$file" "$file.orig"
+                echo 'from ctypes import c_long as long' > "$file"
+                cat "$file.orig" >> "$file"
+                rm -f "$file.orig"
+              done
             ''
           else
             "";
