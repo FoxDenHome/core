@@ -31,6 +31,9 @@
       "/run/current-system/sw"
     ];
 
+    # libhidapi-libusb
+    # libhidapi-hidraw
+
     serviceConfig = {
       ExecStart = "${config.programs.sway.package}/bin/sway";
       Restart = "always";
