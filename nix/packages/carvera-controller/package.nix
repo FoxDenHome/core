@@ -137,27 +137,8 @@ let
           )
         ]
       );
-
-  pyPackage = mkApplication {
-    venv = pythonSet.mkVirtualEnv "carvera-controller-community" workspace.deps.default;
-    package = pythonSet.carvera-controller-community;
-  };
 in
-pkgs.stdenv.mkDerivation {
-  name = "carvera-controller-community";
-  version = "2.0.0";
-  src = pyPackage;
-
-  buildInputs = [
-    (lib.getLib pkgs.mtdev)
-  ];
-
-  runtimeDependencies = [
-    (lib.getLib pkgs.mtdev)
-  ];
-
-  unpackPhase = "true";
-  installPhase = ''
-    cp -r $src $out
-  '';
+mkApplication {
+  venv = pythonSet.mkVirtualEnv "carvera-controller-community" workspace.deps.default;
+  package = pythonSet.carvera-controller-community;
 }
