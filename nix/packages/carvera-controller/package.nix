@@ -1,56 +1,50 @@
-{ pkgs, ... }:
-pkgs.stdenv.mkDerivation {
-  name = "carvera-controller";
-  version = "1.0.0";
-  src = pkgs.fetchurl {
-    url = "https://github.com/MakeraInc/CarveraController/releases/download/v0.9.13/carvera-controller-0.9.13-x86_64-linux.tar.xz";
-    hash = "sha256:4a3df262987f2ef49adbac74a7a45df0bb3ea64af56c6d0e38ee7ba8f5dd4d94";
+{ pkgs, poetry2nix, ... }:
+let
+  inherit (poetry2nix.lib.mkPoetry2Nix { inherit pkgs; }) mkPoetryApplication;
+
+  pypkgs-build-requirements = {
+    altgraph = [ "setuptools" ];
+    carvera-controller-community = [ "hatchling" ];
+    certifi = [ "setuptools" ];
+    charset-normalizer = [ "setuptools" ];
+    distlib = [ "setuptools" ];
+    docutils = [ "flit-core" ];
+    filelock = [ "hatchling" ];
+    filetype = [ "setuptools" ];
+    hid = [ "setuptools" ];
+    idna = [ "flit-core" ];
+    markupsafe = [ "setuptools" ];
+    packaging = [ "flit-core" ];
+    platformdirs = [ "hatchling" ];
+    pygments = [ "hatchling" ];
+    pyquicklz = [ "setuptools" ];
+    pyserial = [ "setuptools" ];
+    pyyaml = [ "setuptools" ];
+    ruamel-yaml = [ "setuptools" ];
+    ruamel-yaml-clib = [ "setuptools" ];
+    toml = [ "setuptools" ];
   };
-
-  # TODO: Switch to community controller
-
-  nativeBuildInputs = [
-    pkgs.autoPatchelfHook
-  ];
-
-  buildInputs = with pkgs; [
-    (lib.getLib mtdev)
-    (lib.getLib openssl)
-    (lib.getLib stdenv.cc.cc)
-    bzip2
-    expat
-    libffi_3_3
-    libgcc
-    libGL
-    mpdecimal
-    readline
-    xorg.libX11
-    xorg.libXrender
-    xz
-    zlib
-  ];
-
-  autoPatchelfIgnoreMissingDeps = [
-    "libcrypto.so.1.1"
-    "libssl.so.1.1"
-    "libmpdec.so.2"
-  ];
-
-  runtimeDependencies = with pkgs; [
-    (lib.getLib mtdev)
-  ];
-
-  appendRunpaths =
-    with pkgs;
-    lib.makeLibraryPath [
-      mtdev
-    ];
-
-  unpackPhase = ''
-    mkdir -p files && tar -C files -xvf $src
-  '';
-
-  installPhase = ''
-    cp -r ./files $out
-  '';
+in
+mkPoetryApplication {
+  projectDir = pkgs.fetchFromGitHub {
+    owner = "Carvera-Community";
+    repo = "Carvera_Controller";
+    rev = "v2.0.0";
+    sha256 = "sha256-bd+XxEI5d7pgO4z4s3WU1SWl1FbHvEHXPyGt82VkVUk=";
+  };
+  python = pkgs.python312;
+  overrides = (
+    final: prev:
+    builtins.mapAttrs (
+      package: build-requirements:
+      (builtins.getAttr package prev).overridePythonAttrs (old: {
+        buildInputs =
+          (old.buildInputs or [ ])
+          ++ (builtins.map (
+            pkg: if builtins.isString pkg then builtins.getAttr pkg prev else pkg
+          ) build-requirements);
+      })
+    ) pypkgs-build-requirements
+  );
+  # https://github.com/Carvera-Community/Carvera_Controller.git v2.0.0
 }
