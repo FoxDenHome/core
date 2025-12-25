@@ -1,7 +1,8 @@
-{ pkgs, poetry2nix, ... }:
+{ pkgs,  nixpkgs, lib,
+      pyproject-nix,
+      uv2nix,
+      pyproject-build-systems, ... }:
 let
-  inherit (poetry2nix.lib.mkPoetry2Nix { inherit pkgs; }) mkPoetryApplication defaultPoetryOverrides;
-
   pypkgs-build-requirements = {
     altgraph = [ "setuptools" ];
     buildozer = [ "setuptools" ];
@@ -66,49 +67,85 @@ let
       pkgs.gst_all_1.gstreamer
     ];
   };
-in
-mkPoetryApplication {
-  projectDir = pkgs.fetchFromGitHub {
-    owner = "Carvera-Community";
-    repo = "Carvera_Controller";
-    rev = "v2.0.0";
-    sha256 = "sha256-bd+XxEI5d7pgO4z4s3WU1SWl1FbHvEHXPyGt82VkVUk=";
+
+  inherit (pkgs.callPackages pyproject-nix.build.util { }) mkApplication;
+
+  overlay = workspace.mkPyprojectOverlay {
+    sourcePreference = "wheel";
   };
 
+  patchedSrc = pkgs.stdenvNoCC.mkDerivation {
+    name = "carvera-controller-community-patched";
+    version = "2.0.0";
+
+    src = pkgs.fetchFromGitHub {
+      owner = "Carvera-Community";
+      repo = "Carvera_Controller";
+      rev = "v2.0.0";
+      sha256 = "sha256-bd+XxEI5d7pgO4z4s3WU1SWl1FbHvEHXPyGt82VkVUk=";
+    };
+
+    unpackPhase = "true";
+
+    installPhase = ''
+      cp -r $src $out
+      chmod 755 $out
+      rm -f $out/poetry.lock $out/pyproject.toml $out/uv.lock
+      cp ${./pyproject.toml} $out/pyproject.toml
+      cp ${./uv.lock} $out/uv.lock
+    '';
+  };
+
+  workspace = uv2nix.lib.workspace.loadWorkspace { workspaceRoot = patchedSrc; };
   python = pkgs.python312;
-  pyproject = ./pyproject.toml;
+  pythonSet =
+    (pkgs.callPackage pyproject-nix.build.packages {
+      inherit python;
+    }).overrideScope
+      (
+        nixpkgs.lib.composeManyExtensions [
+          pyproject-build-systems.overlays.default
+          overlay
+          (final: prev:
+            {
+              carvera-controller-community = prev.carvera-controller-community.overrideAttrs (old: {
+                runtimeDependencies = (old.runtimeDependencies or []) ++ [
+                  (lib.getLib pkgs.mtdev)
+                ];
 
-  configurePhase = ''
-    rm -rf packaging_assets pyproject.toml
-    cp ${./pyproject.toml} pyproject.toml
+                appendRunpaths = (old.appendRunpaths or []) ++ [
+                  (lib.makeLibraryPath pkgs.mtdev)
+                ];
+              });
+            } // builtins.mapAttrs (package: build-requirements:
+              (builtins.getAttr package prev).overrideAttrs (old: {
+                nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ (builtins.map (pkg: if builtins.isString pkg then builtins.getAttr pkg prev else pkg) build-requirements);
+              })
+            ) pypkgs-build-requirements
+          )
+        ]
+      );
+
+  pyPackage = mkApplication {
+    venv = pythonSet.mkVirtualEnv "carvera-controller-community" workspace.deps.default;
+    package = pythonSet.carvera-controller-community;
+  };
+in
+pkgs.stdenv.mkDerivation {
+  name = "carvera-controller-community";
+  version = "2.0.0";
+  src = pyPackage;
+
+  runtimeDependencies = with pkgs; [
+    (lib.getLib mtdev)
+  ];
+
+  appendRunpaths = with pkgs; [
+    (lib.makeLibraryPath mtdev)
+  ];
+
+  unpackPhase = "true";
+  installPhase = ''
+    cp -r $src $out
   '';
-
-  overrides = defaultPoetryOverrides.extend (
-    final: prev:
-    builtins.mapAttrs (
-      package: build-requirements:
-      (builtins.getAttr package prev).overridePythonAttrs (old: {
-        configurePhase =
-          if package == "kivy" then
-            ''
-              export KIVY_NO_CONFIG=1
-              for file in kivy/weakproxy.pyx kivy/graphics/context_instructions.pyx kivy/graphics/opengl.pyx; do
-                chmod 755 "$(dirname "$file")"
-                mv "$file" "$file.orig"
-                echo 'from ctypes import c_long as long' > "$file"
-                cat "$file.orig" >> "$file"
-                rm -f "$file.orig"
-              done
-            ''
-          else
-            "";
-        buildInputs =
-          (old.buildInputs or [ ])
-          ++ (builtins.map (
-            pkg: if builtins.isString pkg then builtins.getAttr pkg prev else pkg
-          ) build-requirements);
-      })
-    ) pypkgs-build-requirements
-  );
-  # https://github.com/Carvera-Community/Carvera_Controller.git v2.0.0
 }
