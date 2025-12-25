@@ -21,7 +21,7 @@ in
 
     networkConfig = {
       DHCP = "yes";
-      IPv6AcceptRA = true;
+      IPv6AcceptRA = false;
     };
   };
 }
