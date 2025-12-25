@@ -79,14 +79,16 @@ let
     sourcePreference = "wheel";
   };
 
+  version = "2.0.0";
+
   patchedSrc = pkgs.stdenvNoCC.mkDerivation {
     name = "carvera-controller-community-patched";
-    version = "2.0.0";
+    inherit version;
 
     src = pkgs.fetchFromGitHub {
       owner = "Carvera-Community";
       repo = "Carvera_Controller";
-      rev = "v2.0.0";
+      rev = "v${version}";
       sha256 = "sha256-bd+XxEI5d7pgO4z4s3WU1SWl1FbHvEHXPyGt82VkVUk=";
     };
 
