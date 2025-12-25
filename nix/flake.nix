@@ -44,11 +44,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.flake-utils.follows = "flake-utils";
     };
-    carvera-pendant = {
-      url = "git+https://git.foxden.network/FoxDen/carvera-pendant";
-      inputs.nixpkgs.follows = "nixpkgs";
-      inputs.flake-utils.follows = "flake-utils";
-    };
     e621dumper = {
       url = "git+https://git.foxden.network/FoxDen/e621dumper";
       inputs = {

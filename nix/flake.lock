@@ -23,29 +23,6 @@
         "url": "https://git.foxden.network/FoxDen/backupmgr"
       }
     },
-    "carvera-pendant": {
-      "inputs": {
-        "flake-utils": [
-          "flake-utils"
-        ],
-        "nixpkgs": [
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1766467819,
-        "narHash": "sha256-xCxtrTG0YmYcVzmzcYz6z6VkCcrNfmI1XH0XF8I1aRE=",
-        "ref": "refs/heads/main",
-        "rev": "af2233b9cab59f56e7d52772466ea2b9567a6dc1",
-        "revCount": 605,
-        "type": "git",
-        "url": "https://git.foxden.network/FoxDen/carvera-pendant"
-      },
-      "original": {
-        "type": "git",
-        "url": "https://git.foxden.network/FoxDen/carvera-pendant"
-      }
-    },
     "crane": {
       "locked": {
         "lastModified": 1765145449,
@@ -416,7 +393,6 @@
     "root": {
       "inputs": {
         "backupmgr": "backupmgr",
-        "carvera-pendant": "carvera-pendant",
         "darksignsonline": "darksignsonline",
         "e621dumper": "e621dumper",
         "fadumper": "fadumper",
