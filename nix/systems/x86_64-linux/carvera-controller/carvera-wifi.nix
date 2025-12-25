@@ -1,4 +1,7 @@
 { config, ... }:
+let
+  wifiIface = "wlp1s0";
+in
 {
   sops.secrets.wireless = config.lib.foxDen.sops.mkIfAvailable { };
 
@@ -12,4 +15,13 @@
   };
 
   networking.networkmanager.enable = false;
+
+  systemd.network.networks."30-${wifiIface}" = {
+    name = wifiIface;
+
+    networkConfig = {
+      DHCP = "yes";
+      IPv6AcceptRA = true;
+    };
+  };
 }
