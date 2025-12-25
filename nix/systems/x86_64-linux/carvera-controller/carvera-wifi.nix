@@ -8,4 +8,6 @@
       FoxDen_Carvera.pskRaw = "ext:psk_carvera";
     };
   };
+
+  networking.networkmanager.enable = false;
 }
