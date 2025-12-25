@@ -38,11 +38,6 @@
       };
     };
 
-    poetry2nix = {
-      url = "github:nix-community/poetry2nix";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
     # Applications
     backupmgr = {
       url = "git+https://git.foxden.network/FoxDen/backupmgr";
