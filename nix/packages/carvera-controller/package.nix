@@ -1,7 +1,12 @@
-{ pkgs,  nixpkgs, lib,
-      pyproject-nix,
-      uv2nix,
-      pyproject-build-systems, ... }:
+{
+  pkgs,
+  nixpkgs,
+  lib,
+  pyproject-nix,
+  uv2nix,
+  pyproject-build-systems,
+  ...
+}:
 let
   pypkgs-build-requirements = {
     altgraph = [ "setuptools" ];
@@ -106,20 +111,27 @@ let
         nixpkgs.lib.composeManyExtensions [
           pyproject-build-systems.overlays.default
           overlay
-          (final: prev:
+          (
+            final: prev:
             {
               carvera-controller-community = prev.carvera-controller-community.overrideAttrs (old: {
-                runtimeDependencies = (old.runtimeDependencies or []) ++ [
+                runtimeDependencies = (old.runtimeDependencies or [ ]) ++ [
                   (lib.getLib pkgs.mtdev)
                 ];
 
-                appendRunpaths = (old.appendRunpaths or []) ++ [
+                appendRunpaths = (old.appendRunpaths or [ ]) ++ [
                   (lib.makeLibraryPath pkgs.mtdev)
                 ];
               });
-            } // builtins.mapAttrs (package: build-requirements:
+            }
+            // builtins.mapAttrs (
+              package: build-requirements:
               (builtins.getAttr package prev).overrideAttrs (old: {
-                nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ (builtins.map (pkg: if builtins.isString pkg then builtins.getAttr pkg prev else pkg) build-requirements);
+                nativeBuildInputs =
+                  (old.nativeBuildInputs or [ ])
+                  ++ (builtins.map (
+                    pkg: if builtins.isString pkg then builtins.getAttr pkg prev else pkg
+                  ) build-requirements);
               })
             ) pypkgs-build-requirements
           )
@@ -136,12 +148,12 @@ pkgs.stdenv.mkDerivation {
   version = "2.0.0";
   src = pyPackage;
 
-  runtimeDependencies = with pkgs; [
-    (lib.getLib mtdev)
+  buildInputs = [
+    (lib.getLib pkgs.mtdev)
   ];
 
-  appendRunpaths = with pkgs; [
-    (lib.makeLibraryPath mtdev)
+  runtimeDependencies = [
+    (lib.getLib pkgs.mtdev)
   ];
 
   unpackPhase = "true";
