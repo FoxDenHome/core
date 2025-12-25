@@ -94,6 +94,8 @@ let
 
     unpackPhase = "true";
 
+    # TODO: Figure out where this stores settings and make writable/persistent
+
     installPhase = ''
       cp -r $src $out
       chmod 755 $out $out/carveracontroller
