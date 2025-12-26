@@ -29,7 +29,6 @@
         "+${pkgs.coreutils}/bin/chmod 700 /run/appliance/tmp"
         "+${pkgs.coreutils}/bin/chown -R appliance:appliance /run/appliance"
         "+${pkgs.coreutils}/bin/chmod -R 700 /run/appliance"
-        "${pkgs.coreutils}/bin/rm -f /run/appliance/app"
         "${pkgs.coreutils}/bin/ln -sf \"${pkgs.carvera-controller}\" /run/appliance/app"
         "${pkgs.rsync}/bin/rsync --exclude=tmp --exclude=app -av --delete ${./appliance-home}/ /run/appliance/"
         "${pkgs.coreutils}/bin/chmod 500 /run/appliance"
