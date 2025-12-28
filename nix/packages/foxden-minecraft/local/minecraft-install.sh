@@ -15,7 +15,7 @@ superdel() {
 run_update() {
   cd "${SERVER_DIR}"
 
-  superdel config/bluemap mods
+  superdel config/bluemap config/paxi/datapacks mods
   INSTALLED_ID="$(cat "${INSTALLED_ID_FILE}" || echo none)"
   LATEST_ID="$(cat "${LATEST_ID_FILE}")"
   if [ "${INSTALLED_ID}" != "${LATEST_ID}" ]; then
