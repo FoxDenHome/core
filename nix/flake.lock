@@ -284,11 +284,11 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1766473571,
-        "narHash": "sha256-5G1NDO2PulBx1RoaA6U1YoUDX0qZslpPxv+n5GX6Qto=",
+        "lastModified": 1766736597,
+        "narHash": "sha256-BASnpCLodmgiVn0M1MU2Pqyoz0aHwar/0qLkp7CjvSQ=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "76701a179d3a98b07653e2b0409847499b2a07d3",
+        "rev": "f560ccec6b1116b22e6ed15f4c510997d99d5852",
         "type": "github"
       },
       "original": {
@@ -445,11 +445,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1766289575,
-        "narHash": "sha256-BOKCwOQQIP4p9z8DasT5r+qjri3x7sPCOq+FTjY8Z+o=",
+        "lastModified": 1766894905,
+        "narHash": "sha256-pn8AxxfajqyR/Dmr1wnZYdUXHgM3u6z9x0Z1Ijmz2UQ=",
         "owner": "Mic92",
         "repo": "sops-nix",
-        "rev": "9836912e37aef546029e48c8749834735a6b9dad",
+        "rev": "61b39c7b657081c2adc91b75dd3ad8a91d6f07a7",
         "type": "github"
       },
       "original": {
@@ -468,11 +468,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1766007771,
-        "narHash": "sha256-wQXjIONrKt8VgVLIWoIE+d819W6EFn1fqh0i3+ZwUs4=",
+        "lastModified": 1766855738,
+        "narHash": "sha256-V7XKCO6Oit/tnYXNmd2qOk0MxSi349OdkzWM2xsTvD4=",
         "ref": "refs/heads/main",
-        "rev": "dcb7edda545e90ae711f13f18ddbf2b248195dce",
-        "revCount": 390,
+        "rev": "1900740914b79d53457242b6350389967ee51c03",
+        "revCount": 392,
         "type": "git",
         "url": "https://git.foxden.network/SpaceAge/space_age_api"
       },
@@ -640,11 +640,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1765566652,
-        "narHash": "sha256-7xNFZqOB0wDlQgSpLA055uKWs+qGsBsBfsq/Wjqo44M=",
+        "lastModified": 1766948388,
+        "narHash": "sha256-QcrBkNiWC5BgSJe/mmzmd3zeOZX0mzqs2E0sWJ+LPdw=",
         "ref": "refs/heads/main",
-        "rev": "0956e3a09ac6f0d7cc4d6fca4d930168bf2210cc",
-        "revCount": 532,
+        "rev": "51f1b477992b3e83ae3560b40576cf949e0887d3",
+        "revCount": 533,
         "type": "git",
         "url": "https://git.foxden.network/FoxDen/tapemgr"
       },
