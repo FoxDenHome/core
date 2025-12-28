@@ -35,8 +35,8 @@ in
   };
 
   config = lib.mkIf config.foxDen.zfs.enable {
-    # TODO: Keep these values reasonably up to date [kernelPackages / zfs.package]
     boot = {
+      # TODO: Keep these values reasonably up to date [kernelPackages / zfs.package]
       zfs = {
         devNodes = "/dev/disk/by-path";
         package = pkgs.zfs_2_4;
