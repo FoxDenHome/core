@@ -35,15 +35,17 @@ in
   };
 
   config = lib.mkIf config.foxDen.zfs.enable {
+    # TODO: Keep these values reasonably up to date [kernelPackages / zfs.package]
     boot = {
       zfs.devNodes = "/dev/disk/by-path";
       supportedFilesystems = [ "zfs" ];
-      kernelPackages = pkgs.linuxPackages_6_17; # TODO: 6.18 is broken
+      kernelPackages = pkgs.linuxPackages_6_18;
     };
+    zfs.package = pkgs.zfs_2_4;
     environment.systemPackages = with pkgs; [
       mbuffer
       sanoidPackage
-      zfs
+      config.zfs.package
     ];
 
     environment.persistence."/nix/persist/system".files = [
