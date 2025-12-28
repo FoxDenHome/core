@@ -37,15 +37,17 @@ in
   config = lib.mkIf config.foxDen.zfs.enable {
     # TODO: Keep these values reasonably up to date [kernelPackages / zfs.package]
     boot = {
-      zfs.devNodes = "/dev/disk/by-path";
+      zfs = {
+        devNodes = "/dev/disk/by-path";
+        package = pkgs.zfs_2_4;
+      };
       supportedFilesystems = [ "zfs" ];
       kernelPackages = pkgs.linuxPackages_6_18;
     };
-    zfs.package = pkgs.zfs_2_4;
     environment.systemPackages = with pkgs; [
       mbuffer
       sanoidPackage
-      config.zfs.package
+      config.boot.zfs.package
     ];
 
     environment.persistence."/nix/persist/system".files = [
