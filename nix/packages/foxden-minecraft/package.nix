@@ -110,6 +110,10 @@ pkgs.stdenvNoCC.mkDerivation {
       url = "https://github.com/Doridian/BlueMapEveryCompatCompat/releases/download/0.0.3/BlueMapEveryCompatCompat-0.0.3.jar";
       hash = "sha256:6508639b623d67700f8a7c3b798fc268f1da10cc290133325816f2b3f73c38ab";
     })
+    (pkgs.fetchurl {
+      url = "https://github.com/BeneHenke/BluemapCreateEntityAddon/releases/download/v.1.1.0/createentityaddon-1.1.0-5.13+.jar";
+      hash = "sha256:4593d7f1324ded62fbea209dfc87db3ef129470bc12f5bc96e34f57be73f2fd0";
+    })
   ];
 
   buildInputs = with pkgs; [
