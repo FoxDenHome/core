@@ -15,6 +15,8 @@ in
     ntfy = mkVlanHost 3 {
       dns = {
         fqdns = [ "ntfy.foxden.network" ];
+        dynDns = true;
+        critical = true;
       };
       webservice.enable = true;
       addresses = [
