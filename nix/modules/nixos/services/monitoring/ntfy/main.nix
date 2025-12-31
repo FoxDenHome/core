@@ -20,8 +20,11 @@ let
 
   configYaml = {
     base-url = "https://${hostName}";
+    listen-http = "127.0.0.1:8082";
     behind-proxy = true;
     auth-file = "/var/lib/ntfy/user.db";
+    cache-file = "/var/cache/ntfy/cache.db";
+    attachment-cache-dir = "/var/cache/ntfy/attachments";
     auth-default-access = "deny-all";
     enable-signup = false;
   };
