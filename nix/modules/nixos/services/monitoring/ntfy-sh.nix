@@ -47,12 +47,6 @@ in
           auth-default-access = "deny-all";
           enable-signup = false;
         };
-        environment.persistence."/nix/persist/ntfy-sh" = {
-          hideMounts = true;
-          directories = [
-            (mkDir "/var/lib/ntfy-sh")
-          ];
-        };
       }
     ]
   );
