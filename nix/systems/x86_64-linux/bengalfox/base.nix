@@ -45,6 +45,7 @@
       ARRAY /dev/md1 metadata=1.2 UUID=115c644c:fcb4a527:5d784e0c:9c379b03
     '';
   };
+  systemd.services.mdmon.enable = false;
 
   boot.initrd.luks.devices = {
     nixroot = {
