@@ -16,6 +16,7 @@ in
       dns = {
         fqdns = [ "ntfy.foxden.network" ];
       };
+      webservice.enable = true;
       addresses = [
         "10.3.10.2/16"
         "fd2c:f4cb:63be:3::a02/64"
