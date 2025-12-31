@@ -58,6 +58,9 @@ in
             BindReadOnlyPaths = [
               "${pkgs.writers.writeYAML "server.yml" configYaml}:/etc/ntfy/server.yml"
             ];
+            Environment = [
+              "HOME=/var/lib/ntfy"
+            ];
             StateDirectory = "ntfy";
             CacheDirectory = "ntfy";
           };
