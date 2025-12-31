@@ -9,15 +9,6 @@ let
   services = foxDenLib.services;
   svcConfig = config.foxDen.services.ntfy-sh;
   hostName = services.getFirstFQDN config svcConfig;
-
-  mkDir = (
-    dir: {
-      directory = dir;
-      user = config.services.ntfy-sh.user;
-      group = config.services.ntfy-sh.group;
-      mode = "u=rwx,g=,o=";
-    }
-  );
 in
 {
   options.foxDen.services.ntfy-sh = (
@@ -39,13 +30,30 @@ in
         target = "proxy_pass http://127.0.0.1:2586;";
       }).config
       {
-        services.ntfy-sh.enable = true;
-        services.ntfy-sh.settings = {
-          base-url = "https://${hostName}";
-          listen-http = "127.0.0.1:2586";
-          behind-proxy = true;
-          auth-default-access = "deny-all";
-          enable-signup = false;
+        sops.secrets.ntfy-sh = config.lib.foxDen.sops.mkIfAvailable {
+          mode = "0400";
+          owner = "ntfy-sh";
+          group = "ntfy-sh";
+        };
+
+        services.ntfy-sh = {
+          enable = true;
+          environmentFile = config.lib.foxDen.sops.mkIfAvailable config.sops.secrets.ntfy-sh;
+          settings = {
+            base-url = "https://${hostName}";
+            listen-http = "127.0.0.1:2586";
+            behind-proxy = true;
+            auth-default-access = "deny-all";
+            enable-signup = false;
+            auth-access = [
+              "islandfox:alerts:wo"
+              "bengalfox:alerts:wo"
+              "icefox:alerts:wo"
+              "*:general-ro:ro"
+              "*:general-wo:wo"
+              "*:general-rw:rw"
+            ];
+          };
         };
       }
     ]
