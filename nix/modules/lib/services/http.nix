@@ -546,12 +546,17 @@ in
             environment.etc.${confFileEtc} = {
               text = ''
                 worker_processes auto;
+                worker_cpu_affinity auto;
+                worker_rlimit_nofile 100000;
 
                 error_log stderr notice;
                 pid /tmp/nginx.pid;
 
                 events {
-                  worker_connections 1024;
+                  worker_connections 4096;
+                  use epoll;
+                  multi_accept on;
+                  accept_mutex off;
                 }
 
                 http {
@@ -561,8 +566,18 @@ in
                   include ${package}/conf/mime.types;
                   default_type application/octet-stream;
 
+                  keepalive_timeout 30;
+                  keepalive_requests 1000;
+                  keepalive_time 1h;
+
+                  client_body_timeout 12s;
+                  client_header_timeout 12s;
+                  send_timeout 10s;
+
                   sendfile on;
-                  keepalive_timeout 65;
+                  sendfile_max_chunk 1m;
+                  tcp_nopush on;
+                  tcp_nodelay on;
 
                   map $http_upgrade $connection_upgrade {
                     default upgrade;
