@@ -38,7 +38,7 @@ in
 
         services.ntfy-sh = {
           enable = true;
-          environmentFile = config.lib.foxDen.sops.mkIfAvailable config.sops.secrets.ntfy-sh;
+          environmentFile = config.lib.foxDen.sops.mkIfAvailable config.sops.secrets.ntfy-sh.path;
           settings = {
             base-url = "https://${hostName}";
             listen-http = "127.0.0.1:2586";
