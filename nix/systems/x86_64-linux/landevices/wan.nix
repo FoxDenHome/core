@@ -101,13 +101,6 @@ in
       value = "wan.foxden.network.";
       horizon = "external";
     }
-    {
-      fqdn = "hosts.foxden.network";
-      type = "TXT";
-      ttl = 3600;
-      value = "v=spf1 a:ext-router.foxden.network a:ext-router-backup.foxden.network a:router.foxden.network a:router-backup.foxden.network -all";
-      horizon = "*";
-    }
   ]
   ++ (mkWanRecs "wan" "10.2.0.1" "fd2c:f4cb:63be:2::1")
   ++ (mkWanRecs "router" "10.2.1.1" "fd2c:f4cb:63be:2::101")

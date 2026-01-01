@@ -105,6 +105,7 @@ let
 in
 {
   lib.foxDenSys = {
+    mainIPs = map foxDenLib.util.removeIPCidr (ifcfg-foxden.addresses ++ ifcfg.addresses ++ ifcfg-routed.addresses ++ ifcfg-vrack.addresses);
     inherit mkMinHost;
     mkV6Host =
       iface:
