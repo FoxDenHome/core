@@ -15,6 +15,7 @@ let
   mkValue = ips: "v=spf1 ${mkDirectives ips} -all";
 in
 {
+  # TODO: Make this *@HOST.foxden.network
   config.foxDen.dns.records = [
     {
       fqdn = "hosts.foxden.network";
