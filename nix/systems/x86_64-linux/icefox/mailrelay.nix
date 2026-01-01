@@ -6,7 +6,13 @@
 }:
 let
   util = foxDenLib.util;
-  mkDirectives = ips: map (ip: if util.isIPv6 ip then "ip6:${ip}" else "ip4:${ip}") ips;
+  mkDirectives =
+    ips:
+    nixpkgs.lib.concatStringsSep " " (
+      map (ip: if util.isIPv6 ip then "ip6:${ip}" else "ip4:${ip}") ips
+    );
+
+  mkValue = ips: "v=spf1 ${mkDirectives ips} -all";
 in
 {
   config.foxDen.dns.records = [
@@ -14,18 +20,14 @@ in
       fqdn = "hosts.foxden.network";
       type = "TXT";
       ttl = 3600;
-      value = "v=spf1 ${nixpkgs.lib.concatStringsSep " " (mkDirectives config.lib.foxDenSys.mainIPs)} -all";
+      value = mkValue config.lib.foxDenSys.mainIPs;
       horizon = "internal";
     }
     {
       fqdn = "hosts.foxden.network";
       type = "TXT";
       ttl = 3600;
-      value = "v=spf1 ${
-        nixpkgs.lib.concatStringsSep " " (
-          mkDirectives (nixpkgs.lib.filter (ip: !util.isPrivateIP ip) config.lib.foxDenSys.mainIPs)
-        )
-      } -all";
+      value = mkValue (nixpkgs.lib.filter (ip: !util.isPrivateIP ip) config.lib.foxDenSys.mainIPs);
       horizon = "external";
     }
   ];
