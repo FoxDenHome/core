@@ -20,7 +20,7 @@ in
       fqdn = "hosts.foxden.network";
       type = "TXT";
       ttl = 3600;
-      value = mainIPs;
+      value = mkValue mainIPs;
       horizon = "internal";
     }
     {
