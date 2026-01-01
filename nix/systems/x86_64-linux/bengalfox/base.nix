@@ -41,11 +41,11 @@
   boot.swraid = {
     enable = true;
     mdadmConf = ''
+      MAILADDR mdmon@doridian.net
       ARRAY /dev/md0 metadata=1.2 UUID=a84487b7:a5d11a87:32de3997:dacc0654
       ARRAY /dev/md1 metadata=1.2 UUID=115c644c:fcb4a527:5d784e0c:9c379b03
     '';
   };
-  systemd.services.mdmon.enable = false;
 
   boot.initrd.luks.devices = {
     nixroot = {

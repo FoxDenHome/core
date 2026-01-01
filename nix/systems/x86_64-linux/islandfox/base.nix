@@ -30,9 +30,11 @@
 
   boot.swraid = {
     enable = true;
-    mdadmConf = "ARRAY /dev/md0 metadata=1.2 UUID=660f8703:f7ec5be9:b586b082:ce74a589";
+    mdadmConf = ''
+      MAILADDR mdmon@doridian.net
+      ARRAY /dev/md0 metadata=1.2 UUID=660f8703:f7ec5be9:b586b082:ce74a589
+    '';
   };
-  systemd.services.mdmon.enable = false;
 
   boot.extraModprobeConfig = ''
     blacklist bluetooth
