@@ -11,7 +11,6 @@ let
     nixpkgs.lib.concatStringsSep " " (
       map (ip: if util.isIPv6 ip then "ip6:${ip}" else "ip4:${ip}") ips
     );
-
   mkValue = ips: "v=spf1 ${mkDirectives ips} -all";
 in
 {
