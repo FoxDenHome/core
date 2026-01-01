@@ -11,6 +11,9 @@
     "dori.fyi" = {
       registrar = "inwx";
     };
+    "vulpine.watch" = {
+      registrar = "inwx";
+    };
     "doridian.net" = {
       generateNSRecords = true;
     };
