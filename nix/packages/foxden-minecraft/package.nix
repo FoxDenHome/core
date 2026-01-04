@@ -83,6 +83,9 @@ pkgs.stdenvNoCC.mkDerivation {
     (modrinthGetMod "dimension-localized-inventories" "1.9fe"
       "zJ8KXcF9@sha512:9a8862dd6773537d7a1355b5d19ea5be30616db6ccb04205c74d5c096913c5531b46170e2b33823cbfbbf4180f438d642e33ddb88cb2e7fadf48a1c02b78ce21"
     )
+    (modrinthGetMod "in-control" "1.20-9.4.5"
+      "wJ7rh95u@sha512:e9ead58a14fcbacb6593ee3e4997db5d6e7a21424589d933d7d214edf063e28f02bf385942e396a9b09409a8ed77db5e10113ce0500d0c70cff654bfc95949ee"
+    )
     # (modrinthGetMod "connector" "1.0.0-beta.47+1.20.1"
     #   "XoBmts8o@sha512:55cc9ef219c67c684b81e6f55b397e0fb287b82b4ec37b2bb046846dc5aa582c4d794e0421702ae34e4e856574daac96b2a152abb7c95295ca8a86b67932082a"
     # )
