@@ -86,15 +86,6 @@ pkgs.stdenvNoCC.mkDerivation {
     (modrinthGetMod "in-control" "1.20-9.4.5"
       "wJ7rh95u@sha512:e9ead58a14fcbacb6593ee3e4997db5d6e7a21424589d933d7d214edf063e28f02bf385942e396a9b09409a8ed77db5e10113ce0500d0c70cff654bfc95949ee"
     )
-    # (modrinthGetMod "connector" "1.0.0-beta.47+1.20.1"
-    #   "XoBmts8o@sha512:55cc9ef219c67c684b81e6f55b397e0fb287b82b4ec37b2bb046846dc5aa582c4d794e0421702ae34e4e856574daac96b2a152abb7c95295ca8a86b67932082a"
-    # )
-    # (modrinthGetMod "forgified-fabric-api" "0.92.6+1.11.14+1.20.1"
-    #   "XweDEycJ@sha512:3b84ea415d9255861bcbf78cfda3987b78aa452361bf44ba6a0223501a25ab5c5c55cb0eac6f460c88b8cec958f2b59211e488277c26e3432a08196f62049e7c"
-    # )
-    # (modrinthGetMod "axiom" "5.2.1"
-    #   "KYfgWqQU@sha512:f73c23ed91f4313da7385ea015d27d044703b00a0608870aa836554061bb056b07e709111e8ba33b97ddf31a9a71aa83d482a76f6b8fc83951bba492d2c019c7"
-    # )
     # TODO: Add/fix BlueMap rendering for:
     # - Basic steam engine "armatures"
     # - Hanging laterns (once on posts render ok)
