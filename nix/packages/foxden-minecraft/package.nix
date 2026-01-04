@@ -86,9 +86,6 @@ pkgs.stdenvNoCC.mkDerivation {
     (modrinthGetMod "in-control" "1.20-9.4.5"
       "wJ7rh95u@sha512:e9ead58a14fcbacb6593ee3e4997db5d6e7a21424589d933d7d214edf063e28f02bf385942e396a9b09409a8ed77db5e10113ce0500d0c70cff654bfc95949ee"
     )
-    (modrinthGetMod "create-sound-of-steam" "0.8.2+1.20.1"
-      "ljMYelZu@sha512:eae126cf10ba8a75818f16ebd405ac48a8093c01984cd99b0620d731a2471d4c44e0ba1f9c29c39230cf71ce5bb730ef085d3f245c417df707f1bf87c0caad1a"
-    )
     # (modrinthGetMod "connector" "1.0.0-beta.47+1.20.1"
     #   "XoBmts8o@sha512:55cc9ef219c67c684b81e6f55b397e0fb287b82b4ec37b2bb046846dc5aa582c4d794e0421702ae34e4e856574daac96b2a152abb7c95295ca8a86b67932082a"
     # )
