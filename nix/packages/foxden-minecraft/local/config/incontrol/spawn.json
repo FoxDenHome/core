@@ -1,0 +1,20 @@
+[
+    {
+        "minheight": 1,
+        "hostile": true,
+        "dimension": "minecraft:overworld",
+        "when": "onjoin",
+        "spawntype": ["natural", "chunk_generation", "jockey", "event", "conversion", "reinforcement", "triggered", "patrol"],
+        "result": "deny"
+    },
+    {
+        "dimension": "bw:mirror",
+        "when": "onjoin",
+        "result": "deny"
+    },
+    {
+        "dimension": "bw:superflat",
+        "when": "onjoin",
+        "result": "deny"
+    }
+]
