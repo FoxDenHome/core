@@ -1,7 +1,6 @@
 {
   pkgs,
   nixpkgs,
-  lib,
   pyproject-nix,
   uv2nix,
   pyproject-build-systems,
