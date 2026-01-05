@@ -21,6 +21,7 @@ build-backend = "hatchling.build"
 
 [project.scripts]
 carvera-controller-community = "carveracontroller.__main__:main"
+carvera-controller-whb04dbg = "carveracontroller.addons.pendant.whb04:__main__"
 
 [tool.uv.extra-build-dependencies]
 altgraph = [ "setuptools" ]
