@@ -16,6 +16,11 @@
   };
   users.groups.appliance = { };
 
+  services.udev.extraRules = ''
+    SUBSYSTEM=="usb", ATTRS{idVendor}=="10ce", ATTRS{idProduct}=="eb93", GROUP="dialout"
+    SUBSYSTEM=="hidraw", ATTRS{idVendor}=="10ce", ATTRS{idProduct}=="eb93", GROUP="dialout"
+  '';
+
   systemd.services.appliance-setup = {
     serviceConfig = {
       User = "appliance";
