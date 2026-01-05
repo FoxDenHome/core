@@ -23,5 +23,9 @@ in
       DHCP = "yes";
       IPv6AcceptRA = false;
     };
+
+    linkConfig = {
+      RequiredForOnline = false;
+    };
   };
 }
