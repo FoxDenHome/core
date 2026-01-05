@@ -38,7 +38,7 @@
       Environment = [
         "SDL_VIDEODRIVER=wayland"
         "BEMENU_BACKEND=wayland"
-        "LD_LIBRARY_PATH=${pkgs.mtdev}/lib:${pkgs.hidapi}/lib"
+        "LD_LIBRARY_PATH=${pkgs.hidapi}/lib"
       ];
       WorkingDirectory = "%h";
     };

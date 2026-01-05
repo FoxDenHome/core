@@ -108,18 +108,7 @@ let
           overlay
           (
             final: prev:
-            {
-              carvera-controller-community = prev.carvera-controller-community.overrideAttrs (old: {
-                runtimeDependencies = (old.runtimeDependencies or [ ]) ++ [
-                  (lib.getLib pkgs.mtdev)
-                ];
-
-                appendRunpaths = (old.appendRunpaths or [ ]) ++ [
-                  (lib.makeLibraryPath pkgs.mtdev)
-                ];
-              });
-            }
-            // builtins.mapAttrs (
+            builtins.mapAttrs (
               package: build-requirements:
               (builtins.getAttr package prev).overrideAttrs (old: {
                 nativeBuildInputs =
