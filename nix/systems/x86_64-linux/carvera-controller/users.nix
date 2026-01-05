@@ -1,7 +1,7 @@
 { pkgs, ... }:
 let
   controllerPackage = pkgs.fetchurl {
-    controllerPackage = "https://github.com/Carvera-Community/Carvera_Controller/releases/download/v2.0.0/carveracontroller-community-2.0.0-x86_64.appimage";
+    url = "https://github.com/Carvera-Community/Carvera_Controller/releases/download/v2.0.0/carveracontroller-community-2.0.0-x86_64.appimage";
     hash = "sha256:324095a2a2be7cf96ef8eb91cf2aac10bd9bd51d383af125ceb7bca589e84cf7";
   };
 in
