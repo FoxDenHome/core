@@ -58,6 +58,7 @@ in
             Group = "spaceage-gmod";
             StateDirectory = "spaceage-gmod";
             StateDirectoryMode = "0700";
+            Nice = -3;
             EnvironmentFile = config.lib.foxDen.sops.mkIfAvailable [ config.sops.secrets.spaceage-gmod.path ];
             WorkingDirectory = "/var/lib/spaceage-gmod";
             Environment = [

@@ -76,23 +76,16 @@ in
           serviceConfig = {
             User = "minecraft";
             Group = "minecraft";
-
-            Environment = [
-              "SERVER_DIR=${svcConfig.dataDir}"
-            ];
-
-            BindPaths = [
-              svcConfig.dataDir
-            ];
+            Environment = [ "SERVER_DIR=${svcConfig.dataDir}" ];
+            BindPaths = [ svcConfig.dataDir ];
             BindReadOnlyPaths = [
               "${serverPackage}/server:/server"
               "/usr/bin/env"
             ];
             WorkingDirectory = svcConfig.dataDir;
-
+            Nice = -4;
             ExecStartPre = [ "${serverPackage}/server/minecraft-install.sh" ];
             ExecStart = [ "${svcConfig.dataDir}/minecraft-run.sh" ];
-
             StateDirectory = ifDefaultData "minecraft";
           };
 
