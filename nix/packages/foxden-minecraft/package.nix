@@ -111,8 +111,8 @@ pkgs.stdenvNoCC.mkDerivation {
       hash = "sha256:6508639b623d67700f8a7c3b798fc268f1da10cc290133325816f2b3f73c38ab";
     })
     (pkgs.fetchurl {
-      url = "https://github.com/BeneHenke/BluemapCreateEntityAddon/releases/download/v.1.1.0/createentityaddon-1.1.0-5.13+.jar";
-      hash = "sha256:4593d7f1324ded62fbea209dfc87db3ef129470bc12f5bc96e34f57be73f2fd0";
+      url = "https://github.com/BeneHenke/BluemapCreateEntityAddon/releases/download/v.1.1.1/createentityaddon-1.1.1-5.13+.jar";
+      hash = "sha256:5e7a84355ba57be248fdca34260021a762b0e97ecf952bc694c52295646b5123";
     })
   ];
 
