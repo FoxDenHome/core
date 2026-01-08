@@ -12,4 +12,5 @@
     "emergency.target"
   ];
   boot.loader.grub.splashImage = null;
+  documentation.man.enable = false;
 }

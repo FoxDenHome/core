@@ -22,6 +22,8 @@
   boot.kernelModules = [ "kvm-intel" ];
   boot.extraModulePackages = [ ];
 
+  documentation.man.enable = false;
+
   boot.initrd.luks.devices = {
     nixroot = {
       device = "/dev/mmcblk0p2";
