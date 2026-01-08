@@ -225,11 +225,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1767824564,
-        "narHash": "sha256-DRhbz2dZaEmj5MgLFMXjEPfmKYfMG6LwNT9Bv8zeLPQ=",
+        "lastModified": 1767902174,
+        "narHash": "sha256-QRFN1ZColYxWM0qboTeST46LGxmsEnHTObGkbyS87GI=",
         "owner": "nix-community",
         "repo": "home-manager",
-        "rev": "4fee4bd14b5e4178855ad0041df89fa44f3f2bea",
+        "rev": "a2cc7b0babaec66350a1f1e23db083c4c041de9a",
         "type": "github"
       },
       "original": {
@@ -529,11 +529,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1767576347,
-        "narHash": "sha256-N0/FkkFoS4ILEPLKKNFseXWYC3hFMd+MFMd9b/byOJE=",
+        "lastModified": 1767894090,
+        "narHash": "sha256-NylEC9ifj5OYuh1WrLnCTqXZcjgLFyQiirWypZ9VRFg=",
         "ref": "refs/heads/main",
-        "rev": "b717887508c1b32567a9e412af83f206f1b11d7e",
-        "revCount": 229,
+        "rev": "c7f274d27c8cd01df0e11381b7c4b66f65262c79",
+        "revCount": 230,
         "type": "git",
         "url": "https://git.foxden.network/SpaceAge/StarLord"
       },
@@ -599,11 +599,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1765213736,
-        "narHash": "sha256-P5N6qfQYGBDQboGdnMNUwZYVppJH2m8TaHEMiAJPt/4=",
+        "lastModified": 1767894068,
+        "narHash": "sha256-mSJKLamQ/ghLShO07PthUC5uQHz8ZEnu7ijBNspytOo=",
         "ref": "refs/heads/main",
-        "rev": "06f8c7f9433705d2541f4ed1d59f86ac5effb58f",
-        "revCount": 154,
+        "rev": "9cb863b37e32047a83cca70f5c155c18a2760e30",
+        "revCount": 155,
         "type": "git",
         "url": "https://git.foxden.network/FoxDen/superfan"
       },
@@ -669,11 +669,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1766948388,
-        "narHash": "sha256-QcrBkNiWC5BgSJe/mmzmd3zeOZX0mzqs2E0sWJ+LPdw=",
+        "lastModified": 1767894063,
+        "narHash": "sha256-IHNELpIUM0YdS7xfIVsYljsn+nKp8V8ZTsaCmV5fyZg=",
         "ref": "refs/heads/main",
-        "rev": "51f1b477992b3e83ae3560b40576cf949e0887d3",
-        "revCount": 533,
+        "rev": "5887b60aeee6dff624023f4ee0daf1ac8342099b",
+        "revCount": 534,
         "type": "git",
         "url": "https://git.foxden.network/FoxDen/tapemgr"
       },
@@ -692,11 +692,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1765219841,
-        "narHash": "sha256-BWttp79xRd6l31wfoPWAx/J9IbTsMTfJC2GIJ9GK/9A=",
+        "lastModified": 1767903563,
+        "narHash": "sha256-DTHBEp4HnjrCjA5MSWlPNOxAO0vVDFMvGtJ8LQW9Sgs=",
         "ref": "refs/heads/main",
-        "rev": "c5e31336d40ef50a99966219e29bf1577bcf7eae",
-        "revCount": 80,
+        "rev": "fcfc27f8f44b5da73f288fb75e571694a21d3676",
+        "revCount": 82,
         "type": "git",
         "url": "https://git.foxden.network/FoxDen/uds-proxy"
       },
