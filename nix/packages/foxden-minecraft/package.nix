@@ -27,6 +27,21 @@ let
       '';
     };
 
+  serverJar = pkgs.stdenvNoCC.mkDerivation {
+    name = "server-starter.jar";
+    src = ./server-jar;
+    buildInputs = [ pkgs.openjdk21 ];
+    buildPhase = ''
+      mkdir target
+      cp -r $src/resources/* target/
+      javac -d target $src/src/net/doridian/serverstarter/*.java
+      jar cmvf target/META-INF/MANIFEST.MF target/server.jar -C target/ .
+    '';
+    installPhase = ''
+      cp target/server.jar $out
+    '';
+  };
+
   modpack = {
     # https://www.curseforge.com/minecraft/modpacks/aoc/files/7304262
     url = "https://mediafilez.forgecdn.net/files/7304/262/All_of_Create_6.0_v2.2_serverpack.zip";
@@ -133,7 +148,7 @@ pkgs.stdenvNoCC.mkDerivation {
       mkdir -p "aux/$destDir"
       cp "$srcFile" "aux/$destDir/$(stripHash "$srcFile")"
     }
-
+    cp ${serverJar} aux/server.jar
     for pack in $bluemapPacks; do
       copyaux "$pack" config/bluemap/packs
     done
