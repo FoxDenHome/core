@@ -22,7 +22,12 @@
   boot.kernelModules = [ "kvm-intel" ];
   boot.extraModulePackages = [ ];
 
-  documentation.man.enable = false;
+  documentation = {
+    man.enable = false;
+    info.enable = false;
+    doc.enable = false;
+    nixos.enable = false;
+  };
 
   boot.initrd.luks.devices = {
     nixroot = {

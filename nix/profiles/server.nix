@@ -12,5 +12,11 @@
     "emergency.target"
   ];
   boot.loader.grub.splashImage = null;
-  documentation.man.enable = false;
+
+  documentation = {
+    man.enable = false;
+    info.enable = false;
+    doc.enable = false;
+    nixos.enable = false;
+  };
 }
