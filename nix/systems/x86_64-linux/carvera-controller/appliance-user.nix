@@ -2,6 +2,7 @@
 {
   users.users.appliance = {
     isNormalUser = true;
+    autoSubUidGidRange = false;
     group = "appliance";
     home = "/home/appliance";
     shell = pkgs.fish;
