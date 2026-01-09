@@ -101,6 +101,7 @@
   nix.settings.allowed-users = [
     "root"
     "@wheel"
+    "@login-users"
   ];
 
   users.users.root.shell = "${pkgs.fish}/bin/fish";

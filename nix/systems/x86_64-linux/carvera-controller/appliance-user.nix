@@ -22,6 +22,10 @@
     SUBSYSTEM=="hidraw", ATTRS{idVendor}=="10ce", ATTRS{idProduct}=="eb93", GROUP="dialout"
   '';
 
+  nix.settings.allowed-users = [
+    "appliance"
+  ];
+
   home-manager.users.appliance =
     { pkgs, ... }:
     {
