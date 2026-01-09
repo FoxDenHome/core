@@ -61,4 +61,6 @@ in
     ]
     ++ (map addPackage (lib.attrValues inputsWithoutInternal))
   );
+
+  config.home-manager.useGlobalPkgs = true;
 }

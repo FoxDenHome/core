@@ -22,23 +22,21 @@
     SUBSYSTEM=="hidraw", ATTRS{idVendor}=="10ce", ATTRS{idProduct}=="eb93", GROUP="dialout"
   '';
 
-  systemd.services.appliance-setup = {
-    serviceConfig = {
-      User = "appliance";
-      Group = "appliance";
-      WorkingDirectory = "/";
-      Type = "oneshot";
-      RemainAfterExit = true;
-      ExecStart = [
-        "${pkgs.coreutils}/bin/mkdir -p /home/appliance/.config"
-        "-${pkgs.coreutils}/bin/chmod -R 700 /home/appliance/.config"
-        "${pkgs.rsync}/bin/rsync -rv ${./appliance-config}/ /home/appliance/.config/"
-        "${pkgs.coreutils}/bin/chmod -R 700 /home/appliance/.config"
-        "${pkgs.coreutils}/bin/mkdir -p /home/appliance/data"
-      ];
+  home-manager.users.appliance =
+    { pkgs, ... }:
+    {
+      home.stateVersion = "25.11";
+
+      home.file = {
+        ".config" = {
+          enable = true;
+          force = true;
+          recursive = true;
+          source = ./appliance-config;
+          target = ".config";
+        };
+      };
     };
-    wantedBy = [ "multi-user.target" ];
-  };
 
   environment.systemPackages = with pkgs; [
     carvera-controller
