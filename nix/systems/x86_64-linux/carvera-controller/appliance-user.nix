@@ -1,7 +1,7 @@
 { pkgs, ... }:
 {
   users.users.appliance = {
-    isSystemUser = true;
+    isNormalUser = true;
     group = "appliance";
     home = "/home/appliance";
     shell = pkgs.fish;
