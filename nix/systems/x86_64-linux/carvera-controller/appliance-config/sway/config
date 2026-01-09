@@ -9,7 +9,7 @@ exec --no-startup-id nm-applet
 exec --no-startup-id carvera-controller-community
 exec --no-startup-id wayvnc -r ::
 
-set $menu wofi --dmenu --gtk-dark | xargs -r swaymsg exec --
+set $menu wofi --show drun --gtk-dark | xargs -r swaymsg exec --
 set $mod super
 bindsym $mod+d exec $menu
 bindsym $mod+t exec foot
