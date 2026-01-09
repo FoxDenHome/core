@@ -151,11 +151,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1767982362,
-        "narHash": "sha256-sdkgGiroy4KgzEKpnNw0xwudRKYVH4CzpxKHLFE2cxY=",
+        "lastModified": 1767983803,
+        "narHash": "sha256-fUkFclHcOAfeV1xopCCsQ4c5W43TTB5Lz1b+0RYiJ24=",
         "ref": "refs/heads/main",
-        "rev": "edebe0e0a4219a0e1231b0b77e4f3196c8604a9e",
-        "revCount": 3833,
+        "rev": "9a1dd04c28675ce36702fd29d9682039a42f5201",
+        "revCount": 3834,
         "type": "git",
         "url": "https://git.foxden.network/foxCaves/foxCaves"
       },
