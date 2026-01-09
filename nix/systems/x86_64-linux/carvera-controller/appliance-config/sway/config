@@ -4,6 +4,8 @@ bar {
 
 for_window [shell="xwayland"] title_format "[XWayland] %title"
 for_window [app_id="foot"] floating enable
+for_window [window_type="dialog"] floating enable
+for_window [window_role="dialog"] floating enable
 for_window [app_id="foot"] title_format "[Terminal] %title"
 
 output eDP-1 scale 1.5
