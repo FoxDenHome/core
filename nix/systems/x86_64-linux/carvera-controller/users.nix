@@ -31,7 +31,7 @@
       ExecStart = [
         "${pkgs.coreutils}/bin/mkdir -p /var/lib/appliance/.config"
         "-${pkgs.coreutils}/bin/chmod -R 700 /var/lib/appliance/.config"
-        "${pkgs.coreutils}/bin/cp -r ${./appliance-config}/* /var/lib/appliance/.config"
+        "${pkgs.rsync}/bin/rsync -av ${./appliance-config}/ /var/lib/appliance/.config/"
         "${pkgs.coreutils}/bin/chmod -R 700 /var/lib/appliance/.config"
         "${pkgs.coreutils}/bin/mkdir -p /var/lib/appliance/data"
       ];
