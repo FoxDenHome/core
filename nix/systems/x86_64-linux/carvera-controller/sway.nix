@@ -7,7 +7,6 @@
     wayvnc
     wlr-randr
     xclip
-    wofi
     config.programs.sway.package
   ];
   programs.sway.enable = true;
