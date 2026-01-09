@@ -16,6 +16,7 @@ in
   foxDen.hosts.gateway = "router";
 
   services.avahi.enable = true;
+  networking.firewall.allowedTCPPorts = [ 5900 ];
 
   systemd.network.networks."30-${ifcfg.interface}" = {
     name = ifcfg.interface;
