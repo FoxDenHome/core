@@ -1,11 +1,13 @@
 { config, pkgs, ... }:
 {
   environment.systemPackages = with pkgs; [
+    clipman
     foot
     i3status
     networkmanagerapplet
     wayvnc
     xclip
+    wl-clipboard
     config.programs.sway.package
   ];
   programs.sway.enable = true;

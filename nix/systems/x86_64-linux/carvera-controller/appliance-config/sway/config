@@ -15,6 +15,7 @@ exec swayidle -w \
 	timeout 900 'swaymsg "output * power off"' \
 		resume 'swaymsg "output * power on"'
 exec nm-applet
+exec wl-paste -t text --watch clipman store --no-persist
 exec carvera-controller-community
 exec wayvnc -r ::
 
