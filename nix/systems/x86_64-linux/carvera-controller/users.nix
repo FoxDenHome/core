@@ -42,16 +42,4 @@
   environment.systemPackages = with pkgs; [
     carvera-controller
   ];
-
-  environment.persistence."/nix/persist/appliance" = {
-    hideMounts = true;
-    directories = [
-      {
-        directory = "/home/appliance";
-        user = "appliance";
-        group = "appliance";
-        mode = "u=rwx,g=,o=";
-      }
-    ];
-  };
 }
