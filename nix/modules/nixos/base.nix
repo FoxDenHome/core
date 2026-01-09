@@ -1,6 +1,7 @@
 {
   lib,
   impermanence,
+  home-manager,
   pkgs,
   foxDenLib,
   config,
@@ -9,6 +10,7 @@
 {
   imports = [
     impermanence.nixosModules.impermanence
+    home-manager.nixosModules.home-manager
   ];
 
   nix.settings.experimental-features = [
