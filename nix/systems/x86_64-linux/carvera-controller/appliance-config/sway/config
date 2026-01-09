@@ -3,8 +3,11 @@ bar {
 }
 
 for_window [shell="xwayland"] title_format "[XWayland] %title"
+for_window [app_id="foot"] floating enable
 
-exec --no-startup-id wlr-randr --output eDP-1 --transform 270 --scale 1.5
+output eDP-1 scale 1.5
+output eDP-1 transform 270
+
 exec --no-startup-id nm-applet
 exec --no-startup-id carvera-controller-community
 exec --no-startup-id wayvnc -r ::

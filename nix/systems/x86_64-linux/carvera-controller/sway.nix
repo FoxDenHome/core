@@ -5,7 +5,6 @@
     i3status
     networkmanagerapplet
     wayvnc
-    wlr-randr
     xclip
     config.programs.sway.package
   ];
