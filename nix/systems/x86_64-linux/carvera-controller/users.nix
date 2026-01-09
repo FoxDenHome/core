@@ -34,8 +34,7 @@
         "+${pkgs.coreutils}/bin/chmod 700 /run/appliance/tmp"
         "+${pkgs.coreutils}/bin/chown -R appliance:appliance /run/appliance"
         "+${pkgs.coreutils}/bin/chmod -R 700 /run/appliance"
-        "${pkgs.coreutils}/bin/ln -sf \"${pkgs.carvera-controller}\" /run/appliance/app"
-        "${pkgs.rsync}/bin/rsync --exclude=tmp --exclude=app -av --delete ${./appliance-home}/ /run/appliance/"
+        "${pkgs.rsync}/bin/rsync -av --delete --exclude=tmp ${./appliance-home}/ /run/appliance/"
         "${pkgs.coreutils}/bin/chmod 500 /run/appliance"
         "${pkgs.coreutils}/bin/mkdir -p /var/lib/appliance/data /run/appliance/tmp/.cache /run/appliance/tmp/.local /run/appliance/tmp/.config/fish /run/appliance/tmp/.kivy/icons /run/appliance/tmp/.kivy/icon /run/appliance/tmp/.kivy/logs /run/appliance/tmp/.kivy/mods"
       ];
@@ -43,6 +42,10 @@
 
     wantedBy = [ "multi-user.target" ];
   };
+
+  environment.systemPackages = with pkgs; [
+    carvera-controller
+  ];
 
   environment.persistence."/nix/persist/appliance" = {
     hideMounts = true;
