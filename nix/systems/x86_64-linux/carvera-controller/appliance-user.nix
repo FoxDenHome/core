@@ -33,7 +33,6 @@
           force = true;
           recursive = true;
           source = ./appliance-config;
-          target = ".config";
         };
       };
     };
