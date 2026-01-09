@@ -3,7 +3,7 @@
   users.users.appliance = {
     isSystemUser = true;
     group = "appliance";
-    home = "/var/lib/appliance";
+    home = "/home/appliance";
     shell = pkgs.fish;
     linger = true;
     extraGroups = [
@@ -29,11 +29,11 @@
       Type = "oneshot";
       RemainAfterExit = true;
       ExecStart = [
-        "${pkgs.coreutils}/bin/mkdir -p /var/lib/appliance/.config"
-        "-${pkgs.coreutils}/bin/chmod -R 700 /var/lib/appliance/.config"
-        "${pkgs.rsync}/bin/rsync -rv ${./appliance-config}/ /var/lib/appliance/.config/"
-        "${pkgs.coreutils}/bin/chmod -R 700 /var/lib/appliance/.config"
-        "${pkgs.coreutils}/bin/mkdir -p /var/lib/appliance/data"
+        "${pkgs.coreutils}/bin/mkdir -p /home/appliance/.config"
+        "-${pkgs.coreutils}/bin/chmod -R 700 /home/appliance/.config"
+        "${pkgs.rsync}/bin/rsync -rv ${./appliance-config}/ /home/appliance/.config/"
+        "${pkgs.coreutils}/bin/chmod -R 700 /home/appliance/.config"
+        "${pkgs.coreutils}/bin/mkdir -p /home/appliance/data"
       ];
     };
     wantedBy = [ "multi-user.target" ];
@@ -47,7 +47,7 @@
     hideMounts = true;
     directories = [
       {
-        directory = "/var/lib/appliance";
+        directory = "/home/appliance";
         user = "appliance";
         group = "appliance";
         mode = "u=rwx,g=,o=";
