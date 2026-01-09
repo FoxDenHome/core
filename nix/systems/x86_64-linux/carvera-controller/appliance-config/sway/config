@@ -9,7 +9,7 @@ for_window [app_id="foot"] floating enable
 for_window [app_id="foot"] title_format "[Terminal] %title"
 
 output eDP-1 scale 1.5
-output eDP-1 transform 270
+output eDP-1 transform 90
 
 exec swayidle -w \
 	timeout 900 'swaymsg "output * power off"' \
