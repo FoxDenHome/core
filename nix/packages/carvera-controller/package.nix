@@ -61,11 +61,7 @@ let
       "setuptools"
       "cython"
       pkgs.libGL
-      pkgs.sdl3
-      pkgs.sdl3-ttf
-      pkgs.sdl3-image
       pkgs.wayland
-      pkgs.pkg-config
     ];
   };
 
@@ -110,6 +106,30 @@ let
         nixpkgs.lib.composeManyExtensions [
           pyproject-build-systems.overlays.default
           overlay
+          (final: prev: {
+            kivy =
+              (prev.kivy.override {
+                sourcePreference = "sdist";
+              }).overrideAttrs
+                (old: {
+                  USE_WAYLAND = "1";
+                  USE_SDL2 = "0";
+                  USE_X11 = "0";
+                  KIVY_NO_CONFIG = "1";
+                });
+
+            cython = (
+              prev.cython.overrideAttrs (old: {
+                version = "3.0.11";
+                src = pkgs.fetchFromGitHub {
+                  owner = "cython";
+                  repo = "cython";
+                  tag = "3.0.11";
+                  hash = "sha256-ZyDNv95eS9YrVHIh5C/Xq8OvfX1cnI3f9GjA+OfaONA=";
+                };
+              })
+            );
+          })
           (
             final: prev:
             builtins.mapAttrs (
