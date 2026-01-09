@@ -18,8 +18,6 @@
   services.xserver.videoDrivers = [ "modesetting" ];
   hardware.graphics.enable = true;
 
-  networking.firewall.allowedTCPPorts = [ 5900 ];
-
   systemd.user.services.sway = {
     unitConfig = {
       Description = "Sway Wayland compositor";

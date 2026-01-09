@@ -16,6 +16,8 @@
   };
   users.groups.appliance = { };
 
+  networking.firewall.allowedTCPPorts = [ 5900 ];
+
   services.udev.extraRules = ''
     SUBSYSTEM=="usb", ATTRS{idVendor}=="10ce", ATTRS{idProduct}=="eb93", GROUP="dialout"
     SUBSYSTEM=="hidraw", ATTRS{idVendor}=="10ce", ATTRS{idProduct}=="eb93", GROUP="dialout"
