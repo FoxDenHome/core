@@ -129,7 +129,7 @@ async function view(r: NginxHTTPRequest): Promise<void> {
     return;
   }
 
-  await r.internalRedirect(`/_jsindex-share-file/${target}`);
+  await r.internalRedirect(`/_jsindex-static/_share/${target}`);
 }
 
 export default {
