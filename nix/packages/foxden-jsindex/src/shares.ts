@@ -86,18 +86,17 @@ async function create(r: NginxHTTPRequest): Promise<void> {
   await crypto.getRandomValues(iv);
 
   const keys = await getKeys();
-  const secureData = Buffer.from(`${expiry}\n${target}${slashIfDir}`);
-  const hash = await crypto.subtle.sign(HMAC_ALG, keys.hmac, secureData);
   const token = await crypto.subtle.encrypt(
     {
       iv,
       name: 'AES-CBC',
     },
     keys.encryption,
-    Buffer.concat([new Uint8Array(hash), secureData]),
+    Buffer.from(`${expiry}\n${target}${slashIfDir}`),
   );
+  const hash = await crypto.subtle.sign(HMAC_ALG, keys.hmac, token);
 
-  const url = `/_share/${Buffer.concat([iv, new Uint8Array(token)]).toString('base64url')}${slashIfDir}`;
+  const url = `/_share/${Buffer.concat([iv, new Uint8Array(hash), new Uint8Array(token)]).toString('base64url')}${slashIfDir}`;
   if (r.variables.request_method?.toUpperCase() === 'POST') {
     r.status = 200;
     r.headersOut['Content-Type'] = 'application/json';
@@ -128,32 +127,31 @@ async function view(r: NginxHTTPRequest): Promise<void> {
 
   const tokenB64 = urlSplit.shift() || '';
 
-  let secureData: ArrayBuffer;
+  let data: ArrayBuffer;
   try {
     const token = Buffer.from(tokenB64, 'base64url');
-    if (token.byteLength <= CRYPTO_ALG_BYTES) {
+    if (token.byteLength <= CRYPTO_ALG_BYTES + HMAC_ALG_BYTES) {
       doError(r, 400, 'Truncated outer share data');
       return;
     }
 
     const keys = await getKeys();
-    const data = await crypto.subtle.decrypt(
+    data = await crypto.subtle.decrypt(
       {
         name: 'AES-CBC',
         iv: token.slice(0, CRYPTO_ALG_BYTES),
       },
       keys.encryption,
-      token.slice(CRYPTO_ALG_BYTES),
+      token.slice(CRYPTO_ALG_BYTES + HMAC_ALG_BYTES),
     );
 
-    if (data.byteLength <= HMAC_ALG_BYTES) {
+    if (data.byteLength < 1) {
       doError(r, 400, 'Truncated inner share data');
       return;
     }
 
-    const givenHash = data.slice(0, HMAC_ALG_BYTES);
-    secureData = data.slice(HMAC_ALG_BYTES);
-    if (!await crypto.subtle.verify(HMAC_ALG, keys.hmac, givenHash, secureData)) {
+    const givenHash = token.slice(CRYPTO_ALG_BYTES, CRYPTO_ALG_BYTES + HMAC_ALG_BYTES);
+    if (!await crypto.subtle.verify(HMAC_ALG, keys.hmac, givenHash, data)) {
       doError(r, 400, 'Invalid share signature');
       return;
     }
@@ -162,7 +160,7 @@ async function view(r: NginxHTTPRequest): Promise<void> {
     return;
   }
 
-  const metaSplit = Buffer.from(secureData).toString('utf8').split('\n');
+  const metaSplit = Buffer.from(data).toString('utf8').split('\n');
 
   const expiryStr = metaSplit[0];
   const pathPrefix = metaSplit[1];
