@@ -20,7 +20,7 @@ async function hashToken(token: string, expiry: string): Promise<string> {
   if (!secretKey) {
     throw new Error('Secret key not found');
   }
-  const hash = await crypto.subtle.digest('SHA-256', `${secretKey}:${token}:${expiry}:${secretKey}`);
+  const hash = await crypto.subtle.digest('SHA-256', `${secretKey}\n${token}\n${expiry}\n${secretKey}`);
   return Buffer.from(hash).toString('hex');
 }
 
