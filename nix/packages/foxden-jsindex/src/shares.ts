@@ -51,6 +51,10 @@ async function create(r: NginxHTTPRequest): Promise<void> {
     doError(r, 500, 'Could not determine request filename');
     return;
   }
+  if (target.indexOf('\n') !== -1) {
+    doError(r, 400, 'Invalid target path');
+    return;
+  }
 
   const durationStr = r.args.duration || '3600';
   const duration = parseInt(durationStr, 10);
@@ -70,7 +74,7 @@ async function create(r: NginxHTTPRequest): Promise<void> {
   const expiry = Math.ceil(Date.now() / 1000) + duration;
 
   const cryptoKey = await getCryptoSecretKey();
-  const secureData = Buffer.from(`${expiry};${target}${slashIfDir}`);
+  const secureData = Buffer.from(`${expiry}\n${target}${slashIfDir}`);
   const hash = await crypto.subtle.digest(HASH_ALG, secureData);
   const token = await crypto.subtle.encrypt(
     CRYPTO_ALG,
@@ -122,7 +126,7 @@ async function view(r: NginxHTTPRequest): Promise<void> {
     doError(r, 400, 'Invalid share hash');
     return;
   }
-  const metaSplit = Buffer.from(secureData).toString('utf8').split(';');
+  const metaSplit = Buffer.from(secureData).toString('utf8').split('\n');
 
   const expiryStr = metaSplit[0];
   const pathPrefix = metaSplit[1];
