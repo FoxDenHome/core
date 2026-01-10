@@ -11,7 +11,7 @@ async function mklinkAsync(e) {
     }
     const absUrl = `${document.location.protocol}//${document.location.host}${data.url}`;
     await navigator.clipboard.writeText(absUrl);
-    alert(`Link created and copied to clipboard:\n${absUrl}`);
+    alert('Shared link created and copied to clipboard :3');
 }
 
 function mklink(e) {
