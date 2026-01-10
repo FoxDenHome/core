@@ -111,7 +111,7 @@ async function view(r: NginxHTTPRequest): Promise<void> {
 
   const hashedTarget = target.substring(0, validateLen);
   if (target.length !== validateLen && hashedTarget.charAt(hashedTarget.length - 1) !== '/') {
-    doError(r, 400, `Partial target must end at slash vl=${validateLen} ht=${hashedTarget} t=${target}`);
+    doError(r, 400, 'Partial match does not end at directory boundary');
     return;
   }
 
