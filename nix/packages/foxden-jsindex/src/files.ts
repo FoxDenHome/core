@@ -45,7 +45,7 @@ async function renderFile(r: NginxHTTPRequest, parentCtx: RequestContext, info: 
     file_size: isDir ? '-' : format.size(info.stat?.size),
     file_mtime: format.date(info.stat?.mtime),
     file_type: isDir ? 'directory' : 'file',
-    file_actions: (!isDir && parentCtx.withLink) ? `<a onclick="javascript:mklink(event)" href="${encodeURI(linkName)}/_mklink?duration=3600"><span class="icon icon-share">&nbsp;</span></a>` : '&nbsp;',
+    file_actions: (!isDir && parentCtx.withLink) ? `<a onclick="javascript:mklink(event)" title="Create 1 hour anonymous share link" href="${encodeURI(linkName)}/_mklink?duration=3600"><span class="icon icon-share">&nbsp;</span></a>` : '&nbsp;',
   };
   await render.send(r, ctx, template);
 }
