@@ -132,26 +132,34 @@ async function view(r: NginxHTTPRequest): Promise<void> {
   const token = urlSplit.shift() || '';
 
   const keys = await getKeys();
-  const data = await crypto.subtle.decrypt(
-    {
-      name: 'AES-CBC',
-      iv: keys.iv,
-    },
-    keys.encryption,
-    Buffer.from(token, 'base64url'),
-  );
 
-  if (data.byteLength <= HASH_ALG_BYTES) {
-    doError(r, 400, 'Truncated share data');
+  let secureData: ArrayBuffer;
+  try {
+    const data = await crypto.subtle.decrypt(
+      {
+        name: 'AES-CBC',
+        iv: keys.iv,
+      },
+      keys.encryption,
+      Buffer.from(token, 'base64url'),
+    );
+
+    if (data.byteLength <= HASH_ALG_BYTES) {
+      doError(r, 400, 'Truncated share data');
+      return;
+    }
+
+    const givenHash = data.slice(0, HASH_ALG_BYTES);
+    secureData = data.slice(HASH_ALG_BYTES);
+    if (!await crypto.subtle.verify(HMAC_ALG, keys.hmac, givenHash, secureData)) {
+      doError(r, 400, 'Invalid share hash');
+      return;
+    }
+  } catch (e) {
+    doError(r, 400, 'Invalid share data');
     return;
   }
 
-  const givenHash = data.slice(0, HASH_ALG_BYTES);
-  const secureData = data.slice(HASH_ALG_BYTES);
-  if (!await crypto.subtle.verify(HMAC_ALG, keys.hmac, givenHash, secureData)) {
-    doError(r, 400, 'Invalid share hash');
-    return;
-  }
   const metaSplit = Buffer.from(secureData).toString('utf8').split('\n');
 
   const expiryStr = metaSplit[0];
