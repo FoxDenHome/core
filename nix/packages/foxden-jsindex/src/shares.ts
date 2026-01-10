@@ -119,6 +119,11 @@ async function view(r: NginxHTTPRequest): Promise<void> {
     Buffer.from(token, 'base64url'),
   );
 
+  if (data.byteLength <= HASH_ALG_BYTES) {
+    doError(r, 400, 'Truncated share data');
+    return;
+  }
+
   const givenHash = data.slice(0, HASH_ALG_BYTES);
   const secureData = data.slice(HASH_ALG_BYTES);
   const expexctedHash = await crypto.subtle.digest(HASH_ALG, secureData);
