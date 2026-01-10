@@ -118,7 +118,7 @@ pkgs.stdenvNoCC.mkDerivation {
   ];
   bluemapPacks = [
     (pkgs.fetchurl {
-      url = "https://github.com/Doridian/BlueMapModelLoaders/releases/download/temp/BlueMapModelLoaders-0.3.2.jar";
+      url = "https://github.com/Doridian/BlueMapModelLoaders/releases/download/0.3.2/BlueMapModelLoaders-0.3.2.jar";
       hash = "sha256:7436d92dfd317456681903ff104a0eb61c0e73c78c1cd5290e5c86c34e981b1a";
     })
     (pkgs.fetchurl {
