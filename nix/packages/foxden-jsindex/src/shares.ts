@@ -1,5 +1,6 @@
 import fs from 'fs';
 import shared from './shared.js';
+import files from './files.js';
 
 shared.setInitial('link_secret_key', async () => {
   const u8 = new Uint8Array(32);
@@ -117,11 +118,12 @@ async function view(r: NginxHTTPRequest): Promise<void> {
     return;
   }
 
-  try {
-    r.internalRedirect(`/_jsindex-share-${isDir ? 'dir' : 'file'}/${target}`);
-  } catch (err) {
-    doError(r, 500, 'Error accessing file');
+  if (isDir) {
+    await files.indexRaw(r, target);
+    return;
   }
+
+  await r.internalRedirect(`/_jsindex-share-file/${target}`);
 }
 
 export default {

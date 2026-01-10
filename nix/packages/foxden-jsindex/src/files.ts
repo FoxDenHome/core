@@ -51,7 +51,10 @@ async function renderFile(r: NginxHTTPRequest, parentCtx: RequestContext, info: 
 }
 
 async function index(r: NginxHTTPRequest): Promise<void> {
-  const absPath = r.variables.request_original_filename;
+  await indexRaw(r, r.variables.request_original_filename);
+}
+
+async function indexRaw(r: NginxHTTPRequest, absPath?: string): Promise<void> {
   if (!absPath) {
     r.return(500);
     return;
@@ -134,4 +137,5 @@ async function index(r: NginxHTTPRequest): Promise<void> {
 
 export default {
     index,
+    indexRaw,
 };
