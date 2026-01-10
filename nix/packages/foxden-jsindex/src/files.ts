@@ -109,6 +109,7 @@ async function indexRaw(r: NginxHTTPRequest,
 
   const ctx: RequestContext = {
     rootUrl,
+    rootUrlNoSlash: rootUrl.replace(/\/+$/, ''),
     titlePrefix,
     path: relPath,
     archMirrorId: r.variables.arch_mirror_id,
