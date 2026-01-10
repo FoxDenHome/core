@@ -46,7 +46,7 @@ async function run(ctx: RequestContext, file: string): Promise<string> {
   const template = await load(file);
 
   const data = template.replace(VARIABLE_REGEX, (_, openTag, variableName, closeTag) => {
-    if openTag.length !== closeTag.length {
+    if (openTag.length !== closeTag.length) {
       ngx.log(ngx.WARN, `Mismatched tags in template ${file} for variable "${variableName}"`);
       return '';
     }
