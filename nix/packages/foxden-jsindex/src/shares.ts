@@ -31,16 +31,12 @@ async function signTarget(target: string, expiryStr: string): Promise<string> {
 }
 
 async function create(r: NginxHTTPRequest): Promise<void> {
-  const requestFilename = r.variables.request_filename;
-  if (!requestFilename) {
+  const target = r.variables.request_filename;
+  if (!target) {
     doError(r, 500, 'Could not determine request filename');
     return;
   }
 
-  const urlSplit = requestFilename.split('/');
-  while (urlSplit.length > 0 && urlSplit.shift() !== '_jsindex-mkshare');
-
-  const target = `/${decodeURI(urlSplit.join('/'))}`;
   const durationStr = r.args.duration || '3600';
   const duration = parseInt(durationStr, 10);
   if (!isFinite(duration) || duration <= 0 || duration > MAX_DURATION) {
