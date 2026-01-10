@@ -1,5 +1,7 @@
 import fs from 'fs';
 
+const DICT_NAME = 'links';
+
 async function create(r: NginxHTTPRequest): Promise<void> {
   const absPath = r.variables.request_filename;
   if (!absPath) {
@@ -15,11 +17,13 @@ async function create(r: NginxHTTPRequest): Promise<void> {
     return;
   }
 
+
   const expires_at = Date.now() + (duration * 1000);
   const token = `abcdefgh`; // TODO: Implement real token generation and storage
-  const linkUrl = `/guest/_link/${expires_at}_${token}`;
+  const linkUrl = `/_viewlink/${token}`;
 
-  await fs.promises.symlink(linkTo, `/link/${expires_at}_${token}`);
+  const table = ngx.shared[DICT_NAME];
+  table.set(token, linkTo);
 
   r.status = 200;
   r.headersOut['Content-Type'] = 'application/json';
@@ -30,6 +34,34 @@ async function create(r: NginxHTTPRequest): Promise<void> {
     expires_at: new Date(expires_at).toISOString(),
   }));
   r.finish();
+}
+
+async function view(r: NginxHTTPRequest): Promise<void> {
+  const absPath = r.variables.request_filename;
+  if (!absPath) {
+    r.return(500);
+    return;
+  }
+
+  const linkToken = absPath.replace(/\/_viewlink\//, '');
+  const table = ngx.shared[DICT_NAME];
+  const targetPath = table.get(linkToken);
+  if (!targetPath) {
+    r.return(404, 'Link not found or expired');
+    return;
+  }
+
+  try {
+    const stat = await fs.promises.stat(targetPath.toString());
+    if (stat.isDirectory()) {
+      r.return(403, 'Cannot view directory');
+      return;
+    }
+
+    r.internalRedirect(`/_viewlink_direct/${targetPath}`);
+  } catch (err) {
+    r.return(500, 'Error accessing file');
+  }
 }
 
 export default {
