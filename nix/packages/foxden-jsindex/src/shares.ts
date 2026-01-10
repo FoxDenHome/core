@@ -3,7 +3,7 @@ import shared from './shared.js';
 import files from './files.js';
 import mcrypto from 'crypto';
 
-shared.setInitial('shares_secret_key', async () => {
+shared.setInitial('shares:secretKey', async () => {
   const u8 = Buffer.allocUnsafe(32);
   await crypto.getRandomValues(u8);
   return u8.toString('base64url');
@@ -18,7 +18,7 @@ function doError(r: NginxHTTPRequest, code: number, message: string): void {
 }
 
 async function hashTarget(target: string, expiry: string): Promise<string> {
-  const secretKey = await shared.get('shares_secret_key');
+  const secretKey = await shared.get('shares:secretKey');
   if (!secretKey) {
     throw new Error('Shares secret key not found');
   }
