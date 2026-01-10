@@ -93,7 +93,7 @@ async function view(r: NginxHTTPRequest): Promise<void> {
 
   const validateLen = parseInt(validateLenStr, 10);
   if (!isFinite(validateLen) || validateLen <= 0 || validateLen > target.length) {
-    doError(r, 400, `Invalid validate length vl=${validateLen}, tl=${target.length}`);
+    doError(r, 400, `Invalid validate length`);
     return;
   }
 
@@ -106,9 +106,9 @@ async function view(r: NginxHTTPRequest): Promise<void> {
 
 
   const relevantTarget = target.substring(0, validateLen + 1);
-  const isDir = relevantTarget.substring(relevantTarget.length - 1) !== '/';
-  if (target.length !== validateLen && isDir) {
-    doError(r, 400, `Partial target must end at slash vl=${validateLen}, tl=${target.length}, rl=${relevantTarget.length}, rt=${relevantTarget}, t=${target}`);
+  const isDir = relevantTarget.substring(relevantTarget.length - 1) === '/';
+  if (target.length !== validateLen && !isDir) {
+    doError(r, 400, `Partial target must end at slash rl=${relevantTarget.length}, rt=${relevantTarget}, t=${target}`);
     return;
   }
 
