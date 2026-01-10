@@ -129,6 +129,24 @@ pkgs.stdenvNoCC.mkDerivation {
       url = "https://github.com/BeneHenke/BluemapCreateEntityAddon/releases/download/v.1.1.1/createentityaddon-1.1.1-5.13+.jar";
       hash = "sha256:5e7a84355ba57be248fdca34260021a762b0e97ecf952bc694c52295646b5123";
     })
+    (pkgs.stdenvNoCC.mkDerivation {
+      name = "bluemap-create-resource-pack.jar";
+      version = "1.0.0";
+      src = pkgs.fetchFromGitHub {
+        owner = "BeneHenke";
+        repo = "BlueMap-Create-Resource-Pack";
+        rev = "4fdb74b82e8de8ba9d7e8535e09edd717ebc4ac0";
+        sha256 = "sha256-92sAs37NbzPgIwCcFgP6Zvodz6MsnwRHUvdl/i+M3os=";
+      };
+
+      nativeBuildInputs = [ pkgs.zip ];
+
+      unpackPhase = "true";
+      installPhase = ''
+        cd $src
+        zip -r $out .
+      '';
+    })
   ];
 
   buildInputs = with pkgs; [
