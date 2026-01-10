@@ -86,17 +86,18 @@ async function create(r: NginxHTTPRequest): Promise<void> {
   await crypto.getRandomValues(iv);
 
   const keys = await getKeys();
-  const token = await crypto.subtle.encrypt(
+  const token = new Uint8Array(await crypto.subtle.encrypt(
     {
       iv,
       name: 'AES-CBC',
     },
     keys.encryption,
     Buffer.from(`${expiry}\n${target}${slashIfDir}`),
-  );
-  const hash = await crypto.subtle.sign(HMAC_ALG, keys.hmac, token);
+  ));
 
-  const url = `/_share/${Buffer.concat([iv, new Uint8Array(hash), new Uint8Array(token)]).toString('base64url')}${slashIfDir}`;
+  const hash = await crypto.subtle.sign(HMAC_ALG, keys.hmac, Buffer.concat([iv, token]));
+  const url = `/_share/${Buffer.concat([new Uint8Array(hash), iv, token]).toString('base64url')}${slashIfDir}`;
+
   if (r.variables.request_method?.toUpperCase() === 'POST') {
     r.status = 200;
     r.headersOut['Content-Type'] = 'application/json';
@@ -136,10 +137,17 @@ async function view(r: NginxHTTPRequest): Promise<void> {
     }
 
     const keys = await getKeys();
+
+    const givenHash = token.slice(0, HMAC_ALG_BYTES);
+    if (!await crypto.subtle.verify(HMAC_ALG, keys.hmac, givenHash, token.slice(HMAC_ALG_BYTES))) {
+      doError(r, 400, 'Invalid share signature');
+      return;
+    }
+
     data = await crypto.subtle.decrypt(
       {
         name: 'AES-CBC',
-        iv: token.slice(0, CRYPTO_ALG_BYTES),
+        iv: token.slice(HMAC_ALG_BYTES, CRYPTO_ALG_BYTES + HMAC_ALG_BYTES),
       },
       keys.encryption,
       token.slice(CRYPTO_ALG_BYTES + HMAC_ALG_BYTES),
@@ -147,12 +155,6 @@ async function view(r: NginxHTTPRequest): Promise<void> {
 
     if (data.byteLength < 1) {
       doError(r, 400, 'Truncated inner share data');
-      return;
-    }
-
-    const givenHash = token.slice(CRYPTO_ALG_BYTES, CRYPTO_ALG_BYTES + HMAC_ALG_BYTES);
-    if (!await crypto.subtle.verify(HMAC_ALG, keys.hmac, givenHash, data)) {
-      doError(r, 400, 'Invalid share signature');
       return;
     }
   } catch (e) {
