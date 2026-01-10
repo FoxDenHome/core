@@ -12,7 +12,7 @@ async function load(file: string): Promise<string> {
 
   const cachedTemplate = await state.get(sharedKey);
   if (cachedTemplate) {
-    return cachedTemplate;
+    return cachedTemplate as string;
   }
 
   let respData = await fs.promises.readFile(file, {

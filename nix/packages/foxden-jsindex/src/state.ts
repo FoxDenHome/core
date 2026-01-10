@@ -1,29 +1,26 @@
 const DICT_NAME = 'state';
 
-async function get(key: string): Promise<string | undefined> {
+async function get(key: string): Promise<string | number | undefined> {
   const table = ngx.shared[DICT_NAME];
-  const value = table.get(key);
-  if (typeof value === 'string') {
-    return value;
-  }
+  return table.get(key);
 }
 
-async function set(key: string, value: string): Promise<void> {
+async function set(key: string, value: string | number): Promise<void> {
     const table = ngx.shared[DICT_NAME];
     table.set(key, value);
 }
 
-async function setOnce(key: string, initialValueGenerator: () => string | Promise<string>) {
+async function setOnce<T extends string | number>(key: string, initialValueGenerator: () => T | Promise<T>): Promise<T> {
   const table = ngx.shared[DICT_NAME];
   const existing = table.get(key);
-  if (typeof existing === 'string') {
-    return existing;
+  if (existing !== undefined) {
+    return existing as T;
   }
+
   const val = await initialValueGenerator();
   const ok = table.add(key, val);
   if (!ok) {
-    // Someone else set it in the meantime
-    return get(key);
+    return table.get(key) as T;
   }
   return val;
 }
