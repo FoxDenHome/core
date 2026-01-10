@@ -68,9 +68,9 @@ async function view(r: NginxHTTPRequest): Promise<void> {
     return;
   }
 
-  const linkSplit = absPath.split('/', 3);
-  const meta = linkSplit[1].split(';');
-  const target = linkSplit[2];
+  const linkSplit = absPath.split('/', 4);
+  const meta = linkSplit[2].split(';');
+  const target = linkSplit[3];
 
   const givenToken = meta[0];
   const expiry = meta[1];
