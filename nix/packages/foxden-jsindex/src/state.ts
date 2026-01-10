@@ -18,7 +18,7 @@ async function setInitial(key: string, initialValueGenerator: () => string | Pro
   if (table.get(key)) {
     return;
   }
-  table.set(key, await initialValueGenerator());
+  table.add(key, await initialValueGenerator());
 }
 
 export default {
