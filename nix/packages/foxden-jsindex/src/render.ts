@@ -45,15 +45,15 @@ async function run(ctx: RequestContext, file: string): Promise<string> {
 
   const template = await load(file);
 
-  const data = template.replace(VARIABLE_REGEX, (_, openTag, variableName, closeTag) => {
+  const data = template.replace(VARIABLE_REGEX, (raw, openTag, variableName, closeTag) => {
     if (openTag.length !== closeTag.length) {
-      ngx.log(ngx.WARN, `Mismatched tags in template ${file} for variable "${variableName}"`);
+      ngx.log(ngx.WARN, `Mismatched tags in template ${file} for tag "${raw}"`);
       return '';
     }
 
     const value = ctx[variableName];
     if (value === undefined) {
-      ngx.log(ngx.WARN, `Variable "${variableName}" not found in context when rendering ${file}`);
+      ngx.log(ngx.WARN, `Variable for tag "${raw}" not found in context when rendering ${file}`);
       return '';
     }
 
