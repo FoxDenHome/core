@@ -56,7 +56,7 @@ async function create(r: NginxHTTPRequest): Promise<void> {
   r.send(JSON.stringify({
     expiry,
     target,
-    url: `/_share/${encodeURIComponent(token)};${encodeURIComponent(expiry)};${targetSlashed.length}${targetSlashed}`,
+    url: `/_share/${token};${expiry};${targetSlashed.length}${targetSlashed}`,
   }));
   r.finish();
 }
