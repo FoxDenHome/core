@@ -37,7 +37,7 @@ function makeActions(ctx: RequestContext, path: string): string {
   if (!ctx.withShare) {
     return '';
   }
-  const shareMakeLink = `${encodeURI(path)}/_mkshare?duration=3600`;
+  const shareMakeLink = `${encodeURI(path.replace(/\/+$/, ''))}/_mkshare?duration=3600`;
   return `<a onclick="javascript:makeShare(event);" title="Create 1 hour anonymous share link" href="${util.htmlEncode(shareMakeLink)}"><span class="icon icon-share">&nbsp;</span></a>`;
 }
 

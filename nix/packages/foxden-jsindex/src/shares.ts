@@ -35,7 +35,7 @@ async function create(r: NginxHTTPRequest): Promise<void> {
     return;
   }
 
-  const target = absPath.replace(/\/_mkshare$/, '');
+  const target = absPath.replace(/\/+_mkshare$/, '');
   const durationStr = r.args.duration || '3600';
   const duration = parseInt(durationStr, 10);
   if (!isFinite(duration) || duration <= 0) {
