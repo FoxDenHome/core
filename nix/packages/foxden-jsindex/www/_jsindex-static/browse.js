@@ -3,7 +3,7 @@
 async function mklinkAsync(e) {
     const url = new URL(e.currentTarget.href);
     const response = await fetch(url.href, {
-        method: 'GET',
+        method: 'POST',
     });
     const data = await response.json();
     if (!response.ok) {
