@@ -56,7 +56,7 @@ in
             }
 
             include ${pkgs.foxden-jsindex}/lib/node_modules/foxden-jsindex/nginx.conf;
-            include ${pkgs.foxden-jsindex}/lib/node_modules/foxden-jsindex/withlink.conf;
+            include ${pkgs.foxden-jsindex}/lib/node_modules/foxden-jsindex/withshare.conf;
           '';
       }).config
       {
