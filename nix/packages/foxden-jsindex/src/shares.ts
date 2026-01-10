@@ -56,7 +56,7 @@ async function create(r: NginxHTTPRequest): Promise<void> {
   r.send(JSON.stringify({
     expiry,
     target,
-    url: `/_share/${token};${expiry};${targetSlashed.length}${targetSlashed}`,
+    url: `/_share/${token};${expiry};${targetSlashed.length}${encodeURI(targetSlashed)}`,
   }));
   r.finish();
 }
@@ -91,7 +91,7 @@ async function view(r: NginxHTTPRequest): Promise<void> {
   }
 
   const validateLen = parseInt(validateLenStr, 10);
-  if (!isFinite(validateLen) || validateLen <= 0 || validateLen > target.length) {
+  if (!isFinite(validateLen) || validateLen <= 0) {
     doError(r, 400, 'Invalid validate length');
     return;
   }
