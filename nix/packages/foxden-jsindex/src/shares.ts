@@ -111,7 +111,7 @@ async function view(r: NginxHTTPRequest): Promise<void> {
 
   const hashedTarget = target.substring(0, validateLen + 1);
   if (target.length !== validateLen && hashedTarget.substring(hashedTarget.length - 1) !== '/') {
-    doError(r, 400, 'Partial target must end at slash');
+    doError(r, 400, `Partial target must end at slash vl=${validateLen} ht=${hashedTarget} t=${target}`);
     return;
   }
 
