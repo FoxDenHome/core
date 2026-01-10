@@ -84,7 +84,7 @@ async function indexRaw(r: NginxHTTPRequest,
     return;
   }
 
-  const relPath = util.relativePath(absPath, rootUrl, true);
+  const relPath = util.relativePath(absPath, rootPath, true);
   if (!relPath) {
     r.return(400);
     return;
