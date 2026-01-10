@@ -66,7 +66,7 @@ in
         rawConfig =
           { baseWebConfig, proxyConfigNoHost, ... }:
           ''
-            js_shared_dict_zone zone=shared:1m;
+            js_shared_dict_zone zone=state:1m;
             js_import files from files.js;
             js_var $arch_mirror_id "${svcConfig.archMirrorId}";
 

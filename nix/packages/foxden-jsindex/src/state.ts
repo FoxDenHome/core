@@ -1,4 +1,4 @@
-const DICT_NAME = 'shared';
+const DICT_NAME = 'state';
 
 async function get(key: string): Promise<string | undefined> {
   const table = ngx.shared[DICT_NAME];

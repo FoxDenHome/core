@@ -1,6 +1,6 @@
 import fs from 'fs';
 import util from './util.js';
-import shared from './shared.js';
+import state from './state.js';
 
 const VARIABLE_REGEX = /(\{\{\{?)\s*([^\}]+)\s*(\}\}\}?)/g;
 const INCLUDE_REGEX = /\[\[\s*([^\]]+)\s*\]\]/g;
@@ -10,7 +10,7 @@ export type RequestContext = Record<string, any>;
 async function load(file: string): Promise<string> {
   const sharedKey = `render:${file}`;
 
-  const cachedTemplate = await shared.get(sharedKey);
+  const cachedTemplate = await state.get(sharedKey);
   if (cachedTemplate) {
     return cachedTemplate;
   }
@@ -25,7 +25,7 @@ async function load(file: string): Promise<string> {
     respData = respData.replace(m[0], includeResp || '');
   }
 
-  await shared.set(sharedKey, respData);
+  await state.set(sharedKey, respData);
   return respData;
 }
 

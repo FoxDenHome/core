@@ -1,9 +1,9 @@
 import fs from 'fs';
-import shared from './shared.js';
+import state from './state.js';
 import files from './files.js';
 import mcrypto from 'crypto';
 
-shared.setInitial('shares:secretKey', async () => {
+state.setInitial('shares:secretKey', async () => {
   const u8 = Buffer.allocUnsafe(32);
   await crypto.getRandomValues(u8);
   return u8.toString('base64url');
@@ -18,7 +18,7 @@ function doError(r: NginxHTTPRequest, code: number, message: string): void {
 }
 
 async function signTarget(target: string, expiryStr: string): Promise<string> {
-  const secretKey = await shared.get('shares:secretKey');
+  const secretKey = await state.get('shares:secretKey');
   if (!secretKey) {
     throw new Error('Shares secret key not found');
   }
@@ -55,15 +55,23 @@ async function create(r: NginxHTTPRequest): Promise<void> {
   const expiryStr = expiry.toFixed(0);
   const signature = await signTarget(targetSlashed, expiryStr);
 
-  r.status = 200;
-  r.headersOut['Content-Type'] = 'application/json';
-  r.sendHeader();
-  r.send(JSON.stringify({
-    expiry,
-    target,
-    url: `/_share/${signature};${expiryStr};${targetSlashed.length}${encodeURI(targetSlashed)}`,
-  }));
-  r.finish();
+  const url = `/_share/${signature};${expiryStr};${targetSlashed.length}${encodeURI(targetSlashed)}`;
+  if (r.variables.request_method?.toUpperCase() === 'POST') {
+    r.status = 200;
+    r.headersOut['Content-Type'] = 'application/json';
+    r.sendHeader();
+    r.send(JSON.stringify({
+      expiry,
+      target,
+      url,
+    }));
+    r.finish();
+    return;
+  }
+
+  r.headersOut['Share-Expiry'] = expiryStr;
+  r.headersOut['Share-Target'] = target;
+  r.return(307, url);
 }
 
 async function view(r: NginxHTTPRequest): Promise<void> {
