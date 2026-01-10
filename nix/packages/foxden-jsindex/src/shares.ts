@@ -4,10 +4,12 @@ import util from './util.js';
 
 const MAX_DURATION = 7 * 24 * 3600; // 7 days in seconds
 
-let cryptoSecretKey: CryptoKey | undefined;
+let encryptionKeyCache: CryptoKey | undefined;
+let hmacKeyCache: CryptoKey | undefined;
 
 const HASH_ALG_BYTES = 32;
 const HASH_ALG = `SHA-${HASH_ALG_BYTES * 8}`;
+const HMAC_ALG: HmacKeyGenParams = { name: 'HMAC', hash: HASH_ALG };
 
 const CRYPTO_ALG_BYTES = 16;
 const CRYPTO_ALG: CipherAlgorithm = {
@@ -15,26 +17,48 @@ const CRYPTO_ALG: CipherAlgorithm = {
   iv: Buffer.alloc(CRYPTO_ALG_BYTES, 0),
 };
 
-async function getCryptoSecretKey(): Promise<CryptoKey> {
-  if (cryptoSecretKey) {
-    return cryptoSecretKey;
+async function getEncryptionKey(): Promise<CryptoKey> {
+  if (encryptionKeyCache) {
+    return encryptionKeyCache;
   }
 
-  const cryptoKeyStr = await state.setOnce('shares:secretKey', async () => {
+  const keyStr = await state.setOnce('shares:encryptionKey', async () => {
     const key = await crypto.subtle.generateKey({ name: 'AES-CBC', length: CRYPTO_ALG_BYTES * 8 }, true, ['encrypt', 'decrypt']);
     return await crypto.subtle.exportKey('raw', key).toString();
   });
 
-  if (!cryptoKeyStr) {
-    throw new Error('Failed to get or generate crypto key');
+  if (!keyStr) {
+    throw new Error('Failed to get or generate encryption key');
   }
 
-  cryptoSecretKey = await crypto.subtle.importKey('raw', cryptoKeyStr, 'AES-CBC', false, ['encrypt', 'decrypt']);
-  if (!cryptoSecretKey) {
-    throw new Error('Failed to import crypto key');
+  encryptionKeyCache = await crypto.subtle.importKey('raw', keyStr, 'AES-CBC', false, ['encrypt', 'decrypt']);
+  if (!encryptionKeyCache) {
+    throw new Error('Failed to import encryption key');
   }
 
-  return cryptoSecretKey;
+  return encryptionKeyCache;
+}
+
+async function getHmacKey(): Promise<CryptoKey> {
+  if (hmacKeyCache) {
+    return hmacKeyCache;
+  }
+
+  const keyStr = await state.setOnce('shares:hmacKey', async () => {
+    const key = await crypto.subtle.generateKey(HMAC_ALG, true, ['sign', 'verify']);
+    return await crypto.subtle.exportKey('raw', key).toString();
+  });
+
+  if (!keyStr) {
+    throw new Error('Failed to get or generate hmac key');
+  }
+
+  hmacKeyCache = await crypto.subtle.importKey('raw', keyStr, HMAC_ALG, false, ['sign', 'verify']);
+  if (!hmacKeyCache) {
+    throw new Error('Failed to import hmac key');
+  }
+
+  return hmacKeyCache;
 }
 
 function doError(r: NginxHTTPRequest, code: number, message: string): void {
@@ -73,12 +97,11 @@ async function create(r: NginxHTTPRequest): Promise<void> {
 
   const expiry = Math.ceil(Date.now() / 1000) + duration;
 
-  const cryptoKey = await getCryptoSecretKey();
   const secureData = Buffer.from(`${expiry}\n${target}${slashIfDir}`);
-  const hash = await crypto.subtle.digest(HASH_ALG, secureData);
+  const hash = await crypto.subtle.sign(HMAC_ALG, await getHmacKey(), secureData);
   const token = await crypto.subtle.encrypt(
     CRYPTO_ALG,
-    cryptoKey,
+    await getEncryptionKey(),
     Buffer.concat([new Uint8Array(hash), secureData]),
   );
 
@@ -112,10 +135,9 @@ async function view(r: NginxHTTPRequest): Promise<void> {
   while (urlSplit.length > 0 && urlSplit.shift() !== '_share');
 
   const token = urlSplit.shift() || '';
-  const cryptoKey = await getCryptoSecretKey();
   const data = await crypto.subtle.decrypt(
     CRYPTO_ALG,
-    cryptoKey,
+    await getEncryptionKey(),
     Buffer.from(token, 'base64url'),
   );
 
@@ -126,8 +148,7 @@ async function view(r: NginxHTTPRequest): Promise<void> {
 
   const givenHash = data.slice(0, HASH_ALG_BYTES);
   const secureData = data.slice(HASH_ALG_BYTES);
-  const expexctedHash = await crypto.subtle.digest(HASH_ALG, secureData);
-  if (Buffer.compare(new Uint8Array(givenHash), new Uint8Array(expexctedHash)) !== 0) {
+  if (!await crypto.subtle.verify(HMAC_ALG, await getHmacKey(), givenHash, secureData)) {
     doError(r, 400, 'Invalid share hash');
     return;
   }
