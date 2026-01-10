@@ -101,6 +101,11 @@ async function view(r: NginxHTTPRequest): Promise<void> {
 
   const target = `/${decodeURI(targetRaw)}`;
 
+  if (!target.startsWith(r.variables.document_root || '/var/empty')) {
+    doError(r, 400, 'Shared path is outside of document root');
+    return;
+  }
+
   const givenSignature = metaSplit[0];
   const expiryStr = metaSplit[1];
   const validateLenStr = metaSplit[2];
