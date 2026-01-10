@@ -33,8 +33,8 @@ async function tryStat(fsPath: string): Promise<NjsStats | undefined> {
   }
 }
 
-function makeActions(parentCtx: RequestContext, path: string): string {
-  if (!parentCtx.withShare) {
+function makeActions(ctx: RequestContext, path: string): string {
+  if (!ctx.withShare) {
     return '';
   }
   const shareMakeLink = `${encodeURI(path)}/_mkshare?duration=3600`;
@@ -61,11 +61,11 @@ async function renderFile(r: NginxHTTPRequest, parentCtx: RequestContext, info: 
 }
 
 async function index(r: NginxHTTPRequest): Promise<void> {
-  await indexRaw(r, r.variables.request_original_filename);
+  await indexRaw(r, r.variables.request_original_filename, r.variables.document_root, false);
 }
 
-async function indexRaw(r: NginxHTTPRequest, absPath?: string): Promise<void> {
-  if (!absPath) {
+async function indexRaw(r: NginxHTTPRequest, absPath: string | undefined, rootUrl: string | undefined, readOnly: boolean): Promise<void> {
+  if (!absPath || !rootUrl) {
     r.return(500);
     return;
   }
@@ -79,7 +79,7 @@ async function indexRaw(r: NginxHTTPRequest, absPath?: string): Promise<void> {
     return;
   }
 
-  const relPath = util.relativePath(absPath, r.variables.document_root, true);
+  const relPath = util.relativePath(absPath, rootUrl, true);
   if (!relPath) {
     r.return(400);
     return;
@@ -114,11 +114,12 @@ async function indexRaw(r: NginxHTTPRequest, absPath?: string): Promise<void> {
 
   const ctx: RequestContext = {
     path: relPath,
+    pathRoot: rootUrl,
     archMirrorId: r.variables.arch_mirror_id,
     domain: r.variables.host,
     withShare: r.variables.jsindex_withshare === 'true'
   };
-  ctx.pathActions = makeActions(ctx, relPath);
+  ctx.pathActions = readOnly ? '' : makeActions(ctx, relPath);
 
   sorting.apply(r, ctx, fileInfos);
 
