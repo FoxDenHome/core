@@ -33,11 +33,18 @@ async function tryStat(fsPath: string): Promise<NjsStats | undefined> {
   }
 }
 
+function makeActions(parentCtx: RequestContext, linkName: string): string {
+  if (!parentCtx.withShare) {
+    return '';
+  }
+  return `<a onclick="javascript:makeShare(event);" title="Create 1 hour anonymous share link" href="${encodeURI(linkName)}/_mkshare?duration=3600"><span class="icon icon-share">&nbsp;</span></a>`;
+}
 
 async function renderFile(r: NginxHTTPRequest, parentCtx: RequestContext, info: FileInfo, template: string): Promise<void> {
   const isDir = info.stat && info.stat.isDirectory();
 
   const linkName = isDir ? `${info.name}/` : info.name;
+
   const ctx: RequestContext = {
     ...parentCtx,
     file_name: info.nameOverride || linkName,
@@ -45,7 +52,7 @@ async function renderFile(r: NginxHTTPRequest, parentCtx: RequestContext, info: 
     file_size: isDir ? '-' : format.size(info.stat?.size),
     file_mtime: format.date(info.stat?.mtime),
     file_type: isDir ? 'directory' : 'file',
-    file_actions: parentCtx.withShare ? `<a onclick="javascript:mklink(event)" title="Create 1 hour anonymous share link" href="${encodeURI(linkName)}/_mkshare?duration=3600"><span class="icon icon-share">&nbsp;</span></a>` : '&nbsp;',
+    file_actions: info.noActions ? '' : parentCtx.pathActions,
   };
   await render.send(r, ctx, template);
 }
@@ -108,6 +115,7 @@ async function indexRaw(r: NginxHTTPRequest, absPath?: string): Promise<void> {
     domain: r.variables.host,
     withShare: r.variables.jsindex_withshare === 'true'
   };
+  ctx.pathActions = makeActions(ctx, relPath);
 
   sorting.apply(r, ctx, fileInfos);
 
@@ -117,13 +125,11 @@ async function indexRaw(r: NginxHTTPRequest, absPath?: string): Promise<void> {
   await render.send(r, ctx, headerTemplate);
 
   if (relPath !== '/') {
-    await renderFile(r, {
-      ctx,
-      withShare: false,
-    }, {
+    await renderFile(r, ctx, {
         name: '..',
         nameOverride: '.. (parent directory)',
         stat: await fs.promises.stat(`${absPath}/..`),
+        noActions: true,
     }, entryTemplate);
 }
 

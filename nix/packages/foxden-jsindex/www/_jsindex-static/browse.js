@@ -1,6 +1,6 @@
 'use strict';
 
-async function mklinkAsync(e) {
+async function makeShareAsync(e) {
     const url = new URL(e.currentTarget.href);
     const response = await fetch(url.href, {
         method: 'POST',
@@ -14,9 +14,9 @@ async function mklinkAsync(e) {
     alert('Shared link created and copied to clipboard :3');
 }
 
-function mklink(e) {
+function makeShare(e) {
     e.preventDefault();
-    mklinkAsync(e).catch((err) => {
+    makeShareAsync(e).catch((err) => {
         console.error('Error creating link:', err);
         alert('Error creating link: ' + err.message);
     });
