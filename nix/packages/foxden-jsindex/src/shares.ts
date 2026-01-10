@@ -29,13 +29,13 @@ async function signTarget(target: string, expiryStr: string): Promise<string> {
 }
 
 async function create(r: NginxHTTPRequest): Promise<void> {
-  const absPath = r.variables.request_filename;
-  if (!absPath) {
-    doError(r, 500, 'Could not determine file path');
+  const requestFilename = r.variables.request_filename;
+  if (!requestFilename) {
+    doError(r, 500, 'Could not determine request filename');
     return;
   }
 
-  const target = absPath.replace(/\/+_mkshare$/, '');
+  const target = requestFilename.replace(/\/+_mkshare$/, '');
   const durationStr = r.args.duration || '3600';
   const duration = parseInt(durationStr, 10);
   if (!isFinite(duration) || duration <= 0) {
@@ -77,7 +77,7 @@ async function create(r: NginxHTTPRequest): Promise<void> {
 async function view(r: NginxHTTPRequest): Promise<void> {
   const requestFilename = r.variables.request_filename;
   if (!requestFilename) {
-    doError(r, 500, 'Could not determine request URI');
+    doError(r, 500, 'Could not determine request filename');
     return;
   }
 
