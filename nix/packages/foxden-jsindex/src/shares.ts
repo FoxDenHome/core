@@ -20,7 +20,7 @@ async function getCryptoSecretKey(): Promise<CryptoKey> {
   }
 
   const cryptoKeyStr = await state.setOnce('shares:secretKey', async () => {
-    const key = await crypto.subtle.generateKey({ name: 'AES-GCM', length: 128 }, true, ['encrypt', 'decrypt']);
+    const key = await crypto.subtle.generateKey({ name: 'AES-CBC', length: 128 }, true, ['encrypt', 'decrypt']);
     return await crypto.subtle.exportKey('raw', key).toString();
   });
 
@@ -28,7 +28,7 @@ async function getCryptoSecretKey(): Promise<CryptoKey> {
     throw new Error('Failed to get or generate crypto key');
   }
 
-  cryptoSecretKey = await crypto.subtle.importKey('raw', cryptoKeyStr, 'AES-GCM', false, ['encrypt', 'decrypt']);
+  cryptoSecretKey = await crypto.subtle.importKey('raw', cryptoKeyStr, 'AES-CBC', false, ['encrypt', 'decrypt']);
   if (!cryptoSecretKey) {
     throw new Error('Failed to import crypto key');
   }
