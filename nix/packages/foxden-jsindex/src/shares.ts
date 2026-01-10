@@ -68,7 +68,7 @@ async function view(r: NginxHTTPRequest): Promise<void> {
     return;
   }
 
-  const linkSplit = absPath.split('/', 4);
+  const linkSplit = absPath.split('/');
   linkSplit.shift(); // ROOT
   linkSplit.shift(); // _share
   const meta = linkSplit.shift().split(';');
