@@ -3,6 +3,8 @@ import files from './files.js';
 import cryptoModule from 'crypto';
 import util from './util.js';
 
+const MAX_DURATION = 7 * 24 * 3600; // 7 days in seconds
+
 state.setInitial('shares:secretKey', async () => {
   const u8 = Buffer.allocUnsafe(32);
   await crypto.getRandomValues(u8);
@@ -38,8 +40,8 @@ async function create(r: NginxHTTPRequest): Promise<void> {
   const target = requestFilename.replace(/\/+_mkshare$/, '');
   const durationStr = r.args.duration || '3600';
   const duration = parseInt(durationStr, 10);
-  if (!isFinite(duration) || duration <= 0) {
-    doError(r, 400, 'Invalid duration');
+  if (!isFinite(duration) || duration <= 0 || duration > MAX_DURATION) {
+    doError(r, 400, `Invalid duration: must be between 1 and ${MAX_DURATION} seconds`);
     return;
   }
 
