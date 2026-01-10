@@ -71,15 +71,20 @@ async function view(r: NginxHTTPRequest): Promise<void> {
   const linkSplit = absPath.split('/');
   linkSplit.shift(); // ROOT
   linkSplit.shift(); // _share
-  const meta = linkSplit.shift().split(';');
+  const meta = linkSplit.shift()?.split(';');
   const target = linkSplit.join('/');
+
+  if (!meta || !target) {
+    doError(r, 400, 'Missing parameters');
+    return;
+  }
 
   const givenToken = meta[0];
   const expiry = meta[1];
   const validateLenStr = meta[2];
 
-  if (!givenToken || !expiry || !validateLenStr || !target) {
-    doError(r, 400, 'Missing parameters');
+  if (!givenToken || !expiry || !validateLenStr) {
+    doError(r, 400, 'Missing meta');
     return;
   }
 
