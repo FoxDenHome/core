@@ -72,7 +72,7 @@ async function view(r: NginxHTTPRequest): Promise<void> {
   linkSplit.shift(); // ROOT
   linkSplit.shift(); // _share
   const meta = linkSplit.shift()?.split(';');
-  const targetRaw = linkSplit.join('/');
+  const targetRaw = '/' + linkSplit.join('/');
 
   if (!meta || !targetRaw) {
     doError(r, 400, 'Missing parameters');
@@ -91,8 +91,8 @@ async function view(r: NginxHTTPRequest): Promise<void> {
   }
 
   const validateLen = parseInt(validateLenStr, 10);
-  if (!isFinite(validateLen) || validateLen <= 0) {
-    doError(r, 400, 'Invalid validate length');
+  if (!isFinite(validateLen) || validateLen <= 0 || validateLen > target.length) {
+    doError(r, 400, `Invalid validate length vl=${validateLen}, tl=${target.length}`);
     return;
   }
 
