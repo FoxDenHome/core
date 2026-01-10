@@ -86,17 +86,17 @@ async function create(r: NginxHTTPRequest): Promise<void> {
   await crypto.getRandomValues(iv);
 
   const keys = await getKeys();
-  const token = new Uint8Array(await crypto.subtle.encrypt(
+  const token = Buffer.concat([iv, new Uint8Array(await crypto.subtle.encrypt(
     {
       iv,
       name: 'AES-CBC',
     },
     keys.encryption,
     Buffer.from(`${expiry}\n${target}${slashIfDir}`),
-  ));
+  ))]);
 
-  const hash = await crypto.subtle.sign(HMAC_ALG, keys.hmac, Buffer.concat([iv, token]));
-  const url = `/_share/${Buffer.concat([new Uint8Array(hash), iv, token]).toString('base64url')}${slashIfDir}`;
+  const hash = await crypto.subtle.sign(HMAC_ALG, keys.hmac, token);
+  const url = `/_share/${Buffer.concat([new Uint8Array(hash), token]).toString('base64url')}${slashIfDir}`;
 
   if (r.variables.request_method?.toUpperCase() === 'POST') {
     r.status = 200;
