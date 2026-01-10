@@ -7,6 +7,14 @@ shared.setInitial('link_secret_key', async () => {
   return Buffer.from(u8).toString('hex');
 });
 
+function doError(r: NginxHTTPRequest, code: number, message: string): void {
+  r.status = code;
+  r.headersOut['Content-Type'] = 'application/json';
+  r.sendHeader();
+  r.send(JSON.stringify({ error: message }));
+  r.finish();
+}
+
 async function hashToken(token: string, expiry: string): Promise<string> {
   const secretKey = shared.get('link_secret_key');
   if (!secretKey) {
@@ -19,7 +27,7 @@ async function hashToken(token: string, expiry: string): Promise<string> {
 async function create(r: NginxHTTPRequest): Promise<void> {
   const absPath = r.variables.request_filename;
   if (!absPath) {
-    r.return(500);
+    doError(r, 500, 'Could not determine file path');
     return;
   }
 
@@ -27,13 +35,13 @@ async function create(r: NginxHTTPRequest): Promise<void> {
   const durationStr = r.args.duration || '3600';
   const duration = parseInt(durationStr, 10);
   if (isNaN(duration) || duration <= 0) {
-    r.return(400, 'Invalid duration');
+    doError(r, 400, 'Invalid duration');
     return;
   }
 
   const stat = await fs.promises.stat(target);
   if (!stat.isFile()) {
-    r.return(400, 'Can only create links to files');
+    doError(r, 400, 'Can only create links to files');
     return;
   }
 
@@ -56,28 +64,28 @@ async function view(r: NginxHTTPRequest): Promise<void> {
   const expiry = r.args.expiry;
   const target = r.args.target;
   if (!givenToken || !expiry || !target) {
-    r.return(400, 'Missing parameters');
+    doError(r, 400, 'Missing parameters');
     return;
   }
 
   const now = new Date();
   const expiryDate = new Date(expiry);
   if (now > expiryDate) {
-    r.return(400, 'Link has expired');
+    doError(r, 400, 'Link has expired');
     return;
   }
 
   const correctToken = await hashToken(target, expiry);
 
   if (givenToken !== correctToken) {
-    r.return(400, 'Invalid token');
+    doError(r, 400, 'Invalid token');
     return;
   }
 
   try {
     r.internalRedirect(`/_jsindex-link-direct/${target}`);
   } catch (err) {
-    r.return(500, 'Error accessing file');
+    doError(r, 500, 'Error accessing file');
   }
 }
 

@@ -7,11 +7,11 @@ async function mklinkAsync(e) {
     });
     const data = await response.json();
     if (!response.ok) {
-        throw new Error(data.error || 'Failed to create link');
+        throw new Error(data.error || 'Unknown error');
     }
     const absUrl = `${document.location.protocol}//${document.location.host}${data.url}`;
     await navigator.clipboard.writeText(absUrl);
-    alert('Link created and copied to clipboard:\n' + absUrl);
+    alert(`Link created and copied to clipboard:\n${absUrl}`);
 }
 
 function mklink(e) {
