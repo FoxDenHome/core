@@ -1,6 +1,6 @@
 const DICT_NAME = 'shared';
 
-export async function get(key: string): Promise<string | undefined> {
+async function get(key: string): Promise<string | undefined> {
   const table = ngx.shared[DICT_NAME];
   const value = table.get(key);
   if (typeof value === 'string') {
@@ -8,12 +8,12 @@ export async function get(key: string): Promise<string | undefined> {
   }
 }
 
-export async function set(key: string, value: string): Promise<void> {
+async function set(key: string, value: string): Promise<void> {
     const table = ngx.shared[DICT_NAME];
     table.set(key, value);
 }
 
-export async function setInitial(key: string, initialValueGenerator: () => string | Promise<string>): Promise<string> {
+async function setInitial(key: string, initialValueGenerator: () => string | Promise<string>): Promise<string> {
   const table = ngx.shared[DICT_NAME];
   let value = table.get(key);
   if (typeof value !== 'string') {
@@ -23,3 +23,9 @@ export async function setInitial(key: string, initialValueGenerator: () => strin
   }
   return value;
 }
+
+export default {
+    get,
+    set,
+    setInitial,
+};

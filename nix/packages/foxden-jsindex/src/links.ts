@@ -1,5 +1,5 @@
 import fs from 'fs';
-import * as shared from './shared.js';
+import shared from './shared.js';
 
 shared.setInitial('link_secret_key', async () => {
   const u8 = new Uint8Array(32);
