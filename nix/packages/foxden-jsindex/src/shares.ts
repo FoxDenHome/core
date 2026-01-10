@@ -75,21 +75,25 @@ async function create(r: NginxHTTPRequest): Promise<void> {
 }
 
 async function view(r: NginxHTTPRequest): Promise<void> {
-  const requestUri = r.variables.request_uri;
+  const requestUri = r.variables.request_filename;
   if (!requestUri) {
     doError(r, 500, 'Could not determine request URI');
     return;
   }
 
   const urlSplit = requestUri.split('/');
-  urlSplit.shift(); // ROOT
-  urlSplit.shift(); // _share
+  while (urlSplit.length > 0 && urlSplit.shift() !== '_share');
+
   const meta = urlSplit.shift();
   const metaSplit = meta?.split(';');
   const targetRaw = urlSplit.join('/');
-
   if (!meta || !metaSplit || !targetRaw) {
     doError(r, 400, 'Missing parameters');
+    return;
+  }
+
+  if (metaSplit.length < 3) {
+    doError(r, 400, 'Missing meta');
     return;
   }
 
@@ -100,7 +104,7 @@ async function view(r: NginxHTTPRequest): Promise<void> {
   const validateLenStr = metaSplit[2];
 
   if (!givenSignature || !expiryStr || !validateLenStr) {
-    doError(r, 400, 'Missing meta');
+    doError(r, 400, 'Invalid meta');
     return;
   }
 
