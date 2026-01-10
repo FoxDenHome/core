@@ -103,8 +103,10 @@ async function view(r: NginxHTTPRequest): Promise<void> {
     return;
   }
 
+
   const relevantTarget = target.substring(0, validateLen + 1);
-  if (target.length !== validateLen && relevantTarget.substring(relevantTarget.length - 1) !== '/') {
+  const isDir = relevantTarget.substring(relevantTarget.length - 1) !== '/';
+  if (target.length !== validateLen && isDir) {
     doError(r, 400, `Partial target must end at slash vl=${validateLen}, tl=${target.length}, rl=${relevantTarget.length}, rt=${relevantTarget}, t=${target}`);
     return;
   }
@@ -116,7 +118,7 @@ async function view(r: NginxHTTPRequest): Promise<void> {
   }
 
   try {
-    r.internalRedirect(`/_jsindex-share-direct/${target}`);
+    r.internalRedirect(`/_jsindex-share-${isDir ? 'dir' : 'file'}/${target}`);
   } catch (err) {
     doError(r, 500, 'Error accessing file');
   }
