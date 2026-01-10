@@ -34,7 +34,7 @@ async function create(r: NginxHTTPRequest): Promise<void> {
   const target = absPath.replace(/\/_mklink$/, '');
   const durationStr = r.args.duration || '3600';
   const duration = parseInt(durationStr, 10);
-  if (isNaN(duration) || duration <= 0) {
+  if (!isFinite(duration) || duration <= 0) {
     doError(r, 400, 'Invalid duration');
     return;
   }
@@ -82,7 +82,7 @@ async function view(r: NginxHTTPRequest): Promise<void> {
   }
 
   const validateLen = parseInt(validateLenStr, 10);
-  if (isNaN(validateLen) || validateLen <= 0) {
+  if (!isFinite(validateLen) || validateLen <= 0) {
     doError(r, 400, 'Invalid validate length');
     return;
   }
