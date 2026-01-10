@@ -37,7 +37,8 @@ function makeActions(parentCtx: RequestContext, path: string): string {
   if (!parentCtx.withShare) {
     return '';
   }
-  return `<a onclick="javascript:makeShare(event);" title="Create 1 hour anonymous share link" href="${encodeURI(path)}/_mkshare?duration=3600"><span class="icon icon-share">&nbsp;</span></a>`;
+  const shareMakeLink = `${encodeURI(path)}/_mkshare?duration=3600`;
+  return `<a onclick="javascript:makeShare(event);" title="Create 1 hour anonymous share link" href="${util.htmlEncode(shareMakeLink)}"><span class="icon icon-share">&nbsp;</span></a>`;
 }
 
 async function renderFile(r: NginxHTTPRequest, parentCtx: RequestContext, info: FileInfo, template: string): Promise<void> {
