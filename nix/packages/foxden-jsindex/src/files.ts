@@ -119,7 +119,7 @@ async function indexRaw(r: NginxHTTPRequest,
 
   const ctx: RequestContext = {
     rootUrl,
-    path: relPath,
+    path: util.relativePath(absPath,  r.variables.document_root, true),
     archMirrorId: r.variables.arch_mirror_id,
     domain: r.variables.host,
     withShare: r.variables.jsindex_withshare === 'true'

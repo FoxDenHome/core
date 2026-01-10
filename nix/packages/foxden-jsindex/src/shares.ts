@@ -134,11 +134,11 @@ async function view(r: NginxHTTPRequest): Promise<void> {
   }
 
   if (target.charAt(target.length - 1) === '/') {
-    await files.indexRaw(r, target, hashedTarget, `/_share/${meta}/${hashedTarget}`, true);
+    await files.indexRaw(r, target, hashedTarget, `/_share/${meta}${hashedTarget}`, true);
     return;
   }
 
-  await r.internalRedirect(`/_jsindex-static/_share/${target}`);
+  await r.internalRedirect(`/_jsindex-static/_share${target}`);
 }
 
 export default {
