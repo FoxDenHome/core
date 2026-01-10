@@ -130,7 +130,7 @@ pkgs.stdenvNoCC.mkDerivation {
       hash = "sha256:5e7a84355ba57be248fdca34260021a762b0e97ecf952bc694c52295646b5123";
     })
     (pkgs.stdenvNoCC.mkDerivation {
-      name = "bluemap-create-resource-pack.jar";
+      name = "bluemap-create-resource-pack.zip";
       version = "1.0.0";
       src = pkgs.fetchFromGitHub {
         owner = "BeneHenke";
