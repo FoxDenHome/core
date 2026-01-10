@@ -1,7 +1,7 @@
 import fs from 'fs';
 
 async function create(r: NginxHTTPRequest): Promise<void> {
-  const absPath = r.variables.request_original_filename;
+  const absPath = r.variables.request_filename;
   if (!absPath) {
     r.return(500);
     return;
