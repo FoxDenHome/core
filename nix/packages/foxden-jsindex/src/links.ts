@@ -56,7 +56,14 @@ async function view(r: NginxHTTPRequest): Promise<void> {
   const expiry = r.args.expiry;
   const target = r.args.target;
   if (!givenToken || !expiry || !target) {
-    r.return(500);
+    r.return(400, 'Missing parameters');
+    return;
+  }
+
+  const now = new Date();
+  const expiryDate = new Date(expiry);
+  if (now > expiryDate) {
+    r.return(400, 'Link has expired');
     return;
   }
 
