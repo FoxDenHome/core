@@ -44,7 +44,7 @@ async function renderFile(r: NginxHTTPRequest, info: FileInfo, template: string)
     file_size: isDir ? '-' : format.size(info.stat?.size),
     file_mtime: format.date(info.stat?.mtime),
     file_type: isDir ? 'directory' : 'file',
-    file_actions: (!isDir && info.withLink) ? '<a onclick="javascript:mklink(event)" href="{{file_url}}/_mklink?duration=3600"><span class="icon icon-share">&nbsp;</span></a>' : '',
+    file_actions: (!isDir && info.withLink) ? '<a onclick="javascript:mklink(event)" href="{{file_url}}/_mklink?duration=3600"><span class="icon icon-share">&nbsp;</span></a>' : '&nbsp;',
   };
   await render.send(r, ctx, template);
 }
