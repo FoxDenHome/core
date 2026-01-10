@@ -17,7 +17,6 @@ async function create(r: NginxHTTPRequest): Promise<void> {
     return;
   }
 
-
   const expires_at = Date.now() + (duration * 1000);
   const token = `abcdefgh`; // TODO: Implement real token generation and storage
   const linkUrl = `/_viewlink/${token}`;
