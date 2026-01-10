@@ -31,7 +31,7 @@ async function create(r: NginxHTTPRequest): Promise<void> {
     return;
   }
 
-  const target = absPath.replace(/\/_mklink$/, '');
+  const target = absPath.replace(/\/_mkshare$/, '');
   const durationStr = r.args.duration || '3600';
   const duration = parseInt(durationStr, 10);
   if (!isFinite(duration) || duration <= 0) {
@@ -56,7 +56,7 @@ async function create(r: NginxHTTPRequest): Promise<void> {
   r.send(JSON.stringify({
     expiry,
     target,
-    url: `/_link/${encodeURIComponent(token)};${encodeURIComponent(expiry)};${targetSlashed.length}${targetSlashed}`,
+    url: `/_share/${encodeURIComponent(token)};${encodeURIComponent(expiry)};${targetSlashed.length}${targetSlashed}`,
   }));
   r.finish();
 }
@@ -90,7 +90,7 @@ async function view(r: NginxHTTPRequest): Promise<void> {
   const now = new Date();
   const expiryDate = new Date(expiry);
   if (now > expiryDate) {
-    doError(r, 400, 'Link has expired');
+    doError(r, 400, 'Share has expired');
     return;
   }
 
@@ -102,7 +102,7 @@ async function view(r: NginxHTTPRequest): Promise<void> {
   }
 
   try {
-    r.internalRedirect(`/_jsindex-link-direct/${target}`);
+    r.internalRedirect(`/_jsindex-share-direct/${target}`);
   } catch (err) {
     doError(r, 500, 'Error accessing file');
   }
