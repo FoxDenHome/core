@@ -94,6 +94,12 @@ async function view(r: NginxHTTPRequest): Promise<void> {
     return;
   }
 
+  const expiry = parseInt(expiryStr, 10) * 1000;
+  if (!isFinite(expiry) || expiry < Date.now()) {
+    doError(r, 400, 'Share outside of validity window');
+    return;
+  }
+
   const validateLen = parseInt(validateLenStr, 10);
   if (!isFinite(validateLen) || validateLen <= 0) {
     doError(r, 400, 'Invalid validate length');
@@ -102,12 +108,6 @@ async function view(r: NginxHTTPRequest): Promise<void> {
 
   if (validateLen > target.length) {
     doError(r, 400, 'Outside of shared path');
-    return;
-  }
-
-  const expiry = parseInt(expiryStr, 10) * 1000;
-  if (!isFinite(expiry) || expiry < Date.now()) {
-    doError(r, 400, 'Share outside of validity window');
     return;
   }
 
