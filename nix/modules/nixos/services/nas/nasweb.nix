@@ -35,13 +35,14 @@ in
           ''
             js_shared_dict_zone zone=render_cache:1m;
             js_import files from files.js;
+            js_import links from custom/links.js;
           '';
         extraConfig =
           { ... }:
           ''
             set $jsindex_ignore "";
             set $jsindex_header "/njs/templates/custom/nasweb_header.html";
-            set $jsindex_entry "/njs/templates/entry.html";
+            set $jsindex_entry "/njs/templates/entry_withlink.html";
             set $jsindex_footer "/njs/templates/footer.html";
 
             root /data;
@@ -54,6 +55,7 @@ in
             }
 
             include ${pkgs.foxden-jsindex}/lib/node_modules/foxden-jsindex/nginx.conf;
+            include ${pkgs.foxden-jsindex}/lib/node_modules/foxden-jsindex/withlink.conf;
           '';
       }).config
       {
