@@ -15,7 +15,7 @@ async function set(key: string, value: string): Promise<void> {
 
 async function setInitial(key: string, initialValueGenerator: () => string | Promise<string>) {
   const table = ngx.shared[DICT_NAME];
-  if (table.get(key)) {
+  if (table.has(key)) {
     return;
   }
   table.add(key, await initialValueGenerator());
