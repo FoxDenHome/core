@@ -45,7 +45,7 @@ async function create(r: NginxHTTPRequest): Promise<void> {
 
   const stat = await util.tryStat(target);
   if (!stat || (!stat.isFile() && !stat.isDirectory())) {
-    doError(r, 400, 'Can only create shares to files or directories');
+    doError(r, 400, `Can only create shares to files or directories, ${target} is neither`);
     return;
   }
 
