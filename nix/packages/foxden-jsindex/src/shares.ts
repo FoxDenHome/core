@@ -6,7 +6,7 @@ const MAX_DURATION = 7 * 24 * 3600; // 7 days in seconds
 
 interface KeyStorage {
   encryption: CryptoKey;
-  iv: Uint8Array;
+  iv: Buffer;
   hmac: CryptoKey;
 }
 
@@ -28,11 +28,11 @@ async function getKeys(): Promise<KeyStorage> {
   }
 
   const keyStr = await state.setOnce('shares:keyStorage', async () => {
-    const encryptionKey = await crypto.subtle.exportKey('raw', await crypto.subtle.generateKey(CRYPTO_ALG, true, ['encrypt', 'decrypt']));
-    const hmacKey = await crypto.subtle.exportKey('raw', await crypto.subtle.generateKey(HMAC_ALG, true, ['sign', 'verify']));
-    const iv = Buffer.allocUnsafe(CRYPTO_ALG_BYTES);
-    await crypto.getRandomValues(iv);
-    return Buffer.concat([new Uint8Array(hmacKey as ArrayBuffer), iv, new Uint8Array(encryptionKey as ArrayBuffer)]).toString('base64');
+    const newEncryption = await crypto.subtle.exportKey('raw', await crypto.subtle.generateKey(CRYPTO_ALG, true, ['encrypt', 'decrypt']));
+    const newHmac = await crypto.subtle.exportKey('raw', await crypto.subtle.generateKey(HMAC_ALG, true, ['sign', 'verify']));
+    const newIV = Buffer.allocUnsafe(CRYPTO_ALG_BYTES);
+    await crypto.getRandomValues(newIV);
+    return Buffer.concat([new Uint8Array(newHmac as ArrayBuffer), newIV, new Uint8Array(newEncryption as ArrayBuffer)]).toString('base64');
   });
 
   if (!keyStr) {
@@ -131,10 +131,9 @@ async function view(r: NginxHTTPRequest): Promise<void> {
 
   const token = urlSplit.shift() || '';
 
-  const keys = await getKeys();
-
   let secureData: ArrayBuffer;
   try {
+    const keys = await getKeys();
     const data = await crypto.subtle.decrypt(
       {
         name: 'AES-CBC',

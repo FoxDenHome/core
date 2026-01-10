@@ -20,7 +20,7 @@ async function setOnce(key: string, initialValueGenerator: () => string | Promis
     return existing;
   }
   const val = await initialValueGenerator();
-  const ok = table.add(key, await initialValueGenerator());
+  const ok = table.add(key, val);
   if (!ok) {
     // Someone else set it in the meantime
     return get(key);
