@@ -71,11 +71,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1767637106,
-        "narHash": "sha256-x3DfMoRYb1TY2fRC60CpMa1/u86mJt3yg6Lm5O3bh1s=",
+        "lastModified": 1768027783,
+        "narHash": "sha256-IT28fu31wGvR/jwZTkXfk9G4SsKTwHH9kI3AF/8jFOM=",
         "ref": "refs/heads/main",
-        "rev": "163942abb01fb55a76a306543fa6e7aee7d37f89",
-        "revCount": 626,
+        "rev": "590945d9801fa0810880396dffd79c670707357a",
+        "revCount": 627,
         "type": "git",
         "url": "https://git.foxden.network/FoxDen/e621dumper"
       },
@@ -94,11 +94,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1767576216,
-        "narHash": "sha256-lsKlbrNu38qhhwcf2pjoH7hzvo+c4byhkSH3442xqEU=",
+        "lastModified": 1768027779,
+        "narHash": "sha256-eA5XWIMwVXmsFqbUbblFy0yEvjYgyrj/tO3cLFRhuQE=",
         "ref": "refs/heads/main",
-        "rev": "b9fbb7ce07c3281531dcd61132b8d669665dcd01",
-        "revCount": 627,
+        "rev": "536f6ad407f9d026bc2687880a48a2c957ef9c36",
+        "revCount": 628,
         "type": "git",
         "url": "https://git.foxden.network/FoxDen/fadumper"
       },
@@ -151,11 +151,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1767989267,
-        "narHash": "sha256-Sibzu0z+xDpRxQMYKQffC0dtTHcPN/yZI54aTkwGusA=",
+        "lastModified": 1768027787,
+        "narHash": "sha256-ss71JCFIVVCRbdczTcM8wiyLBE0E0RwABV2M52oiCw4=",
         "ref": "refs/heads/main",
-        "rev": "fe07b13c81467a0dd084ccb4b85319e93def5665",
-        "revCount": 3850,
+        "rev": "0002fd5c1750b29b73516fa1df0f96c70d086fe9",
+        "revCount": 3851,
         "type": "git",
         "url": "https://git.foxden.network/foxCaves/foxCaves"
       },
@@ -475,11 +475,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1767826491,
-        "narHash": "sha256-WSBENPotD2MIhZwolL6GC9npqgaS5fkM7j07V2i/Ur8=",
+        "lastModified": 1768032389,
+        "narHash": "sha256-BVpTd93G0XmAK1iXiBdhUA5Uvt+WmM1YL0mA4REcT68=",
         "owner": "Mic92",
         "repo": "sops-nix",
-        "rev": "ea3adcb6d2a000d9a69d0e23cad1f2cacb3a9fbe",
+        "rev": "a8cfe238b93166f9f96c0df67a94e572554ee624",
         "type": "github"
       },
       "original": {
