@@ -22,19 +22,20 @@ const CRYPTO_ALG: AesKeyGenParams = {
   length: CRYPTO_ALG_BYTES * 8,
 };
 
+async function generateKeys(): Promise<string> {
+    const encryptionKeyRaw = await crypto.subtle.exportKey('raw', await crypto.subtle.generateKey(CRYPTO_ALG, true, ['encrypt', 'decrypt']));
+    const hmacRaw = await crypto.subtle.exportKey('raw', await crypto.subtle.generateKey(HMAC_ALG, true, ['sign', 'verify']));
+    const ivBuffer = Buffer.allocUnsafe(CRYPTO_ALG_BYTES);
+    await crypto.getRandomValues(ivBuffer);
+    return Buffer.concat([new Uint8Array(hmacRaw as ArrayBuffer), ivBuffer, new Uint8Array(encryptionKeyRaw as ArrayBuffer)]).toString('base64');
+  }
+
 async function getKeys(): Promise<KeyStorage> {
   if (encryptionKeyCache) {
     return encryptionKeyCache;
   }
 
-  const keyStr = await state.setOnce('shares:keyStorage', async () => {
-    const newEncryption = await crypto.subtle.exportKey('raw', await crypto.subtle.generateKey(CRYPTO_ALG, true, ['encrypt', 'decrypt']));
-    const newHmac = await crypto.subtle.exportKey('raw', await crypto.subtle.generateKey(HMAC_ALG, true, ['sign', 'verify']));
-    const newIV = Buffer.allocUnsafe(CRYPTO_ALG_BYTES);
-    await crypto.getRandomValues(newIV);
-    return Buffer.concat([new Uint8Array(newHmac as ArrayBuffer), newIV, new Uint8Array(newEncryption as ArrayBuffer)]).toString('base64');
-  });
-
+  const keyStr = await state.setOnce('shares:keyStorage', generateKeys);
   if (!keyStr) {
     throw new Error('Failed to get or generate keys');
   }
