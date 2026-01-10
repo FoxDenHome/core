@@ -44,6 +44,7 @@ async function renderFile(r: NginxHTTPRequest, info: FileInfo, template: string)
     file_size: isDir ? '-' : format.size(info.stat?.size),
     file_mtime: format.date(info.stat?.mtime),
     file_type: isDir ? 'directory' : 'file',
+    file_actions: (!isDir && info.withLink) ? '<a onclick="javascript:mklink(event)" href="{{file_url}}/_mklink?duration=3600"><span class="icon icon-share">&nbsp;</span></a>' : '',
   };
   await render.send(r, ctx, template);
 }
@@ -54,6 +55,8 @@ async function index(r: NginxHTTPRequest): Promise<void> {
     r.return(500);
     return;
   }
+
+  const withLink = r.variables.jsindex_withlink === 'true';
 
   const headerTemplate = r.variables.jsindex_header;
   const entryTemplate = r.variables.jsindex_entry;
@@ -115,6 +118,7 @@ async function index(r: NginxHTTPRequest): Promise<void> {
         name: '..',
         nameOverride: '.. (parent directory)',
         stat: await fs.promises.stat(`${absPath}/..`),
+        withLink,
     }, entryTemplate);
 }
 
