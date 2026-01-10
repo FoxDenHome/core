@@ -50,13 +50,14 @@ async function renderFile(r: NginxHTTPRequest, parentCtx: RequestContext, info: 
 }
 
 async function index(r: NginxHTTPRequest): Promise<void> {
-  await indexRaw(r, r.variables.request_original_filename, r.variables.document_root, '/', false);
+  await indexRaw(r, r.variables.request_original_filename, r.variables.document_root, '/', '', false);
 }
 
 async function indexRaw(r: NginxHTTPRequest,
   absPath: string | undefined,
   rootPath: string | undefined,
   rootUrl: string | undefined,
+  titlePrefix: string | undefined,
   readOnly: boolean,
 ): Promise<void> {
   if (!absPath || !rootPath || !rootUrl) {
@@ -108,6 +109,7 @@ async function indexRaw(r: NginxHTTPRequest,
 
   const ctx: RequestContext = {
     rootUrl,
+    titlePrefix,
     path: relPath,
     archMirrorId: r.variables.arch_mirror_id,
     domain: r.variables.host,

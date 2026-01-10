@@ -140,7 +140,7 @@ async function view(r: NginxHTTPRequest): Promise<void> {
   }
 
   if (target.charAt(target.length - 1) === '/') {
-    await files.indexRaw(r, target, hashedTarget, `/_share/${meta}${hashedTarget}`, true);
+    await files.indexRaw(r, target, hashedTarget, `/_share/${meta}${hashedTarget}`, '[SHARE]', true);
     return;
   }
 
