@@ -1,4 +1,4 @@
-import fs, { NjsStats } from 'fs';
+import fs from 'fs';
 import util from './util.js';
 import format from './format.js';
 import render, { RequestContext } from './render.js';
@@ -21,14 +21,6 @@ async function tryReaddir(r: NginxHTTPRequest, fsPath: string): Promise<string[]
         r.return(500);
         break;
     }
-    return undefined;
-  }
-}
-
-async function tryStat(fsPath: string): Promise<NjsStats | undefined> {
-  try {
-    return await fs.promises.stat(fsPath);
-  } catch (err: unknown) {
     return undefined;
   }
 }
@@ -110,7 +102,7 @@ async function indexRaw(r: NginxHTTPRequest,
 
     fileInfos.push({
       name,
-      stat: await tryStat(`${absPath}/${name}`),
+      stat: await util.tryStat(`${absPath}/${name}`),
     });
   }
 

@@ -1,7 +1,7 @@
-import fs from 'fs';
 import state from './state.js';
 import files from './files.js';
-import mcrypto from 'crypto';
+import cryptoModule from 'crypto';
+import util from './util.js';
 
 state.setInitial('shares:secretKey', async () => {
   const u8 = Buffer.allocUnsafe(32);
@@ -22,7 +22,7 @@ async function signTarget(target: string, expiryStr: string): Promise<string> {
   if (!secretKey) {
     throw new Error('Shares secret key not found');
   }
-  const hmac = mcrypto.createHmac('sha256', secretKey);
+  const hmac = cryptoModule.createHmac('sha256', secretKey);
   hmac.update(target);
   hmac.update(expiryStr);
   return hmac.digest('base64url');
@@ -43,8 +43,8 @@ async function create(r: NginxHTTPRequest): Promise<void> {
     return;
   }
 
-  const stat = await fs.promises.stat(target);
-  if (!stat.isFile() && !stat.isDirectory()) {
+  const stat = await util.tryStat(target);
+  if (!stat || (!stat.isFile() && !stat.isDirectory())) {
     doError(r, 400, 'Can only create shares to files or directories');
     return;
   }

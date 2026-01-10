@@ -1,3 +1,5 @@
+import fs, { NjsStats } from 'fs';
+
 const HTML_ENCODE_REGEX = /[&<>"']/g;
 const HTML_ENTITIES: Record<string, string> = {
   '&': '&amp;',
@@ -6,6 +8,14 @@ const HTML_ENTITIES: Record<string, string> = {
   '"': '&quot;',
   "'": '&#39;',
 };
+
+async function tryStat(fsPath: string): Promise<NjsStats | undefined> {
+  try {
+    return await fs.promises.stat(fsPath);
+  } catch (err: unknown) {
+    return undefined;
+  }
+}
 
 function htmlEncode(str: string): string {
   return str.replace(HTML_ENCODE_REGEX, (match) => HTML_ENTITIES[match] || match);
@@ -42,4 +52,5 @@ export default {
     htmlEncode,
     relativePath,
     joinUrl,
+    tryStat,
 };
