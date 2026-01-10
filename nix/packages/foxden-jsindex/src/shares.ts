@@ -125,8 +125,8 @@ async function view(r: NginxHTTPRequest): Promise<void> {
   const metaSplit = Buffer.from(secureData).toString('utf8').split(';');
 
   const expiryStr = metaSplit[0];
-  const prefixStr = metaSplit[1];
-  if (!expiryStr || !prefixStr) {
+  const pathPrefix = metaSplit[1];
+  if (!expiryStr || !pathPrefix) {
     doError(r, 400, 'Invalid meta');
     return;
   }
@@ -137,9 +137,9 @@ async function view(r: NginxHTTPRequest): Promise<void> {
     return;
   }
 
-  const target = `${prefixStr}${decodeURI(urlSplit.join('/'))}`;
+  const target = `${pathPrefix}${decodeURI(urlSplit.join('/'))}`;
   if (target.charAt(target.length - 1) === '/') {
-    await files.indexRaw(r, target, hashedTarget, `/_share/${token}${prefixStr}`, '[SHARE]', true);
+    await files.indexRaw(r, target, pathPrefix, `/_share/${token}/`, '[SHARE]', true);
     return;
   }
 
