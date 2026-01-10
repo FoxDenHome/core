@@ -75,13 +75,13 @@ async function create(r: NginxHTTPRequest): Promise<void> {
 }
 
 async function view(r: NginxHTTPRequest): Promise<void> {
-  const requestUri = r.variables.request_filename;
-  if (!requestUri) {
+  const requestFilename = r.variables.request_filename;
+  if (!requestFilename) {
     doError(r, 500, 'Could not determine request URI');
     return;
   }
 
-  const urlSplit = requestUri.split('/');
+  const urlSplit = requestFilename.split('/');
   while (urlSplit.length > 0 && urlSplit.shift() !== '_share');
 
   const meta = urlSplit.shift();
