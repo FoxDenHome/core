@@ -17,14 +17,14 @@ function doError(r: NginxHTTPRequest, code: number, message: string): void {
   r.finish();
 }
 
-async function hashTarget(target: string, expiry: string): Promise<string> {
+async function signTarget(target: string, expiry: number): Promise<string> {
   const secretKey = await shared.get('shares:secretKey');
   if (!secretKey) {
     throw new Error('Shares secret key not found');
   }
   const hmac = mcrypto.createHmac('sha256', secretKey);
   hmac.update(target);
-  hmac.update(expiry);
+  hmac.update(expiry.toString());
   return hmac.digest('base64url');
 }
 
@@ -51,8 +51,8 @@ async function create(r: NginxHTTPRequest): Promise<void> {
 
   const targetSlashed = `${target}${stat.isDirectory() ? '/' : ''}`;
 
-  const expiry = new Date(Date.now() + (duration * 1000)).toISOString();
-  const token = await hashTarget(targetSlashed, expiry);
+  const expiry = Date.now() + (duration * 1000);
+  const signature = await signTarget(targetSlashed, expiry);
 
   r.status = 200;
   r.headersOut['Content-Type'] = 'application/json';
@@ -60,7 +60,7 @@ async function create(r: NginxHTTPRequest): Promise<void> {
   r.send(JSON.stringify({
     expiry,
     target,
-    url: `/_share/${token};${expiry};${targetSlashed.length}${encodeURI(targetSlashed)}`,
+    url: `/_share/${signature};${expiry};${targetSlashed.length}${encodeURI(targetSlashed)}`,
   }));
   r.finish();
 }
@@ -85,11 +85,11 @@ async function view(r: NginxHTTPRequest): Promise<void> {
 
   const target = `/${decodeURI(targetRaw)}`;
 
-  const givenToken = meta[0];
-  const expiry = meta[1];
+  const givenSignature = meta[0];
+  const expiryStr = meta[1];
   const validateLenStr = meta[2];
 
-  if (!givenToken || !expiry || !validateLenStr) {
+  if (!givenSignature || !expiryStr || !validateLenStr) {
     doError(r, 400, 'Missing meta');
     return;
   }
@@ -105,10 +105,9 @@ async function view(r: NginxHTTPRequest): Promise<void> {
     return;
   }
 
-  const now = new Date();
-  const expiryDate = new Date(expiry);
-  if (now > expiryDate) {
-    doError(r, 400, 'Share has expired');
+  const expiry = parseInt(expiryStr, 10);
+  if (!isFinite(expiry) || expiry < Date.now()) {
+    doError(r, 400, 'Share outside of validity window');
     return;
   }
 
@@ -118,9 +117,9 @@ async function view(r: NginxHTTPRequest): Promise<void> {
     return;
   }
 
-  const correctToken = await hashTarget(hashedTarget, expiry);
-  if (givenToken !== correctToken) {
-    doError(r, 400, 'Invalid token');
+  const correctSignature = await signTarget(hashedTarget, expiry);
+  if (givenSignature !== correctSignature) {
+    doError(r, 400, 'Invalid signature');
     return;
   }
 
