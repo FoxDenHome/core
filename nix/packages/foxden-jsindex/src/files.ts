@@ -47,16 +47,13 @@ async function renderFile(r: NginxHTTPRequest, parentCtx: RequestContext, info: 
   const linkName = isDir ? `${info.name}/` : info.name;
 
   const ctx: RequestContext = {
-    ...parentCtx,
     file_name: info.nameOverride || linkName,
     file_url: linkName,
     file_size: isDir ? '-' : format.size(info.stat?.size),
     file_mtime: format.date(info.stat?.mtime),
     file_type: isDir ? 'directory' : 'file',
+    file_actions: info.noActions ? '' : makeActions(parentCtx, linkName),
   };
-  if (info.noActions) {
-    ctx.pathActions = '';
-  }
   await render.send(r, ctx, template);
 }
 
