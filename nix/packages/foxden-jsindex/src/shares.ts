@@ -40,7 +40,7 @@ async function create(r: NginxHTTPRequest): Promise<void> {
   }
 
   const stat = await fs.promises.stat(target);
-  if (!stat.isFile() || !stat.isDirectory()) {
+  if (!stat.isFile() && !stat.isDirectory()) {
     doError(r, 400, 'Can only create links to files or directories');
     return;
   }
