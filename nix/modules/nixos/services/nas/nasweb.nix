@@ -35,7 +35,7 @@ in
           ''
             js_shared_dict_zone zone=render_cache:1m;
             js_import files from files.js;
-            js_import links from custom/links.js;
+            js_import links from links.js;
           '';
         extraConfig =
           { ... }:
