@@ -23,12 +23,12 @@ const CRYPTO_ALG: AesKeyGenParams = {
 };
 
 async function generateKeys(): Promise<string> {
-    const encryptionKeyRaw = await crypto.subtle.exportKey('raw', await crypto.subtle.generateKey(CRYPTO_ALG, true, ['encrypt', 'decrypt']));
-    const hmacRaw = await crypto.subtle.exportKey('raw', await crypto.subtle.generateKey(HMAC_ALG, true, ['sign', 'verify']));
-    const ivBuffer = Buffer.allocUnsafe(CRYPTO_ALG_BYTES);
-    await crypto.getRandomValues(ivBuffer);
-    return Buffer.concat([new Uint8Array(hmacRaw as ArrayBuffer), ivBuffer, new Uint8Array(encryptionKeyRaw as ArrayBuffer)]).toString('base64');
-  }
+  const encryptionKeyRaw = await crypto.subtle.exportKey('raw', await crypto.subtle.generateKey(CRYPTO_ALG, true, ['encrypt', 'decrypt']));
+  const hmacRaw = await crypto.subtle.exportKey('raw', await crypto.subtle.generateKey(HMAC_ALG, true, ['sign', 'verify']));
+  const ivBuffer = Buffer.allocUnsafe(CRYPTO_ALG_BYTES);
+  await crypto.getRandomValues(ivBuffer);
+  return Buffer.concat([new Uint8Array(hmacRaw as ArrayBuffer), ivBuffer, new Uint8Array(encryptionKeyRaw as ArrayBuffer)]).toString('base64');
+}
 
 async function getKeys(): Promise<KeyStorage> {
   if (encryptionKeyCache) {
