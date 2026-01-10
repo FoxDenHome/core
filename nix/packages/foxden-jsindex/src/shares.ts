@@ -6,8 +6,8 @@ const MAX_DURATION = 7 * 24 * 3600; // 7 days in seconds
 
 let cryptoSecretKey: CryptoKey | undefined;
 
-const HASH_ALG = 'SHA-256';
 const HASH_ALG_BYTES = 32;
+const HASH_ALG = `SHA-${HASH_ALG_BYTES * 8}`;
 
 const CRYPTO_ALG_BYTES = 16;
 const CRYPTO_ALG: CipherAlgorithm = {
@@ -21,7 +21,7 @@ async function getCryptoSecretKey(): Promise<CryptoKey> {
   }
 
   const cryptoKeyStr = await state.setOnce('shares:secretKey', async () => {
-    const key = await crypto.subtle.generateKey({ name: 'AES-CBC', length: CRYPTO_ALG_BYTES*8 }, true, ['encrypt', 'decrypt']);
+    const key = await crypto.subtle.generateKey({ name: 'AES-CBC', length: CRYPTO_ALG_BYTES * 8 }, true, ['encrypt', 'decrypt']);
     return await crypto.subtle.exportKey('raw', key).toString();
   });
 
