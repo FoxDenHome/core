@@ -1,24 +1,18 @@
 import fs from 'fs';
 import util from './util.js';
+import shared from './shared.js';
 
 const VARIABLE_REGEX = /(\{\{\{?)\s*([^\}]+)\s*(\}\}\}?)/g;
 const INCLUDE_REGEX = /\[\[\s*([^\]]+)\s*\]\]/g;
-const DICT_NAME = 'render_cache';
 
 export type RequestContext = Record<string, any>;
 
-let cacheBrokenWarned = false;
-
 async function load(file: string): Promise<string> {
-  const cache = ngx.shared[DICT_NAME];
-  if (cache) {
-    const cachedTemplate = cache.get(file);
-    if (cachedTemplate !== undefined) {
-      return cachedTemplate as string;
-    }
-  } else if (!cacheBrokenWarned) {
-    ngx.log(ngx.WARN, `Shared dictionary "${DICT_NAME}" not found. Caching disabled.`);
-    cacheBrokenWarned = true;
+  const sharedKey = `render:${file}`;
+
+  const cachedTemplate = await shared.get(sharedKey);
+  if (cachedTemplate) {
+    return cachedTemplate;
   }
 
   let respData = await fs.promises.readFile(file, {
@@ -31,10 +25,7 @@ async function load(file: string): Promise<string> {
     respData = respData.replace(m[0], includeResp || '');
   }
 
-  if (cache) {
-    ngx.log(ngx.INFO, `Loaded template ${file} into cache`);
-    cache.set(file, respData);
-  }
+  await shared.set(sharedKey, respData);
   return respData;
 }
 

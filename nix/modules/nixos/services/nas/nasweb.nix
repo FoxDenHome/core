@@ -33,7 +33,6 @@ in
         extraHttpConfig =
           { ... }:
           ''
-            js_shared_dict_zone zone=render_cache:1m;
             js_shared_dict_zone zone=shared:1m;
             js_import files from files.js;
             js_import shares from shares.js;
