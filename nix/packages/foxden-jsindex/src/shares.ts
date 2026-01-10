@@ -101,7 +101,9 @@ async function view(r: NginxHTTPRequest): Promise<void> {
 
   const target = `/${decodeURI(targetRaw)}`;
 
-  if (!target.startsWith(r.variables.document_root || '/var/empty')) {
+  const docRoot = r.variables.document_root.replace(/\/+$/, '') || '/var/empty';
+
+  if (!target.startsWith(docRoot + '/')) {
     doError(r, 400, 'Shared path is outside of document root');
     return;
   }
