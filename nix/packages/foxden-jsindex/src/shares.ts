@@ -1,11 +1,12 @@
 import fs from 'fs';
 import shared from './shared.js';
 import files from './files.js';
+import mcrypto from 'crypto';
 
 shared.setInitial('link_secret_key', async () => {
-  const u8 = new Uint8Array(32);
+  const u8 = Buffer.allocUnsafe(32);
   await crypto.getRandomValues(u8);
-  return btoa(u8);
+  return u8.toString('base64url');
 });
 
 function doError(r: NginxHTTPRequest, code: number, message: string): void {
@@ -17,12 +18,14 @@ function doError(r: NginxHTTPRequest, code: number, message: string): void {
 }
 
 async function hashToken(token: string, expiry: string): Promise<string> {
-  const secretKey = shared.get('link_secret_key');
+  const secretKey = await shared.get('link_secret_key');
   if (!secretKey) {
     throw new Error('Secret key not found');
   }
-  const hash = await crypto.subtle.digest('SHA-256', `${secretKey}\n${token}\n${expiry}\n${secretKey}`);
-  return btoa(hash);
+  const hmac = mcrypto.createHmac('sha256', secretKey);
+  hmac.update(token);
+  hmac.update(expiry);
+  return hmac.digest('base64url');
 }
 
 async function create(r: NginxHTTPRequest): Promise<void> {
