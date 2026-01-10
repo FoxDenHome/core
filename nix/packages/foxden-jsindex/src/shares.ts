@@ -79,7 +79,7 @@ async function view(r: NginxHTTPRequest): Promise<void> {
     return;
   }
 
-  const target = '/' + decodeURI(targetRaw);
+  const target = `/${decodeURI(targetRaw)}`;
 
   const givenToken = meta[0];
   const expiry = meta[1];
