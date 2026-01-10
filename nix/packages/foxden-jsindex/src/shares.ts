@@ -75,28 +75,29 @@ async function create(r: NginxHTTPRequest): Promise<void> {
 }
 
 async function view(r: NginxHTTPRequest): Promise<void> {
-  const absPath = r.variables.request_uri;
-  if (!absPath) {
+  const requestUri = r.variables.request_uri;
+  if (!requestUri) {
     doError(r, 500, 'Could not determine request URI');
     return;
   }
 
-  const urlSplit = absPath.split('/');
+  const urlSplit = requestUri.split('/');
   urlSplit.shift(); // ROOT
   urlSplit.shift(); // _share
-  const meta = urlSplit.shift()?.split(';');
+  const meta = urlSplit.shift();
+  const metaSplit = meta?.split(';');
   const targetRaw = urlSplit.join('/');
 
-  if (!meta || !targetRaw) {
+  if (!meta || !metaSplit || !targetRaw) {
     doError(r, 400, 'Missing parameters');
     return;
   }
 
   const target = `/${decodeURI(targetRaw)}`;
 
-  const givenSignature = meta[0];
-  const expiryStr = meta[1];
-  const validateLenStr = meta[2];
+  const givenSignature = metaSplit[0];
+  const expiryStr = metaSplit[1];
+  const validateLenStr = metaSplit[2];
 
   if (!givenSignature || !expiryStr || !validateLenStr) {
     doError(r, 400, 'Missing meta');
@@ -133,7 +134,7 @@ async function view(r: NginxHTTPRequest): Promise<void> {
   }
 
   if (target.charAt(target.length - 1) === '/') {
-    await files.indexRaw(r, target, hashedTarget, true);
+    await files.indexRaw(r, target, hashedTarget, `/_share/${meta}/${hashedTarget}`, true);
     return;
   }
 
