@@ -36,13 +36,13 @@ async function create(r: NginxHTTPRequest): Promise<void> {
 }
 
 async function view(r: NginxHTTPRequest): Promise<void> {
-  const absPath = r.variables.request_filename;
-  if (!absPath) {
+  const reqUri = r.variables.request_uri;
+  if (!reqUri) {
     r.return(500);
     return;
   }
 
-  const linkToken = absPath.replace(/\/_link\//, '');
+  const linkToken = reqUri.replace(/\/_link\//, '');
   const table = ngx.shared[DICT_NAME];
   const targetPath = table.get(linkToken);
   if (!targetPath) {
