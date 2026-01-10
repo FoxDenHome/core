@@ -117,11 +117,6 @@ async function view(r: NginxHTTPRequest): Promise<void> {
     return;
   }
 
-  if (target.substring(target.length - 1) === '/') {
-    await files.indexRaw(r, target);
-    return;
-  }
-
   await r.internalRedirect(`/_jsindex-share-file/${target}`);
 }
 
