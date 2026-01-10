@@ -5,7 +5,7 @@ import files from './files.js';
 shared.setInitial('link_secret_key', async () => {
   const u8 = new Uint8Array(32);
   await crypto.getRandomValues(u8);
-  return Buffer.from(u8).toString('hex');
+  return btoa(u8);
 });
 
 function doError(r: NginxHTTPRequest, code: number, message: string): void {
@@ -22,7 +22,7 @@ async function hashToken(token: string, expiry: string): Promise<string> {
     throw new Error('Secret key not found');
   }
   const hash = await crypto.subtle.digest('SHA-256', `${secretKey}\n${token}\n${expiry}\n${secretKey}`);
-  return Buffer.from(hash).toString('hex');
+  return btoa(hash);
 }
 
 async function create(r: NginxHTTPRequest): Promise<void> {
