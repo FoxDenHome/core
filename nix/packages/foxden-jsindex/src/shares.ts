@@ -6,24 +6,19 @@ const MAX_DURATION = 7 * 24 * 3600; // 7 days in seconds
 
 interface KeyStorage {
   encryption: CryptoKey;
-  hmac: CryptoKey;
 }
 
 let encryptionKeyCache: KeyStorage | undefined;
 
-const HMAC_ALG_BYTES = 32;
-const HMAC_ALG: HmacKeyGenParams = { name: 'HMAC', hash: `SHA-${HMAC_ALG_BYTES * 8}` };
-
 const CRYPTO_ALG_BYTES = 16;
 const CRYPTO_ALG: AesKeyGenParams = {
-  name: 'AES-CBC',
+  name: 'AES-GCM',
   length: CRYPTO_ALG_BYTES * 8,
 };
 
 async function generateKeys(): Promise<string> {
   const encryptionKeyRaw = await crypto.subtle.exportKey('raw', await crypto.subtle.generateKey(CRYPTO_ALG, true, ['encrypt', 'decrypt']));
-  const hmacRaw = await crypto.subtle.exportKey('raw', await crypto.subtle.generateKey(HMAC_ALG, true, ['sign', 'verify']));
-  return Buffer.concat([new Uint8Array(hmacRaw as ArrayBuffer), new Uint8Array(encryptionKeyRaw as ArrayBuffer)]).toString('base64');
+  return Buffer.from(encryptionKeyRaw as ArrayBuffer).toString('base64');
 }
 
 async function getKeys(): Promise<KeyStorage> {
@@ -37,12 +32,9 @@ async function getKeys(): Promise<KeyStorage> {
   }
 
   const keyBuf = Buffer.from(keyStr, 'base64');
-  const hmacKeyBuf = keyBuf.slice(0, HMAC_ALG_BYTES);
-  const encryptionKeyBuf = keyBuf.slice(HMAC_ALG_BYTES);
 
   encryptionKeyCache = {
-    encryption: await crypto.subtle.importKey('raw', encryptionKeyBuf, CRYPTO_ALG, false, ['encrypt', 'decrypt']),
-    hmac: await crypto.subtle.importKey('raw', hmacKeyBuf, HMAC_ALG, false, ['sign', 'verify']),
+    encryption: await crypto.subtle.importKey('raw', keyBuf, CRYPTO_ALG, false, ['encrypt', 'decrypt']),
   };
   return encryptionKeyCache;
 }
@@ -89,14 +81,13 @@ async function create(r: NginxHTTPRequest): Promise<void> {
   const token = Buffer.concat([iv, new Uint8Array(await crypto.subtle.encrypt(
     {
       iv,
-      name: 'AES-CBC',
+      name: CRYPTO_ALG.name as "AES-CBC", // lol, type hack
     },
     keys.encryption,
     Buffer.from(`${expiry}\n${target}${slashIfDir}`),
   ))]);
 
-  const hash = await crypto.subtle.sign(HMAC_ALG, keys.hmac, token);
-  const url = `/_share/${Buffer.concat([new Uint8Array(hash), token]).toString('base64url')}${slashIfDir}`;
+  const url = `/_share/${token.toString('base64url')}${slashIfDir}`;
 
   if (r.variables.request_method?.toUpperCase() === 'POST') {
     r.status = 200;
@@ -131,26 +122,20 @@ async function view(r: NginxHTTPRequest): Promise<void> {
   let data: ArrayBuffer;
   try {
     const token = Buffer.from(tokenB64, 'base64url');
-    if (token.byteLength <= CRYPTO_ALG_BYTES + HMAC_ALG_BYTES) {
+    if (token.byteLength <= CRYPTO_ALG_BYTES) {
       doError(r, 400, 'Truncated outer share data');
       return;
     }
 
     const keys = await getKeys();
 
-    const givenHash = token.slice(0, HMAC_ALG_BYTES);
-    if (!await crypto.subtle.verify(HMAC_ALG, keys.hmac, givenHash, token.slice(HMAC_ALG_BYTES))) {
-      doError(r, 400, 'Invalid share signature');
-      return;
-    }
-
     data = await crypto.subtle.decrypt(
       {
-        name: 'AES-CBC',
-        iv: token.slice(HMAC_ALG_BYTES, CRYPTO_ALG_BYTES + HMAC_ALG_BYTES),
+        iv: token.slice(0, CRYPTO_ALG_BYTES),
+        name: CRYPTO_ALG.name as "AES-CBC", // lol, type hack
       },
       keys.encryption,
-      token.slice(CRYPTO_ALG_BYTES + HMAC_ALG_BYTES),
+      token.slice(CRYPTO_ALG_BYTES),
     );
 
     if (data.byteLength < 1) {
