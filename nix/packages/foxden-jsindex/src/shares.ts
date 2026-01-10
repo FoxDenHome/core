@@ -166,7 +166,7 @@ async function view(r: NginxHTTPRequest): Promise<void> {
     return;
   }
 
-  const shareName = pathPrefix.split('/').pop() || 'SHARE';
+  const shareName = pathPrefix.replace(/\/+$/, '').split('/').pop() || 'SHARE';
 
   const target = `${pathPrefix}${decodeURI(urlSplit.join('/'))}`;
   if (target.charAt(target.length - 1) === '/') {
