@@ -9,9 +9,10 @@ let cryptoSecretKey: CryptoKey | undefined;
 const HASH_ALG = 'SHA-256';
 const HASH_ALG_BYTES = 32;
 
+const CRYPTO_ALG_BYTES = 16;
 const CRYPTO_ALG: CipherAlgorithm = {
   name: 'AES-CBC',
-  iv: Buffer.alloc(16, 0),
+  iv: Buffer.alloc(CRYPTO_ALG_BYTES, 0),
 };
 
 async function getCryptoSecretKey(): Promise<CryptoKey> {
@@ -20,7 +21,7 @@ async function getCryptoSecretKey(): Promise<CryptoKey> {
   }
 
   const cryptoKeyStr = await state.setOnce('shares:secretKey', async () => {
-    const key = await crypto.subtle.generateKey({ name: 'AES-CBC', length: 128 }, true, ['encrypt', 'decrypt']);
+    const key = await crypto.subtle.generateKey({ name: 'AES-CBC', length: CRYPTO_ALG_BYTES*8 }, true, ['encrypt', 'decrypt']);
     return await crypto.subtle.exportKey('raw', key).toString();
   });
 
@@ -130,31 +131,13 @@ async function view(r: NginxHTTPRequest): Promise<void> {
     return;
   }
 
-  const target = `/${decodeURI(urlSplit.join('/'))}`;
-
-  const docRoot = (r.variables.document_root || '/var/empty').replace(/\/+$/, '');
-  if (!target.startsWith(`${docRoot}/`)) {
-    doError(r, 400, 'Shared path is outside of document root');
-    return;
-  }
-
   const expiry = parseInt(expiryStr, 10) * 1000;
   if (!isFinite(expiry) || expiry < Date.now()) {
     doError(r, 400, 'Share outside of validity window');
     return;
   }
 
-  if (prefixStr.length > target.length) {
-    doError(r, 400, 'Outside of shared path');
-    return;
-  }
-
-  const hashedTarget = target.substring(0, prefixStr.length);
-  if (target.length !== prefixStr.length && hashedTarget.charAt(hashedTarget.length - 1) !== '/') {
-    doError(r, 400, 'Partial match does not end at directory boundary');
-    return;
-  }
-
+  const target = `${prefixStr}${decodeURI(urlSplit.join('/'))}`;
   if (target.charAt(target.length - 1) === '/') {
     await files.indexRaw(r, target, hashedTarget, `/_share/${token}${prefixStr}`, '[SHARE]', true);
     return;
