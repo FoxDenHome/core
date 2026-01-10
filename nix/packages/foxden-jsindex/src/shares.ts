@@ -12,9 +12,8 @@ interface KeyStorage {
 
 let encryptionKeyCache: KeyStorage | undefined;
 
-const HASH_ALG_BYTES = 32;
-const HASH_ALG = `SHA-${HASH_ALG_BYTES * 8}`;
-const HMAC_ALG: HmacKeyGenParams = { name: 'HMAC', hash: HASH_ALG };
+const HMAC_ALG_BYTES = 32;
+const HMAC_ALG: HmacKeyGenParams = { name: 'HMAC', hash: `SHA-${HMAC_ALG_BYTES * 8}` };
 
 const CRYPTO_ALG_BYTES = 16;
 const CRYPTO_ALG: AesKeyGenParams = {
@@ -41,9 +40,9 @@ async function getKeys(): Promise<KeyStorage> {
   }
 
   const keyBuf = Buffer.from(keyStr, 'base64');
-  const hmacKeyBuf = keyBuf.slice(0, HASH_ALG_BYTES);
-  const iv = keyBuf.slice(HASH_ALG_BYTES, HASH_ALG_BYTES + CRYPTO_ALG_BYTES);
-  const encryptionKeyBuf = keyBuf.slice(HASH_ALG_BYTES + CRYPTO_ALG_BYTES);
+  const hmacKeyBuf = keyBuf.slice(0, HMAC_ALG_BYTES);
+  const iv = keyBuf.slice(HMAC_ALG_BYTES, HMAC_ALG_BYTES + CRYPTO_ALG_BYTES);
+  const encryptionKeyBuf = keyBuf.slice(HMAC_ALG_BYTES + CRYPTO_ALG_BYTES);
 
   encryptionKeyCache = {
     iv,
@@ -143,13 +142,13 @@ async function view(r: NginxHTTPRequest): Promise<void> {
       Buffer.from(token, 'base64url'),
     );
 
-    if (data.byteLength <= HASH_ALG_BYTES) {
+    if (data.byteLength <= HMAC_ALG_BYTES) {
       doError(r, 400, 'Truncated share data');
       return;
     }
 
-    const givenHash = data.slice(0, HASH_ALG_BYTES);
-    secureData = data.slice(HASH_ALG_BYTES);
+    const givenHash = data.slice(0, HMAC_ALG_BYTES);
+    secureData = data.slice(HMAC_ALG_BYTES);
     if (!await crypto.subtle.verify(HMAC_ALG, keys.hmac, givenHash, secureData)) {
       doError(r, 400, 'Invalid share hash');
       return;
