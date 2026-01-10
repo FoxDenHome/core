@@ -71,7 +71,6 @@ async function create(r: NginxHTTPRequest): Promise<void> {
     return;
   }
 
-  const slashIfDir = stat.isDirectory() ? '/' : '';
   const expiry = Math.ceil(Date.now() / 1000) + duration;
 
   const iv = Buffer.allocUnsafe(CRYPTO_ALG_BYTES);
@@ -84,10 +83,10 @@ async function create(r: NginxHTTPRequest): Promise<void> {
       name: CRYPTO_ALG.name as "AES-CBC", // lol, type hack
     },
     keys.encryption,
-    Buffer.from(`${expiry}\n${target}${slashIfDir}`),
+    Buffer.from(`${expiry}\n${target}${stat.isDirectory() ? '/' : ''}`),
   ))]);
 
-  const url = `/_share/${token.toString('base64url')}${slashIfDir}`;
+  const url = `/_share/${token.toString('base64url')}/${stat.isDirectory() ? '' : target.split('/').pop()}`;
 
   if (r.variables.request_method?.toUpperCase() === 'POST') {
     r.status = 200;
@@ -159,6 +158,11 @@ async function view(r: NginxHTTPRequest): Promise<void> {
   const expiry = parseInt(expiryStr, 10) * 1000;
   if (!isFinite(expiry) || expiry < Date.now()) {
     doError(r, 400, 'Share outside of validity window');
+    return;
+  }
+
+  if (pathPrefix.charAt(pathPrefix.length - 1) !== '/') {
+    await r.internalRedirect(`/_jsindex-static/_share${pathPrefix}`);
     return;
   }
 
