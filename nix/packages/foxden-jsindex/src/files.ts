@@ -34,17 +34,18 @@ async function tryStat(fsPath: string): Promise<NjsStats | undefined> {
 }
 
 
-async function renderFile(r: NginxHTTPRequest, info: FileInfo, template: string): Promise<void> {
+async function renderFile(r: NginxHTTPRequest, parentCtx: RequestContext, info: FileInfo, template: string): Promise<void> {
   const isDir = info.stat && info.stat.isDirectory();
 
   const linkName = isDir ? `${info.name}/` : info.name;
   const ctx: RequestContext = {
+    ...parentCtx,
     file_name: info.nameOverride || linkName,
     file_url: linkName,
     file_size: isDir ? '-' : format.size(info.stat?.size),
     file_mtime: format.date(info.stat?.mtime),
     file_type: isDir ? 'directory' : 'file',
-    file_actions: (!isDir && info.withLink) ? '<a onclick="javascript:mklink(event)" href="{{file_url}}/_mklink?duration=3600"><span class="icon icon-share">&nbsp;</span></a>' : '&nbsp;',
+    file_actions: (!isDir && parentCtx.withLink) ? '<a onclick="javascript:mklink(event)" href="{{file_url}}/_mklink?duration=3600"><span class="icon icon-share">&nbsp;</span></a>' : '&nbsp;',
   };
   await render.send(r, ctx, template);
 }
@@ -55,8 +56,6 @@ async function index(r: NginxHTTPRequest): Promise<void> {
     r.return(500);
     return;
   }
-
-  const withLink = r.variables.jsindex_withlink === 'true';
 
   const headerTemplate = r.variables.jsindex_header;
   const entryTemplate = r.variables.jsindex_entry;
@@ -104,6 +103,7 @@ async function index(r: NginxHTTPRequest): Promise<void> {
     path: relPath,
     archMirrorId: r.variables.arch_mirror_id,
     domain: r.variables.host,
+    withLink: r.variables.jsindex_withlink === 'true'
   };
 
   sorting.apply(r, ctx, fileInfos);
@@ -114,16 +114,15 @@ async function index(r: NginxHTTPRequest): Promise<void> {
   await render.send(r, ctx, headerTemplate);
 
   if (relPath !== '/') {
-    await renderFile(r, {
+    await renderFile(r, ctx, {
         name: '..',
         nameOverride: '.. (parent directory)',
         stat: await fs.promises.stat(`${absPath}/..`),
-        withLink,
     }, entryTemplate);
 }
 
   for (const fileInfo of fileInfos) {
-    await renderFile(r, fileInfo, entryTemplate);
+    await renderFile(r, ctx, fileInfo, entryTemplate);
   }
   
   await render.send(r, ctx, footerTemplate);

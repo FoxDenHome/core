@@ -5,7 +5,6 @@ export type FileInfo = {
     name: string;
     nameOverride?: string;
     stat?: NjsStats;
-    withLink?: boolean;
 };
 
 const DEFAULT_SORT = 'namedirfirst';
