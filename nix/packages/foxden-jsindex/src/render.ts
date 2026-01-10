@@ -1,7 +1,7 @@
 import fs from 'fs';
 import util from './util.js';
 
-const VARIABLE_REGEX = /\{\{\s*([^\}]+)\s*\}\}/g;
+const VARIABLE_REGEX = /(\{\{\{?)\s*([^\}]+)\s*(\}\}\}?)/g;
 const INCLUDE_REGEX = /\[\[\s*([^\]]+)\s*\]\]/g;
 const DICT_NAME = 'render_cache';
 
@@ -45,12 +45,22 @@ async function run(ctx: RequestContext, file: string): Promise<string> {
 
   const template = await load(file);
 
-  const data = template.replace(VARIABLE_REGEX, (_, variableName) => {
+  const data = template.replace(VARIABLE_REGEX, (_, openTag, variableName, closeTag) => {
+    if openTag.length !== closeTag.length {
+      ngx.log(ngx.WARN, `Mismatched tags in template ${file} for variable "${variableName}"`);
+      return '';
+    }
+
     const value = ctx[variableName];
     if (value === undefined) {
       ngx.log(ngx.WARN, `Variable "${variableName}" not found in context when rendering ${file}`);
       return '';
     }
+
+    if (openTag.length === 3) {
+      return value;
+    }
+
     return util.htmlEncode(value);
   });
 
