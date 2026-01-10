@@ -94,7 +94,7 @@ async function view(r: NginxHTTPRequest): Promise<void> {
     return;
   }
 
-  const relevantTarget = target.substring(0, validateLen);
+  const relevantTarget = target.substring(0, validateLen + 1);
   if (target.length !== validateLen && relevantTarget.substring(relevantTarget.length - 1) !== '/') {
     doError(r, 400, 'Partial target must end at slash');
     return;
