@@ -17,14 +17,14 @@ function doError(r: NginxHTTPRequest, code: number, message: string): void {
   r.finish();
 }
 
-async function signTarget(target: string, expiry: number): Promise<string> {
+async function signTarget(target: string, expiryStr: string): Promise<string> {
   const secretKey = await shared.get('shares:secretKey');
   if (!secretKey) {
     throw new Error('Shares secret key not found');
   }
   const hmac = mcrypto.createHmac('sha256', secretKey);
   hmac.update(target);
-  hmac.update(expiry.toString());
+  hmac.update(expiryStr);
   return hmac.digest('base64url');
 }
 
@@ -52,7 +52,8 @@ async function create(r: NginxHTTPRequest): Promise<void> {
   const targetSlashed = `${target}${stat.isDirectory() ? '/' : ''}`;
 
   const expiry = Math.ceil(Date.now() / 1000) + duration;
-  const signature = await signTarget(targetSlashed, expiry);
+  const expiryStr = expiry.toFixed(0);
+  const signature = await signTarget(targetSlashed, expiryStr);
 
   r.status = 200;
   r.headersOut['Content-Type'] = 'application/json';
@@ -60,7 +61,7 @@ async function create(r: NginxHTTPRequest): Promise<void> {
   r.send(JSON.stringify({
     expiry,
     target,
-    url: `/_share/${signature};${expiry};${targetSlashed.length}${encodeURI(targetSlashed)}`,
+    url: `/_share/${signature};${expiryStr};${targetSlashed.length}${encodeURI(targetSlashed)}`,
   }));
   r.finish();
 }
@@ -117,7 +118,7 @@ async function view(r: NginxHTTPRequest): Promise<void> {
     return;
   }
 
-  const correctSignature = await signTarget(hashedTarget, expiry);
+  const correctSignature = await signTarget(hashedTarget, expiryStr);
   if (givenSignature !== correctSignature) {
     doError(r, 400, 'Invalid signature');
     return;
