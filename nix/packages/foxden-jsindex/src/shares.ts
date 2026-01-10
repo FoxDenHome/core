@@ -38,7 +38,7 @@ async function getKeys(): Promise<KeyStorage> {
 
   const keyBuf = Buffer.from(keyStr, 'base64');
   const hmacKeyBuf = keyBuf.slice(0, HMAC_ALG_BYTES);
-  const encryptionKeyBuf = keyBuf.slice(HMAC_ALG_BYTES + CRYPTO_ALG_BYTES);
+  const encryptionKeyBuf = keyBuf.slice(HMAC_ALG_BYTES);
 
   encryptionKeyCache = {
     encryption: await crypto.subtle.importKey('raw', encryptionKeyBuf, CRYPTO_ALG, false, ['encrypt', 'decrypt']),
