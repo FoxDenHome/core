@@ -31,7 +31,7 @@ in
         ];
         target = ''
           include ${pkgs.foxden-jsindex}/lib/node_modules/foxden-jsindex/nginx-location.conf;
-          include ${pkgs.foxden-jsindex}/lib/node_modules/foxden-jsindex/withshare-location.conf;
+          include ${pkgs.foxden-jsindex}/lib/node_modules/foxden-jsindex/shares-location.conf;
         '';
         extraHttpConfig =
           { ... }:
@@ -58,7 +58,7 @@ in
             }
 
             include ${pkgs.foxden-jsindex}/lib/node_modules/foxden-jsindex/nginx.conf;
-            include ${pkgs.foxden-jsindex}/lib/node_modules/foxden-jsindex/withshare.conf;
+            include ${pkgs.foxden-jsindex}/lib/node_modules/foxden-jsindex/shares.conf;
           '';
       }).config
       {

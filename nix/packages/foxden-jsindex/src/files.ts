@@ -26,7 +26,7 @@ async function tryReaddir(r: NginxHTTPRequest, fsPath: string): Promise<string[]
 }
 
 function makeActions(ctx: RequestContext, path: string): string {
-  if (!ctx.withShare) {
+  if (!ctx.withShares) {
     return '';
   }
   const shareMakeLink = `${encodeURI(path.replace(/\/+$/, ''))}?mkshare=y&duration=3600`;
@@ -114,7 +114,7 @@ async function indexRaw(r: NginxHTTPRequest,
     path: relPath,
     archMirrorId: r.variables.arch_mirror_id,
     domain: r.variables.host,
-    withShare: r.variables.jsindex_withshare === 'true'
+    withShares: r.variables.jsindex_shares === 'true'
   };
   ctx.pathActions = readOnly ? '' : makeActions(ctx, relPath);
 
