@@ -1,15 +1,40 @@
 import state from './state.js';
 import files from './files.js';
-import cryptoModule from 'crypto';
 import util from './util.js';
 
 const MAX_DURATION = 7 * 24 * 3600; // 7 days in seconds
 
-state.setInitial('shares:secretKey', async () => {
-  const u8 = Buffer.allocUnsafe(32);
-  await crypto.getRandomValues(u8);
-  return u8.toString('base64url');
-});
+let cryptoSecretKey: CryptoKey | undefined;
+
+const HASH_ALG = 'SHA-256';
+const HASH_ALG_BYTES = 32;
+
+const CRYPTO_ALG: CipherAlgorithm = {
+  name: 'AES-CBC',
+  iv: Buffer.alloc(16, 0),
+};
+
+async function getCryptoSecretKey(): Promise<CryptoKey> {
+  if (cryptoSecretKey) {
+    return cryptoSecretKey;
+  }
+
+  const cryptoKeyStr = await state.setOnce('shares:secretKey', async () => {
+    const key = await crypto.subtle.generateKey({ name: 'AES-GCM', length: 128 }, true, ['encrypt', 'decrypt']);
+    return await crypto.subtle.exportKey('raw', key).toString();
+  });
+
+  if (!cryptoKeyStr) {
+    throw new Error('Failed to get or generate crypto key');
+  }
+
+  cryptoSecretKey = await crypto.subtle.importKey('raw', cryptoKeyStr, 'AES-GCM', false, ['encrypt', 'decrypt']);
+  if (!cryptoSecretKey) {
+    throw new Error('Failed to import crypto key');
+  }
+
+  return cryptoSecretKey;
+}
 
 function doError(r: NginxHTTPRequest, code: number, message: string): void {
   r.status = code;
@@ -17,17 +42,6 @@ function doError(r: NginxHTTPRequest, code: number, message: string): void {
   r.sendHeader();
   r.send(JSON.stringify({ error: message }));
   r.finish();
-}
-
-async function signTarget(target: string, expiryStr: string): Promise<string> {
-  const secretKey = await state.get('shares:secretKey');
-  if (!secretKey) {
-    throw new Error('Shares secret key not found');
-  }
-  const hmac = cryptoModule.createHmac('sha256', secretKey);
-  hmac.update(target);
-  hmac.update(expiryStr);
-  return hmac.digest('base64url');
 }
 
 async function create(r: NginxHTTPRequest): Promise<void> {
@@ -50,13 +64,20 @@ async function create(r: NginxHTTPRequest): Promise<void> {
     return;
   }
 
-  const targetSlashed = `${target}${stat.isDirectory() ? '/' : ''}`;
+  const slashIfDir = stat.isDirectory() ? '/' : '';
 
   const expiry = Math.ceil(Date.now() / 1000) + duration;
-  const expiryStr = expiry.toFixed(0);
-  const signature = await signTarget(targetSlashed, expiryStr);
 
-  const url = `/_share/${signature};${expiryStr};${targetSlashed.length}${encodeURI(targetSlashed)}`;
+  const cryptoKey = await getCryptoSecretKey();
+  const secureData = Buffer.from(`${expiry};${target}${slashIfDir}`);
+  const hash = await crypto.subtle.digest(HASH_ALG, secureData);
+  const token = await crypto.subtle.encrypt(
+    CRYPTO_ALG,
+    cryptoKey,
+    Buffer.concat([new Uint8Array(hash), secureData]),
+  );
+
+  const url = `/_share/${Buffer.from(token).toString('base64url')}${slashIfDir}`;
   if (r.variables.request_method?.toUpperCase() === 'POST') {
     r.status = 200;
     r.headersOut['Content-Type'] = 'application/json';
@@ -70,7 +91,7 @@ async function create(r: NginxHTTPRequest): Promise<void> {
     return;
   }
 
-  r.headersOut['Share-Expiry'] = expiryStr;
+  r.headersOut['Share-Expiry'] = expiry.toFixed(0);
   r.headersOut['Share-Target'] = target;
   r.return(307, url);
 }
@@ -85,33 +106,35 @@ async function view(r: NginxHTTPRequest): Promise<void> {
   const urlSplit = requestFilename.split('/');
   while (urlSplit.length > 0 && urlSplit.shift() !== '_share');
 
-  const meta = urlSplit.shift();
-  const metaSplit = meta?.split(';');
-  const targetRaw = urlSplit.join('/');
-  if (!meta || !metaSplit || !targetRaw) {
-    doError(r, 400, 'Missing parameters');
+  const token = urlSplit.shift() || '';
+  const cryptoKey = await getCryptoSecretKey();
+  const data = await crypto.subtle.decrypt(
+    CRYPTO_ALG,
+    cryptoKey,
+    Buffer.from(token, 'base64url'),
+  );
+
+  const givenHash = data.slice(0, HASH_ALG_BYTES);
+  const secureData = data.slice(HASH_ALG_BYTES);
+  const expexctedHash = await crypto.subtle.digest(HASH_ALG, secureData);
+  if (Buffer.compare(new Uint8Array(givenHash), new Uint8Array(expexctedHash)) !== 0) {
+    doError(r, 400, 'Invalid share hash');
+    return;
+  }
+  const metaSplit = Buffer.from(secureData).toString('utf8').split(';');
+
+  const expiryStr = metaSplit[0];
+  const prefixStr = metaSplit[1];
+  if (!expiryStr || !prefixStr) {
+    doError(r, 400, 'Invalid meta');
     return;
   }
 
-  if (metaSplit.length < 3) {
-    doError(r, 400, 'Missing meta');
-    return;
-  }
-
-  const target = `/${decodeURI(targetRaw)}`;
+  const target = `/${decodeURI(urlSplit.join('/'))}`;
 
   const docRoot = (r.variables.document_root || '/var/empty').replace(/\/+$/, '');
   if (!target.startsWith(`${docRoot}/`)) {
     doError(r, 400, 'Shared path is outside of document root');
-    return;
-  }
-
-  const givenSignature = metaSplit[0];
-  const expiryStr = metaSplit[1];
-  const validateLenStr = metaSplit[2];
-
-  if (!givenSignature || !expiryStr || !validateLenStr) {
-    doError(r, 400, 'Invalid meta');
     return;
   }
 
@@ -121,31 +144,19 @@ async function view(r: NginxHTTPRequest): Promise<void> {
     return;
   }
 
-  const validateLen = parseInt(validateLenStr, 10);
-  if (!isFinite(validateLen) || validateLen <= 0) {
-    doError(r, 400, 'Invalid validate length');
-    return;
-  }
-
-  if (validateLen > target.length) {
+  if (prefixStr.length > target.length) {
     doError(r, 400, 'Outside of shared path');
     return;
   }
 
-  const hashedTarget = target.substring(0, validateLen);
-  if (target.length !== validateLen && hashedTarget.charAt(hashedTarget.length - 1) !== '/') {
+  const hashedTarget = target.substring(0, prefixStr.length);
+  if (target.length !== prefixStr.length && hashedTarget.charAt(hashedTarget.length - 1) !== '/') {
     doError(r, 400, 'Partial match does not end at directory boundary');
     return;
   }
 
-  const correctSignature = await signTarget(hashedTarget, expiryStr);
-  if (givenSignature !== correctSignature) {
-    doError(r, 400, 'Invalid signature');
-    return;
-  }
-
   if (target.charAt(target.length - 1) === '/') {
-    await files.indexRaw(r, target, hashedTarget, `/_share/${meta}${hashedTarget}`, '[SHARE]', true);
+    await files.indexRaw(r, target, hashedTarget, `/_share/${token}${prefixStr}`, '[SHARE]', true);
     return;
   }
 

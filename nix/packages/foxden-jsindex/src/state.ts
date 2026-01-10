@@ -13,16 +13,23 @@ async function set(key: string, value: string): Promise<void> {
     table.set(key, value);
 }
 
-async function setInitial(key: string, initialValueGenerator: () => string | Promise<string>) {
+async function setOnce(key: string, initialValueGenerator: () => string | Promise<string>) {
   const table = ngx.shared[DICT_NAME];
-  if (table.has(key)) {
-    return;
+  const existing = table.get(key);
+  if (typeof existing === 'string') {
+    return existing;
   }
-  table.add(key, await initialValueGenerator());
+  const val = await initialValueGenerator();
+  const ok = table.add(key, await initialValueGenerator());
+  if (!ok) {
+    // Someone else set it in the meantime
+    return get(key);
+  }
+  return val;
 }
 
 export default {
     get,
     set,
-    setInitial,
+    setOnce,
 };
