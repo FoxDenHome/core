@@ -4,17 +4,17 @@ import util from './util.js';
 
 const MAX_DURATION = 7 * 24 * 3600; // 7 days in seconds
 
+const CRYPTO_ALG: AesKeyGenParams = {
+  name: 'AES-GCM',
+  length: 128,
+};
+const CRYPTO_ALG_BYTES = Math.ceil(CRYPTO_ALG.length / 8);
+
 interface KeyStorage {
   encryption: CryptoKey;
 }
 
-let encryptionKeyCache: KeyStorage | undefined;
-
-const CRYPTO_ALG_BYTES = 16;
-const CRYPTO_ALG: AesKeyGenParams = {
-  name: 'AES-GCM',
-  length: CRYPTO_ALG_BYTES * 8,
-};
+let keyStorageCache: KeyStorage | undefined;
 
 async function generateKeys(): Promise<string> {
   const encryptionKeyRaw = await crypto.subtle.exportKey('raw', await crypto.subtle.generateKey(CRYPTO_ALG, true, ['encrypt', 'decrypt']));
@@ -22,8 +22,8 @@ async function generateKeys(): Promise<string> {
 }
 
 async function getKeys(): Promise<KeyStorage> {
-  if (encryptionKeyCache) {
-    return encryptionKeyCache;
+  if (keyStorageCache) {
+    return keyStorageCache;
   }
 
   const keyStr = await state.setOnce('shares:keyStorage', generateKeys);
@@ -33,10 +33,10 @@ async function getKeys(): Promise<KeyStorage> {
 
   const keyBuf = Buffer.from(keyStr, 'base64');
 
-  encryptionKeyCache = {
+  keyStorageCache = {
     encryption: await crypto.subtle.importKey('raw', keyBuf, CRYPTO_ALG, false, ['encrypt', 'decrypt']),
   };
-  return encryptionKeyCache;
+  return keyStorageCache;
 }
 
 function doError(r: NginxHTTPRequest, code: number, message: string): void {
