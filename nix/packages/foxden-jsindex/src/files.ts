@@ -53,8 +53,10 @@ async function renderFile(r: NginxHTTPRequest, parentCtx: RequestContext, info: 
     file_size: isDir ? '-' : format.size(info.stat?.size),
     file_mtime: format.date(info.stat?.mtime),
     file_type: isDir ? 'directory' : 'file',
-    file_actions: info.noActions ? '' : parentCtx.pathActions,
   };
+  if (info.noActions) {
+    ctx.pathActions = '';
+  }
   await render.send(r, ctx, template);
 }
 
