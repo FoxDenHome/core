@@ -50,7 +50,6 @@ async function getKeys(): Promise<KeyStorage> {
     encryption: await crypto.subtle.importKey('raw', encryptionKeyBuf, CRYPTO_ALG, false, ['encrypt', 'decrypt']),
     hmac: await crypto.subtle.importKey('raw', hmacKeyBuf, HMAC_ALG, false, ['sign', 'verify']),
   };
-
   return encryptionKeyCache;
 }
 
