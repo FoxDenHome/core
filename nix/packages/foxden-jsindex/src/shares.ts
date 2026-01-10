@@ -92,8 +92,13 @@ async function view(r: NginxHTTPRequest): Promise<void> {
   }
 
   const validateLen = parseInt(validateLenStr, 10);
-  if (!isFinite(validateLen) || validateLen <= 0 || validateLen > target.length) {
-    doError(r, 400, `Invalid validate length`);
+  if (!isFinite(validateLen) || validateLen <= 0) {
+    doError(r, 400, 'Invalid validate length');
+    return;
+  }
+
+  if (validateLen > target.length) {
+    doError(r, 400, 'Outside of shared path');
     return;
   }
 
@@ -104,14 +109,13 @@ async function view(r: NginxHTTPRequest): Promise<void> {
     return;
   }
 
-
-  const relevantTarget = target.substring(0, validateLen + 1);
-  if (target.length !== validateLen && relevantTarget.substring(relevantTarget.length - 1) !== '/') {
-    doError(r, 400, `Partial target must end at slash rl=${relevantTarget.length}, rt=${relevantTarget}, t=${target}`);
+  const hashedTarget = target.substring(0, validateLen + 1);
+  if (target.length !== validateLen && hashedTarget.substring(hashedTarget.length - 1) !== '/') {
+    doError(r, 400, 'Partial target must end at slash');
     return;
   }
 
-  const correctToken = await hashToken(relevantTarget, expiry);
+  const correctToken = await hashToken(hashedTarget, expiry);
   if (givenToken !== correctToken) {
     doError(r, 400, 'Invalid token');
     return;
