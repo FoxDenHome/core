@@ -166,9 +166,11 @@ async function view(r: NginxHTTPRequest): Promise<void> {
     return;
   }
 
+  const shareName = pathPrefix.split('/').pop() || 'SHARE';
+
   const target = `${pathPrefix}${decodeURI(urlSplit.join('/'))}`;
   if (target.charAt(target.length - 1) === '/') {
-    await files.indexRaw(r, target, pathPrefix, `/_share/${tokenB64}/`, '[SHARE]', true);
+    await files.indexRaw(r, target, pathPrefix, `/_share/${tokenB64}/`, `[${shareName}]`, true);
     return;
   }
 
