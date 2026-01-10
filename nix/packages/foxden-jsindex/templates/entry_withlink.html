@@ -3,10 +3,10 @@
             <a
               href="{{file_url}}"
               title='{{file_mtime}}'
-              ><span class="icon icon-{{file_type}}">&nbsp</span> <span class="text">{{file_name}}</span></a
+              ><span class="icon icon-{{file_type}}">&nbsp;</span> <span class="text">{{file_name}}</span></a
             >
           </td>
           <td>{{file_mtime}}</td>
           <td class="numeric-cell">{{file_size}}</td>
-          <td><a onclick="javascript:mklink(event)" href="{{file_url}}/_mklink?duration=3600">Create 1 hour link</a></td>
+          <td><a onclick="javascript:mklink(event)" href="{{file_url}}/_mklink?duration=3600"><span class="icon icon-share">&nbsp;</span></a></td>
         </tr>

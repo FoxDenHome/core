@@ -50,6 +50,9 @@ span.icon-arrow-up {
 span.icon-arrow-down {
   background-image: url(arrow-down.svg);
 }
+span.icon-share {
+  background-image: url(share.svg);
+}
 
 span.icon {
   background-size: contain;
