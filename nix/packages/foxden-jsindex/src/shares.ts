@@ -72,12 +72,14 @@ async function view(r: NginxHTTPRequest): Promise<void> {
   linkSplit.shift(); // ROOT
   linkSplit.shift(); // _share
   const meta = linkSplit.shift()?.split(';');
-  const target = linkSplit.join('/');
+  const targetRaw = linkSplit.join('/');
 
-  if (!meta || !target) {
+  if (!meta || !targetRaw) {
     doError(r, 400, 'Missing parameters');
     return;
   }
+
+  const target = decodeURI(targetRaw);
 
   const givenToken = meta[0];
   const expiry = meta[1];
