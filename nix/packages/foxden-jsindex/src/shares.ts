@@ -109,8 +109,8 @@ async function view(r: NginxHTTPRequest): Promise<void> {
     return;
   }
 
-  const hashedTarget = target.substring(0, validateLen + 1);
-  if (target.length !== validateLen && hashedTarget.substring(hashedTarget.length - 1) !== '/') {
+  const hashedTarget = target.substring(0, validateLen);
+  if (target.length !== validateLen && hashedTarget.charAt(hashedTarget.length - 1) !== '/') {
     doError(r, 400, `Partial target must end at slash vl=${validateLen} ht=${hashedTarget} t=${target}`);
     return;
   }
@@ -121,7 +121,7 @@ async function view(r: NginxHTTPRequest): Promise<void> {
     return;
   }
 
-  if (target.substring(target.length - 1) === '/') {
+  if (target.charAt(target.length - 1) === '/') {
     await files.indexRaw(r, target);
     return;
   }
