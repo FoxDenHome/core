@@ -40,13 +40,15 @@ async function create(r: NginxHTTPRequest): Promise<void> {
   }
 
   const stat = await fs.promises.stat(target);
-  if (!stat.isFile()) {
-    doError(r, 400, 'Can only create links to files');
+  if (!stat.isFile() || !stat.isDirectory()) {
+    doError(r, 400, 'Can only create links to files or directories');
     return;
   }
 
+  const targetSlashed = `${target}${stat.isDirectory() ? '/' : ''}`;
+
   const expiry = new Date(Date.now() + (duration * 1000)).toISOString();
-  const token = await hashToken(target, expiry);
+  const token = await hashToken(targetSlashed, expiry);
 
   r.status = 200;
   r.headersOut['Content-Type'] = 'application/json';
@@ -54,17 +56,34 @@ async function create(r: NginxHTTPRequest): Promise<void> {
   r.send(JSON.stringify({
     expiry,
     target,
-    url: `/_link?token=${encodeURIComponent(token)}&target=${encodeURIComponent(target)}&expiry=${encodeURIComponent(expiry)}`,
+    url: `/_link/${encodeURIComponent(token)};${encodeURIComponent(expiry)};${targetSlashed.length}${targetSlashed}`,
   }));
   r.finish();
 }
 
 async function view(r: NginxHTTPRequest): Promise<void> {
-  const givenToken = r.args.token;
-  const expiry = r.args.expiry;
-  const target = r.args.target;
-  if (!givenToken || !expiry || !target) {
+  const absPath = r.variables.request_uri;
+  if (!absPath) {
+    doError(r, 500, 'Could not determine request URI');
+    return;
+  }
+
+  const linkSplit = absPath.split('/', 3);
+  const meta = linkSplit[1].split(';');
+  const target = linkSplit[2];
+
+  const givenToken = meta[0];
+  const expiry = meta[1];
+  const validateLenStr = meta[2];
+
+  if (!givenToken || !expiry || !validateLenStr || !target) {
     doError(r, 400, 'Missing parameters');
+    return;
+  }
+
+  const validateLen = parseInt(validateLenStr, 10);
+  if (isNaN(validateLen) || validateLen <= 0) {
+    doError(r, 400, 'Invalid validate length');
     return;
   }
 
@@ -75,7 +94,7 @@ async function view(r: NginxHTTPRequest): Promise<void> {
     return;
   }
 
-  const correctToken = await hashToken(target, expiry);
+  const correctToken = await hashToken(target.substring(0, validateLen), expiry);
 
   if (givenToken !== correctToken) {
     doError(r, 400, 'Invalid token');
