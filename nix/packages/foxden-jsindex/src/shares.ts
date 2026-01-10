@@ -94,8 +94,13 @@ async function view(r: NginxHTTPRequest): Promise<void> {
     return;
   }
 
-  const correctToken = await hashToken(target.substring(0, validateLen), expiry);
+  const relevantTarget = target.substring(0, validateLen);
+  if (target.length !== validateLen && relevantTarget.substring(relevantTarget.length - 1) !== '/') {
+    doError(r, 400, 'Partial target must end at slash');
+    return;
+  }
 
+  const correctToken = await hashToken(relevantTarget, expiry);
   if (givenToken !== correctToken) {
     doError(r, 400, 'Invalid token');
     return;
