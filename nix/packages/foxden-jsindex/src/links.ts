@@ -9,7 +9,7 @@ async function create(r: NginxHTTPRequest): Promise<void> {
     return;
   }
 
-  const linkTo = absPath.replace(/\/_mklink$/, '');
+  const targetPath = absPath.replace(/\/_mklink$/, '');
   const durationStr = r.args.duration || '3600';
   const duration = parseInt(durationStr, 10);
   if (isNaN(duration) || duration <= 0) {
@@ -22,14 +22,14 @@ async function create(r: NginxHTTPRequest): Promise<void> {
   const linkUrl = `/_link/${token}`;
 
   const table = ngx.shared[DICT_NAME];
-  table.set(token, linkTo);
+  table.set(token, targetPath);
 
   r.status = 200;
   r.headersOut['Content-Type'] = 'application/json';
   r.sendHeader();
   r.send(JSON.stringify({
     url: linkUrl,
-    file: linkTo,
+    file: targetPath,
     expires_at: new Date(expires_at).toISOString(),
   }));
   r.finish();
@@ -46,17 +46,11 @@ async function view(r: NginxHTTPRequest): Promise<void> {
   const table = ngx.shared[DICT_NAME];
   const targetPath = table.get(linkToken);
   if (!targetPath) {
-    r.return(404, 'Link not found or expired');
+    r.return(404, `Link not found or expired: ${linkToken}`);
     return;
   }
 
   try {
-    const stat = await fs.promises.stat(targetPath.toString());
-    if (stat.isDirectory()) {
-      r.return(403, 'Cannot view directory');
-      return;
-    }
-
     r.internalRedirect(`/_jsindex-link-direct/${targetPath}`);
   } catch (err) {
     r.return(500, 'Error accessing file');
