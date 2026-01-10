@@ -29,7 +29,10 @@ in
         modules = [
           pkgs.nginxModules.njs
         ];
-        target = "include ${pkgs.foxden-jsindex}/lib/node_modules/foxden-jsindex/nginx-location.conf;";
+        target = ''
+          include ${pkgs.foxden-jsindex}/lib/node_modules/foxden-jsindex/nginx-location.conf;
+          include ${pkgs.foxden-jsindex}/lib/node_modules/foxden-jsindex/withshare-location.conf;
+        '';
         extraHttpConfig =
           { ... }:
           ''

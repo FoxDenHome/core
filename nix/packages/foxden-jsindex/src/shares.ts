@@ -37,7 +37,10 @@ async function create(r: NginxHTTPRequest): Promise<void> {
     return;
   }
 
-  const target = requestFilename.replace(/\/+_mkshare$/, '');
+  const urlSplit = requestFilename.split('/');
+  while (urlSplit.length > 0 && urlSplit.shift() !== '_jsindex-mkshare');
+
+  const target = `/${decodeURI(urlSplit.join('/'))}`;
   const durationStr = r.args.duration || '3600';
   const duration = parseInt(durationStr, 10);
   if (!isFinite(duration) || duration <= 0 || duration > MAX_DURATION) {
