@@ -9,7 +9,7 @@ async function create(r: NginxHTTPRequest): Promise<void> {
     return;
   }
 
-  const linkTo = absPath.replace(/\/_createlink$/, '');
+  const linkTo = absPath.replace(/\/_mklink$/, '');
   const durationStr = r.args.duration || '3600';
   const duration = parseInt(durationStr, 10);
   if (isNaN(duration) || duration <= 0) {
@@ -19,7 +19,7 @@ async function create(r: NginxHTTPRequest): Promise<void> {
 
   const expires_at = Date.now() + (duration * 1000);
   const token = `abcdefgh`; // TODO: Implement real token generation and storage
-  const linkUrl = `/_viewlink/${token}`;
+  const linkUrl = `/_link/${token}`;
 
   const table = ngx.shared[DICT_NAME];
   table.set(token, linkTo);
@@ -42,7 +42,7 @@ async function view(r: NginxHTTPRequest): Promise<void> {
     return;
   }
 
-  const linkToken = absPath.replace(/\/_viewlink\//, '');
+  const linkToken = absPath.replace(/\/_link\//, '');
   const table = ngx.shared[DICT_NAME];
   const targetPath = table.get(linkToken);
   if (!targetPath) {
@@ -57,7 +57,7 @@ async function view(r: NginxHTTPRequest): Promise<void> {
       return;
     }
 
-    r.internalRedirect(`/_viewlink_direct/${targetPath}`);
+    r.internalRedirect(`/_jsindex-link-direct/${targetPath}`);
   } catch (err) {
     r.return(500, 'Error accessing file');
   }
@@ -65,4 +65,5 @@ async function view(r: NginxHTTPRequest): Promise<void> {
 
 export default {
     create,
+    view,
 };
