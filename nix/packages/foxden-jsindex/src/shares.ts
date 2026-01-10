@@ -51,7 +51,7 @@ async function create(r: NginxHTTPRequest): Promise<void> {
 
   const targetSlashed = `${target}${stat.isDirectory() ? '/' : ''}`;
 
-  const expiry = Date.now() + (duration * 1000);
+  const expiry = Math.ceil(Date.now() / 1000) + duration;
   const signature = await signTarget(targetSlashed, expiry);
 
   r.status = 200;
@@ -106,7 +106,7 @@ async function view(r: NginxHTTPRequest): Promise<void> {
   }
 
   const expiry = parseInt(expiryStr, 10);
-  if (!isFinite(expiry) || expiry < Date.now()) {
+  if (!isFinite(expiry) || (expiry * 1000) < Date.now()) {
     doError(r, 400, 'Share outside of validity window');
     return;
   }
