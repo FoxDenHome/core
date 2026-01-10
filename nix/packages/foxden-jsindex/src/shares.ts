@@ -3,7 +3,7 @@ import shared from './shared.js';
 import files from './files.js';
 import mcrypto from 'crypto';
 
-shared.setInitial('link_secret_key', async () => {
+shared.setInitial('shares_secret_key', async () => {
   const u8 = Buffer.allocUnsafe(32);
   await crypto.getRandomValues(u8);
   return u8.toString('base64url');
@@ -17,13 +17,13 @@ function doError(r: NginxHTTPRequest, code: number, message: string): void {
   r.finish();
 }
 
-async function hashToken(token: string, expiry: string): Promise<string> {
-  const secretKey = await shared.get('link_secret_key');
+async function hashTarget(target: string, expiry: string): Promise<string> {
+  const secretKey = await shared.get('shares_secret_key');
   if (!secretKey) {
-    throw new Error('Secret key not found');
+    throw new Error('Shares secret key not found');
   }
   const hmac = mcrypto.createHmac('sha256', secretKey);
-  hmac.update(token);
+  hmac.update(target);
   hmac.update(expiry);
   return hmac.digest('base64url');
 }
@@ -45,14 +45,14 @@ async function create(r: NginxHTTPRequest): Promise<void> {
 
   const stat = await fs.promises.stat(target);
   if (!stat.isFile() && !stat.isDirectory()) {
-    doError(r, 400, 'Can only create links to files or directories');
+    doError(r, 400, 'Can only create shares to files or directories');
     return;
   }
 
   const targetSlashed = `${target}${stat.isDirectory() ? '/' : ''}`;
 
   const expiry = new Date(Date.now() + (duration * 1000)).toISOString();
-  const token = await hashToken(targetSlashed, expiry);
+  const token = await hashTarget(targetSlashed, expiry);
 
   r.status = 200;
   r.headersOut['Content-Type'] = 'application/json';
@@ -72,11 +72,11 @@ async function view(r: NginxHTTPRequest): Promise<void> {
     return;
   }
 
-  const linkSplit = absPath.split('/');
-  linkSplit.shift(); // ROOT
-  linkSplit.shift(); // _share
-  const meta = linkSplit.shift()?.split(';');
-  const targetRaw = linkSplit.join('/');
+  const urlSplit = absPath.split('/');
+  urlSplit.shift(); // ROOT
+  urlSplit.shift(); // _share
+  const meta = urlSplit.shift()?.split(';');
+  const targetRaw = urlSplit.join('/');
 
   if (!meta || !targetRaw) {
     doError(r, 400, 'Missing parameters');
@@ -118,7 +118,7 @@ async function view(r: NginxHTTPRequest): Promise<void> {
     return;
   }
 
-  const correctToken = await hashToken(hashedTarget, expiry);
+  const correctToken = await hashTarget(hashedTarget, expiry);
   if (givenToken !== correctToken) {
     doError(r, 400, 'Invalid token');
     return;
