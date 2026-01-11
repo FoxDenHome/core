@@ -128,6 +128,13 @@ async function view(r: NginxHTTPRequest): Promise<void> {
   }
   const tokenId = token.slice(0, CRYPTO_ALG_BYTES);
 
+  const revocationKey = `shares:revoked:${tokenId.toString('base64url')}`;
+  const revocationsTbl = ngx.shared[REVOCATIONS_DICT];
+  if (revocationsTbl.get(revocationKey) === 'y') {
+    doError(r, 403, 'This share has been revoked');
+    return;
+  }
+
   try {
     const keys = await getKeys();
 
@@ -162,13 +169,6 @@ async function view(r: NginxHTTPRequest): Promise<void> {
   const timeLeft = expiry - Date.now();
   if (!isFinite(expiry) || timeLeft <= 0) {
     doError(r, 403, 'Share outside of validity window');
-    return;
-  }
-
-  const revocationKey = `shares:revoked:${tokenId.toString('base64url')}`;
-  const revocationsTbl = ngx.shared[REVOCATIONS_DICT];
-  if (revocationsTbl.get(revocationKey) === 'y') {
-    doError(r, 403, 'This share has been revoked');
     return;
   }
 
