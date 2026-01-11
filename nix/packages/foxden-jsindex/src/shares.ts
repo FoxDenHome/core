@@ -128,7 +128,7 @@ async function view(r: NginxHTTPRequest): Promise<void> {
   }
   const tokenId = token.slice(0, CRYPTO_ALG_BYTES);
 
-  const revocationKey = `shares:revoked:${tokenId.toString('base64url')}`;
+  const revocationKey = tokenId.toString('base64url');
   const revocationsTbl = ngx.shared[REVOCATIONS_DICT];
   if (revocationsTbl.get(revocationKey) === 'y') {
     doError(r, 403, 'This share has been revoked');
