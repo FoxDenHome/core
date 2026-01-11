@@ -89,7 +89,7 @@ async function create(r: NginxHTTPRequest): Promise<void> {
       name: CRYPTO_ALG.name as "AES-CBC", // lol, type hack
     },
     keys.encryption,
-    Buffer.from(`${expiry}\n${target}${stat.isDirectory() ? '/' : ''}`),
+    Buffer.from(`\n${expiry}\n${target}${stat.isDirectory() ? '/' : ''}\n`),
   ))]);
 
   const url = `/_share/${token.toString('base64url')}/${stat.isDirectory() ? '' : target.split('/').pop()}`;
@@ -148,20 +148,20 @@ async function view(r: NginxHTTPRequest): Promise<void> {
     );
 
     if (data.byteLength < 1) {
-      doError(r, 400, 'Truncated inner share data');
+      doError(r, 500, 'Empty token data');
       return;
     }
   } catch (e) {
-    doError(r, 400, 'Invalid share data');
+    doError(r, 400, 'Invalid share token');
     return;
   }
 
   const metaSplit = Buffer.from(data).toString('utf8').split('\n');
 
-  const expiryStr = metaSplit[0];
-  const pathPrefix = metaSplit[1];
-  if (!expiryStr || !pathPrefix) {
-    doError(r, 400, 'Invalid meta');
+  const expiryStr = metaSplit[1];
+  const pathPrefix = metaSplit[2];
+  if (!expiryStr || !pathPrefix || metaSplit[0] !== '' || metaSplit[3] !== '' || metaSplit.length !== 4) {
+    doError(r, 500, 'Internal share metadata error');
     return;
   }
 
