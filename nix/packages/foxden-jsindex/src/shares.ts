@@ -95,15 +95,11 @@ async function create(r: NginxHTTPRequest): Promise<void> {
   const url = `/_share/${token.toString('base64url')}/${stat.isDirectory() ? '' : target.split('/').pop()}`;
 
   if (r.variables.request_method?.toUpperCase() === 'POST') {
-    r.status = 200;
-    r.headersOut['Content-Type'] = 'application/json';
-    r.sendHeader();
-    r.send(JSON.stringify({
+    doJSON(r, 200, {
       expiry,
       target,
       url,
-    }));
-    r.finish();
+    });
     return;
   }
 
