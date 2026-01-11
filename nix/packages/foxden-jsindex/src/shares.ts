@@ -168,7 +168,7 @@ async function view(r: NginxHTTPRequest): Promise<void> {
   const expiry = parseInt(expiryStr, 10) * 1000;
   const timeLeft = expiry - Date.now();
   if (!isFinite(expiry) || timeLeft <= 0) {
-    doError(r, 400, 'Share outside of validity window');
+    doError(r, 403, 'Share outside of validity window');
     return;
   }
 
