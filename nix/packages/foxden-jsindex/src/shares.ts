@@ -42,10 +42,14 @@ async function getKeys(): Promise<KeyStorage> {
 }
 
 function doError(r: NginxHTTPRequest, code: number, message: string): void {
+  doJSON(r, code, { error: message });
+}
+
+function doJSON(r: NginxHTTPRequest, code: number, data: unknown): void {
   r.status = code;
   r.headersOut['Content-Type'] = 'application/json';
   r.sendHeader();
-  r.send(JSON.stringify({ error: message }));
+  r.send(JSON.stringify(data));
   r.finish();
 }
 
@@ -131,7 +135,7 @@ async function view(r: NginxHTTPRequest): Promise<void> {
   const revocationKey = `shares:revoked:${tokenId.toString('base64url')}`;
   const revocationsTbl = ngx.shared[REVOCATIONS_DICT];
   if (revocationsTbl.get(revocationKey) === 'y') {
-    doError(r, 400, 'This share has been revoked');
+    doError(r, 403, 'This share has been revoked');
     return;
   }
 
@@ -174,6 +178,7 @@ async function view(r: NginxHTTPRequest): Promise<void> {
 
   if (r.variables.arg_revoke === 'y') {
     revocationsTbl.set(revocationKey, 'y', timeLeft);
+    doJSON(r, 200, { message: 'Share revoked' });
     return;
   }
 
