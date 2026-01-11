@@ -119,18 +119,25 @@ async function view(r: NginxHTTPRequest): Promise<void> {
   const tokenB64 = urlSplit.shift() || '';
 
   let data: ArrayBuffer;
-  try {
-    const token = Buffer.from(tokenB64, 'base64url');
-    if (token.byteLength <= CRYPTO_ALG_BYTES) {
-      doError(r, 400, 'Truncated outer share data');
-      return;
-    }
+  const token = Buffer.from(tokenB64, 'base64url');
+  if (token.byteLength <= CRYPTO_ALG_BYTES) {
+    doError(r, 400, 'Truncated outer share data');
+    return;
+  }
+  const tokenId = token.slice(0, CRYPTO_ALG_BYTES);
 
+  const revocationKey = `shares:revoked:${tokenId.toString('base64url')}`;
+  if (await state.get(revocationKey) === 'y') {
+    doError(r, 400, 'This share has been revoked');
+    return;
+  }
+
+  try {
     const keys = await getKeys();
 
     data = await crypto.subtle.decrypt(
       {
-        iv: token.slice(0, CRYPTO_ALG_BYTES),
+        iv: tokenId,
         name: CRYPTO_ALG.name as "AES-CBC", // lol, type hack
       },
       keys.encryption,
@@ -156,8 +163,14 @@ async function view(r: NginxHTTPRequest): Promise<void> {
   }
 
   const expiry = parseInt(expiryStr, 10) * 1000;
-  if (!isFinite(expiry) || expiry < Date.now()) {
+  const timeLeft = expiry - Date.now();
+  if (!isFinite(expiry) || timeLeft <= 0) {
     doError(r, 400, 'Share outside of validity window');
+    return;
+  }
+
+  if (r.variables.arg_revoke === 'y') {
+    await state.set(revocationKey, 'y', timeLeft);
     return;
   }
 
