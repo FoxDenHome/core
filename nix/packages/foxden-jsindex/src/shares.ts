@@ -41,11 +41,11 @@ async function getKeys(): Promise<KeyStorage> {
   return keyStorageCache;
 }
 
-function doError(r: NginxHTTPRequest, code: number, message: string): void {
-  doJSON(r, code, { error: message });
+function respondError(r: NginxHTTPRequest, code: number, message: string): void {
+  respondJSON(r, code, { error: message });
 }
 
-function doJSON(r: NginxHTTPRequest, code: number, data: unknown): void {
+function respondJSON(r: NginxHTTPRequest, code: number, data: unknown): void {
   r.status = code;
   r.headersOut['Content-Type'] = 'application/json';
   r.sendHeader();
@@ -56,24 +56,24 @@ function doJSON(r: NginxHTTPRequest, code: number, data: unknown): void {
 async function create(r: NginxHTTPRequest): Promise<void> {
   const target = r.variables.request_filename;
   if (!target) {
-    doError(r, 500, 'Could not determine request filename');
+    respondError(r, 500, 'Could not determine request filename');
     return;
   }
   if (target.indexOf('\n') !== -1) {
-    doError(r, 400, 'Invalid target path');
+    respondError(r, 400, 'Invalid target path');
     return;
   }
 
   const durationStr = r.args.duration || '3600';
   const duration = parseInt(durationStr, 10);
   if (!isFinite(duration) || duration <= 0 || duration > MAX_DURATION) {
-    doError(r, 400, `Invalid duration: must be between 1 and ${MAX_DURATION} seconds`);
+    respondError(r, 400, `Invalid duration: must be between 1 and ${MAX_DURATION} seconds`);
     return;
   }
 
   const stat = await util.tryStat(target);
   if (!stat || (!stat.isFile() && !stat.isDirectory())) {
-    doError(r, 400, 'Can only create shares to files or directories');
+    respondError(r, 400, 'Can only create shares to files or directories');
     return;
   }
 
@@ -95,7 +95,7 @@ async function create(r: NginxHTTPRequest): Promise<void> {
   const url = `/_share/${token.toString('base64url')}/${stat.isDirectory() ? '' : target.split('/').pop()}`;
 
   if (r.variables.request_method?.toUpperCase() === 'POST') {
-    doJSON(r, 200, {
+    respondJSON(r, 200, {
       expiry,
       target,
       url,
@@ -111,7 +111,7 @@ async function create(r: NginxHTTPRequest): Promise<void> {
 async function view(r: NginxHTTPRequest): Promise<void> {
   const requestFilename = r.variables.request_filename;
   if (!requestFilename) {
-    doError(r, 500, 'Could not determine request filename');
+    respondError(r, 500, 'Could not determine request filename');
     return;
   }
 
@@ -123,15 +123,16 @@ async function view(r: NginxHTTPRequest): Promise<void> {
   let data: ArrayBuffer;
   const token = Buffer.from(tokenB64, 'base64url');
   if (token.byteLength <= CRYPTO_ALG_BYTES) {
-    doError(r, 400, 'Truncated outer share data');
+    respondError(r, 400, 'Truncated or malformed token');
     return;
   }
+
   const tokenId = token.slice(0, CRYPTO_ALG_BYTES);
 
   const revocationKey = tokenId.toString('base64url');
   const revocationsTbl = ngx.shared[REVOCATIONS_DICT];
   if (revocationsTbl.has(revocationKey)) {
-    doError(r, 403, 'This share has been revoked');
+    respondError(r, 403, 'This token has been revoked');
     return;
   }
 
@@ -146,13 +147,13 @@ async function view(r: NginxHTTPRequest): Promise<void> {
       keys.encryption,
       token.slice(CRYPTO_ALG_BYTES),
     );
-
-    if (data.byteLength < 1) {
-      doError(r, 500, 'Empty token data');
-      return;
-    }
   } catch (e) {
-    doError(r, 400, 'Invalid share token');
+    respondError(r, 400, 'Invalid token');
+    return;
+  }
+
+  if (data.byteLength < 1) {
+    respondError(r, 500, 'Empty token');
     return;
   }
 
@@ -161,20 +162,20 @@ async function view(r: NginxHTTPRequest): Promise<void> {
   const expiryStr = metaSplit[1];
   const pathPrefix = metaSplit[2];
   if (!expiryStr || !pathPrefix || metaSplit[0] !== '' || metaSplit[3] !== '' || metaSplit.length !== 4) {
-    doError(r, 500, 'Internal share metadata error');
+    respondError(r, 500, 'Internal token data error');
     return;
   }
 
   const expiry = parseInt(expiryStr, 10) * 1000;
   const timeLeft = expiry - Date.now();
   if (!isFinite(expiry) || timeLeft <= 0) {
-    doError(r, 403, 'Share outside of validity window');
+    respondError(r, 403, 'Token outside of validity window');
     return;
   }
 
   if (r.variables.arg_revoke === 'y') {
     revocationsTbl.set(revocationKey, 1, timeLeft + 1000);
-    doJSON(r, 200, { message: 'Share revoked' });
+    respondJSON(r, 200, { message: 'Token revoked' });
     return;
   }
 
