@@ -173,7 +173,7 @@ async function view(r: NginxHTTPRequest): Promise<void> {
   }
 
   if (r.variables.arg_revoke === 'y') {
-    revocationsTbl.set(revocationKey, 'y', timeLeft);
+    revocationsTbl.set(revocationKey, 'y', timeLeft + 1000);
     doJSON(r, 200, { message: 'Share revoked' });
     return;
   }
