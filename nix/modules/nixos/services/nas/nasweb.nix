@@ -37,6 +37,7 @@ in
           { ... }:
           ''
             js_shared_dict_zone zone=state:1m;
+            js_shared_dict_zone zone=shares_revocations:1m timeout=30d;
             js_import files from files.js;
             js_import shares from shares.js;
           '';

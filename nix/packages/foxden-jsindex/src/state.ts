@@ -5,9 +5,9 @@ async function get(key: string): Promise<string | number | undefined> {
   return table.get(key);
 }
 
-async function set(key: string, value: string | number, timeout?: number): Promise<void> {
+async function set(key: string, value: string | number): Promise<void> {
     const table = ngx.shared[DICT_NAME];
-    table.set(key, value, timeout);
+    table.set(key, value);
 }
 
 async function setOnce<T extends string | number>(key: string, initialValueGenerator: () => T | Promise<T>): Promise<T> {

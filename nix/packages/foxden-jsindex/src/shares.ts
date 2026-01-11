@@ -4,6 +4,8 @@ import util from './util.js';
 
 const MAX_DURATION = 7 * 24 * 3600; // 7 days in seconds
 
+const REVOCATIONS_DICT = 'shares_revocations';
+
 const CRYPTO_ALG: AesKeyGenParams = {
   name: 'AES-GCM',
   length: 128,
@@ -127,7 +129,8 @@ async function view(r: NginxHTTPRequest): Promise<void> {
   const tokenId = token.slice(0, CRYPTO_ALG_BYTES);
 
   const revocationKey = `shares:revoked:${tokenId.toString('base64url')}`;
-  if (await state.get(revocationKey) === 'y') {
+  const revocationsTbl = ngx.shared[REVOCATIONS_DICT];
+  if (revocationsTbl.get(revocationKey) === 'y') {
     doError(r, 400, 'This share has been revoked');
     return;
   }
@@ -170,7 +173,7 @@ async function view(r: NginxHTTPRequest): Promise<void> {
   }
 
   if (r.variables.arg_revoke === 'y') {
-    await state.set(revocationKey, 'y', timeLeft);
+    revocationsTbl.set(revocationKey, 'y', timeLeft);
     return;
   }
 
