@@ -161,7 +161,7 @@ async function view(r: NginxHTTPRequest): Promise<void> {
   }
 
   const expiry = data.readIntLE(0, 6);
-  const pathPrefix = data.slice(8).toString('utf8');
+  const pathPrefix = data.slice(6).toString('utf8');
   if (expiry <= 0 || !isFinite(expiry) || !pathPrefix) {
     respondError(r, 500, 'Internal token data error');
     return;
