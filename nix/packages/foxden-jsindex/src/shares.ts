@@ -84,9 +84,8 @@ async function create(r: NginxHTTPRequest): Promise<void> {
   await crypto.getRandomValues(iv);
 
   const pathPrefix = `${target}${stat.isDirectory() ? '/' : ''}`;
-  const expiryBuf = Buffer.alloc(6);
-  expiryBuf.writeUIntLE(expiry, 0, 6);
-  const data = Buffer.concat([expiryBuf, Buffer.from(pathPrefix, 'utf8')]);
+  const data = Buffer.from(`\0\0\0\0\0\0${pathPrefix}`, 'utf8');
+  data.writeUIntLE(expiry, 0, 6);
 
   const keys = await getKeys();
   const token = Buffer.concat([iv, new Uint8Array(await crypto.subtle.encrypt(
@@ -189,7 +188,7 @@ async function view(r: NginxHTTPRequest): Promise<void> {
 
   const shareName = pathPrefix.replace(/\/+$/, '').split('/').pop() || 'SHARE';
 
-  const target = `${pathPrefix}${decodeURI(urlSplit.join('/'))}`;
+  const target = `${pathPrefix}${urlSplit.join('/')}`;
   if (target.charAt(target.length - 1) === '/') {
     await files.indexRaw(r, target, pathPrefix, `/_share/${tokenB64}/`, `[${shareName}]`, true);
     return;
