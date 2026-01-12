@@ -59,7 +59,7 @@ async function create(r: NginxHTTPRequest): Promise<void> {
     respondError(r, 500, 'Could not determine request filename');
     return;
   }
-  if (target.indexOf('\n') !== -1) {
+  if (target.indexOf('\0') !== -1) {
     respondError(r, 400, 'Invalid target path');
     return;
   }
@@ -77,10 +77,13 @@ async function create(r: NginxHTTPRequest): Promise<void> {
     return;
   }
 
-  const expiry = Math.ceil(Date.now() / 1000) + duration;
+  const expiry = Date.now() + (duration * 1000);
 
   const iv = Buffer.allocUnsafe(CRYPTO_ALG_BYTES);
   await crypto.getRandomValues(iv);
+
+  const data = Buffer.from(`\0\0\0\0\0\0\0\0${target}${stat.isDirectory() ? '/' : ''}`);
+  data.writeDoubleLE(expiry, 0);
 
   const keys = await getKeys();
   const token = Buffer.concat([iv, new Uint8Array(await crypto.subtle.encrypt(
@@ -89,7 +92,7 @@ async function create(r: NginxHTTPRequest): Promise<void> {
       name: CRYPTO_ALG.name as "AES-CBC", // lol, type hack
     },
     keys.encryption,
-    Buffer.from(`\n${expiry}\n${target}${stat.isDirectory() ? '/' : ''}\n`),
+    data,
   ))]);
 
   const url = `/_share/${token.toString('base64url')}/${stat.isDirectory() ? '' : target.split('/').pop()}`;
@@ -120,7 +123,7 @@ async function view(r: NginxHTTPRequest): Promise<void> {
 
   const tokenB64 = urlSplit.shift() || '';
 
-  let data: ArrayBuffer;
+  let data: Buffer;
   const token = Buffer.from(tokenB64, 'base64url');
   if (token.byteLength <= CRYPTO_ALG_BYTES) {
     respondError(r, 400, 'Truncated or malformed token');
@@ -139,14 +142,14 @@ async function view(r: NginxHTTPRequest): Promise<void> {
   try {
     const keys = await getKeys();
 
-    data = await crypto.subtle.decrypt(
+    data = Buffer.from(await crypto.subtle.decrypt(
       {
         iv: tokenId,
         name: CRYPTO_ALG.name as "AES-CBC", // lol, type hack
       },
       keys.encryption,
       token.slice(CRYPTO_ALG_BYTES),
-    );
+    ));
   } catch (e) {
     respondError(r, 400, 'Invalid token');
     return;
@@ -157,18 +160,15 @@ async function view(r: NginxHTTPRequest): Promise<void> {
     return;
   }
 
-  const metaSplit = Buffer.from(data).toString('utf8').split('\n');
-
-  const expiryStr = metaSplit[1];
-  const pathPrefix = metaSplit[2];
-  if (!expiryStr || !pathPrefix || metaSplit[0] !== '' || metaSplit[3] !== '' || metaSplit.length !== 4) {
+  const expiry = data.readDoubleLE(0);
+  const pathPrefix = data.slice(8).toString('utf8');
+  if (expiry <= 0 || !isFinite(expiry) || !pathPrefix) {
     respondError(r, 500, 'Internal token data error');
     return;
   }
 
-  const expiry = parseInt(expiryStr, 10) * 1000;
   const timeLeft = expiry - Date.now();
-  if (!isFinite(expiry) || timeLeft <= 0) {
+  if (timeLeft <= 0) {
     respondError(r, 403, 'Token outside of validity window');
     return;
   }
