@@ -54,12 +54,12 @@ function respondJSON(r: NginxHTTPRequest, code: number, data: unknown): void {
 }
 
 async function create(r: NginxHTTPRequest): Promise<void> {
-  const target = r.variables.request_filename;
-  if (!target) {
+  const pathPrefix = r.variables.request_filename;
+  if (!pathPrefix) {
     respondError(r, 500, 'Could not determine request filename');
     return;
   }
-  if (target.indexOf('\0') !== -1) {
+  if (pathPrefix.indexOf('\0') !== -1) {
     respondError(r, 400, 'Invalid target path');
     return;
   }
@@ -71,7 +71,7 @@ async function create(r: NginxHTTPRequest): Promise<void> {
     return;
   }
 
-  const stat = await util.tryStat(target);
+  const stat = await util.tryStat(pathPrefix);
   if (!stat || (!stat.isFile() && !stat.isDirectory())) {
     respondError(r, 400, 'Can only create shares to files or directories');
     return;
@@ -82,7 +82,7 @@ async function create(r: NginxHTTPRequest): Promise<void> {
   const iv = Buffer.allocUnsafe(CRYPTO_ALG_BYTES);
   await crypto.getRandomValues(iv);
 
-  const data = Buffer.from(`\0\0\0\0\0\0${target}${stat.isDirectory() ? '/' : ''}`, 'utf8');
+  const data = Buffer.from(`\0\0\0\0\0\0${pathPrefix}${stat.isDirectory() ? '/' : ''}`, 'utf8');
   data.writeUIntLE(expiry, 0, 6);
 
   const keys = await getKeys();
@@ -95,19 +95,19 @@ async function create(r: NginxHTTPRequest): Promise<void> {
     data,
   ))]);
 
-  const url = `/_share/${token.toString('base64url')}/${stat.isDirectory() ? '' : target.split('/').pop()}`;
+  const url = `/_share/${token.toString('base64url')}/${stat.isDirectory() ? '' : pathPrefix.split('/').pop()}`;
 
   if (r.variables.request_method?.toUpperCase() === 'POST') {
     respondJSON(r, 200, {
       expiry,
-      target,
+      pathPrefix,
       url,
     });
     return;
   }
 
   r.headersOut['Share-Expiry'] = expiry.toFixed(0);
-  r.headersOut['Share-Target'] = target;
+  r.headersOut['Share-Path-Prefix'] = pathPrefix;
   r.return(307, url);
 }
 
@@ -135,7 +135,7 @@ async function view(r: NginxHTTPRequest): Promise<void> {
   const revocationKey = tokenId.toString('base64url');
   const revocationsTbl = ngx.shared[REVOCATIONS_DICT];
   if (revocationsTbl.has(revocationKey)) {
-    respondError(r, 403, 'This token has been revoked');
+    respondError(r, 403, 'This share has been revoked');
     return;
   }
 
@@ -169,13 +169,13 @@ async function view(r: NginxHTTPRequest): Promise<void> {
 
   const timeLeft = (expiry * 1000) - Date.now();
   if (timeLeft <= 0) {
-    respondError(r, 403, 'Token outside of validity window');
+    respondError(r, 403, 'Share outside of validity window');
     return;
   }
 
   if (r.variables.arg_revoke === 'y') {
     revocationsTbl.set(revocationKey, 'y', timeLeft + 1000);
-    respondJSON(r, 200, { message: 'Token revoked' });
+    respondJSON(r, 200, { message: 'Share revoked' });
     return;
   }
 
