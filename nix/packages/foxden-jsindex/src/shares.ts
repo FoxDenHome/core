@@ -86,7 +86,7 @@ async function create(r: NginxHTTPRequest): Promise<void> {
   const pathPrefix = `${target}${stat.isDirectory() ? '/' : ''}`;
   const expiryBuf = Buffer.alloc(6);
   expiryBuf.writeUIntLE(expiry, 0, 6);
-  const data = Buffer.concat([expiryBuf, zlib.deflateRawSync(pathPrefix)]);
+  const data = Buffer.concat([expiryBuf, Buffer.from(pathPrefix, 'utf8')]);
 
   const keys = await getKeys();
   const token = Buffer.concat([iv, new Uint8Array(await crypto.subtle.encrypt(
@@ -164,7 +164,7 @@ async function view(r: NginxHTTPRequest): Promise<void> {
   }
 
   const expiry = data.readUIntLE(0, 6);
-  const pathPrefix = zlib.inflateRawSync(data.slice(6)).toString('utf8');
+  const pathPrefix = data.slice(6).toString('utf8');
   if (expiry <= 0 || !isFinite(expiry) || !pathPrefix) {
     respondError(r, 500, 'Internal token data error');
     return;
