@@ -174,7 +174,7 @@ async function view(r: NginxHTTPRequest): Promise<void> {
   }
 
   if (r.variables.arg_revoke === 'y') {
-    revocationsTbl.set(revocationKey, 1, timeLeft + 1000);
+    revocationsTbl.set(revocationKey, 'y', timeLeft + 1000);
     respondJSON(r, 200, { message: 'Token revoked' });
     return;
   }
