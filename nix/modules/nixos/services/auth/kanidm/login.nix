@@ -54,8 +54,6 @@
       authorizedKeysCommandUser = "nobody";
     };
 
-    nix.settings.allowed-users = [ "@wheel" ];
-
     services.kanidm = {
       enablePam = true;
 

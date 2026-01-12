@@ -13,10 +13,17 @@
     home-manager.nixosModules.home-manager
   ];
 
-  nix.settings.experimental-features = [
-    "nix-command"
-    "flakes"
-  ];
+  nix.settings = {
+    experimental-features = [
+      "nix-command"
+      "flakes"
+    ];
+    allowed-users = [
+      "root"
+      "@wheel"
+      "@login-users"
+    ];
+  };
 
   services.sshd.enable = true;
   networking.useNetworkd = true;
@@ -97,12 +104,6 @@
   environment.shellAliases = {
     "sudo" = "run0 --background=''";
   };
-
-  nix.settings.allowed-users = [
-    "root"
-    "@wheel"
-    "@login-users"
-  ];
 
   users.users.root.shell = "${pkgs.fish}/bin/fish";
   users.groups.share.gid = 1001;
