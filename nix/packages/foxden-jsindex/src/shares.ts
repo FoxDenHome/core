@@ -77,13 +77,13 @@ async function create(r: NginxHTTPRequest): Promise<void> {
     return;
   }
 
-  const expiry = Date.now() + (duration * 1000);
+  const expiry = Math.ceil(Date.now() / 1000) + duration;
 
   const iv = Buffer.allocUnsafe(CRYPTO_ALG_BYTES);
   await crypto.getRandomValues(iv);
 
   const data = Buffer.from(`\0\0\0\0\0\0\0\0${target}${stat.isDirectory() ? '/' : ''}`);
-  data.writeDoubleLE(expiry, 0);
+  data.writeIntLE(expiry, 0, 6);
 
   const keys = await getKeys();
   const token = Buffer.concat([iv, new Uint8Array(await crypto.subtle.encrypt(
@@ -160,14 +160,14 @@ async function view(r: NginxHTTPRequest): Promise<void> {
     return;
   }
 
-  const expiry = data.readDoubleLE(0);
+  const expiry = data.readIntLE(0, 24);
   const pathPrefix = data.slice(8).toString('utf8');
   if (expiry <= 0 || !isFinite(expiry) || !pathPrefix) {
     respondError(r, 500, 'Internal token data error');
     return;
   }
 
-  const timeLeft = expiry - Date.now();
+  const timeLeft = (expiry * 1000) - Date.now();
   if (timeLeft <= 0) {
     respondError(r, 403, 'Token outside of validity window');
     return;
