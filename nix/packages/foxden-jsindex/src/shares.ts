@@ -82,7 +82,7 @@ async function create(r: NginxHTTPRequest): Promise<void> {
   const iv = Buffer.allocUnsafe(CRYPTO_ALG_BYTES);
   await crypto.getRandomValues(iv);
 
-  const data = Buffer.from(`\0\0\0\0\0\0${target}${stat.isDirectory() ? '/' : ''}`);
+  const data = Buffer.from(`\0\0\0\0\0\0${target}${stat.isDirectory() ? '/' : ''}`, 'utf8');
   data.writeUIntLE(expiry, 0, 6);
 
   const keys = await getKeys();
