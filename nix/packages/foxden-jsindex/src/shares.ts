@@ -1,6 +1,7 @@
 import state from './state.js';
 import files from './files.js';
 import util from './util.js';
+import zlib from 'zlib';
 
 const MAX_DURATION = 7 * 24 * 3600; // 7 days in seconds
 
@@ -54,12 +55,12 @@ function respondJSON(r: NginxHTTPRequest, code: number, data: unknown): void {
 }
 
 async function create(r: NginxHTTPRequest): Promise<void> {
-  const pathPrefix = r.variables.request_filename;
-  if (!pathPrefix) {
+  const target = r.variables.request_filename;
+  if (!target) {
     respondError(r, 500, 'Could not determine request filename');
     return;
   }
-  if (pathPrefix.indexOf('\0') !== -1) {
+  if (target.indexOf('\0') !== -1) {
     respondError(r, 400, 'Invalid target path');
     return;
   }
@@ -71,7 +72,7 @@ async function create(r: NginxHTTPRequest): Promise<void> {
     return;
   }
 
-  const stat = await util.tryStat(pathPrefix);
+  const stat = await util.tryStat(target);
   if (!stat || (!stat.isFile() && !stat.isDirectory())) {
     respondError(r, 400, 'Can only create shares to files or directories');
     return;
@@ -82,8 +83,10 @@ async function create(r: NginxHTTPRequest): Promise<void> {
   const iv = Buffer.allocUnsafe(CRYPTO_ALG_BYTES);
   await crypto.getRandomValues(iv);
 
-  const data = Buffer.from(`\0\0\0\0\0\0${pathPrefix}${stat.isDirectory() ? '/' : ''}`, 'utf8');
-  data.writeUIntLE(expiry, 0, 6);
+  const pathPrefix = `${target}${stat.isDirectory() ? '/' : ''}`;
+  const expiryBuf = Buffer.alloc(6);
+  expiryBuf.writeUIntLE(expiry, 0, 6);
+  const data = Buffer.concat([expiryBuf, zlib.deflateRawSync(pathPrefix)]);
 
   const keys = await getKeys();
   const token = Buffer.concat([iv, new Uint8Array(await crypto.subtle.encrypt(
@@ -95,7 +98,7 @@ async function create(r: NginxHTTPRequest): Promise<void> {
     data,
   ))]);
 
-  const url = `/_share/${token.toString('base64url')}/${stat.isDirectory() ? '' : pathPrefix.split('/').pop()}`;
+  const url = `/_share/${token.toString('base64url')}/${stat.isDirectory() ? '' : target.split('/').pop()}`;
 
   if (r.variables.request_method?.toUpperCase() === 'POST') {
     respondJSON(r, 200, {
@@ -161,7 +164,7 @@ async function view(r: NginxHTTPRequest): Promise<void> {
   }
 
   const expiry = data.readUIntLE(0, 6);
-  const pathPrefix = data.slice(6).toString('utf8');
+  const pathPrefix = zlib.inflateRawSync(data.slice(6)).toString('utf8');
   if (expiry <= 0 || !isFinite(expiry) || !pathPrefix) {
     respondError(r, 500, 'Internal token data error');
     return;
