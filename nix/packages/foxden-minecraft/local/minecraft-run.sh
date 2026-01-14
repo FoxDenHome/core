@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 . ./minecraft-env.sh
+
 export PATH="$(dirname "${JAVA}"):${PATH}"
 ############################################LICENSE#################################################
 # Copyright (C) 2024  Griefed

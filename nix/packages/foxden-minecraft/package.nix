@@ -184,6 +184,8 @@ pkgs.stdenvNoCC.mkDerivation {
     cp -nr ./modpack/* "$out/server/"
 
     echo 'export "JAVA=${pkgs.corretto21}/bin/java"' > "$out/server/minecraft-env.sh"
+    echo 'envsubst < env.server.properties > server.properties' >> "$out/server/minecraft-env.sh"
+
     echo '${modpack.url} ${modpack.hash}' > "$out/server/minecraft-modpack.id"
 
     find "$out/server" -type d -exec chmod 500 {} +
