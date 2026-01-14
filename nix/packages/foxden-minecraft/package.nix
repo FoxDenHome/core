@@ -157,6 +157,7 @@ pkgs.stdenvNoCC.mkDerivation {
   unpackPhase = ''
     mkdir aux
     cp -r "$modpack" modpack/
+    chmod 700 modpack/
     cp -r "${./local}" local
     bash ${./build.sh} local aux
 
