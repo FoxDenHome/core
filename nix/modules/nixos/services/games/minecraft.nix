@@ -47,6 +47,12 @@ in
         };
         users.groups.minecraft = { };
 
+        sops.secrets.minecraft = config.lib.foxDen.sops.mkIfAvailable {
+          mode = "0400";
+          owner = "minecraft";
+          group = "minecraft";
+        };
+
         environment.systemPackages = [ pkgs.unzip ];
 
         systemd.services.minecraft = {
@@ -76,17 +82,21 @@ in
           serviceConfig = {
             User = "minecraft";
             Group = "minecraft";
+
             Environment = [ "SERVER_DIR=${svcConfig.dataDir}" ];
+            EnvironmentFile = config.lib.foxDen.sops.mkIfAvailable config.sops.secrets.minecraft.path;
+
             BindPaths = [ svcConfig.dataDir ];
             BindReadOnlyPaths = [
               "${serverPackage}/server:/server"
               "/usr/bin/env"
             ];
             WorkingDirectory = svcConfig.dataDir;
+            StateDirectory = ifDefaultData "minecraft";
+
             Nice = -4;
             ExecStartPre = [ "${serverPackage}/server/minecraft-install.sh" ];
             ExecStart = [ "${svcConfig.dataDir}/minecraft-run.sh" ];
-            StateDirectory = ifDefaultData "minecraft";
           };
 
           wantedBy = [ "multi-user.target" ];
