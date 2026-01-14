@@ -183,8 +183,10 @@ pkgs.stdenvNoCC.mkDerivation {
     cp -r ./aux/* "$out/server/"
     cp -nr ./modpack/* "$out/server/"
 
-    echo 'export "JAVA=${pkgs.corretto21}/bin/java"' > "$out/server/minecraft-env.sh"
+    echo 'set -e' > "$out/server/minecraft-env.sh"
+    echo 'export "JAVA=${pkgs.corretto21}/bin/java"' >> "$out/server/minecraft-env.sh"
     echo 'envsubst < env.server.properties > server.properties' >> "$out/server/minecraft-env.sh"
+    echo 'set +e' >> "$out/server/minecraft-env.sh"
 
     echo '${modpack.url} ${modpack.hash}' > "$out/server/minecraft-modpack.id"
 

@@ -58,6 +58,7 @@ in
         systemd.services.minecraft = {
           confinement.packages = [
             pkgs.coreutils
+            pkgs.envsubst
             pkgs.findutils
             pkgs.bash
             pkgs.gawk
@@ -69,6 +70,7 @@ in
           ];
           path = [
             pkgs.coreutils
+            pkgs.envsubst
             pkgs.findutils
             pkgs.bash
             pkgs.gawk
