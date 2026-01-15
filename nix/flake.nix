@@ -26,7 +26,12 @@
     };
 
     # Helpers
-    flake-utils.url = "github:numtide/flake-utils";
+    systems.url = "github:nix-systems/default";
+
+    flake-utils = {
+      url = "github:numtide/flake-utils";
+      inputs.systems.follows = "systems";
+    };
 
     pyproject-nix.url = "github:pyproject-nix/pyproject.nix";
     pyproject-nix.inputs.nixpkgs.follows = "nixpkgs";
@@ -35,6 +40,14 @@
       url = "github:pyproject-nix/uv2nix";
       inputs = {
         pyproject-nix.follows = "pyproject-nix";
+        nixpkgs.follows = "nixpkgs";
+      };
+    };
+
+    build-gradle-application = {
+      url = "github:raphiz/buildGradleApplication";
+      inputs = {
+        systems.follows = "systems";
         nixpkgs.follows = "nixpkgs";
       };
     };
@@ -51,8 +64,10 @@
     # Applications
     backupmgr = {
       url = "git+https://git.foxden.network/FoxDen/backupmgr";
-      inputs.nixpkgs.follows = "nixpkgs";
-      inputs.flake-utils.follows = "flake-utils";
+      inputs = {
+        nixpkgs.follows = "nixpkgs";
+        flake-utils.follows = "flake-utils";
+      };
     };
     e621dumper = {
       url = "git+https://git.foxden.network/FoxDen/e621dumper";
