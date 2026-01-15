@@ -3,6 +3,7 @@ inputs@{
   lib,
   systemArch,
   flakeInputs,
+  build-gradle-application,
   ...
 }:
 let
@@ -40,6 +41,7 @@ let
   pkgs = import nixpkgs {
     system = systemArch;
     config = nixPkgConfig;
+    overlays = [ build-gradle-application.overlays.default ];
   };
 
   localPackages = lib.attrsets.genAttrs (lib.attrNames (builtins.readDir ../../packages)) (
