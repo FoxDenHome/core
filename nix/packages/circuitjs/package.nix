@@ -2,6 +2,32 @@
 let
   version = "1.0.0";
 
+  srcPkgs = pkgs.stdenvNoCC.mkDerivation {
+    name = "circuitjs-src";
+    src = pkgs.fetchFromGitHub {
+      owner = "johnnewto";
+      repo = "circuitjs1";
+      rev = "10a9037254711e67363a0f35d4daf32f28d3bed3";
+      sha256 = "sha256-Z/gJeVbVQEo/LYxDJFSX1hsMOdOTYeg0i2usZx24LLY=";
+    };
+    inherit version;
+
+    unpackPhase = "true";
+    # ./gradlew --refresh-dependencies --write-verification-metadata sha256 --write-locks dependencies
+    installPhase = ''
+      cp -r $src $out
+
+      chmod -R 755 $out
+      mkdir -p $out/gradle
+      chmod 755 $out/gradle
+
+      cp ${./settings.gradle} $out/settings.gradle
+      cp ${./verification-metadata.xml} $out/gradle/verification-metadata.xml
+
+      cd $out && patch -p1 -i ${./circuitjs.patch}
+    '';
+  };
+
   javaPkg =
     let
       gradle = pkgs.gradleFromWrapper {
@@ -32,43 +58,16 @@ let
     in
     buildGradleApplication {
       pname = "circuitjs-java";
+      src = srcPkgs;
       inherit gradle version;
 
       buildTask = "compileGwt";
-
-      src = pkgs.stdenvNoCC.mkDerivation {
-        name = "circuitjs-src";
-        inherit version;
-
-        src = pkgs.fetchFromGitHub {
-          owner = "johnnewto";
-          repo = "circuitjs1";
-          rev = "10a9037254711e67363a0f35d4daf32f28d3bed3";
-          sha256 = "sha256-Z/gJeVbVQEo/LYxDJFSX1hsMOdOTYeg0i2usZx24LLY=";
-        };
-
-        unpackPhase = "true";
-        # ./gradlew --refresh-dependencies --write-verification-metadata sha256 --write-locks dependencies
-        installPhase = ''
-          cp -r $src $out
-
-          chmod -R 755 $out
-          mkdir -p $out/gradle
-          chmod 755 $out/gradle
-
-          cp ${./settings.gradle} $out/settings.gradle
-          cp ${./verification-metadata.xml} $out/gradle/verification-metadata.xml
-
-          cd $out && patch -p1 -i ${./circuitjs.patch}
-        '';
-      };
     };
 in
 pkgs.stdenvNoCC.mkDerivation {
   pname = "circuitjs";
-  inherit version;
-
   src = javaPkg;
+  inherit version;
 
   unpackPhase = "true";
   installPhase = ''
