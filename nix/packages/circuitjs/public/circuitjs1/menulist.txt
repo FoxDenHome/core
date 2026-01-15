@@ -176,7 +176,7 @@ MonostableElm|Monostable
 
 # Numeric submenu
 +Numeric Components
-GodlyTableElm|Godly Table||
+GodlyTableElm|Godly Table
 TableElm|Table
 SFCTableElm|SFC Table
 FlowsMasterElm|Flow Master
@@ -187,8 +187,8 @@ ActionTimeElm|Action Time
 PieChartElm|Pie Chart
 ViewportElm|Viewport
 SubtracterElm|Subtracter
-MultiplyElm|Multipler||
-MultiplyConstElm|Multiply by Constant||
+MultiplyElm|Multipler
+MultiplyConstElm|Multiply by Constant
 DividerElm|Divider
 DivideConstElm|Divide by Constant
 DifferentiatorElm|Differentiator
