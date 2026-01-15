@@ -1,0 +1,221 @@
+### menulist.txt - Main menu component definitions
+### Format: ClassName|Display Name|Display Shortcut (optional)|Keyboard Shortcut (optional)
+### Display Shortcut: shown in menu (e.g., "(Alt-drag)")
+### Keyboard Shortcut: single character to trigger element (e.g., "w" for wire)
+### + creates submenu, - closes submenu
+### Lines starting with # are comments
+### Empty lines are ignored
+
+# Top-level items
+WireElm|Wire||w
+ResistorElm|Resistor||r
+ViewportElm|Viewport
+
+# Passive Components submenu
++Passive Components
+CapacitorElm|Capacitor||c
+PolarCapacitorElm|Capacitor (polarized)||C
+InductorElm|Inductor||L
+SwitchElm|Switch||s
+PushSwitchElm|Push Switch
+Switch2Elm|SPDT Switch||S
+DPDTSwitchElm|DPDT Switch
+MBBSwitchElm|Make-Before-Break Switch
+PotElm|Potentiometer
+TransformerElm|Transformer||T
+TappedTransformerElm|Tapped Transformer
+CustomTransformerElm|Custom Transformer
+TransLineElm|Transmission Line
+RelayElm|Relay||R
+RelayCoilElm|Relay Coil
+RelayContactElm|Relay Contact
+LDRElm|Photoresistor
+ThermistorNTCElm|Thermistor
+MemristorElm|Memristor
+SparkGapElm|Spark Gap
+FuseElm|Fuse
+CrystalElm|Crystal
+CrossSwitchElm|Cross Switch
+-
+
+# Inputs and Sources submenu
++Inputs and Sources
+GroundElm|Ground||g
+DCVoltageElm|Voltage Source (2-terminal)||v
+ACVoltageElm|A/C Voltage Source (2-terminal)
+RailElm|Voltage Source (1-terminal)||V
+ACRailElm|A/C Voltage Source (1-terminal)
+SquareRailElm|Square Wave Source (1-terminal)
+ClockElm|Clock
+SweepElm|A/C Sweep
+VarRailElm|Variable Voltage
+AntennaElm|Antenna
+AMElm|AM Source
+FMElm|FM Source
+CurrentElm|Current Source
+NoiseElm|Noise Generator
+AudioInputElm|Audio Input
+DataInputElm|Data Input
+ExtVoltageElm|External Voltage (JavaScript)
+TableVoltageElm|Table Voltage Source
+-
+
+# Outputs and Labels submenu
++Outputs and Labels
+OutputElm|Analog Output
+LEDElm|LED||l
+LampElm|Lamp
+TextElm|Text||t
+BoxElm|Box
+LineElm|Line
+LabeledNodeElm|Labeled Node
+ProbeElm|Voltmeter/Scope Probe
+OhmMeterElm|Ohmmeter
+AmmeterElm|Ammeter
+WattmeterElm|Wattmeter
+TestPointElm|Test Point
+DecimalDisplayElm|Decimal Display
+LEDArrayElm|LED Array
+DataRecorderElm|Data Export
+AudioOutputElm|Audio Output
+StopTriggerElm|Stop Trigger
+DCMotorElm|DC Motor
+ThreePhaseMotorElm|3-Phase Motor
+-
+
+# Active Components submenu
++Active Components
+DiodeElm|Diode||d
+ZenerElm|Zener Diode||z
+NTransistorElm|Transistor (bipolar, NPN)||n
+PTransistorElm|Transistor (bipolar, PNP)||p
+NMosfetElm|MOSFET (N-Channel)||N
+PMosfetElm|MOSFET (P-Channel)||P
+NJfetElm|JFET (N-Channel)
+PJfetElm|JFET (P-Channel)
+SCRElm|SCR
+DiacElm|DIAC
+TriacElm|TRIAC
+NDarlingtonElm|Darlington Pair (NPN)
+PDarlingtonElm|Darlington Pair (PNP)
+VaractorElm|Varactor/Varicap
+TunnelDiodeElm|Tunnel Diode
+TriodeElm|Triode
+UnijunctionElm|Unijunction Transistor
+-
+
+# Active Building Blocks submenu
++Active Building Blocks
+OpAmpElm|Op Amp (ideal, - on top)||a
+OpAmpSwapElm|Op Amp (ideal, + on top)
+OpAmpRealElm|Op Amp (real)
+AnalogSwitchElm|Analog Switch (SPST)
+AnalogSwitch2Elm|Analog Switch (SPDT)
+TriStateElm|Tristate Buffer
+SchmittElm|Schmitt Trigger
+InvertingSchmittElm|Schmitt Trigger (Inverting)
+DelayBufferElm|Delay Buffer
+CC2Elm|CCII+
+CC2NegElm|CCII-
+ComparatorElm|Comparator (Hi-Z/GND output)
+OTAElm|OTA (LM13700 style)
+VCVSElm|Voltage-Controlled Voltage Source (VCVS)
+VCCSElm|Voltage-Controlled Current Source (VCCS)
+CCVSElm|Current-Controlled Voltage Source (CCVS)
+CCCSElm|Current-Controlled Current Source (CCCS)
+OptocouplerElm|Optocoupler
+TimeDelayRelayElm|Time Delay Relay
+CustomCompositeElm:~LM317-v2|LM317
+CustomCompositeElm:~TL431|TL431
+MotorProtectionSwitchElm|Motor Protection Switch
+CustomCompositeElm|Subcircuit Instance
+-
+
+# Logic Gates, Input and Output submenu
++Logic Gates, Input and Output
+LogicInputElm|Logic Input||i
+LogicOutputElm|Logic Output||o
+InverterElm|Inverter||1
+NandGateElm|NAND Gate
+NorGateElm|NOR Gate||#
+AndGateElm|AND Gate||2
+OrGateElm|OR Gate||3
+XorGateElm|XOR Gate||4
+-
+
+# Digital Chips submenu
++Digital Chips
+DFlipFlopElm|D Flip-Flop
+JKFlipFlopElm|JK Flip-Flop
+TFlipFlopElm|T Flip-Flop
+SevenSegElm|7 Segment LED
+SevenSegDecoderElm|7 Segment Decoder
+MultiplexerElm|Multiplexer
+DeMultiplexerElm|Demultiplexer
+SipoShiftElm|SIPO shift register
+PisoShiftElm|PISO shift register
+CounterElm|Counter
+Counter2Elm|Counter w/ Load
+DecadeElm|Ring Counter
+LatchElm|Latch
+SeqGenElm|Sequence generator
+FullAdderElm|Adder
+HalfAdderElm|Half Adder
+UserDefinedLogicElm|Custom Logic
+SRAMElm|Static RAM
+-
+
+# Analog and Hybrid Chips submenu
++Analog and Hybrid Chips
+TimerElm|555 Timer
+PhaseCompElm|Phase Comparator
+DACElm|DAC
+ADCElm|ADC
+VCOElm|VCO
+MonostableElm|Monostable
+-
+
+# Plot and time submenu
++Plot And Time Components
+GodlyTableElm|Godly Table||g
+TableElm|Table
+SFCTableElm|SFC Table
+FlowsMasterElm|Flow Master
+StockMasterElm|Stock Master
+CurrentTransactionsMatrixElm |Current Transactions Matrix
+StopTimeElm|Stop Time
+ActionTimeElm|Action Time
+PieChartElm|Pie Chart
+-
+
+# Math submenu
++Math Components
+SubtracterElm|Subtracter
+MultiplyElm|Multipler||m
+MultiplyConstElm|Multiply by Constant||x
+DividerElm|Divider
+DivideConstElm|Divide by Constant
+DifferentiatorElm|Differentiator
+IntegratorElm|Integrator
+ODEElm|ODE
+EquationElm|Equation
+EquationTableElm|Equation Table
+PercentElm|Percent/Ratio Meter
+AdderElm|Adder
+-
+
+# Subcircuits submenu (placeholder, will be populated dynamically)
++Subcircuits
+-
+
+# Drag submenu
++Drag
+DragAll|Drag All|(Alt-drag)
+DragRow|Drag Row|(A-S-drag)
+DragColumn|Drag Column|(A-M-drag)
+DragSelected|Drag Selected
+DragPost|Drag Post|(Ctrl-drag)
+-
+
+# Select mode (top-level item with shortcut)
+Select|Select/Drag Sel|(space or Shift-drag)
