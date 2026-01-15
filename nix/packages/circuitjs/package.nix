@@ -18,7 +18,7 @@ let
                 mkdir -p $out/share
                 mv war $out/share/circuitjs
                 mv build/gwt/out/circuitjs1 $out/share/circuitjs/
-                cp ${./startup.txt} $$out/share/circuitjs/circuitjs1/circuits/startup.txt
+                cp ${./startup.txt} $out/share/circuitjs/circuitjs1/circuits/startup.txt
               '';
               nativeBuildInputs = [ gradle ];
               postFixup = "true";
