@@ -174,8 +174,8 @@ VCOElm|VCO
 MonostableElm|Monostable
 -
 
-# Plot and time submenu
-+Plot and Time Components
+# Numeric submenu
++Numeric Components
 GodlyTableElm|Godly Table||g
 TableElm|Table
 SFCTableElm|SFC Table
@@ -186,10 +186,6 @@ StopTimeElm|Stop Time
 ActionTimeElm|Action Time
 PieChartElm|Pie Chart
 ViewportElm|Viewport
--
-
-# Math submenu
-+Math Components
 SubtracterElm|Subtracter
 MultiplyElm|Multipler||m
 MultiplyConstElm|Multiply by Constant||x
