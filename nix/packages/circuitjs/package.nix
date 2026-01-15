@@ -30,17 +30,20 @@ in
 buildGradleApplication {
   pname = "circuitjs";
   inherit gradle version;
+
   buildTask = "compileGwt";
 
   src = pkgs.stdenvNoCC.mkDerivation {
     name = "circuitjs-src";
     inherit version;
+
     src = pkgs.fetchFromGitHub {
       owner = "johnnewto";
       repo = "circuitjs1";
       rev = "10a9037254711e67363a0f35d4daf32f28d3bed3";
       sha256 = "sha256-Z/gJeVbVQEo/LYxDJFSX1hsMOdOTYeg0i2usZx24LLY=";
     };
+
     unpackPhase = "true";
     # ./gradlew --refresh-dependencies --write-verification-metadata sha256 --write-locks dependencies
     installPhase = ''
