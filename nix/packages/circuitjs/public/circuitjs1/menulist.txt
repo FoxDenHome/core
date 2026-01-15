@@ -176,7 +176,7 @@ MonostableElm|Monostable
 -
 
 # Plot and time submenu
-+Plot And Time Components
++Plot and Time Components
 GodlyTableElm|Godly Table||g
 TableElm|Table
 SFCTableElm|SFC Table
