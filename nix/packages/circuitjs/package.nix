@@ -17,6 +17,7 @@ let
               installPhase = ''
                 mkdir -p $out/share
                 mv war $out/share/circuitjs
+                mv build/gwt/out/circuitjs1 $out/share/circuitjs/
               '';
               nativeBuildInputs = [ gradle ];
               postFixup = "true";
