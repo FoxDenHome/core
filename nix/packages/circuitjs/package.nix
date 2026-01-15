@@ -55,6 +55,7 @@ buildGradleApplication {
       chmod 755 $out/gradle
 
       cp ${./settings.gradle} $out/settings.gradle
+      cp ${./startup.txt} $out/src/com/lushprojects/circuitjs1/public/circuits/startup.txt
       cp ${./verification-metadata.xml} $out/gradle/verification-metadata.xml
 
       cd $out && patch -p1 -i ${./circuitjs.patch}
