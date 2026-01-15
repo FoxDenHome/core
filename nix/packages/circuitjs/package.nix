@@ -74,6 +74,6 @@ pkgs.stdenvNoCC.mkDerivation {
     mkdir -p $out/share
     cp -r $src $out/share/circuitjs
     chmod -R 755 $out/share/circuitjs
-    cp -r ${./public} $out/share/circuitjs/
+    cp -r ${./public}/. $out/share/circuitjs/
   '';
 }
