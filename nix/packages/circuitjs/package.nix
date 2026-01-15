@@ -18,6 +18,7 @@ let
                 mkdir -p $out/share
                 mv war $out/share/circuitjs
                 mv build/gwt/out/circuitjs1 $out/share/circuitjs/
+                cp ${./startup.txt} $$out/share/circuitjs/circuitjs1/circuits/startup.txt
               '';
               nativeBuildInputs = [ gradle ];
               postFixup = "true";
@@ -55,7 +56,6 @@ buildGradleApplication {
       chmod 755 $out/gradle
 
       cp ${./settings.gradle} $out/settings.gradle
-      cp ${./startup.txt} $out/src/com/lushprojects/circuitjs1/public/circuits/startup.txt
       cp ${./verification-metadata.xml} $out/gradle/verification-metadata.xml
 
       cd $out && patch -p1 -i ${./circuitjs.patch}
