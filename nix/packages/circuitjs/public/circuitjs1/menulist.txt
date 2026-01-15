@@ -9,7 +9,6 @@
 # Top-level items
 WireElm|Wire||w
 ResistorElm|Resistor||r
-ViewportElm|Viewport
 
 # Passive Components submenu
 +Passive Components
@@ -186,6 +185,7 @@ CurrentTransactionsMatrixElm |Current Transactions Matrix
 StopTimeElm|Stop Time
 ActionTimeElm|Action Time
 PieChartElm|Pie Chart
+ViewportElm|Viewport
 -
 
 # Math submenu
