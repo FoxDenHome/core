@@ -16,7 +16,7 @@ let
             // {
               installPhase = ''
                 mkdir -p $out/share
-                mv build/gwt/out $out/share/circuitjs
+                mv war $out/share/circuitjs
               '';
               nativeBuildInputs = [ gradle ];
               postFixup = "true";
@@ -49,16 +49,14 @@ buildGradleApplication {
     installPhase = ''
       cp -r $src $out
 
-      chmod 755 $out
+      chmod -R 755 $out
       mkdir -p $out/gradle
       chmod 755 $out/gradle
 
       cp ${./settings.gradle} $out/settings.gradle
       cp ${./verification-metadata.xml} $out/gradle/verification-metadata.xml
 
-      cd $out
-      chmod 644 build.gradle
-      patch -p1 -i ${./build.gradle.patch}
+      cd $out && patch -p1 -i ${./circuitjs.patch}
     '';
   };
 }
