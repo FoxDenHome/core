@@ -67,10 +67,10 @@ index 76537d1..f262d74 100644
  +Basics
  ohms.txt Ohm's Law
 diff --git a/war/circuitjs.html b/war/circuitjs.html
-index 7f50129..92f4ce4 100644
+index 7f50129..2e53cb8 100644
 --- a/war/circuitjs.html
 +++ b/war/circuitjs.html
-@@ -1,7 +1,7 @@
+@@ -1,14 +1,14 @@
  <!DOCTYPE html>
  <html>
    <head>
@@ -79,6 +79,14 @@ index 7f50129..92f4ce4 100644
    
      <!-- Properties can be specified to influence deferred binding -->
      <meta name='gwt:property' content='locale=en_UK'>
+     
+     
+     <!-- Titles are optional, but useful -->
+-    <title></title>
++    <title>FoxDen CircuitJS</title>
+ 
+ <style>
+ .disabled {
 diff --git a/war/manifest.json b/war/manifest.json
 index f8a79dc..793107e 100644
 --- a/war/manifest.json
