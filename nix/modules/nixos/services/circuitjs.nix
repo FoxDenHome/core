@@ -36,7 +36,7 @@ in
         systemd.services.circuitjs = {
           serviceConfig = {
             BindReadOnlyPaths = [
-              "${pkgs.circuitjs}:/web"
+              "${pkgs.circuitjs}/share/circuitjs:/web"
             ];
           };
         };
