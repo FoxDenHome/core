@@ -73,7 +73,7 @@ pkgs.stdenvNoCC.mkDerivation {
   installPhase = ''
     mkdir -p $out/share
     cp -r $src $out/share/circuitjs
-    chmod 755 $out/share/circuitjs/circuitjs1/circuits
-    cp ${./startup.txt} $out/share/circuitjs/circuitjs1/circuits/startup.txt
+    chmod -R 755 $out/share/circuitjs/circuitjs1/
+    cp ${./public} $out/share/circuitjs/circuitjs1/
   '';
 }
