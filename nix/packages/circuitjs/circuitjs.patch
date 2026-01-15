@@ -46,14 +46,23 @@ index 4032aea..ee7a3b8 100644
          height="100%" 
          frameborder="0"
 diff --git a/src/com/lushprojects/circuitjs1/public/setuplist.txt b/src/com/lushprojects/circuitjs1/public/setuplist.txt
-index 76537d1..a3c1e49 100644
+index 76537d1..f262d74 100644
 --- a/src/com/lushprojects/circuitjs1/public/setuplist.txt
 +++ b/src/com/lushprojects/circuitjs1/public/setuplist.txt
+@@ -8,7 +8,7 @@ econ_KeenMinskyGodley01.txt Keen Minsky Godley 01
+ econ_KeenMinskyGodley02.txt Keen Minsky Godley 02
+ -
+ +Debug
+->1debug.txt Debug 1
++1debug.txt Debug 1
+ 1dbg_LRC+Table.txt Dbg LRC+Table
+ 1dbg_CTM&GodleyTest.txt CTM & Godley Test
+ 1dbg_percent_meter_test.txt Percent Meter Test
 @@ -16,6 +16,7 @@ econ_KeenMinskyGodley02.txt Keen Minsky Godley 02
  1deb_ODE2.txt Predator Prey ODE Test 2
  1debugcopy3.txt Debug 3
  1debugcopy5.txt Debug 5
-+startup.txt Startup
++>startup.txt Startup
  -
  +Basics
  ohms.txt Ohm's Law
