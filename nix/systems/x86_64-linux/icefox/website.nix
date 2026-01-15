@@ -20,7 +20,6 @@ in
         fqdns = [
           "circuitjs.doridian.net"
         ];
-        dynDns = true;
       };
       webservice.enable = true;
       addresses = [
