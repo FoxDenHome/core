@@ -19,14 +19,13 @@ async function shorten(url) {
 
 async function create(r) {
     r.headersOut['Content-Type'] = 'text/plain';
-    const target = r.variables.arg_v;
-
-    if (!target) {
-        r.return(400, "Missing 'v' parameter");
-        return;
-    }
-
     try {
+        const target = decodeURIComponent(r.variables.arg_v || '');
+        if (!target) {
+            r.return(400, "Missing 'v' parameter");
+            return;
+        }
+
         const shortUrl = await shorten(`${r.variables.scheme}://${r.variables.host}/circuitjs.html${target}`);
         r.return(200, shortUrl);
     } catch (e) {
