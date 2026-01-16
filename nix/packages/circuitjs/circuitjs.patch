@@ -33,7 +33,7 @@ index 77d3144..09f5736 100755
      implementation 'com.google.gwt:gwt-user:2.9.0'
      implementation 'com.google.gwt:gwt-dev:2.9.0'
 diff --git a/war/circuitjs.html b/war/circuitjs.html
-index 7f50129..2e53cb8 100644
+index 7f50129..a84b6d2 100644
 --- a/war/circuitjs.html
 +++ b/war/circuitjs.html
 @@ -1,14 +1,14 @@
@@ -53,6 +53,19 @@ index 7f50129..2e53cb8 100644
  
  <style>
  .disabled {
+@@ -237,11 +237,7 @@ input.locked-column[readonly] {
+   <!-- URL shortener relay configuration -->
+   <!-- Uses local PHP on localhost, Cloudflare Worker on production -->
+   <script>
+-    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+-      window.shortRelayUrl = "shortrelay.php";
+-    } else {
+-      window.shortRelayUrl = "https://circuitjs-shortener.johnnewto.workers.dev";
+-    }
++	window.shortRelayUrl = "/shorturl";
+   </script>
+ 
+   <script language="javascript" src="lz-string.min.js"></script>
 diff --git a/war/manifest.json b/war/manifest.json
 index f8a79dc..793107e 100644
 --- a/war/manifest.json
