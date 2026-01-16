@@ -1,6 +1,8 @@
 const user = process.env.FOXCAVES_USERNAME;
 const pass = process.env.FOXCAVES_API_KEY;
 
+const LINK_EXPIRY = 30 * 24 * 60 * 60; // 30 days in seconds
+
 async function shorten(url) {
     const res = await ngx.fetch('https://foxcav.es/api/v1/links', {
         method: 'POST',
@@ -8,7 +10,7 @@ async function shorten(url) {
             'Content-Type': 'application/json',
             'Authorization': 'Basic ' + btoa(`${user}:${pass}`),
         },
-        body: JSON.stringify({ target: url }),
+        body: JSON.stringify({ target: url, expires_in: LINK_EXPIRY }),
     });
     const data = await res.json();
     if (!res.ok) {
