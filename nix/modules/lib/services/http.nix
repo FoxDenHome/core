@@ -559,6 +559,8 @@ in
                   accept_mutex off;
                 }
 
+                ${(inputs.extraMainConfig or (data: "")) configFuncData}
+
                 http {
                   access_log off;
                   log_not_found off;

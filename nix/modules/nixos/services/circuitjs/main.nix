@@ -29,6 +29,12 @@ in
           ''
             js_import shortener from shortener.js;
           '';
+        extraMainConfig =
+          { ... }:
+          ''
+            env FOXCAVES_USERNAME;
+            env FOXCAVES_API_KEY;
+          '';
         extraConfig =
           { ... }:
           ''
