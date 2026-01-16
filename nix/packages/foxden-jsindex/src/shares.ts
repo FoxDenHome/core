@@ -1,7 +1,6 @@
 import state from './state.js';
 import files from './files.js';
 import util from './util.js';
-import zlib from 'zlib';
 
 const MAX_DURATION = 7 * 24 * 3600; // 7 days in seconds
 
