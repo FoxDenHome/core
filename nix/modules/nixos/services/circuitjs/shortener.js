@@ -33,13 +33,7 @@ async function create(r) {
         return;
     }
 
-    const baseUrl = new URL();
-    baseUrl.protocol = `${r.variables.scheme}:`;
-    baseUrl.host = r.variables.host;
-    baseUrl.pathname = '/circuitjs.html';
-    const url =  new URL(target, baseUrl);
-
-    return shorten(url.toString()).toString();
+    return shorten(`${r.variables.scheme}://${r.variables.host}/circuitjs.html${target}`);
 }
 
 export default {
