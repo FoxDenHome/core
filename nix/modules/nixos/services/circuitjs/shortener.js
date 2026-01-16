@@ -22,7 +22,7 @@ async function create(r) {
     try {
         const target = decodeURIComponent(r.variables.arg_v || '');
         if (!target) {
-            r.return(400, "Missing 'v' parameter");
+            r.return(400, "Missing or empty 'v' parameter");
             return;
         }
 
