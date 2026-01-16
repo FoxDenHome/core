@@ -30,8 +30,8 @@ async function create(r) {
         const shortUrl = await shorten(`${r.variables.scheme}://${r.variables.host}/circuitjs.html${target}`);
         r.return(200, shortUrl);
     } catch (e) {
-        r.return(500, 'Internal Server Error');
         r.error(`Failed to shorten URL: ${e.stack || e}`);
+        r.return(500, 'Internal Server Error');
     }
 }
 
