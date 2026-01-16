@@ -10,7 +10,7 @@ const user = process.env.FOXCAVES_USERNAME;
 const pass = process.env.FOXCAVES_API_KEY;
 
 async function shorten(url) {
-    const res = await fetch('https://foxcav.es/api/v1/links', {
+    const res = await ngx.fetch('https://foxcav.es/api/v1/links', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -33,7 +33,7 @@ async function create(r) {
         return;
     }
 
-    return shorten(`${r.variables.scheme}://${r.variables.host}/circuitjs.html${target}`);
+    Response(r, 200, await shorten(`${r.variables.scheme}://${r.variables.host}/circuitjs.html${target}`));
 }
 
 export default {
