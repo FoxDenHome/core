@@ -33,7 +33,7 @@ async function create(r) {
         return;
     }
 
-    Response(r, 200, await shorten(`${r.variables.scheme}://${r.variables.host}/circuitjs.html${target}`));
+    respond(r, 200, await shorten(`${r.variables.scheme}://${r.variables.host}/circuitjs.html${target}`));
 }
 
 export default {
