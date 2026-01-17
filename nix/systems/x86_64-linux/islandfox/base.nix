@@ -77,7 +77,7 @@
   };
 
   fileSystems."/boot2" = {
-    device = "/dev/sda1";
+    device = "/dev/nvme1n1p1";
     fsType = "vfat";
     options = [
       "fmask=0022"
