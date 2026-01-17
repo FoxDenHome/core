@@ -126,14 +126,14 @@
     </hostdev>
     <hostdev mode='subsystem' type='pci' managed='yes'>
       <source>
-        <address domain='0x0000' bus='0x02' slot='0x00' function='0x0'/>
+        <address domain='0x0000' bus='0x04' slot='0x00' function='0x0'/>
       </source>
       <address type='pci' domain='0x0000' bus='0x00' slot='0x06' function='0x0'/>
     </hostdev>
     <hostdev mode='subsystem' type='usb' managed='yes'>
       <source>
-        <vendor id='0x8087'/>
-        <product id='0x0029'/>
+        <vendor id='0x0ead'/>
+        <product id='0xc616'/>
       </source>
       <address type='usb' bus='0' port='4'/>
     </hostdev>
