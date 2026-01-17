@@ -82,7 +82,7 @@ in
     };
   };
 
-  systemd.network.links."40-${ifcfg.interface}" = {
+  systemd.network.links."zz-${ifcfg.interface}" = {
     matchConfig = {
       OriginalName = ifcfg.interface;
     };
@@ -91,7 +91,7 @@ in
     };
   };
 
-  systemd.network.links."40-${ifcfg.phyIface}" = {
+  systemd.network.links."zz-${ifcfg.phyIface}" = {
     matchConfig = {
       OriginalName = ifcfg.phyIface;
     };
