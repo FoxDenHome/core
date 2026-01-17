@@ -83,7 +83,9 @@ in
   };
 
   systemd.network.links."40-${ifcfg.phyIface}" = {
-    name = ifcfg.phyIface;
+    matchConfig = {
+      Name = ifcfg.phyIface;
+    };
     linkConfig = {
       WakeOnLan = "magic";
     };
