@@ -79,6 +79,12 @@ in
 
     linkConfig = {
       MTUBytes = ifcfg.mtu;
+    };
+  };
+
+  systemd.network.links."40-${ifcfg.phyIface}" = {
+    name = ifcfg.phyIface;
+    linkConfig = {
       WakeOnLan = "magic";
     };
   };
