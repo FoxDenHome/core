@@ -10,6 +10,7 @@ let
     interface = "br-default";
     phyIface = "enp2s0";
     phyPvid = 2;
+    phyMac = "38:05:25:35:83:93";
     mtu = 9000;
     mac = config.lib.foxDen.mkHashMac "000001";
   };
@@ -82,18 +83,9 @@ in
     };
   };
 
-  systemd.network.links."zz-${ifcfg.interface}" = {
+  systemd.network.links."40-${ifcfg.phyIface}" = {
     matchConfig = {
-      OriginalName = ifcfg.interface;
-    };
-    linkConfig = {
-      WakeOnLan = "magic";
-    };
-  };
-
-  systemd.network.links."zz-${ifcfg.phyIface}" = {
-    matchConfig = {
-      OriginalName = ifcfg.phyIface;
+      MACAddress = ifcfg.phyMac;
     };
     linkConfig = {
       WakeOnLan = "magic";
