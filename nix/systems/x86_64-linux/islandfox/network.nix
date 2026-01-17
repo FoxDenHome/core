@@ -84,7 +84,7 @@ in
 
   systemd.network.links."40-${ifcfg.interface}" = {
     matchConfig = {
-      Name = ifcfg.interface;
+      OriginalName = ifcfg.interface;
     };
     linkConfig = {
       WakeOnLan = "magic";
@@ -93,7 +93,7 @@ in
 
   systemd.network.links."40-${ifcfg.phyIface}" = {
     matchConfig = {
-      Name = ifcfg.phyIface;
+      OriginalName = ifcfg.phyIface;
     };
     linkConfig = {
       WakeOnLan = "magic";
