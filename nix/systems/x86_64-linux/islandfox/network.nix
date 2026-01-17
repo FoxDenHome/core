@@ -21,6 +21,15 @@ in
   foxDen.hosts.gateway = "router";
   virtualisation.libvirtd.allowedBridges = [ ifcfg.interface ];
 
+  networking = {
+    interfaces."${ifcfg.phyIface}" = {
+      wakeOnLan.enable = true;
+    };
+    firewall = {
+      allowedUDPPorts = [ 9 ];
+    };
+  };
+
   systemd.network.networks."30-${ifcfg.interface}" = {
     name = ifcfg.interface;
     routes = ifcfg.routes;
