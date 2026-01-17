@@ -43,9 +43,10 @@
     blacklist btmtk
     blacklist btbcm
     blacklist btusb
+    blacklist mt7921e
 
-    alias pci:v00008086d00002723sv00008086sd00000080bc02sc80i00 vfio-pci
-    options vfio-pci ids=8086:0080
+    alias pci:v000014C3d00000616sv000014C3sd0000C616bc02sc80i00 vfio-pci
+    options vfio-pci ids=14c3:0616
   '';
 
   boot.initrd.luks.devices = {
