@@ -1,4 +1,4 @@
-{ foxDenLib, config, ... }:
+{ foxDenLib, pkgs, config, ... }:
 let
   ifcfg = {
     addresses = [
@@ -10,7 +10,6 @@ let
     interface = "br-default";
     phyIface = "enp2s0";
     phyPvid = 2;
-    phyMac = "38:05:25:35:83:93";
     mtu = 9000;
     mac = config.lib.foxDen.mkHashMac "000001";
   };
@@ -25,6 +24,9 @@ in
   networking.firewall = {
     allowedUDPPorts = [ 9 ];
   };
+  services.udev.extraRules = ''
+    ACTION=="add", SUBSYSTEM=="net", NAME=="${ifcfg.phyIface}", RUN+="${pkgs.ethtool}/bin/ethtool -s ${ifcfg.phyIface} wol g"
+  '';
 
   systemd.network.networks."30-${ifcfg.interface}" = {
     name = ifcfg.interface;
@@ -80,15 +82,6 @@ in
 
     linkConfig = {
       MTUBytes = ifcfg.mtu;
-    };
-  };
-
-  systemd.network.links."40-${ifcfg.phyIface}" = {
-    matchConfig = {
-      MACAddress = ifcfg.phyMac;
-    };
-    linkConfig = {
-      WakeOnLan = "magic";
     };
   };
 
