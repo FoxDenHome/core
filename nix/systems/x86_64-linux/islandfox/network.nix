@@ -21,13 +21,8 @@ in
   foxDen.hosts.gateway = "router";
   virtualisation.libvirtd.allowedBridges = [ ifcfg.interface ];
 
-  networking = {
-    interfaces."${ifcfg.phyIface}" = {
-      wakeOnLan.enable = true;
-    };
-    firewall = {
-      allowedUDPPorts = [ 9 ];
-    };
+  networking.firewall = {
+    allowedUDPPorts = [ 9 ];
   };
 
   systemd.network.networks."30-${ifcfg.interface}" = {
@@ -84,6 +79,7 @@ in
 
     linkConfig = {
       MTUBytes = ifcfg.mtu;
+      WakeOnLan = "magic";
     };
   };
 
