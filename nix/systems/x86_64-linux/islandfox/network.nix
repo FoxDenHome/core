@@ -1,4 +1,9 @@
-{ foxDenLib, pkgs, config, ... }:
+{
+  foxDenLib,
+  pkgs,
+  config,
+  ...
+}:
 let
   ifcfg = {
     addresses = [
