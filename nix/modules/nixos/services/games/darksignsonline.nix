@@ -98,6 +98,11 @@ in
         };
 
         systemd.services.http-darksignsonline = {
+          unitConfig = {
+            After = [ "phpfpm-darksignsonline.service" ];
+            Wants = [ "phpfpm-darksignsonline.service" ];
+          };
+
           serviceConfig = {
             User = "darksignsonline";
             Group = "darksignsonline";
