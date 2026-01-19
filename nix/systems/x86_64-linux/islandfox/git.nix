@@ -17,9 +17,9 @@ in
       };
     };
     forgejo-runner = {
-      enable = false;
+      enable = true;
       host = "forgejo-runner";
-      capacity = 1;
+      capacity = 4;
       containerHost = "forgejo-runner-container";
     };
   };

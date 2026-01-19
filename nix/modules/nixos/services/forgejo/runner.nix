@@ -163,6 +163,7 @@ in
             Group = "forgejo-runner";
             WorkingDirectory = "/var/lib/forgejo-runner";
             StateDirectory = "forgejo-runner";
+            Nice = 1;
           };
 
           wantedBy = [ "multi-user.target" ];
@@ -180,6 +181,7 @@ in
               ExecStart = "${pkgs.podman}/bin/podman system prune --all --force --volumes --filter until=${builtins.toString (7 * 24)}h";
               Restart = "no";
               RemainAfterExit = false;
+              Nice = 1;
             };
           }
         ];
@@ -200,6 +202,7 @@ in
               Type = "exec";
               ExecStartPre = [ "${pkgs.podman}/bin/podman --log-level=info system migrate" ];
               ExecStart = "${pkgs.podman}/bin/podman --log-level=info system service --time=0 unix:///var/lib/forgejo-runner/podman.sock";
+              Nice = 1;
             };
 
             wantedBy = [ "multi-user.target" ];
