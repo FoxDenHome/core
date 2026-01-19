@@ -48,6 +48,7 @@ in
         };
         systemd = {
           serviceConfig = {
+            Nice = 6;
             ExecStartPre = [
               "+${pkgs.coreutils}/bin/mkdir -p ${mirrorCfg.dataDir}/foxdenaur/${builderArch}"
               "+${pkgs.coreutils}/bin/chown -h aurbuild:aurbuild ${mirrorCfg.dataDir}/foxdenaur/${builderArch}"
