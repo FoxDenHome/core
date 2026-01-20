@@ -95,9 +95,11 @@ in
             cfg = {
               confinement.packages = [
                 config.services.postgresql.package
+                pkgs.gzip
               ];
               path = [
                 config.services.postgresql.package
+                pkgs.gzip
               ];
               serviceConfig = {
                 BindPaths = [
