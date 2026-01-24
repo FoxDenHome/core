@@ -16,12 +16,14 @@ run_update() {
   cd "${SERVER_DIR}"
 
   superdel config/bluemap config/paxi/datapacks mods
-  INSTALLED_ID="$(cat "${INSTALLED_ID_FILE}" || echo none)"
-  LATEST_ID="$(cat "${LATEST_ID_FILE}")"
-  if [ "${INSTALLED_ID}" != "${LATEST_ID}" ]; then
-    echo "ID mismatch (current: ${INSTALLED_ID}, expected: ${LATEST_ID}), reinstalling"
-    superdel run.* libraries
-  fi
+
+  # Use this if we update Forge/Minecraft versions maybe, otherwise pointless
+  #INSTALLED_ID="$(cat "${INSTALLED_ID_FILE}" || echo none)"
+  #LATEST_ID="$(cat "${LATEST_ID_FILE}")"
+  #if [ "${INSTALLED_ID}" != "${LATEST_ID}" ]; then
+  #  echo "ID mismatch (current: ${INSTALLED_ID}, expected: ${LATEST_ID}), reinstalling"
+  #  superdel run.* libraries
+  #fi
 
   find -type d -not -path './bluemap/*' -not -path './world/*' -exec chmod 700 {} \; || true
   find -type f -not -path './bluemap/*' -not -path './world/*' -exec chmod 600 {} \; || true
