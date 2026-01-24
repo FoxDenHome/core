@@ -43,7 +43,6 @@ DEFAULT_RULES_HEAD: list[FirewallRule] = [
             "chain": "forward",
             "comment": "related, established",
             "connection-state": "established,related",
-            "hw-offload": format_mtik_bool(True),
         },
     ),
     FirewallRule(
