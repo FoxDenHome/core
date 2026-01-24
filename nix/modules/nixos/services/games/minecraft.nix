@@ -37,8 +37,8 @@ in
       }).config
       (services.http.make {
         inherit svcConfig pkgs config;
-        name = "http-minecraft"; # dynmap
-        target = "proxy_pass http://127.0.0.1:25405;";
+        name = "http-minecraft"; # BlueMap
+        target = "proxy_pass http://127.0.0.1:8100;";
       }).config
       {
         users.users.minecraft = {
