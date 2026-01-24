@@ -8,10 +8,6 @@
 let
   svcConfig = config.foxDen.services.aurbuild;
   mirrorCfg = config.foxDen.services.mirror;
-
-  packagesTxt = ./packages.txt;
-  makepkgConf = ./makepkg.conf;
-
   builderArch = "x86_64";
 in
 {
@@ -28,8 +24,8 @@ in
         oci = {
           image = "git.foxden.network/foxdenaur/builder:latest";
           volumes = [
-            "${packagesTxt}:/aur/packages.txt:ro"
-            "${makepkgConf}:/etc/makepkg.conf:ro"
+            "${./packages.txt}:/aur/packages.txt:ro"
+            "${./makepkg.conf}:/etc/makepkg.conf:ro"
             "/run/pcscd:/run/pcscd:ro"
             (config.lib.foxDen.sops.mkIfAvailable "${
               config.sops.secrets."aurbuild-gpg-passphrase".path
