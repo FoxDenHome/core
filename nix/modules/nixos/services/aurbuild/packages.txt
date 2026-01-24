@@ -26,6 +26,5 @@ uxplay
 https://git.foxden.network/FoxDen/backupmgr
 openssh-hpn
 iloader-bin
-plasma-login-manager-git
 libcurl-impersonate-bin
 python-curl-cffi-git
