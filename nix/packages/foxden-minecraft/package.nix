@@ -43,11 +43,11 @@ let
   };
 
   modpack = {
-    # https://www.curseforge.com/minecraft/modpacks/aoc/files/7304262
-    url = "https://mediafilez.forgecdn.net/files/7304/262/All_of_Create_6.0_v2.2_serverpack.zip";
+    # https://www.curseforge.com/minecraft/modpacks/aoc/files/7494429
+    url = "https://mediafilez.forgecdn.net/files/7494/429/All_of_Create_1.20.1_6.0_v2.3_serverpack.zip";
     name = "server";
     stripRoot = false;
-    hash = "sha256-w7LgprblDG5TN9bNp9QERX9wYdeNfuBc/iP3ToO+UUY=";
+    hash = "sha256-dKCJEWopBhFy9IvFBGvXyw/fv0pFvIixGM+TzmOsPq8=";
   };
 in
 pkgs.stdenvNoCC.mkDerivation {
