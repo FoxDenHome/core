@@ -168,8 +168,8 @@ def refresh_pdns():
             print("### Restarting PowerDNS container", changes)
             router.restart_container("pdns")
 
-        for zone in sorted(INTERNAL_RECORDS.keys()):
-            router.run_in_container("pdns", "pdnsutil secure-zone '" + zone + "'")
+        #for zone in sorted(INTERNAL_RECORDS.keys()):
+        #    router.run_in_container("pdns", "pdnsutil secure-zone '" + zone + "'")
 
         connection = router.connection()
         api = connection.get_api()
