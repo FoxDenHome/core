@@ -32,6 +32,12 @@ in
         critical = true;
       };
       webservice.enable = true;
+      firewall.portForwards = [
+        {
+          protocol = "tcp";
+          port = 22;
+        }
+      ];
       addresses = [
         "10.2.11.13/16"
         "fd2c:f4cb:63be:2::b0d/64"
