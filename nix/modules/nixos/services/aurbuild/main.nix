@@ -74,8 +74,8 @@ in
           var aurbuildPuid = (aurbuildUidOffset + 999).toString(10);
 
           polkit.addRule(function(action, subject) {
-              if ((action.id == "org.debian.pcsc-lite.access_card" ||
-                  action.id == "org.debian.pcsc-lite.access_pcsc") &&
+              if ((action.id === "org.debian.pcsc-lite.access_card" ||
+                  action.id === "org.debian.pcsc-lite.access_pcsc") &&
                   subject.user === aurbuildPuid) {
                 return polkit.Result.YES;
               }
