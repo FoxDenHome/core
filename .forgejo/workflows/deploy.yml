@@ -17,5 +17,8 @@ jobs:
       - uses: https://data.forgejo.org/actions/checkout@v6
       - name: Deploy to target
         run: |
-          echo "Deploying to target: ${{ matrix.target }}"
-          echo ssh deployer@${{ matrix.target }} /etc/foxden/nixos/update.sh
+          echo 'Deploying to target: ${{ matrix.target }}'
+          touch /tmp/nixpush_key
+          chmod 600 /tmp/nixpush_key
+          echo '${{ secrets.NIXPUSH_KEY }}' > /tmp/nixpush_key
+          ssh -i /tmp/nixpush_key 'nixpush@${{ matrix.target }}'
