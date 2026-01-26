@@ -19,4 +19,6 @@
     doc.enable = false;
     nixos.enable = false;
   };
+
+  foxDen.deploy.push = true;
 }
