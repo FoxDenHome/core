@@ -119,10 +119,17 @@ class MTikRouter:
             containers.call("stop", {"numbers": name})
         except RouterOsApiCommunicationError:
             pass
-        while not parse_mtik_bool(containers.get(name=name)[0]["stopped"]):
+
+        def _ct_state(sn: str) -> bool:
+            ct = containers.get(name=name)[0]
+            if sn not in ct:
+                return False
+            return parse_mtik_bool(ct[sn])
+
+        while not _ct_state("stopped"):
             sleep(0.1)
         containers.call("start", {"numbers": name})
-        while not parse_mtik_bool(containers.get(name=name)[0]["running"]):
+        while not _ct_state("running"):
             sleep(0.1)
 
 
