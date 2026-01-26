@@ -20,5 +20,5 @@
     nixos.enable = false;
   };
 
-  foxDen.deploy.push = true;
+  foxDen.deploy.push.enable = true;
 }

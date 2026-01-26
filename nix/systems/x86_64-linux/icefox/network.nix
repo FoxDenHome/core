@@ -379,6 +379,8 @@ in
     }
   ];
 
+  foxDen.deploy.push.interface = "foxden";
+
   # Due to OVH routing, we have two IPv6 subnets
   # - 2607:5300:60:7065::/64 for hosts which have public IPv4 (aka only arcticfox)
   # - 2607:5300:60:7065::1:/112 for hosts without public IPv4 (routed out via mainIPv4)

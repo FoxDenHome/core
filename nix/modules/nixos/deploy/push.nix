@@ -12,8 +12,16 @@ let
   ];
 in
 {
-  options.foxDen.deploy.push = lib.mkEnableOption "Enable push updates";
-  config = lib.mkIf config.foxDen.deploy.push {
+  options.foxDen.deploy.push = with lib.types; {
+    enable = lib.mkEnableOption "Enable push updates";
+    interface = lib.mkOption {
+      type = str;
+      default = "default";
+      description = "The interface on which the pusher is expected to reach this host.";
+    };
+  };
+
+  config = lib.mkIf config.foxDen.deploy.push.enable {
     users.users.nixpush = {
       isNormalUser = true;
       autoSubUidGidRange = false;
@@ -37,6 +45,7 @@ in
       source = subnet;
       destination = {
         host = hostName;
+        interface = config.foxDen.deploy.push.interface;
       };
       dstport = 22;
       protocol = "tcp";
