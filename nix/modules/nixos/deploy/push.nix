@@ -43,6 +43,7 @@ in
       chain = "forward";
       action = "accept";
       source = subnet;
+      gateway = "router";
       destination = {
         host = hostName;
         interface = config.foxDen.deploy.push.interface;
