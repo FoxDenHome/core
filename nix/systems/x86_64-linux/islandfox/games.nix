@@ -86,8 +86,7 @@ in
     spaceage-gmod = mkVlanHost 3 {
       dns = {
         fqdns = [
-          "gmod.spaceage.mp"
-          "play.spaceage.mp"
+          "spaceage-gmod.doridian.net"
         ];
         dynDns = true;
       };
@@ -105,7 +104,7 @@ in
     spaceage-api = mkVlanHost 3 {
       dns = {
         fqdns = [
-          "api.spaceage.mp"
+          "spaceage-api.doridian.net"
         ];
         dynDns = true;
       };
@@ -118,7 +117,7 @@ in
     spaceage-tts = mkVlanHost 3 {
       dns = {
         fqdns = [
-          "tts.spaceage.mp"
+          "spaceage-tts.doridian.net"
         ];
         dynDns = true;
       };
@@ -131,8 +130,7 @@ in
     spaceage-website = mkVlanHost 3 {
       dns = {
         fqdns = [
-          "spaceage.mp"
-          "www.spaceage.mp"
+          "spaceage.doridian.net"
         ];
         dynDns = true;
       };
