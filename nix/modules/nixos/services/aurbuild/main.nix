@@ -7,7 +7,6 @@
 }:
 let
   svcConfig = config.foxDen.services.aurbuild;
-  mirrorCfg = config.foxDen.services.mirror;
   builderArch = "x86_64";
 in
 {
@@ -31,7 +30,7 @@ in
               config.sops.secrets."aurbuild-gpg-passphrase".path
             }:/gpg/passphrase:ro")
             "aurbuild_cache_${builderArch}:/aur/cache"
-            "${mirrorCfg.dataDir}/foxdenaur/${builderArch}:/aur/repo"
+            "/var/lib/aurbuild/repo:/aur/repo"
           ];
           extraOptions = [
             "--mount=type=tmpfs,tmpfs-size=128M,destination=/aur/tmp"
@@ -43,17 +42,17 @@ in
             "PGID" = "1000";
           };
         };
-        systemd = {
-          serviceConfig = {
-            Nice = 6;
-            ExecStartPre = [
-              "+${pkgs.coreutils}/bin/mkdir -p ${mirrorCfg.dataDir}/foxdenaur/${builderArch}"
-              "+${pkgs.coreutils}/bin/chown -h aurbuild:aurbuild ${mirrorCfg.dataDir}/foxdenaur/${builderArch}"
-            ];
-          };
-        };
+        systemd.serviceConfig.Nice = 6;
+      }).config
+      (foxDenLib.services.make {
+        name = "aurbuild-rsyncd";
+        inherit svcConfig pkgs config;
       }).config
       {
+        systemd.tmpfiles.rules = [
+          "d /var/lib/aurbuild/repo 0755 aurbuild aurbuild"
+        ];
+
         services.pcscd.enable = true;
         security.polkit.extraConfig = ''
           var aurbuildUidOffset;
@@ -81,6 +80,52 @@ in
               }
           });
         '';
+
+        environment.etc."foxden/aurbuild/rsyncd.conf" = {
+          text = ''
+            use chroot = no
+            max connections = 128
+            pid file = /tmp/rsyncd.pid
+            lock file = /tmp/rsyncd.lock
+            read only = yes
+            numeric ids = yes
+            reverse lookup = no
+            forward lookup = no
+
+            [foxdenaur]
+                    path = /var/lib/aurbuild/repo
+          '';
+        };
+
+        systemd.service.aurbuild-rsyncd = {
+          restartTriggers = [ config.environment.etc."foxden/aurbuild/rsyncd.conf".text ];
+          serviceConfig = {
+            BindReadOnlyPaths = [
+              "/var/lib/aurbuild/repo"
+            ];
+            LoadCredential = "rsyncd.conf:/etc/foxden/aurbuild/rsyncd.conf";
+            ExecStart = [
+              "${pkgs.rsync}/bin/rsync --daemon --no-detach --config=\${CREDENTIALS_DIRECTORY}/rsyncd.conf"
+            ];
+            User = "aurbuild";
+            Group = "aurbuild";
+          };
+
+          wantedBy = [ "multi-user.target" ];
+        };
+
+        environment.persistence."/nix/persist/aurbuild" = {
+          hideMounts = true;
+          directories = [
+            {
+              directory = "/var/lib/aurbuild";
+              user = "aurbuild";
+              group = "aurbuild";
+              mode = "u=rwx,g=,o=";
+            }
+          ];
+        };
+
         # Home-Manager
         # programs.gpg.scdaemonSettings = {
         #   disable-ccid = true;

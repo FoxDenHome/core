@@ -4,10 +4,6 @@ let
 in
 {
   foxDen.services = config.lib.foxDen.sops.mkIfAvailable {
-    aurbuild = {
-      enable = true;
-      host = "mirror";
-    };
     mirror = {
       enable = true;
       host = "mirror";
@@ -22,8 +18,16 @@ in
         rsyncUrl = "rsync://mirror.doridian.net/cachyos/";
         forceSync = true;
       };
+      sources."foxdenaur/x86_64" = {
+        rsyncUrl = "rsync://aurbuild-x86-64.foxden.network/foxdenaur/";
+        forceSync = true;
+      };
     };
   };
+
+  systemd.tmpfiles.rules = [
+    "d /mnt/zhdd/mirror/foxdenaur 0755 mirror mirror"
+  ];
 
   foxDen.hosts.hosts = {
     mirror = mkVlanHost 2 {
