@@ -205,7 +205,7 @@ in
           map (
             { name, value }:
             let
-              svcName = "mirror-sync-${name}";
+              svcName = "mirror-sync-${lib.replaceString name "/" "-"}";
             in
             {
               name = svcName;
