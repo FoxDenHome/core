@@ -22,9 +22,6 @@
       generateNSRecords = true;
     };
     "foxcav.es" = { };
-    "spaceage.mp" = {
-      registrar = "getmp";
-    };
 
     "c.1.2.2.0.f.8.e.0.a.2.ip6.arpa" = {
       registrar = "ripe";
