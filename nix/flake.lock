@@ -547,11 +547,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1768250841,
-        "narHash": "sha256-lZBf+wh+eYYxmYVeS9fevL9h+3qiROMdjA7vA7tG0Po=",
+        "lastModified": 1769460410,
+        "narHash": "sha256-ddKCXOynWgH/ZKoAyo+Fr/IhNED1SPg1V2KHN8v+NcU=",
         "ref": "refs/heads/main",
-        "rev": "c87652eb4841ffd7931e75c14453ca6c71331931",
-        "revCount": 395,
+        "rev": "db69277593d44b31483e1990c912ceb1e235236d",
+        "revCount": 396,
         "type": "git",
         "url": "https://git.foxden.network/SpaceAge/space_age_api"
       },
@@ -626,11 +626,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1769387586,
-        "narHash": "sha256-Bzhm3xnYJUvgXlziMEMWTHiEFL/lOb39UeiSzi5vyOA=",
+        "lastModified": 1769460358,
+        "narHash": "sha256-mCbptKzQqckxEWzQ5UhC1wZgX2YYnPBbbOZNCGbTvbE=",
         "ref": "refs/heads/main",
-        "rev": "091e20a77e3c8601430d3de1b92df71a83e51e4c",
-        "revCount": 102,
+        "rev": "cbce5a7693ec70581e62128c0e8379cea6b1bc10",
+        "revCount": 103,
         "type": "git",
         "url": "https://git.foxden.network/SpaceAge/website"
       },
