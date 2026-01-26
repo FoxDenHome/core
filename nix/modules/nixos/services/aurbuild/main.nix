@@ -97,7 +97,7 @@ in
           '';
         };
 
-        systemd.service.aurbuild-rsyncd = {
+        systemd.services.aurbuild-rsyncd = {
           restartTriggers = [ config.environment.etc."foxden/aurbuild/rsyncd.conf".text ];
           serviceConfig = {
             BindReadOnlyPaths = [
