@@ -64,7 +64,8 @@
     :if ($dns!="") do={
         :delay 1s
         :do {
-            :local dnsip [:resolve $host type=$dnstype server=$dns]
+            :local srvip [:resolve $dns type=$dnstype]
+            :local dnsip [:resolve $host type=$dnstype server=$srvip]
             if ($dnsip=$ipaddr) do={
                 $logputdebug ("[DynDNS] No change in IP address for $updatehost $host is $ipaddr")
                 :return ""
