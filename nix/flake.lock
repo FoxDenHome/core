@@ -602,11 +602,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1764402329,
-        "narHash": "sha256-Bcq0hOHdROiMM5pBuT5ATu71UjFcd5JhY3BBnr4TfzY=",
+        "lastModified": 1769460586,
+        "narHash": "sha256-lKKECdzdoIQ98TZU/X9Hvg4NkV9sd+zbDfcKRRQsrHI=",
         "ref": "refs/heads/main",
-        "rev": "c54b0c6e7cb861ef5375f9d8114c9d4b543227a8",
-        "revCount": 455,
+        "rev": "12b727c09b763fdb696f358a2b8337e81c6c0e3b",
+        "revCount": 456,
         "type": "git",
         "url": "https://git.foxden.network/SpaceAge/TTS"
       },
