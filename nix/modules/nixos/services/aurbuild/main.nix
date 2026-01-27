@@ -35,7 +35,7 @@ in
             "--mount=type=tmpfs,tmpfs-size=128M,destination=/aur/tmp"
           ];
           environment = {
-            "GPG_KEY_ID" = "45B097915F67C9D68C19E5747B0F7660EAEC8D49";
+            "GPG_KEY_ID" = "17D54F380F737CEE1E7223304BFC137ADE4F44D7";
             "DISTCC_POTENTIAL_HOSTS" = "127.0.0.1,cpp,lzo";
             "PUID" = "1000";
             "PGID" = "1000";
