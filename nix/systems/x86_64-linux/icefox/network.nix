@@ -31,6 +31,10 @@ let
       "${mainIPv4}/32"
       "2607:5300:60:7065::1/112"
     ];
+    nameservers = [
+      "213.186.33.99"
+      "2001:41d0:3:163::1"
+    ];
     mac = "3c:ec:ef:78:c1:66";
     mtu = 1500;
     interface = "br-default";
@@ -191,10 +195,7 @@ in
   };
 
   services.resolved.settings.Resolve = {
-    FallbackDNS = [
-      "213.186.33.99"
-      "2001:41d0:3:163::1"
-    ];
+    FallbackDNS = ifcfg.nameservers;
   };
 
   systemd.network.netdevs."${ifcfg.interface}" = {
