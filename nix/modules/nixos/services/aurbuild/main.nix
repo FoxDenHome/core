@@ -7,7 +7,6 @@
 }:
 let
   svcConfig = config.foxDen.services.aurbuild;
-  builderArch = "x86_64";
 in
 {
   options.foxDen.services.aurbuild = foxDenLib.services.oci.mkOptions {
@@ -29,7 +28,7 @@ in
             (config.lib.foxDen.sops.mkIfAvailable "${
               config.sops.secrets."aurbuild-gpg-passphrase".path
             }:/gpg/passphrase:ro")
-            "aurbuild_cache_${builderArch}:/aur/cache"
+            "/var/lib/aurbuild/cache:/aur/cache"
             "/var/lib/aurbuild/repo:/aur/repo"
           ];
           extraOptions = [
@@ -42,17 +41,19 @@ in
             "PGID" = "1000";
           };
         };
-        systemd.serviceConfig.Nice = 6;
+        systemd.serviceConfig = {
+          Nice = 6;
+          ExecStartPre = [
+            "+${pkgs.coreutils}/bin/mkdir -p /var/lib/aurbuild/cache /var/lib/aurbuild/repo"
+            "+${pkgs.coreutils}/bin/chown aurbuild:aurbuild /var/lib/aurbuild/cache /var/lib/aurbuild/repo"
+          ];
+        };
       }).config
       (foxDenLib.services.make {
         name = "aurbuild-rsyncd";
         inherit svcConfig pkgs config;
       }).config
       {
-        systemd.tmpfiles.rules = [
-          "d /var/lib/aurbuild/repo 0755 aurbuild aurbuild"
-        ];
-
         services.pcscd.enable = true;
         security.polkit.extraConfig = ''
           var aurbuildUidOffset;
@@ -98,7 +99,10 @@ in
         };
 
         systemd.services.aurbuild-rsyncd = {
+          after = [ "podman-aurbuild.service" ];
+          wants = [ "podman-aurbuild.service" ];
           restartTriggers = [ config.environment.etc."foxden/aurbuild/rsyncd.conf".text ];
+
           serviceConfig = {
             BindReadOnlyPaths = [
               "/var/lib/aurbuild/repo"
