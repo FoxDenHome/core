@@ -10,6 +10,7 @@
   virtualisation = {
     oci-containers.backend = "podman";
     containers = {
+      enable = true;
       containersConf.settings = {
         engine = {
           cgroup_manager = "cgroupfs";

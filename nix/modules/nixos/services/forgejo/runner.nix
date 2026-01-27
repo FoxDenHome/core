@@ -173,8 +173,6 @@ in
           "d /run/user-podman-forgejo-runner 0700 forgejo-runner forgejo-runner"
         ];
 
-        virtualisation.containers.enable = true;
-
         systemd.services.podman-forgejo-runner-prune = lib.mkMerge [
           podmanServiceBase
           {
