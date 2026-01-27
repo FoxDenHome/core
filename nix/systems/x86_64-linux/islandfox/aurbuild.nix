@@ -17,6 +17,12 @@ in
           "aurbuild-x86-64.foxden.network"
         ];
       };
+      firewall.ingressAcceptRules = [
+        {
+          protocol = "tcp";
+          port = 873;
+        }
+      ];
       addresses = [
         "10.2.11.26/16"
         "fd2c:f4cb:63be:2::b1a/64"
