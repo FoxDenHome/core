@@ -127,7 +127,19 @@ let
   );
 
   mkNginxHandler = (
-    pkgs: handler: svcConfig:
+    pkgs: handler: svcConfig: let
+      bypassNetworks = (svcConfig.oAuth.bypassNetworks) ++ (
+        if svcConfig.oAuth.bypassTrusted then
+          [
+            "10.1.0.0/16"
+            "10.2.0.0/16"
+            "fd2c:f4cb:63be:1::/64"
+            "fd2c:f4cb:63be:2::/64"
+          ]
+        else
+          [ ]
+      );
+    in
     if (svcConfig.oAuth.enable && (!svcConfig.oAuth.overrideService)) then
       ''
         location /oauth2/ {
@@ -148,13 +160,10 @@ let
 
         location / {
           ${
-            if svcConfig.oAuth.bypassTrusted then
+            if builtins.length bypassNetworks > 0 then
               ''
                 satisfy any;
-                allow 10.1.0.0/16;
-                allow 10.2.0.0/16;
-                allow fd2c:f4cb:63be:1::/64;
-                allow fd2c:f4cb:63be:2::/64;
+                allow ${builtins.concatStringsSep ";\n  allow " bypassNetworks};
                 deny all;
               ''
             else
