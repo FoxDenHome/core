@@ -34,6 +34,8 @@ let
         };
       };
     };
+
+  mkSyncSvc = name: "mirror-sync-${lib.replaceString "/" "-" name}";
 in
 {
   options.foxDen.services.mirror = {
@@ -205,7 +207,7 @@ in
           map (
             { name, value }:
             let
-              svcName = "mirror-sync-${lib.replaceString name "/" "-"}";
+              svcName = mkSyncSvc name;
             in
             {
               name = svcName;
@@ -261,11 +263,8 @@ in
           lib.attrsets.listToAttrs (
             map (
               { name, value }:
-              let
-                svcName = "mirror-sync-${lib.replaceString name "/" "-"}";
-              in
               {
-                name = svcName;
+                name = mkSyncSvc name;
                 value = {
                   wantedBy = [ "timers.target" ];
                   timerConfig = {
