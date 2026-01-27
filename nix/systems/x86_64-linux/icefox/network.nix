@@ -17,6 +17,10 @@ let
       "10.99.12.1/24"
       "fd2c:f4cb:63be::a63:c01/120"
     ];
+    nameservers = [
+      "10.99.1.1"
+      "fd2c:f4cb:63be::a63:101"
+    ];
     interface = "br-foxden";
     phyIface = "wg-foxden";
     mac = config.lib.foxDen.mkHashMac "000001";
@@ -26,10 +30,6 @@ let
     addresses = [
       "${mainIPv4}/32"
       "2607:5300:60:7065::1/112"
-    ];
-    nameservers = [
-      "213.186.33.99"
-      "2001:41d0:3:163::1"
     ];
     mac = "3c:ec:ef:78:c1:66";
     mtu = 1500;
@@ -190,6 +190,13 @@ in
     "net.ipv6.conf.default.forwarding" = "1";
   };
 
+  services.resolved.settings.Resolve = {
+    FallbackDNS = [
+      "213.186.33.99"
+      "2001:41d0:3:163::1"
+    ];
+  };
+
   systemd.network.netdevs."${ifcfg.interface}" = {
     netdevConfig = {
       Name = ifcfg.interface;
@@ -237,7 +244,6 @@ in
       }
     ];
     address = ifcfg.addresses;
-    dns = ifcfg.nameservers;
 
     networkConfig = {
       IPv4Forwarding = true;
@@ -296,6 +302,7 @@ in
   systemd.network.networks."30-${ifcfg-foxden.interface}" = {
     name = ifcfg-foxden.interface;
     address = ifcfg-foxden.bridgeAddresses;
+    dns = ifcfg-foxden.nameservers;
 
     networkConfig = {
       IPv4Forwarding = true;
