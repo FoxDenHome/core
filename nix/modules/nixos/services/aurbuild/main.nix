@@ -54,7 +54,6 @@ in
         inherit svcConfig pkgs config;
       }).config
       {
-        services.pcscd.enable = true;
         security.polkit.extraConfig = ''
           var aurbuildUidOffset;
           var subuidData = polkit.spawn(["cat", "/etc/subuid"]);

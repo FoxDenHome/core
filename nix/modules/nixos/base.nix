@@ -25,7 +25,10 @@
     ];
   };
 
-  services.sshd.enable = true;
+  services = {
+    sshd.enable = true;
+    pcscd.enable = true;
+  };
   networking.useNetworkd = true;
 
   boot.supportedFilesystems = [
