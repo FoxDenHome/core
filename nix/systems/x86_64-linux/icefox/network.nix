@@ -62,7 +62,7 @@ let
 
   mkMinHost = (
     iface: {
-      inherit (ifcfg) nameservers;
+      inherit (ifcfg-foxden) nameservers;
       interfaces.default = iface // {
         sysctls = {
           "net.ipv6.conf.INTERFACE.accept_ra" = "0";
