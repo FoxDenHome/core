@@ -104,6 +104,12 @@ pkgs.stdenvNoCC.mkDerivation {
     (modrinthGetMod "tree-harvester" "1.20.1-9.1-fabric+forge+neo"
       "EQYmDYvI@sha512:eab24be8a6b75ed03dcd9b324acb6f79145839836faa9829546a663e2cc782e4dd49323a9300e832105b02e44dd642b3994d6ad49c6dcc485d6f9f14136cdc15"
     )
+    (modrinthGetMod "mcef" "2.1.6-1.20.1"
+      "x91l6OKB@sha512:6df8c8e70ab15b3662404a3a398c18689fb7591e84e1a913d8939bee144f030cd2aeaee4e68f1ed159881a59796a37a7f628dd442e6ba7836005e14ad7b9704d"
+    )
+    (modrinthGetMod "webdisplays" "2.0.2-1.20.1"
+      "DHWqG6SF@sha512:a7b1369d52b61647307b9217ddc5faa17b8938561ee2df00c9434cb703a0e18b3cc0acc14afc597195e97ed539d91dbc88f2f50b28661ab0799cfa9585d4b064"
+    )
     # TODO: Add/fix BlueMap rendering for:
     # - Basic steam engine "armatures"
     # - Hanging laterns (once on posts render ok)
