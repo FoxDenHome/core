@@ -194,7 +194,7 @@ in
     "net.ipv6.conf.default.forwarding" = "1";
   };
 
-  services.resolved.settings.Resolve = {
+  systemd.services.resolved.settings.Resolve = {
     FallbackDNS = ifcfg.nameservers;
   };
 
