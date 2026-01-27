@@ -25,10 +25,6 @@ in
     };
   };
 
-  systemd.tmpfiles.rules = [
-    "d /mnt/zhdd/mirror/foxdenaur 0755 mirror mirror"
-  ];
-
   foxDen.hosts.hosts = {
     mirror = mkVlanHost 2 {
       dns = {
