@@ -103,17 +103,20 @@ in
         ];
       };
 
-      virtualisation.oci-containers.backend = "podman";
-
-      virtualisation.containers.containersConf.settings = {
-        engine = {
-          cgroup_manager = "cgroupfs";
+      virtualisation = {
+        oci-containers.backend = "podman";
+        containers = {
+          enable = true;
+          containersConf.settings = {
+            engine = {
+              cgroup_manager = "cgroupfs";
+            };
+          };
         };
-      };
-
-      virtualisation.podman.autoPrune = {
-        enable = true;
-        flags = [ "--all" ];
+        podman.autoPrune = {
+          enable = true;
+          flags = [ "--all" ];
+        };
       };
     };
 }
