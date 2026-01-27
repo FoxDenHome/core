@@ -5,9 +5,12 @@
     {
       home.stateVersion = "25.11";
 
-      programs.gpg.scdaemonSettings = {
-        disable-ccid = true;
-        pcsc-shared = true;
+      programs.gpg = {
+        enable = true;
+        scdaemonSettings = {
+          disable-ccid = true;
+          pcsc-shared = true;
+        };
       };
     };
 }
