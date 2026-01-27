@@ -196,8 +196,6 @@ in
     "net.ipv6.conf.default.forwarding" = "1";
   };
 
-  services.resolved.fallbackDns = ifcfg.nameservers;
-
   systemd.network.netdevs."${ifcfg.interface}" = {
     netdevConfig = {
       Name = ifcfg.interface;
@@ -245,6 +243,7 @@ in
       }
     ];
     address = ifcfg.addresses;
+    dns = ifcfg.nameservers;
 
     networkConfig = {
       IPv4Forwarding = true;
@@ -303,7 +302,6 @@ in
   systemd.network.networks."30-${ifcfg-foxden.interface}" = {
     name = ifcfg-foxden.interface;
     address = ifcfg-foxden.bridgeAddresses;
-    dns = ifcfg-foxden.nameservers;
 
     networkConfig = {
       IPv4Forwarding = true;
