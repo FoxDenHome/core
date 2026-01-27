@@ -297,6 +297,11 @@ in
       oAuth = {
         enable = nixpkgs.lib.mkEnableOption "OAuth2 support";
         bypassTrusted = nixpkgs.lib.mkEnableOption "Bypass OAuth for trusted VLAN requests";
+        bypassNetworks = nixpkgs.lib.mkOption {
+          type = listOf foxDenLib.types.ip;
+          default = [ ];
+          description = "List of manual networks to bypass OAuth2";
+        };
         overrideService = nixpkgs.lib.mkEnableOption "Don't setup OAuth2 Proxy service, the service has special handling";
         clientId = nixpkgs.lib.mkOption {
           type = str;

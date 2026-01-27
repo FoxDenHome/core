@@ -76,6 +76,7 @@ in
         displayName = "NAS WebUI Local (BengalFox)";
         clientId = "nas-bengalfox";
         bypassTrusted = true;
+        bypassNetworks = [ "100.68.41.0/24" ];
         imageFile = ../../../files/icons/nas.svg;
       };
     };

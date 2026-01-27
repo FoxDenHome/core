@@ -55,6 +55,7 @@ in
         displayName = "NAS WebUI Offsite (IceFox)";
         clientId = "nas-icefox";
         bypassTrusted = true;
+        bypassNetworks = [ "100.68.41.0/24" ];
         imageFile = ../../../files/icons/nas.svg;
       };
     };
