@@ -19,7 +19,9 @@ let
     ];
     nameservers = [
       "10.99.1.1"
+      "10.99.1.2"
       "fd2c:f4cb:63be::a63:101"
+      "fd2c:f4cb:63be::a63:102"
     ];
     interface = "br-foxden";
     phyIface = "wg-foxden";
