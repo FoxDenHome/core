@@ -130,11 +130,6 @@ in
           ];
         };
 
-        # Home-Manager
-        # programs.gpg.scdaemonSettings = {
-        #   disable-ccid = true;
-        #   pcsc-shared = true;
-        # };
         sops.secrets."aurbuild-gpg-passphrase" = config.lib.foxDen.sops.mkIfAvailable {
           mode = "0400";
           owner = "aurbuild";
