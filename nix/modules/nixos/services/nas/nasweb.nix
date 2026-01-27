@@ -44,7 +44,7 @@ in
         extraConfig =
           { ... }:
           ''
-            set $jsindex_ignore "";
+            set $jsindex_ignore "/tmp";
             set $jsindex_header "/njs/templates/custom/nasweb_header.html";
             set $jsindex_entry "/njs/templates/entry.html";
             set $jsindex_footer "/njs/templates/footer.html";
