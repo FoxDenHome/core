@@ -32,7 +32,10 @@ let
   nixPkgConfig = {
     allowUnfree = true;
     packageOverrides = pkgs: {
-      onnxruntime = pkgs.onnxruntime.override { cudaSupport = config.foxDen.nvidia.enable; };
+      onnxruntime = pkgs.onnxruntime.override {
+        cudaSupport = config.foxDen.nvidia.enable;
+        rocmSupport = !config.foxDen.nvidia.enable;
+      };
     };
     permittedInsecurePackages = [
       "gradle-7.6.6" # TODO: What is pulling this in?

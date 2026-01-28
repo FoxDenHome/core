@@ -171,7 +171,7 @@ in
               preferredHwDevice = "auto";
               transcode = "required";
               tonemap = "hable";
-              accel = "nvenc";
+              accel = if config.foxDen.nvidia.enable then "nvenc" else "vaapi";
               accelDecode = true;
             };
             backup = {
