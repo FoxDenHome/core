@@ -17,23 +17,19 @@ in
   });
 
   config = lib.mkIf svcConfig.enable (
-    lib.mkMerge [
-      (foxDenLib.services.oci.make {
-        inherit pkgs config svcConfig;
-        name = "scrypted";
-        oci = {
-          image = "git.foxden.network/mirror/oci-images/ghcr.io/koush/scrypted:latest";
-          volumes = [
-            "scrypted_data:/server/volume"
-          ];
-          environment = {
-            "SCRYPTED_DOCKER_AVAHI" = "true";
-          };
+    (foxDenLib.services.oci.make {
+      inherit pkgs config svcConfig;
+      name = "scrypted";
+      gpu = true;
+      oci = {
+        image = "git.foxden.network/mirror/oci-images/ghcr.io/koush/scrypted:latest";
+        volumes = [
+          "scrypted_data:/server/volume"
+        ];
+        environment = {
+          "SCRYPTED_DOCKER_AVAHI" = "true";
         };
-      }).config
-      {
-
-      }
-    ]
+      };
+    }).config
   );
 }
