@@ -34,7 +34,7 @@ let
                 "/etc/localtime:/etc/localtime:ro"
                 "/etc/locale.conf:/etc/locale.conf:ro"
               ]
-              ++ devices;
+              ++ (map (dev: "${dev}:${dev}") devices);
               environment = {
                 "TZ" = config.time.timeZone;
                 "LANG" = config.i18n.defaultLocale;
