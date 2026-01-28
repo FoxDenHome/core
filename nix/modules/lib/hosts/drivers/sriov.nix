@@ -35,6 +35,7 @@ in
       ipCmd,
       serviceInterface,
       interface,
+      host,
       ...
     }:
     let
@@ -77,6 +78,11 @@ in
             sleep 0.1
           done
           # And rename it
+          rdma_link_name="$(${pkgs.iproute2}/bin/rdma link show | grep -F "netdev $ifname" | cut -d' ' -f2 | cut -d/ -f1 || :)"
+          if [ -n "$rdma_link_name" ]; then
+            ${pkgs.iproute2}/bin/rdma dev set "$rdma_link_name" name "${serviceInterface}"
+            ${pkgs.iproute2}/bin/rdma dev set "${serviceInterface}" netns "${host.namespace}"
+          fi
           ${ipCmd} link set dev "$ifname" name "${serviceInterface}"
         }
 

@@ -469,6 +469,7 @@ in
                               interface
                               pkgs
                               serviceInterface
+                              host
                               ;
                           };
                           hooks = ifaceDriver.hooks driverRunParams;
