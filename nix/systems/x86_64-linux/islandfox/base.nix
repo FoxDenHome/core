@@ -25,8 +25,7 @@
   ];
   boot.extraModulePackages = [ ];
 
-  services.xserver.videoDrivers = [ "amdgpu" ];
-  hardware.graphics.enable = true;
+  foxDen.amdgpu.enable = true;
 
   boot.swraid = {
     enable = true;

@@ -1,6 +1,6 @@
 { lib, config, ... }:
 {
-  options.foxDen.nvidia.enable = lib.mkEnableOption "Enable NVIDIA support via the proprietary drivers";
+  options.foxDen.nvidia.enable = lib.mkEnableOption "Enable NVIDIA support";
 
   config = lib.mkIf config.foxDen.nvidia.enable {
     services.xserver.videoDrivers = [ "nvidia" ];

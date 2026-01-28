@@ -34,7 +34,7 @@ let
     packageOverrides = pkgs: {
       onnxruntime = pkgs.onnxruntime.override {
         cudaSupport = config.foxDen.nvidia.enable;
-        rocmSupport = !config.foxDen.nvidia.enable;
+        rocmSupport = config.foxDen.amdgpu.enable;
       };
     };
     permittedInsecurePackages = [
