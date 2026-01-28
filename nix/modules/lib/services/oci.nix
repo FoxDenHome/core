@@ -15,6 +15,7 @@ let
       let
         host = foxDenLib.hosts.getByName config svcConfig.host;
         dependency = [ host.unit ];
+        forwardGpu = gpu && !config.hardware.nvidia-container-toolkit.enable;
       in
       {
         config = {
@@ -27,12 +28,17 @@ let
               volumes = [
                 "/etc/localtime:/etc/localtime:ro"
                 "/etc/locale.conf:/etc/locale.conf:ro"
-              ];
-              devices =
-                if gpu && !config.hardware.nvidia-container-toolkit.enable then
-                  config.foxDen.services.gpuDevices
+              ]
+              ++ (
+                if forwardGpu then
+                  [
+
+                    "/dev/dri/by-path:/dev/dri/by-path:ro"
+                  ]
                 else
-                  [ ];
+                  [ ]
+              );
+              devices = if forwardGpu then config.foxDen.services.gpuDevices else [ ];
               environment = {
                 "TZ" = config.time.timeZone;
                 "LANG" = config.i18n.defaultLocale;
