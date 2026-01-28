@@ -118,11 +118,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1769396926,
-        "narHash": "sha256-b2LfRm1lib0ffuHCdyV/DC4dno0GTMHem36VFjKXyKs=",
+        "lastModified": 1769550793,
+        "narHash": "sha256-oWzydIFbUYd/tYoY2JJLtQx3PjDyq/eOrQu1iAZkIeQ=",
         "ref": "refs/heads/main",
-        "rev": "4552f72612627c1f01090e0d7b194773ff635cd9",
-        "revCount": 640,
+        "rev": "85b527f698d07411c13290e8b4687cdec2a1d83f",
+        "revCount": 641,
         "type": "git",
         "url": "https://git.foxden.network/FoxDen/fadumper"
       },
@@ -198,11 +198,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1769456310,
-        "narHash": "sha256-hAJxS5s+CPBhLTuP1S21s5Y6E2wEvblRxfBApYWVIHw=",
+        "lastModified": 1769550789,
+        "narHash": "sha256-IFf86MIj+E16x8UxBTZ5MUJB4eetWv8atgBPEbqi/1M=",
         "ref": "refs/heads/main",
-        "rev": "5b10014e815025085c8d47b3d8e05e9c4713569a",
-        "revCount": 3889,
+        "rev": "8bd235ca9638db7dbe48304b09ea69497395d969",
+        "revCount": 3892,
         "type": "git",
         "url": "https://git.foxden.network/foxCaves/foxCaves"
       },
@@ -272,11 +272,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1768949235,
-        "narHash": "sha256-TtjKgXyg1lMfh374w5uxutd6Vx2P/hU81aEhTxrO2cg=",
+        "lastModified": 1769580047,
+        "narHash": "sha256-tNqCP/+2+peAXXQ2V8RwsBkenlfWMERb+Uy6xmevyhM=",
         "owner": "nix-community",
         "repo": "home-manager",
-        "rev": "75ed713570ca17427119e7e204ab3590cc3bf2a5",
+        "rev": "366d78c2856de6ab3411c15c1cb4fb4c2bf5c826",
         "type": "github"
       },
       "original": {
@@ -296,11 +296,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1768941735,
-        "narHash": "sha256-OyxsfXNcOkt06/kM+4bnuC8moDx+t7Qr+RB0BBa83Ig=",
+        "lastModified": 1769548169,
+        "narHash": "sha256-03+JxvzmfwRu+5JafM0DLbxgHttOQZkUtDWBmeUkN8Y=",
         "owner": "nix-community",
         "repo": "impermanence",
-        "rev": "69ecf31e8fddc9354a4b418f3a517445d486bb54",
+        "rev": "7b1d382faf603b6d264f58627330f9faa5cba149",
         "type": "github"
       },
       "original": {
@@ -547,11 +547,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1769460410,
-        "narHash": "sha256-ddKCXOynWgH/ZKoAyo+Fr/IhNED1SPg1V2KHN8v+NcU=",
+        "lastModified": 1769534976,
+        "narHash": "sha256-sncwCfE5y799ofYDs0HwhI9+l7wA1PSA+e18pfgaEqg=",
         "ref": "refs/heads/main",
-        "rev": "db69277593d44b31483e1990c912ceb1e235236d",
-        "revCount": 396,
+        "rev": "368fe2fa46960843902e0725596e9912e61008f2",
+        "revCount": 397,
         "type": "git",
         "url": "https://git.foxden.network/SpaceAge/space_age_api"
       },
