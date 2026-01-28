@@ -27,8 +27,7 @@ let
               volumes = [
                 "/etc/localtime:/etc/localtime:ro"
                 "/etc/locale.conf:/etc/locale.conf:ro"
-              ];
-              devices = if gpu then config.foxDen.services.gpuDevices else [ ];
+              ] ++ (if gpu then config.foxDen.services.gpuDevices else [ ]);
               environment = {
                 "TZ" = config.time.timeZone;
                 "LANG" = config.i18n.defaultLocale;
