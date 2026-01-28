@@ -15,17 +15,11 @@ let
       let
         host = foxDenLib.hosts.getByName config svcConfig.host;
         dependency = [ host.unit ];
-        devices =
-          if gpu && !config.hardware.nvidia-container-toolkit.enable then
-            config.foxDen.services.gpuDevices
-          else
-            [ ];
       in
       {
         config = {
           virtualisation.oci-containers.containers."${ctName}" = nixpkgs.lib.mkMerge [
             {
-              inherit devices;
               autoStart = nixpkgs.lib.mkDefault true;
               pull = nixpkgs.lib.mkDefault "always";
               networks = [ "host" ];
@@ -33,8 +27,12 @@ let
               volumes = [
                 "/etc/localtime:/etc/localtime:ro"
                 "/etc/locale.conf:/etc/locale.conf:ro"
-              ]
-              ++ (map (dev: "${dev}:${dev}") devices);
+              ];
+              devices =
+                if gpu && !config.hardware.nvidia-container-toolkit.enable then
+                  config.foxDen.services.gpuDevices
+                else
+                  [ ];
               environment = {
                 "TZ" = config.time.timeZone;
                 "LANG" = config.i18n.defaultLocale;
