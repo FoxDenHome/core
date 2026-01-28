@@ -78,7 +78,7 @@ in
             sleep 0.1
           done
           # And rename it
-          rdma_link_name="$(${pkgs.iproute2}/bin/rdma link show | grep "netdev $ifname"'$' | cut -d' ' -f2 | cut -d/ -f1 || :)"
+          rdma_link_name="$(${pkgs.iproute2}/bin/rdma link show | grep "netdev $ifname\\s" | cut -d' ' -f2 | cut -d/ -f1 || :)"
           if [ -n "$rdma_link_name" ]; then
             ${pkgs.iproute2}/bin/rdma dev set "$rdma_link_name" name "${serviceInterface}"
             ${pkgs.iproute2}/bin/rdma dev set "${serviceInterface}" netns "${host.namespace}"
