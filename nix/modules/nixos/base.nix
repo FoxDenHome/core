@@ -153,5 +153,23 @@
       item = "nofile";
       value = "524288";
     }
+    {
+      domain = "*";
+      type = "hard";
+      item = "nofile";
+      value = "524288";
+    }
+    {
+      domain = "*";
+      type = "soft";
+      item = "memlock";
+      value = "unlimited";
+    }
+    {
+      domain = "*";
+      type = "hard";
+      item = "memlock";
+      value = "unlimited";
+    }
   ];
 }
