@@ -21,4 +21,8 @@
   };
 
   foxDen.deploy.push.enable = true;
+
+  boot.extraModprobeConfig = ''
+    options ib_core netns_mode=0
+  '';
 }
