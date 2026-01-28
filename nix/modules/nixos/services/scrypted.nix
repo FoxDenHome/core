@@ -22,7 +22,7 @@ in
       name = "scrypted";
       gpu = true;
       oci = {
-        image = "git.foxden.network/mirror/oci-images/ghcr.io/koush/scrypted:latest";
+        image = "git.foxden.network/mirror/oci-images/ghcr.io/koush/scrypted:amd";
         volumes = [
           "scrypted_data:/server/volume"
         ];
