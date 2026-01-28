@@ -25,6 +25,7 @@ in
         image = "git.foxden.network/mirror/oci-images/ghcr.io/koush/scrypted:amd";
         volumes = [
           "scrypted_data:/server/volume"
+          "/dev/dri/card1:/dev/dri/card128" # Why?
         ];
         environment = {
           "SCRYPTED_DOCKER_AVAHI" = "true";
