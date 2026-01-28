@@ -6,7 +6,8 @@
   hardware.graphics.enable = true;
 
   foxDen.services.gpuDevices = [
-    "/dev/dri/card1"
+    "/dev/kfd"
+    "/dev/accel/accel0"
     "/dev/dri/renderD128"
   ];
 }
