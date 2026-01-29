@@ -29,6 +29,21 @@ let
     mod: if (mod.packages or null) != null then removeDefaultPackage mod.packages.${systemArch} else { }
   );
 
+  stdenvNoCheck =
+    pkgs:
+    pkgs.stdenv
+    // {
+      mkDerivation =
+        derivator:
+        (pkgs.stdenv.mkDerivation (
+          finalAttrs:
+          (derivator finalAttrs)
+          // {
+            doCheck = false;
+          }
+        ));
+    };
+
   nixPkgConfig = {
     allowUnfree = true;
     cudaSupport = config.foxDen.nvidia.enable;
@@ -36,17 +51,11 @@ let
     packageOverrides = pkgs: {
       redis = pkgs.redis.override {
         useSystemJemalloc = false;
-        stdenv = pkgs.stdenv // {
-          mkDerivation =
-            derivator:
-            (pkgs.stdenv.mkDerivation (
-              finalAttrs:
-              (derivator finalAttrs)
-              // {
-                doCheck = false;
-              }
-            ));
-        };
+        stdenv = stdenvNoCheck pkgs;
+      };
+      valkey = pkgs.valkey.override {
+        useSystemJemalloc = false;
+        stdenv = stdenvNoCheck pkgs;
       };
       lua = pkgs.luajit;
     };
