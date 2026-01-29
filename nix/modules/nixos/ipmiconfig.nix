@@ -76,11 +76,7 @@ in
         failover = "2";
       };
 
-      configScript = ''
-        set -x
-        echo 'TODO: FIXME: Disabled for now'
-        exit 0
-
+      configScript = pkgs.writeShellScript "ipmiconfig.sh" ''
         ipmitool lan set 1 ipsrc static
         ipmitool lan set 1 ipaddr ${foxDenLib.util.removeIPCidr netconfig.ipv4.address}
         ipmitool lan set 1 netmask ${foxDenLib.util.ipv4Netmask netconfig.ipv4.address}
@@ -116,21 +112,6 @@ in
         };
       };
 
-      systemd.services.ipmiconfig = {
-        path = [
-          pkgs.ipmitool
-          pkgs.systemd
-        ];
-
-        serviceConfig = {
-          Type = "oneshot";
-          RemainAfterExit = true;
-          Restart = "no";
-          ExecStart = [
-            "${pkgs.superfan}/bin/ipmilocked ${pkgs.writeShellScript "ipmiconfig.sh" configScript}"
-          ];
-        };
-        wantedBy = [ "multi-user.target" ];
-      };
+      environment.etc."foxden/ipmiconfig.sh".source = configScript;
     };
 }
