@@ -13,7 +13,6 @@ rpiusbboot
 openlinkhub-bin
 openterface_qt
 reveng
-driftctl-bin
 https://git.foxden.network/FoxDenAUR/initcpio-uki-sbsign
 android-sdk-platform-tools
 makemkv
