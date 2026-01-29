@@ -27,3 +27,4 @@ openssh-hpn
 iloader-bin
 libcurl-impersonate-bin
 python-curl-cffi-git
+proxmark3-iceman-git
