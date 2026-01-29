@@ -31,7 +31,7 @@ terraform {
   backend "s3" {
     bucket = "foxden-tfstate"
     region = "eu-north-1"
-    key    = "domains.tfstate"
+    key    = "default.tfstate"
   }
 }
 
