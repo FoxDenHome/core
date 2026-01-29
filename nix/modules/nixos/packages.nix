@@ -29,36 +29,36 @@ let
     mod: if (mod.packages or null) != null then removeDefaultPackage mod.packages.${systemArch} else { }
   );
 
-  stdenvNoCheck =
-    pkgs:
-    pkgs.stdenv
-    // {
-      mkDerivation =
-        derivator:
-        (pkgs.stdenv.mkDerivation (
-          finalAttrs:
-          (derivator finalAttrs)
-          // {
-            doCheck = false;
-          }
-        ));
-    };
-
   nixPkgConfig = {
     allowUnfree = true;
     cudaSupport = config.foxDen.nvidia.enable;
     rocmSupport = config.foxDen.amdgpu.enable;
-    packageOverrides = pkgs: {
-      redis = pkgs.redis.override {
-        useSystemJemalloc = false;
-        stdenv = stdenvNoCheck pkgs;
+    packageOverrides =
+      pkgs:
+      let
+        stdenvNoCheck = pkgs.stdenv // {
+          mkDerivation =
+            derivator:
+            (pkgs.stdenv.mkDerivation (
+              finalAttrs:
+              (derivator finalAttrs)
+              // {
+                doCheck = false;
+              }
+            ));
+        };
+      in
+      {
+        redis = pkgs.redis.override {
+          useSystemJemalloc = false;
+          stdenv = stdenvNoCheck;
+        };
+        valkey = pkgs.valkey.override {
+          useSystemJemalloc = false;
+          stdenv = stdenvNoCheck;
+        };
+        lua = pkgs.luajit;
       };
-      valkey = pkgs.valkey.override {
-        useSystemJemalloc = false;
-        stdenv = stdenvNoCheck pkgs;
-      };
-      lua = pkgs.luajit;
-    };
     permittedInsecurePackages = [
       "gradle-7.6.6" # TODO: What is pulling this in?
     ];
