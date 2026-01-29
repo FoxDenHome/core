@@ -1,5 +1,5 @@
 data "external" "nix_dns_json" {
-  program = ["${path.module}/nix.sh"]
+  program = ["${path.module}/domains.sh"]
   query   = {}
 }
 

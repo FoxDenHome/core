@@ -1,11 +1,12 @@
 terraform {
-  required_version = "~> 1.10"
 
+  required_version = "~> 1.10"
   required_providers {
     external = {
       source  = "hashicorp/external"
       version = "~> 2.3.5"
     }
+
     cloudns = {
       source  = "ClouDNS/cloudns"
       version = "~> 1.0"
@@ -18,27 +19,9 @@ terraform {
       source  = "hashicorp/dns"
       version = "~> 3.2"
     }
-    dns-he-net = {
-      source  = "SuperBuker/dns-he-net"
-      version = "0.1.0"
-    }
     random = {
       source  = "hashicorp/random"
       version = "3.8.1"
     }
-    ovh = {
-      source  = "ovh/ovh"
-      version = "~> 2.10.0"
-    }
   }
-
-  backend "s3" {
-    bucket = "foxden-tfstate"
-    region = "eu-north-1"
-    key    = "domains.tfstate"
-  }
-}
-
-provider "aws" {
-  region = "eu-west-1"
 }
