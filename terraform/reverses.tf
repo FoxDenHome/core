@@ -1,5 +1,5 @@
 data "external" "nix_reverses_json" {
-  program = ["${path.module}/servers.sh"]
+  program = ["${path.module}/reverses.sh"]
   query   = {}
 }
 
