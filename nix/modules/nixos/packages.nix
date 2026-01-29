@@ -33,6 +33,12 @@ let
     allowUnfree = true;
     cudaSupport = config.foxDen.nvidia.enable;
     rocmSupport = config.foxDen.amdgpu.enable;
+    packageOverrides = pkgs: {
+      redis = pkgs.redis.override {
+        useSystemJemalloc = false;
+      };
+      lua = pkgs.luajit;
+    };
     permittedInsecurePackages = [
       "gradle-7.6.6" # TODO: What is pulling this in?
     ];
