@@ -36,7 +36,17 @@ let
     packageOverrides = pkgs: {
       redis = pkgs.redis.override {
         useSystemJemalloc = false;
-        doCheck = false;
+        stdenv = pkgs.stdenv // {
+          mkDerivation =
+            derivator:
+            (pkgs.stdenv.mkDerivation (
+              finalAttrs:
+              (derivator finalAttrs)
+              // {
+                doCheck = false;
+              }
+            ));
+        };
       };
       lua = pkgs.luajit;
     };
