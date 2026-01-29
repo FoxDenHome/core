@@ -7,4 +7,3 @@ nixdir="$(realpath "$rdir/../nix")"
 cd "$rdir"
 result="$(nix build "$nixdir#dns.json" --no-link --print-out-paths)"
 jq '{json: . | tojson}' "$result"
-
