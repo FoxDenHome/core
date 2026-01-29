@@ -26,6 +26,7 @@
   boot.extraModulePackages = [ ];
 
   foxDen.amdgpu.enable = true;
+  services.hardware.bolt.enable = true;
 
   boot.swraid = {
     enable = true;
