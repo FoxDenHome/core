@@ -27,6 +27,7 @@
 
   foxDen.amdgpu.enable = true;
   services.hardware.bolt.enable = true;
+  environment.systemPackages = [ config.services.hardware.bolt.package ];
 
   boot.swraid = {
     enable = true;
