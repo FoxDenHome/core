@@ -36,6 +36,7 @@ let
     packageOverrides = pkgs: {
       redis = pkgs.redis.override {
         useSystemJemalloc = false;
+        doCheck = false;
       };
       lua = pkgs.luajit;
     };
