@@ -22,7 +22,7 @@ def load_dyndns_hosts():
         return _dyndns_hosts_value
 
     output = check_output(
-        ["tofu", "output", "-show-sensitive", "-json"], cwd="../terraform/domains"
+        ["tofu", "output", "-show-sensitive", "-json"], cwd="../terraform"
     ).decode("utf-8")
     raw_output = json_loads(output)
     raw_value = raw_output["dynamic_urls"]["value"]
