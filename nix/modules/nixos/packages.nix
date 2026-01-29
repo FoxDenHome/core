@@ -49,6 +49,7 @@ let
         };
       in
       {
+        # Redis/Valkey check break and also take ages
         redis = pkgs.redis.override {
           useSystemJemalloc = false;
           stdenv = stdenvNoCheck;
