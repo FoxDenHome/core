@@ -16,6 +16,7 @@
         nixpkgs.lib.mkMerge [
           svc.config
           {
+            services.redis.package = pkgs.valkey;
             services.redis.servers.${inputs.name} = {
               enable = true;
               port = 6379;
