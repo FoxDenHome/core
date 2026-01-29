@@ -49,6 +49,7 @@
   environment.systemPackages = with pkgs; [
     age
     bridge-utils
+    btop
     cryptsetup
     curl
     e2fsprogs
@@ -83,7 +84,6 @@
       enable = true;
       ohMyZsh.enable = true;
     };
-    btop.enable = true;
     git.enable = true;
     htop.enable = true;
     nix-ld.enable = true;
