@@ -83,6 +83,7 @@
       enable = true;
       ohMyZsh.enable = true;
     };
+    btop.enable = true;
     git.enable = true;
     htop.enable = true;
     nix-ld.enable = true;
