@@ -167,17 +167,19 @@ in
         ];
       };
 
-      options.foxDen.services.gpu.devices = nixpkgs.lib.mkOption {
-        type = nixpkgs.lib.types.listOf nixpkgs.lib.types.str;
-        default = [ ];
-      };
-      options.foxDen.services.gpu.libraries = nixpkgs.lib.mkOption {
-        type = nixpkgs.lib.types.listOf nixpkgs.lib.types.str;
-        default = [ ];
-      };
-      options.foxDen.services.gpu.environment = nixpkgs.lib.mkOption {
-        type = nixpkgs.lib.types.attrsOf nixpkgs.lib.types.str;
-        default = { };
+      options.foxDen.services.gpu = {
+        devices = nixpkgs.lib.mkOption {
+          type = nixpkgs.lib.types.listOf nixpkgs.lib.types.str;
+          default = [ ];
+        };
+        libraries = nixpkgs.lib.mkOption {
+          type = nixpkgs.lib.types.listOf nixpkgs.lib.types.str;
+          default = [ ];
+        };
+        environment = nixpkgs.lib.mkOption {
+          type = nixpkgs.lib.types.attrsOf nixpkgs.lib.types.str;
+          default = { };
+        };
       };
     };
 }
