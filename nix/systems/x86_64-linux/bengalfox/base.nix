@@ -31,8 +31,8 @@
     "mlx5_en"
   ];
   boot.extraModulePackages = [ ];
-
   foxDen.nvidia.enable = true;
+  powerManagement.cpuFreqGovernor = "ondemand";
 
   environment.systemPackages = with pkgs; [
     mstflint

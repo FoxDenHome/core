@@ -30,6 +30,7 @@
     "i40e"
   ];
   boot.extraModulePackages = [ ];
+  powerManagement.cpuFreqGovernor = "performance";
 
   services.timesyncd.servers = [
     "ntp0.ovh.net"

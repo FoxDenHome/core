@@ -24,10 +24,10 @@
     "r8169"
   ];
   boot.extraModulePackages = [ ];
-
   foxDen.amdgpu.enable = true;
   services.hardware.bolt.enable = true;
   environment.systemPackages = [ config.services.hardware.bolt.package ];
+  powerManagement.cpuFreqGovernor = "performance";
 
   boot.swraid = {
     enable = true;
