@@ -55,21 +55,6 @@ let
           useSystemJemalloc = false;
           stdenv = stdenvNoCheck;
         };
-        onnxruntime =
-          if config.foxDen.amdgpu.enable then
-            nix-amd-npu.packages.${systemArch}.onnxruntime-vitisai
-          else
-            pkgs.onnxruntime;
-        python3Packages =
-          pkgs.python3Packages
-          // (
-            if config.foxDen.amdgpu.enable then
-              {
-                onnxruntime = nix-amd-npu.packages.${systemArch}.python-onnxruntime-vitisai;
-              }
-            else
-              { }
-          );
         valkey = pkgs.valkey.override {
           useSystemJemalloc = false;
           stdenv = stdenvNoCheck;
@@ -87,6 +72,15 @@ let
     overlays = [
       build-gradle-application.overlays.default
       nix-amd-npu.overlays.default
+      (
+        fina: prev:
+        if config.foxDen.amdgpu.enable then
+          {
+            onnxruntime = prev.onnxruntime-vitisai;
+          }
+        else
+          { }
+      )
     ];
   };
 
