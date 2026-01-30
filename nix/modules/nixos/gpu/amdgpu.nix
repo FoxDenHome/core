@@ -4,20 +4,26 @@
   pkgs,
   ...
 }:
+let
+  xrt_path = "${pkgs.xrt-amdxdna}/opt/xilinx/xrt";
+in
 {
   options.foxDen.amdgpu.enable = lib.mkEnableOption "Enable AMD GPU support";
 
   config = lib.mkIf config.foxDen.amdgpu.enable {
+    boot.kernelModules = [ "amdxdna" ];
     services.xserver.videoDrivers = [ "amdgpu" ];
     hardware.amdgpu.opencl.enable = true;
     hardware.graphics.enable = true;
     environment.systemPackages = [
       pkgs.xrt-amdxdna
     ];
-    environment.variables.XILINX_XRT = "${pkgs.xrt-amdxdna}/opt/xilinx/xrt";
+    environment.variables.XILINX_XRT = xrt_path;
 
-    boot.kernelModules = [ "amdxdna" ];
-    foxDen.services.gpuDevices = [
+    foxDen.services.gpu.libraries = [
+      xrt_path
+    ];
+    foxDen.services.gpu.devices = [
       "/dev/kfd"
       "/dev/accel/accel0"
       "/dev/dri/card1"

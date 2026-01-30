@@ -8,7 +8,7 @@
     hardware.graphics.enable = true;
     hardware.nvidia-container-toolkit.enable = true;
 
-    foxDen.services.gpuDevices = [
+    foxDen.services.gpu.devices = [
       "/dev/nvidiactl"
       "/dev/nvidia-uvm"
       "/dev/nvidia-uvm-tools"

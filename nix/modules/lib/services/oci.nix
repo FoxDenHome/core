@@ -35,11 +35,12 @@ let
 
                     "/dev/dri/by-path:/dev/dri/by-path:ro"
                   ]
+                  ++ (map (lib: "${lib}:${lib}:ro") config.foxDen.services.gpu.libraries)
                 else
                   [ ]
               );
-              devices = if forwardGpu then config.foxDen.services.gpuDevices else [ ];
-              environment = {
+              devices = if forwardGpu then config.foxDen.services.gpu.devices else [ ];
+              environment = (if forwardGpu then config.foxDen.services.gpu.environment else { }) // {
                 "TZ" = config.time.timeZone;
                 "LANG" = config.i18n.defaultLocale;
               };

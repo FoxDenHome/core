@@ -50,10 +50,11 @@ let
             "-/run/opengl-driver"
             "-/run/opengl-driver-32"
           ]
+          ++ config.foxDen.services.gpu.libraries
         else
           [ ];
 
-      allDevices = devices ++ (if canGpu then config.foxDen.services.gpuDevices else [ ]);
+      allDevices = devices ++ (if canGpu then config.foxDen.services.gpu.devices else [ ]);
     in
     {
       configDir = "/etc/foxden/services/${svc}";
@@ -69,6 +70,8 @@ let
           requires = dependency;
           bindsTo = dependency;
           after = dependency;
+
+          environment = if canGpu then config.foxDen.services.gpu.environment else { };
 
           serviceConfig = {
             NetworkNamespacePath = nixpkgs.lib.mkIf (cfgHostName != "") host.namespacePath;
@@ -164,9 +167,17 @@ in
         ];
       };
 
-      options.foxDen.services.gpuDevices = nixpkgs.lib.mkOption {
+      options.foxDen.services.gpu.devices = nixpkgs.lib.mkOption {
         type = nixpkgs.lib.types.listOf nixpkgs.lib.types.str;
         default = [ ];
+      };
+      options.foxDen.services.gpu.libraries = nixpkgs.lib.mkOption {
+        type = nixpkgs.lib.types.listOf nixpkgs.lib.types.str;
+        default = [ ];
+      };
+      options.foxDen.services.gpu.environment = nixpkgs.lib.mkOption {
+        type = nixpkgs.lib.types.attrsOf nixpkgs.lib.types.str;
+        default = { };
       };
     };
 }
