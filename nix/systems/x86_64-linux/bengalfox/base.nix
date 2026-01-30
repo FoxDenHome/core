@@ -34,10 +34,6 @@
   foxDen.nvidia.enable = true;
   powerManagement.cpuFreqGovernor = "ondemand";
 
-  environment.systemPackages = with pkgs; [
-    mstflint
-  ];
-
   boot.swraid = {
     enable = true;
     mdadmConf = ''
