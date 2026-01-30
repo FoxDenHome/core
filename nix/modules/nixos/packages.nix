@@ -72,15 +72,6 @@ let
     overlays = [
       build-gradle-application.overlays.default
       nix-amd-npu.overlays.default
-      (
-        fina: prev:
-        if config.foxDen.amdgpu.enable then
-          {
-            onnxruntime = prev.onnxruntime-vitisai;
-          }
-        else
-          { }
-      )
     ];
   };
 
