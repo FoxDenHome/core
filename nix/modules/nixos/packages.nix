@@ -55,11 +55,6 @@ let
           useSystemJemalloc = false;
           stdenv = stdenvNoCheck;
         };
-        onnxruntime =
-          if config.foxDen.amdgpu.enable then
-            nix-amd-npu.packages.${systemArch}.onnxruntime-vitisai
-          else
-            pkgs.onnxruntime;
         valkey = pkgs.valkey.override {
           useSystemJemalloc = false;
           stdenv = stdenvNoCheck;
