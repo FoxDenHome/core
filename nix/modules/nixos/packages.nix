@@ -4,6 +4,7 @@ inputs@{
   lib,
   systemArch,
   flakeInputs,
+  nix-amd-npu,
   build-gradle-application,
   ...
 }:
@@ -54,6 +55,11 @@ let
           useSystemJemalloc = false;
           stdenv = stdenvNoCheck;
         };
+        onnxruntime =
+          if config.foxDen.amdgpu.enable then
+            nix-amd-npu.packages.${systemArch}.onnxruntime-vitisai
+          else
+            pkgs.onnxruntime;
         valkey = pkgs.valkey.override {
           useSystemJemalloc = false;
           stdenv = stdenvNoCheck;
@@ -68,7 +74,10 @@ let
   pkgs = import nixpkgs {
     system = systemArch;
     config = nixPkgConfig;
-    overlays = [ build-gradle-application.overlays.default ];
+    overlays = [
+      build-gradle-application.overlays.default
+      nix-amd-npu.overlays.default
+    ];
   };
 
   localPackages = lib.attrsets.genAttrs (lib.attrNames (builtins.readDir ../../packages)) (

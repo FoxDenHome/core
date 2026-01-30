@@ -1,4 +1,9 @@
-{ lib, config, ... }:
+{
+  lib,
+  config,
+  pkgs,
+  ...
+}:
 {
   options.foxDen.amdgpu.enable = lib.mkEnableOption "Enable AMD GPU support";
 
@@ -6,7 +11,12 @@
     services.xserver.videoDrivers = [ "amdgpu" ];
     hardware.amdgpu.opencl.enable = true;
     hardware.graphics.enable = true;
+    environment.systemPackages = [
+      pkgs.xrt-amdxdna
+    ];
+    environment.variables.XILINX_XRT = "${pkgs.xrt-amdxdna}/opt/xilinx/xrt";
 
+    boot.kernelModules = [ "amdxdna" ];
     foxDen.services.gpuDevices = [
       "/dev/kfd"
       "/dev/accel/accel0"

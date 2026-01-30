@@ -155,11 +155,29 @@
         ]
       },
       "locked": {
-        "lastModified": 1763759067,
-        "narHash": "sha256-LlLt2Jo/gMNYAwOgdRQBrsRoOz7BPRkzvNaI/fzXi2Q=",
+        "lastModified": 1768135262,
+        "narHash": "sha256-PVvu7OqHBGWN16zSi6tEmPwwHQ4rLPU9Plvs8/1TUBY=",
         "owner": "hercules-ci",
         "repo": "flake-parts",
-        "rev": "2cccadc7357c0ba201788ae99c4dfa90728ef5e0",
+        "rev": "80daad04eddbbf5a4d883996a73f3f542fa437ac",
+        "type": "github"
+      },
+      "original": {
+        "owner": "hercules-ci",
+        "repo": "flake-parts",
+        "type": "github"
+      }
+    },
+    "flake-parts_2": {
+      "inputs": {
+        "nixpkgs-lib": "nixpkgs-lib"
+      },
+      "locked": {
+        "lastModified": 1767609335,
+        "narHash": "sha256-feveD98mQpptwrAEggBQKJTYbvwwglSbOv53uCfH9PY=",
+        "owner": "hercules-ci",
+        "repo": "flake-parts",
+        "rev": "250481aafeb741edfe23d29195671c19b36b6dca",
         "type": "github"
       },
       "original": {
@@ -198,11 +216,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1769550789,
-        "narHash": "sha256-IFf86MIj+E16x8UxBTZ5MUJB4eetWv8atgBPEbqi/1M=",
+        "lastModified": 1769722396,
+        "narHash": "sha256-70OiD1EAW961mDoyuaRPVpKdsgyl43Zo5CGBh+Xa9WE=",
         "ref": "refs/heads/main",
-        "rev": "8bd235ca9638db7dbe48304b09ea69497395d969",
-        "revCount": 3892,
+        "rev": "8bd61c9f497b53308c858243e8fc5f3f842c02ef",
+        "revCount": 3893,
         "type": "git",
         "url": "https://git.foxden.network/foxCaves/foxCaves"
       },
@@ -333,6 +351,27 @@
         "type": "github"
       }
     },
+    "nix-amd-npu": {
+      "inputs": {
+        "flake-parts": "flake-parts_2",
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1768839283,
+        "narHash": "sha256-s7jyhz2296Yf50USTPoQmZiVo/8w43wdqY0GyC2lENM=",
+        "owner": "robcohen",
+        "repo": "nix-amd-npu",
+        "rev": "b09029f7ce2b0c7e4a9bed14843edcd9324f0e7d",
+        "type": "github"
+      },
+      "original": {
+        "owner": "robcohen",
+        "repo": "nix-amd-npu",
+        "type": "github"
+      }
+    },
     "nix-jekyll-builder": {
       "inputs": {
         "flake-utils": [
@@ -371,6 +410,21 @@
         "owner": "NixOS",
         "ref": "nixos-25.11",
         "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "nixpkgs-lib": {
+      "locked": {
+        "lastModified": 1765674936,
+        "narHash": "sha256-k00uTP4JNfmejrCLJOwdObYC9jHRrr/5M/a/8L2EIdo=",
+        "owner": "nix-community",
+        "repo": "nixpkgs.lib",
+        "rev": "2075416fcb47225d9b68ac469a5c4801a9c4dd85",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-community",
+        "repo": "nixpkgs.lib",
         "type": "github"
       }
     },
@@ -479,6 +533,7 @@
         "home-manager": "home-manager",
         "impermanence": "impermanence",
         "lanzaboote": "lanzaboote",
+        "nix-amd-npu": "nix-amd-npu",
         "nixpkgs": "nixpkgs",
         "oauth-jit-radius": "oauth-jit-radius",
         "pyproject-build-systems": "pyproject-build-systems",
