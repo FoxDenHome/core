@@ -55,6 +55,21 @@ let
           useSystemJemalloc = false;
           stdenv = stdenvNoCheck;
         };
+        onnxruntime =
+          if config.foxDen.amdgpu.enable then
+            nix-amd-npu.packages.${systemArch}.onnxruntime-vitisai
+          else
+            pkgs.onnxruntime;
+        python3Packages =
+          pkgs.python3Packages
+          // (
+            if config.foxDen.amdgpu.enable then
+              {
+                onnxruntime = nix-amd-npu.packages.${systemArch}.python-onnxruntime-vitisai;
+              }
+            else
+              { }
+          );
         valkey = pkgs.valkey.override {
           useSystemJemalloc = false;
           stdenv = stdenvNoCheck;
