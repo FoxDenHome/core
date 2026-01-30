@@ -155,11 +155,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1768135262,
-        "narHash": "sha256-PVvu7OqHBGWN16zSi6tEmPwwHQ4rLPU9Plvs8/1TUBY=",
+        "lastModified": 1763759067,
+        "narHash": "sha256-LlLt2Jo/gMNYAwOgdRQBrsRoOz7BPRkzvNaI/fzXi2Q=",
         "owner": "hercules-ci",
         "repo": "flake-parts",
-        "rev": "80daad04eddbbf5a4d883996a73f3f542fa437ac",
+        "rev": "2cccadc7357c0ba201788ae99c4dfa90728ef5e0",
         "type": "github"
       },
       "original": {
@@ -216,11 +216,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1769722396,
-        "narHash": "sha256-70OiD1EAW961mDoyuaRPVpKdsgyl43Zo5CGBh+Xa9WE=",
+        "lastModified": 1769809583,
+        "narHash": "sha256-f/nPSDrhpX91qRPiN6Pns7pYS3w/6XaSyzoa1V8chq4=",
         "ref": "refs/heads/main",
-        "rev": "8bd61c9f497b53308c858243e8fc5f3f842c02ef",
-        "revCount": 3893,
+        "rev": "05c487b32c883bae0ed892c23126ab1571f5d221",
+        "revCount": 3896,
         "type": "git",
         "url": "https://git.foxden.network/foxCaves/foxCaves"
       },
