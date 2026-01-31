@@ -1,5 +1,30 @@
-{ nixpkgs, pkgs, ... }:
+{
+  nixpkgs,
+  lib,
+  pkgs,
+  ...
+}:
 let
+  graalSources = {
+    "aarch64-linux" = {
+      hash = "sha256:c63f98f0bc9825382d1334beffef6eda97dff41e8cd3bcb0972b0ad5f1e48944";
+      url = "https://download.oracle.com/graalvm/21/archive/graalvm-jdk-21.0.10_linux-aarch64_bin.tar.gz";
+    };
+    "x86_64-linux" = {
+      hash = "sha256:5607d35ad56ca484030667e885e3170b43c879754f218f463f94e791b747b7fd";
+      url = "https://download.oracle.com/graalvm/21/archive/graalvm-jdk-21.0.10_linux-x64_bin.tar.gz";
+    };
+  };
+
+  jrePackage = pkgs.graalvmPackages.buildGraalvm {
+    useMusl = false;
+    version = "21";
+    src = pkgs.fetchurl graalSources.${pkgs.stdenv.system};
+    meta.platforms = builtins.attrNames graalSources;
+    meta.license = lib.licenses.unfree;
+    pname = "graalvm-oracle";
+  };
+
   modrinthGetMod =
     slug: version: digest:
     let
@@ -30,7 +55,7 @@ let
   serverJar = pkgs.stdenvNoCC.mkDerivation {
     name = "server-starter.jar";
     src = ./server-jar;
-    buildInputs = [ pkgs.openjdk21 ];
+    buildInputs = [ jrePackage ];
     buildPhase = ''
       mkdir target
       cp -r $src/resources/* target/
@@ -187,7 +212,7 @@ pkgs.stdenvNoCC.mkDerivation {
     cp -nr ./modpack/* "$out/server/"
 
     echo 'set -e' > "$out/server/minecraft-env.sh"
-    echo 'export "JAVA=${pkgs.corretto21}/bin/java"' >> "$out/server/minecraft-env.sh"
+    echo 'export "JAVA=${jrePackage}/bin/java"' >> "$out/server/minecraft-env.sh"
     echo 'touch server.properties && chmod 600 server.properties && envsubst < env.server.properties > server.properties' >> "$out/server/minecraft-env.sh"
     echo 'set +e' >> "$out/server/minecraft-env.sh"
 
