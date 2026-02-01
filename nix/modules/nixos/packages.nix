@@ -1,5 +1,6 @@
 inputs@{
   nixpkgs,
+  nixpkgs-unstable,
   config,
   lib,
   systemArch,
@@ -58,6 +59,10 @@ let
         valkey = pkgs.valkey.override {
           useSystemJemalloc = false;
           stdenv = stdenvNoCheck;
+        };
+        onnxruntime = nixpkgs-unstable.legacyPackages.${systemArch}.onnxruntime.override {
+          rocmSupport = config.foxDen.amdgpu.enable;
+          cudaSupport = config.foxDen.nvidia.enable;
         };
         lua = pkgs.luajit;
       };
