@@ -12,7 +12,7 @@ let
   hostName = services.getFirstFQDN config svcConfig;
   proto = if svcConfig.tls.enable then "https" else "http";
 
-  clipModelName = "ViT-H-14-378-quickgelu__dfn5b";
+  clipModelName = "ViT-L-14-quickgelu";
   facialRecognitionModelName = "antelopev2";
 in
 {
