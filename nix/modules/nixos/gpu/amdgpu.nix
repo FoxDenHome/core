@@ -29,5 +29,6 @@ in
       "/dev/dri/card1"
       "/dev/dri/renderD128"
     ];
+    foxDen.services.gpu.environment.XILINX_XRT = xrt_path;
   };
 }
