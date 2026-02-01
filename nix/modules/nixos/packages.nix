@@ -59,33 +59,6 @@ let
           useSystemJemalloc = false;
           stdenv = stdenvNoCheck;
         };
-        onnxruntime =
-          if config.foxDen.amdgpu.enable then
-            (pkgs.onnxruntime.override {
-              rocmSupport = false; # ROCm is deprecated, needs MIGraphX
-            }).overrideAttrs
-              (oldAttrs: {
-                cmakeFlags = oldAttrs.cmakeFlags ++ [
-                  (lib.cmakeBool "onnxruntime_USE_MIGRAPHX" true)
-                ];
-                buildInputs =
-                  with pkgs;
-                  oldAttrs.buildInputs
-                  ++ [
-                    rocmPackages.clr
-                    rocmPackages.hipblas
-                    rocmPackages.hipblaslt
-                    rocmPackages.hipcub
-                    rocmPackages.hipfft
-                    rocmPackages.hiprand
-                    rocmPackages.hipsparse
-                    rocmPackages.migraphx
-                    rocmPackages.miopen
-                    rocmPackages.rocblas
-                  ];
-              })
-          else
-            pkgs.onnxruntime;
         lua = pkgs.luajit;
       };
     permittedInsecurePackages = [
