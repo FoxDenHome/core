@@ -13,6 +13,8 @@
   ];
   boot.loader.grub.splashImage = null;
 
+  hardware.rasdaemon.enable = true;
+
   documentation = {
     man.enable = false;
     info.enable = false;
