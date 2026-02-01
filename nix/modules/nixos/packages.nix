@@ -59,6 +59,16 @@ let
           useSystemJemalloc = false;
           stdenv = stdenvNoCheck;
         };
+        onnxruntime =
+          if config.foxDen.amdgpu.enable then
+            nix-amd-npu.packages.${systemArch}.onnxruntime-vitisai.override {
+              onnxruntime = pkgs.onnxruntime.override {
+                cudaSupport = false;
+                rocmSupport = false;
+              };
+            }
+          else
+            pkgs.onnxruntime;
         lua = pkgs.luajit;
       };
     permittedInsecurePackages = [
