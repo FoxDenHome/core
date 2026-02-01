@@ -61,12 +61,18 @@ let
         };
         onnxruntime =
           if config.foxDen.amdgpu.enable then
-            nix-amd-npu.packages.${systemArch}.onnxruntime-vitisai.override {
+            {
+              lib,
+              onnxruntime,
+              xrt,
+              ...
+            }:
+            (nix-amd-npu.packages.${systemArch}.onnxruntime-vitisai.override {
               onnxruntime = pkgs.onnxruntime.override {
                 cudaSupport = false;
                 rocmSupport = false;
               };
-            }
+            } { inherit lib onnxruntime xrt; })
           else
             pkgs.onnxruntime;
         lua = pkgs.luajit;
