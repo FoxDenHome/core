@@ -21,7 +21,10 @@
   boot.initrd.kernelModules = [ ];
   boot.kernelModules = [
     "kvm-amd"
+    "mlx5_core"
+    "mlx5_en"
     "r8169"
+    "rdma_cm"
   ];
   boot.extraModulePackages = [ ];
   foxDen.amdgpu.enable = true;

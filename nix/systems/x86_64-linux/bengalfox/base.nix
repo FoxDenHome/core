@@ -26,9 +26,9 @@
   boot.initrd.kernelModules = [ ];
   boot.kernelModules = [
     "kvm-intel"
-    "rdma_cm"
     "mlx5_core"
     "mlx5_en"
+    "rdma_cm"
   ];
   boot.extraModulePackages = [ ];
   foxDen.nvidia.enable = true;
