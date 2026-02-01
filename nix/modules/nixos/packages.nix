@@ -1,11 +1,9 @@
 inputs@{
   nixpkgs,
-  nixpkgs-unstable,
   config,
   lib,
   systemArch,
   flakeInputs,
-  nix-amd-npu,
   build-gradle-application,
   ...
 }:
@@ -60,10 +58,6 @@ let
           useSystemJemalloc = false;
           stdenv = stdenvNoCheck;
         };
-        onnxruntime = nixpkgs-unstable.legacyPackages.${systemArch}.onnxruntime.override {
-          rocmSupport = config.foxDen.amdgpu.enable;
-          cudaSupport = config.foxDen.nvidia.enable;
-        };
         lua = pkgs.luajit;
       };
     permittedInsecurePackages = [
@@ -76,7 +70,6 @@ let
     config = nixPkgConfig;
     overlays = [
       build-gradle-application.overlays.default
-      nix-amd-npu.overlays.default
     ];
   };
 
