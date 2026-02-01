@@ -58,7 +58,9 @@ let
           useSystemJemalloc = false;
           stdenv = stdenvNoCheck;
         };
-        lua = pkgs.luajit;
+        lua = pkgs.luajit.override {
+          enable52Compat = true;
+        };
       };
     permittedInsecurePackages = [
       "gradle-7.6.6" # TODO: What is pulling this in?
