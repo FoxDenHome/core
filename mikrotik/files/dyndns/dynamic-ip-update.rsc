@@ -32,7 +32,9 @@
         }
         /ipv6/firewall/address-list/add list=ipv6-dhcp-ranges comment=$ip6idxcmt address=$ip6idxnet
     } else={
-        /ipv6/firewall/address-list/set address=$ip6idxnet $ip6idxnetfind
+        :if ([/ipv6/firewall/address-list/get ($ip6idxnetfind->0) address] != $ip6idxnet) do={
+            /ipv6/firewall/address-list/set address=$ip6idxnet $ip6idxnetfind
+        }
     }
 }
 
