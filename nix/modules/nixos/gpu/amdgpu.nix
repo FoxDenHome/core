@@ -25,7 +25,7 @@ in
     sops.secrets."ryzen-ai-license" = config.lib.foxDen.sops.mkIfAvailable { };
     system.activationScripts.reformatRyzenAILicense = config.lib.foxDen.sops.mkIfAvailable {
       text = ''
-        ${pkgs.unix2dos}/bin/ -n ${config.sops.secrets."ryzen-ai-license".path} /run/Xilinx.lic
+        ${pkgs.dos2unix}/bin/unix2dos -n ${config.sops.secrets."ryzen-ai-license".path} /run/Xilinx.lic
       '';
       deps = [
         "setupSecrets"
