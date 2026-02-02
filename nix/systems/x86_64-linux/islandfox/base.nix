@@ -28,8 +28,16 @@
   ];
   boot.extraModulePackages = [ ];
   foxDen.amdgpu.enable = true;
+
   services.hardware.bolt.enable = true;
   environment.systemPackages = [ config.services.hardware.bolt.package ];
+  environment.persistence."/nix/persist/system".directories = [
+    {
+      directory = "/var/lib/boltd";
+      mode = "u=rwx,g=rx,o=rx";
+    }
+  ];
+
   powerManagement.cpuFreqGovernor = "performance";
 
   boot.swraid = {
