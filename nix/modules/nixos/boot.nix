@@ -41,7 +41,7 @@
 
       kernelPackages = lib.mkDefault pkgs.linuxPackages_latest;
       kernelParams = [
-        "iommu=pt"
+        "iommu.passthrough=0"
         "intel_iommu=on"
       ];
       # "audit=1" "audit_backlog_limit=256" "module.sig_enforce=1" "lockdown=integrity"
