@@ -9,6 +9,8 @@ let
     XILINX_XRT = "${pkgs.xrt-amdxdna}/opt/xilinx/xrt";
     #XLNX_VART_FIRMWARE = "${pkgs.ryzen-ai-full}/share/xclbin";
     #VAIP_CONFIG = "${pkgs.ryzen-ai-full}/share/vaip/vaip_config.json";
+    XILINXD_LICENSE_FILE =
+      if config.lib.foxDen.sops.available then config.sops.secrets."ryzen-ai-license".path else "";
   };
 in
 {
@@ -20,6 +22,9 @@ in
       xrt-amdxdna
       #ryzen-ai-full
     ];
+
+    sops.secrets."ryzen-ai-license" = config.lib.foxDen.sops.mkIfAvailable { };
+
     boot.kernelModules = [ "amdxdna" ];
     services.xserver.videoDrivers = [ "amdgpu" ];
     hardware.amdgpu.opencl.enable = true;
@@ -31,6 +36,9 @@ in
       "/dev/accel/accel0"
       "/dev/dri/card1"
       "/dev/dri/renderD128"
+    ];
+    foxDen.services.gpu.libraries = config.lib.foxDen.sops.mkIfAvailable [
+      config.sops.secrets."ryzen-ai-license".path
     ];
     foxDen.services.gpu.environment = envVars;
 
