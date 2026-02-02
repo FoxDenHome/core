@@ -1,5 +1,10 @@
 # Mostly https://github.com/NixOS/nixpkgs/blob/master/nixos/modules/profiles/headless.nix
-{ lib, config, ... }:
+{
+  lib,
+  config,
+  pkgs,
+  ...
+}:
 {
   systemd.services."serial-getty@hvc0".enable = false;
   boot.kernelParams = [
@@ -15,9 +20,13 @@
 
   # iperf3
   networking.firewall = {
-    allowedUDPPorts = [ 5201 ];
-    allowedTCPPorts = [ 5201 ];
+    allowedUDPPorts = [ config.services.iperf3.port ];
+    allowedTCPPorts = [ config.services.iperf3.port ];
   };
+  services.iperf3.enable = true;
+  environment.systemPackages = with pkgs; [
+    iperf
+  ];
 
   hardware.rasdaemon.enable = true;
 
