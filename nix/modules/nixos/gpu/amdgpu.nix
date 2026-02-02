@@ -9,7 +9,7 @@ let
     XILINX_XRT = "${pkgs.xrt-amdxdna}/opt/xilinx/xrt";
     #XLNX_VART_FIRMWARE = "${pkgs.ryzen-ai-full}/share/xclbin";
     #VAIP_CONFIG = "${pkgs.ryzen-ai-full}/share/vaip/vaip_config.json";
-    XILINXD_LICENSE_FILE = "/run/Xilinx.lic";
+    XILINXD_LICENSE_FILE = "/run/amdgpu-data/Xilinx.lic";
   };
 in
 {
@@ -22,10 +22,16 @@ in
       #ryzen-ai-full
     ];
 
+    systemd.tmpfiles.rules = [
+      "d /run/amdgpu-data 0755 root root"
+    ];
+
     sops.secrets."ryzen-ai-license" = config.lib.foxDen.sops.mkIfAvailable { };
     system.activationScripts.reformatRyzenAILicense = config.lib.foxDen.sops.mkIfAvailable {
       text = ''
-        ${pkgs.dos2unix}/bin/unix2dos -n ${config.sops.secrets."ryzen-ai-license".path} /run/Xilinx.lic
+        ${pkgs.dos2unix}/bin/unix2dos -n ${
+          config.sops.secrets."ryzen-ai-license".path
+        } /run/amdgpu-data/Xilinx.lic
       '';
       deps = [
         "setupSecrets"
@@ -44,7 +50,10 @@ in
       "/dev/dri/card1"
       "/dev/dri/renderD128"
     ];
-    foxDen.services.gpu.libraries = config.lib.foxDen.sops.mkIfAvailable [ "/run/Xilinx.lic" ];
+    foxDen.services.gpu.libraries = [
+      "/run/amdgpu-data"
+      envVars.XILINX_XRT
+    ];
     foxDen.services.gpu.environment = envVars;
 
     services.udev.extraRules = ''
