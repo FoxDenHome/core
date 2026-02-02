@@ -5,7 +5,11 @@
   ...
 }:
 let
-  envVars.XILINX_XRT = "${pkgs.xrt-amdxdna}/opt/xilinx/xrt";
+  envVars = {
+    XILINX_XRT = "${pkgs.xrt-amdxdna}/opt/xilinx/xrt";
+    XLNX_VART_FIRMWARE = "${pkgs.ryzen-ai-full}/share/xclbin";
+    VAIP_CONFIG = "${pkgs.ryzen-ai-full}/share/vaip/vaip_config.json";
+  };
 in
 {
   options.foxDen.amdgpu.enable = lib.mkEnableOption "Enable AMD GPU support";
@@ -14,6 +18,7 @@ in
     environment.systemPackages = with pkgs; [
       rocmPackages.rocm-smi
       xrt-amdxdna
+      ryzen-ai-full
     ];
     boot.kernelModules = [ "amdxdna" ];
     services.xserver.videoDrivers = [ "amdgpu" ];

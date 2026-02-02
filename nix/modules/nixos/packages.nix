@@ -71,6 +71,43 @@ let
     overlays = [
       build-gradle-application.overlays.default
       nix-amd-npu.overlays.default
+      (
+        final: prev:
+        let
+          version = "1.7.0";
+        in
+        {
+          ryzen-ai-full =
+            (nix-amd-npu.legacyPackages.${systemArch}.ryzen-ai-full.override {
+              stdenv = prev.stdenv // {
+                mkDerivation =
+                  oldAttrs:
+                  prev.stdenv.mkDerivation (
+                    oldAttrs
+                    // {
+                      inherit version;
+                      src = pkgs.fetchFromGitHub {
+                        owner = "amd";
+                        repo = "RyzenAI-SW";
+                        rev = "v${version}";
+                        sha256 = "sha256-e/47ESq+KPV5oQFtqch+eaips717mLRojS/xETitI08=";
+                      };
+                      unpackPhase = "ln -s $src source";
+                      meta = oldAttrs.meta // {
+                        license = [ ];
+                      };
+                    }
+                  );
+              };
+            }).overrideAttrs
+              (oldAttrs: {
+                inherit version;
+                meta = oldAttrs.meta // {
+                  license = [ ];
+                };
+              });
+        }
+      )
     ];
   };
 
