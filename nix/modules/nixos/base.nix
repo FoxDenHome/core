@@ -54,6 +54,7 @@
     curl
     e2fsprogs
     gptfdisk
+    iperf
     ipmitool
     lm_sensors
     mdadm
