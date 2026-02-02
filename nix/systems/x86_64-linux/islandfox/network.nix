@@ -1,6 +1,5 @@
 {
   foxDenLib,
-  pkgs,
   config,
   ...
 }:
