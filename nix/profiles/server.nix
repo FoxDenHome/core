@@ -18,7 +18,6 @@
   ];
   boot.loader.grub.splashImage = null;
 
-  # iperf3
   networking.firewall = {
     allowedUDPPorts = [ config.services.iperf3.port ];
     allowedTCPPorts = [ config.services.iperf3.port ];
