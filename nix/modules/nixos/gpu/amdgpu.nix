@@ -10,7 +10,7 @@ let
     #XLNX_VART_FIRMWARE = "${pkgs.ryzen-ai-full}/share/xclbin";
     #VAIP_CONFIG = "${pkgs.ryzen-ai-full}/share/vaip/vaip_config.json";
     XILINXD_LICENSE_FILE =
-      if config.lib.foxDen.sops.available then config.sops.secrets."ryzen-ai-license".path else "";
+      if config.foxDen.sops.available then config.sops.secrets."ryzen-ai-license".path else "";
   };
 in
 {
