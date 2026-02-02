@@ -26,13 +26,6 @@ in
   foxDen.hosts.gateway = "router";
   virtualisation.libvirtd.allowedBridges = [ ifcfg.interface ];
 
-  networking.firewall = {
-    allowedUDPPorts = [ 9 ];
-  };
-  services.udev.extraRules = ''
-    ACTION=="add", SUBSYSTEM=="net", NAME=="${ifcfg.phyIface}", RUN+="${pkgs.ethtool}/bin/ethtool -s ${ifcfg.phyIface} wol g"
-  '';
-
   systemd.network.networks."30-${ifcfg.interface}" = {
     name = ifcfg.interface;
     routes = ifcfg.routes;
