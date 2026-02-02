@@ -22,7 +22,7 @@
       "/dev/dri/renderD128"
     ];
     services.udev.extraRules = ''
-      SUBSYSTEM=="drm", KERNEL=="card1", MODE="0666"
+      ACTION=="add", SUBSYSTEM=="drm", KERNEL=="card1", MODE="0666"
     '';
   };
 }
