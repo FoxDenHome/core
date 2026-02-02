@@ -10,7 +10,7 @@ in
     ACTION=="add", SUBSYSTEM=="net", NAME=="${wolIface}", RUN+="${pkgs.ethtool}/bin/ethtool -s ${wolIface} wol g"
   '';
 
-  systemd.network.networks."30-${wolIface}" = {
+  systemd.network.networks."60-${wolIface}" = {
     name = wolIface;
 
     networkConfig = {
