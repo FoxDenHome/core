@@ -23,7 +23,9 @@ in
       #ryzen-ai-full
     ];
 
-    sops.secrets."ryzen-ai-license" = config.lib.foxDen.sops.mkIfAvailable { };
+    sops.secrets."ryzen-ai-license" = config.lib.foxDen.sops.mkIfAvailable {
+      mode = "0444";
+    };
 
     boot.kernelModules = [ "amdxdna" ];
     services.xserver.videoDrivers = [ "amdgpu" ];
