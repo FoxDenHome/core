@@ -61,6 +61,11 @@
       };
     };
 
+    nix-amd-npu = {
+      url = "github:robcohen/nix-amd-npu";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     # Applications
     backupmgr = {
       url = "git+https://git.foxden.network/FoxDen/backupmgr";

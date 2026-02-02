@@ -5,6 +5,7 @@ inputs@{
   systemArch,
   flakeInputs,
   build-gradle-application,
+  nix-amd-npu,
   ...
 }:
 let
@@ -69,6 +70,7 @@ let
     config = nixPkgConfig;
     overlays = [
       build-gradle-application.overlays.default
+      nix-amd-npu.overlays.default
     ];
   };
 
