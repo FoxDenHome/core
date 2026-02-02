@@ -16,7 +16,7 @@
   # iperf3
   networking.firewall = {
     allowedUDPPorts = [ 5201 ];
-    allowedTCPPort = [ 5201 ];
+    allowedTCPPorts = [ 5201 ];
   };
 
   hardware.rasdaemon.enable = true;
