@@ -13,6 +13,12 @@
   ];
   boot.loader.grub.splashImage = null;
 
+  # iperf3
+  networking.firewall = {
+    allowedUDPPorts = [ 5201 ];
+    allowedTCPPort = [ 5201 ];
+  };
+
   hardware.rasdaemon.enable = true;
 
   documentation = {
