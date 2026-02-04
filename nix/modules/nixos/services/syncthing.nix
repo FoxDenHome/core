@@ -69,7 +69,7 @@ in
               };
               root /syncthing;
               client_body_temp_path /syncthing/tmp;
-              client_max_body_size 100m;
+              client_max_body_size 0;
 
               location / {
                 autoindex on;
