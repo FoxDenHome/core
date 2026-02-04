@@ -22,7 +22,7 @@ function FoxDenLocal(suffix)
   end
   if (not ipv6) and suffix:sub(1, 2) == '1.' then
     local shortSuffix = suffix:sub(3)
-    table.insert(loc, {{'100.96.41.0/24'}, {'100.96.41.'..shortSuffix}})
+    table.insert(loc, {{'100.68.41.0/24'}, {'100.68.41.'..shortSuffix}})
   end
   table.insert(loc, {{'0.0.0.0/0', '::/0'}, defDest})
   localizerCache[suffix] = loc

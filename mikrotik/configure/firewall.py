@@ -140,9 +140,9 @@ DEFAULT_RULES_HEAD: list[FirewallRule] = [
             "action": "masquerade",
             "chain": "srcnat",
             "comment": "cghmn",
-            "dst-address": "!100.96.41.0/24",
+            "dst-address": "!100.68.41.0/24",
             "out-interface-list": "iface-cghmn",
-            "src-address": "!100.96.41.0/24",
+            "src-address": "!100.68.41.0/24",
         },
     ),
     FirewallRule(
