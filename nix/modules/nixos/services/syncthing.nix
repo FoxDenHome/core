@@ -71,12 +71,14 @@ in
               root /syncthing;
 
               location / {
-                ${proxyConfigNoHost}
                 autoindex on;
                 dav_methods PUT DELETE MKCOL COPY MOVE;
                 dav_ext_methods PROPFIND OPTIONS;
                 create_full_put_path on;
                 dav_access user:rw;
+
+                client_body_temp_path /syncthing/tmp;
+                ${proxyConfigNoHost}
               }
             }
           '';
