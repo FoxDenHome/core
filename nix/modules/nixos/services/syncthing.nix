@@ -78,7 +78,7 @@ in
                 dav_access user:rw;
 
                 client_body_temp_path /syncthing/tmp;
-                ${proxyConfigNoHost}
+                client_max_body_size 100m;
               }
             }
           '';
