@@ -67,8 +67,9 @@ in
               auth_basic_user_file ${
                 if config.foxDen.sops.available then config.sops.secrets.http-syncthing.path else "/dev/null"
               };
-
               root /syncthing;
+              client_body_temp_path /syncthing/tmp;
+              client_max_body_size 100m;
 
               location / {
                 autoindex on;
@@ -76,9 +77,6 @@ in
                 dav_ext_methods PROPFIND OPTIONS;
                 create_full_put_path on;
                 dav_access user:rw;
-
-                client_body_temp_path /syncthing/tmp;
-                client_max_body_size 100m;
               }
             }
           '';
