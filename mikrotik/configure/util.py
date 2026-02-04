@@ -27,7 +27,7 @@ def get_ipv4_netname(ip: str) -> str:
     parts = ip.split(".")
     if parts[0] == "10":
         return VLAN_NAMES[int(parts[1])]
-    if parts[0] == "100" and parts[1] == "96" and parts[2] == "41":
+    if parts[0] == "100" and parts[1] == "68" and parts[2] == "41":
         return "cghmn"
     raise ValueError(f"Unknown net for IP {ip}")
 
