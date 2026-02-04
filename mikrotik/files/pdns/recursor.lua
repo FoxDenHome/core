@@ -1,4 +1,4 @@
-addNTA('41.96.100.in-addr.arpa', 'CGHMN')
+addNTA('41.68.100.in-addr.arpa', 'CGHMN')
 addNTA('retro', 'CGHMN')
 addNTA('cghmn', 'CGHMN')
 

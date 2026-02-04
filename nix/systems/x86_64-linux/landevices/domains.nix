@@ -23,7 +23,7 @@
     "10.in-addr.arpa" = {
       registrar = "local";
     };
-    "41.96.100.in-addr.arpa" = {
+    "41.68.100.in-addr.arpa" = {
       registrar = "local";
     };
   };
