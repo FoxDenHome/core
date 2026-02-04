@@ -68,6 +68,8 @@ in
                 if config.foxDen.sops.available then config.sops.secrets.http-syncthing.path else "/dev/null"
               };
               root /syncthing;
+              # These values must be defined outside of the location block
+              # otherwise, WebDAV will somehow ignore them...
               client_body_temp_path /syncthing/tmp;
               client_max_body_size 0;
 
