@@ -12,12 +12,6 @@ let
         if systemArch == "${arch}-linux" then pkgs.ipxe else pkgs.pkgsCross."${arch}-multiplatform".ipxe;
     in
     base.overrideAttrs (oldAttrs: {
-      src = pkgs.fetchFromGitHub {
-        owner = "Doridian";
-        repo = "ipxe";
-        rev = "4d90e82e20336f8dfc3276d11c06eaf3bd2e41e9";
-        hash = "sha256-5llmEiSdgvtWNVVKbZXTjEtbeVy/pS3WTmM1PV/3sN4=";
-      };
       makeFlags = oldAttrs.makeFlags ++ [
         "EMBED=${./autoexec.ipxe}"
         "TRUST=${
@@ -26,6 +20,9 @@ let
           )
         }"
       ];
+      preConfigure = ''
+        patch -p1 -i ${./dont-unregister-shim.patch}
+      '';
       postInstall = ''
         mv $out ${arch}
         mkdir $out

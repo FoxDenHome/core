@@ -1,0 +1,24 @@
+diff --git a/src/core/image.c b/src/core/image.c
+index 7df125971..ffd525005 100644
+--- a/src/core/image.c
++++ b/src/core/image.c
+@@ -38,6 +38,7 @@ FILE_SECBOOT ( PERMITTED );
+ #include <ipxe/umalloc.h>
+ #include <ipxe/uri.h>
+ #include <ipxe/image.h>
++#include <ipxe/efi/efi_shim.h>
+ 
+ /** @file
+  *
+@@ -361,6 +362,11 @@ void unregister_image ( struct image *image ) {
+ 	if ( ! ( image->flags & IMAGE_REGISTERED ) )
+ 		return;
+ 
++	if ( efi_shim.image == image ) {
++		// Block unregistering shim image
++		return;
++	}
++
+ 	DBGC ( image, "IMAGE %s unregistered\n", image->name );
+ 	list_del ( &image->list );
+ 	image->flags &= ~IMAGE_REGISTERED;
