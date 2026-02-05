@@ -125,7 +125,24 @@ let
       ++ modules;
     };
   };
-  nixosConfigurations = (nixpkgs.lib.attrsets.listToAttrs (map mkSystemConfig systems));
+  nixosConfigurations = (nixpkgs.lib.attrsets.listToAttrs (map mkSystemConfig systems)) // {
+    "amd64-netboot" = nixpkgs.lib.nixosSystem {
+      system = "x86_64-linux";
+      modules = [
+        (
+          { config, modulesPath, ... }:
+          {
+            imports = [
+              "${modulesPath}/installer/netboot/netboot-minimal.nix"
+            ];
+            config = {
+              system.stateVersion = config.system.nixos.release;
+            };
+          }
+        )
+      ];
+    };
+  };
 in
 {
   nixosConfigurations = nixosConfigurations;
