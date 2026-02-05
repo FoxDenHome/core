@@ -1,4 +1,9 @@
-{ pkgs, systemArch, ... }:
+{
+  pkgs,
+  systemArch,
+  lib,
+  ...
+}:
 let
   ipxePkg =
     arch:
@@ -14,8 +19,12 @@ let
         hash = "sha256-5llmEiSdgvtWNVVKbZXTjEtbeVy/pS3WTmM1PV/3sN4=";
       };
       makeFlags = oldAttrs.makeFlags ++ [
-        "EMBED=autoexec.ipxe"
-        "TRUST=ca.crt,netboot.xyz.1.crt,netboot.xyz.2.crt"
+        "EMBED=${./autoexec.ipxe}"
+        "TRUST=${
+          lib.concatStringsSep "," (
+            map (n: "${./certs}/${n}") (lib.attrsets.attrNames (builtins.readDir ./certs))
+          )
+        }"
       ];
       postInstall = ''
         mv $out ${arch}

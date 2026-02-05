@@ -1,0 +1,10 @@
+#!ipxe
+
+ifopen
+shim tftp://${next-server}:69/shim-${buildarch}.efi
+
+prompt --key 0x02 --timeout 2000 Press Ctrl-B for the iPXE command line... && shell ||
+
+set version 3.x
+set win_base_url https://nas.foxden.network/apps/pxe/win11-24h2
+chain --autofree https://boot.netboot.xyz
