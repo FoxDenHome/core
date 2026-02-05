@@ -48,8 +48,6 @@
 :global DynDNSKey4
 :global DynDNSKey6
 :global DynDNSSuffix6
-:global IPv6Host
-:global IPv6Key
 
 :local isprimary 0
 #[ /interface/vrrp/get vrrp-mgmt-gateway master ]
@@ -97,27 +95,8 @@
     }
 }
 
-:local ipv6UpdateOne do={
-    :global logputdebug
-    :global logputinfo
-    :global logputerror
-
-    $logputdebug ("[IPv6] Beginning update of $host")
-
-    :delay 5s
-
-    :do {
-        :local result [/tool/fetch mode=https http-auth-scheme=basic url="https://doridian:$key@ipv4.tunnelbroker.net/nic/update?myip=$ipaddr&hostname=$host" as-value output=user]
-        $logputdebug ("[IPv6] Result of update for $host to $ipaddr: " . ($result->"data"))
-    } on-error={
-        $logputerror ("[IPv6] Unable to update $host to $ipaddr")
-    }
-}
-
 $dyndnsUpdate host=$DynDNSHost key=$DynDNSKey key6=$DynDNSKey6 priv6addr=$DynDNSSuffix6 ip6addr=$ip6addr ipaddr=$ipaddr
 $dyndnsUpdate host=$DynDNSHost4 key=$DynDNSKey4 ipaddr=$ipaddr
-
-$ipv6UpdateOne host=$IPv6Host key=$IPv6Key ipaddr=$ipaddr
 
 if ($isprimary) do={
     # HOSTS #
