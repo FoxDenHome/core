@@ -10,7 +10,7 @@ ipxedir="$(nix build "$nixdir#nixosConfigurations.islandfox.pkgs.foxden-ipxe" --
 copy_and_sign() {
 	cp "$1" "$2"
 	chmod 644 "$2"
-	sbsign --key ~/Documents/foxden_pxe.key --cert ~/Documents/foxden_pxe.crt --output "$1" "$1"
+	sbsign --key ~/Documents/foxden_pxe.key --cert ~/Documents/foxden_pxe.crt --output "$2" "$2"
 }
 
 copy_arch() {
