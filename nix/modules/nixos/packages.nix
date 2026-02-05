@@ -27,7 +27,11 @@ let
 
   removeDefaultPackage = lib.filterAttrs (name: value: name != "default");
   addPackage = (
-    mod: if (mod.packages or null) != null && (mod.packages.${systemArch} or null) != null then removeDefaultPackage mod.packages.${systemArch} else { }
+    mod:
+    if (mod.packages or null) != null && (mod.packages.${systemArch} or null) != null then
+      removeDefaultPackage mod.packages.${systemArch}
+    else
+      { }
   );
 
   nixPkgConfig = {
