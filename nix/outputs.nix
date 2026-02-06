@@ -125,9 +125,11 @@ let
       ++ modules;
     };
   };
-  nixosConfigurations = (nixpkgs.lib.attrsets.listToAttrs (map mkSystemConfig systems)) // {
-    "x86_64-netboot" = nixpkgs.lib.nixosSystem {
-      system = "x86_64-linux";
+
+  mkNetboot =
+    arch:
+    nixpkgs.lib.nixosSystem {
+      system = "${arch}-linux";
       modules = [
         (
           { config, modulesPath, ... }:
@@ -136,6 +138,8 @@ let
               "${modulesPath}/installer/netboot/netboot-minimal.nix"
             ];
             config = {
+              nixpkgs.localSystem.system = "x86_64-linux"; # TODO: This is annoying, but builtins.currentSystem is no more
+              nixpkgs.crossSystem.system = "${arch}-linux";
               system.stateVersion = config.system.nixos.release;
               boot.uki.settings = {
                 UKI.Initrd = "${config.system.build.netbootRamdisk}/${config.system.boot.loader.initrdFile}";
@@ -145,6 +149,10 @@ let
         )
       ];
     };
+
+  nixosConfigurations = (nixpkgs.lib.attrsets.listToAttrs (map mkSystemConfig systems)) // {
+    "x86_64-netboot" = mkNetboot "x86_64";
+    "aarch64-netboot" = mkNetboot "aarch64";
   };
 in
 {
