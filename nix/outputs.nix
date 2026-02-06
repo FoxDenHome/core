@@ -140,10 +140,14 @@ let
             config = {
               nixpkgs.localSystem.system = "x86_64-linux"; # TODO: This is annoying, but builtins.currentSystem is no more
               nixpkgs.crossSystem.system = "${arch}-linux";
+              nixpkgs.allowUnfree = true;
+              nix.settings.experimental-features = [
+                "nix-command"
+                "flakes"
+              ];
               system.stateVersion = config.system.nixos.release;
-              boot.uki.settings = {
-                UKI.Initrd = "${config.system.build.netbootRamdisk}/${config.system.boot.loader.initrdFile}";
-              };
+              boot.uki.settings.UKI.Initrd =
+                "${config.system.build.netbootRamdisk}/${config.system.boot.loader.initrdFile}";
             };
           }
         )
