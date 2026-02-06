@@ -177,6 +177,7 @@ let
                 arch-install-scripts
                 git
                 htop
+                nano
                 pacman
                 rsync
                 screen
