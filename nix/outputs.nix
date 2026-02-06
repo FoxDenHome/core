@@ -126,7 +126,7 @@ let
     };
   };
   nixosConfigurations = (nixpkgs.lib.attrsets.listToAttrs (map mkSystemConfig systems)) // {
-    "amd64-netboot" = nixpkgs.lib.nixosSystem {
+    "x86_64-netboot" = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
       modules = [
         (
@@ -137,6 +137,9 @@ let
             ];
             config = {
               system.stateVersion = config.system.nixos.release;
+              boot.uki.settings = {
+                UKI.Initrd = "${config.system.build.netbootRamdisk}/${config.system.boot.loader.initrdFile}";
+              };
             };
           }
         )
