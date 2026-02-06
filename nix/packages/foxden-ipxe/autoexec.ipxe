@@ -1,9 +1,9 @@
 #!ipxe
 
-set shim_path tftp://${next-server}:69/shim-${buildarch}.efi
-set wimboot_path tftp://${next-server}:69/wimboot-${buildarch}.efi
+set tftp_url tftp://${next-server}:69
+set wimboot_url ${tftp_url}/wimboot-${buildarch}.efi
 
 prompt --key 0x02 --timeout 2000 Press Ctrl-B for the iPXE command line... && shell ||
 
 ifopen
-chain --autofree https://nas.foxden.network/apps/pxe/main.ipxe
+chain --autofree ${tftp_url}/autoexec.ipxe

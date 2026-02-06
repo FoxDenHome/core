@@ -1,0 +1,3 @@
+#!ipxe
+
+chain --autofree https://nas.foxden.network/apps/pxe/main.ipxe
