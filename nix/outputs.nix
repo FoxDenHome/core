@@ -176,8 +176,10 @@ let
               environment.systemPackages = with pkgs; [
                 arch-install-scripts
                 git
+                htop
                 pacman
                 rsync
+                screen
               ];
               boot.uki.settings.UKI.Initrd =
                 "${config.system.build.netbootRamdisk}/${config.system.boot.loader.initrdFile}";
