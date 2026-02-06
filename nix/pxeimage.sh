@@ -20,4 +20,4 @@ build_arch() {
 }
 
 build_arch x86_64
-build_arch aarch64
+#build_arch aarch64
