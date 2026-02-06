@@ -1,4 +1,9 @@
-inputs@{ nixpkgs, self, ... }:
+inputs@{
+  nixpkgs,
+  home-manager,
+  self,
+  ...
+}:
 let
   isNixFile =
     path: nixpkgs.lib.filesystem.pathIsRegularFile path && nixpkgs.lib.strings.hasSuffix ".nix" path;
@@ -133,21 +138,43 @@ let
       modules = [
         (
           { config, modulesPath, ... }:
+          let
+            homeCfg =
+              { ... }:
+              {
+                home.stateVersion = config.system.nixos.release;
+                home.file = {
+                  ".config/nixpkgs/config.nix" = {
+                    enable = true;
+                    force = true;
+                    text = "{ allowUnfree = true; }";
+                  };
+                };
+              };
+          in
           {
             imports = [
               "${modulesPath}/installer/netboot/netboot-minimal.nix"
+              home-manager.nixosModules.home-manager
             ];
             config = {
-              nixpkgs.localSystem.system = "x86_64-linux"; # TODO: This is annoying, but builtins.currentSystem is no more
-              nixpkgs.crossSystem.system = "${arch}-linux";
-              nixpkgs.allowUnfree = true;
+              system.stateVersion = config.system.nixos.release;
+              nixpkgs = {
+                localSystem.system = "x86_64-linux"; # TODO: This is annoying, but builtins.currentSystem is no more
+                crossSystem.system = "${arch}-linux";
+                config.allowUnfree = true;
+              };
               nix.settings.experimental-features = [
                 "nix-command"
                 "flakes"
               ];
-              system.stateVersion = config.system.nixos.release;
               boot.uki.settings.UKI.Initrd =
                 "${config.system.build.netbootRamdisk}/${config.system.boot.loader.initrdFile}";
+              home-manager.users = {
+                root = homeCfg;
+                nixos = homeCfg;
+              };
+              home-manager.useGlobalPkgs = true;
             };
           }
         )
