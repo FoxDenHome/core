@@ -137,7 +137,12 @@ let
       system = "${arch}-linux";
       modules = [
         (
-          { config, modulesPath, ... }:
+          {
+            config,
+            pkgs,
+            modulesPath,
+            ...
+          }:
           let
             homeCfg =
               { ... }:
@@ -167,6 +172,11 @@ let
               nix.settings.experimental-features = [
                 "nix-command"
                 "flakes"
+              ];
+              environment.systemPackages = with pkgs; [
+                git
+                pacman
+                arch-install-scripts
               ];
               boot.uki.settings.UKI.Initrd =
                 "${config.system.build.netbootRamdisk}/${config.system.boot.loader.initrdFile}";
