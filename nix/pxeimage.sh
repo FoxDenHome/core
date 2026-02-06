@@ -12,4 +12,6 @@ buildsub() {
 
 cp "$(buildsub netbootIpxeScript)/netboot.ipxe" "${OUTDIR}/netboot.ipxe"
 cp "$(buildsub netbootRamdisk)/initrd" "${OUTDIR}/initrd"
-cp "$(buildsub uki)/nixos.efi" "${OUTDIR}/bzImage"
+cp "$(buildsub kernel)/bzImage" "${OUTDIR}/bzImage"
+
+chmod 644 "${OUTDIR}"/*

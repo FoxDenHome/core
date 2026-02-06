@@ -1,10 +1,9 @@
 #!ipxe
 
+set shim_path tftp://${next-server}:69/shim-${buildarch}.efi
+set wimboot_path tftp://${next-server}:69/wimboot-${buildarch}.efi
+
 prompt --key 0x02 --timeout 2000 Press Ctrl-B for the iPXE command line... && shell ||
 
 ifopen
-shim tftp://${next-server}:69/shim-${buildarch}.efi
-set pxe_base_url https://nas.foxden.network/apps/pxe
-set win_base_url ${pxe_base_url}/win11-24h2
-
-chain ${pxe_base_url}/autoexec.ipxe
+chain --autofree https://nas.foxden.network/apps/pxe/main.ipxe

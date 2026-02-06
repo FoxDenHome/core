@@ -6,6 +6,7 @@ nixdir="${scriptdir}/../../../nix"
 cd "$scriptdir"
 
 ipxedir="$(nix build "$nixdir#nixosConfigurations.islandfox.pkgs.foxden-ipxe" --no-link --print-out-paths)"
+wimboot_dir="$(nix build "$nixdir#nixosConfigurations.islandfox.pkgs.wimboot" --no-link --print-out-paths)"
 
 copy_and_sign() {
 	cp "$1" "$2"
@@ -18,5 +19,10 @@ copy_arch() {
 	copy_and_sign "$ipxedir/$1/snp.efi" "ipxe-$1-snponly.efi"
 }
 
-copy_arch x86_64
+copy_arch_wimboot() {
+	copy_arch "$1"
+	copy_and_sign "$ipxedir/$1/wimboot.efi" "wimboot-$1.efi"
+}
+
+copy_arch_wimboot x86_64
 copy_arch aarch64

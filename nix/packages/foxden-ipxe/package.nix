@@ -5,11 +5,18 @@
   ...
 }:
 let
+  getPkg =
+    name: arch:
+    if systemArch == "${arch}-linux" then
+      pkgs.${name}
+    else
+      pkgs.pkgsCross."${arch}-multiplatform".${name};
+
   ipxePkg =
-    arch:
+    arch: hasWimboot:
     let
-      base =
-        if systemArch == "${arch}-linux" then pkgs.ipxe else pkgs.pkgsCross."${arch}-multiplatform".ipxe;
+      base = getPkg "ipxe" arch;
+      wimboot = if hasWimboot then getPkg "wimboot" arch else null;
     in
     base.overrideAttrs (oldAttrs: {
       makeFlags = oldAttrs.makeFlags ++ [
@@ -20,20 +27,19 @@ let
           )
         }"
       ];
-      preConfigure = ''
-        patch -p1 -i ${./dont-unregister-shim.patch}
-      '';
-      postInstall = ''
-        mv $out ${arch}
-        mkdir $out
-        mv ${arch} $out/
-      '';
+      postInstall =
+        (if wimboot != null then "cp ${wimboot}/share/wimboot/*.efi $out/wimboot.efi\n" else "")
+        + ''
+          mv $out ${arch}
+          mkdir $out
+          mv ${arch} $out/
+        '';
     });
 in
 pkgs.symlinkJoin {
   name = "foxden-ipxe";
   paths = [
-    (ipxePkg "x86_64")
-    (ipxePkg "aarch64")
+    (ipxePkg "x86_64" true)
+    (ipxePkg "aarch64" false)
   ];
 }
