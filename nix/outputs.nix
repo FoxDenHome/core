@@ -174,9 +174,10 @@ let
                 "flakes"
               ];
               environment.systemPackages = with pkgs; [
+                arch-install-scripts
                 git
                 pacman
-                arch-install-scripts
+                rsync
               ];
               boot.uki.settings.UKI.Initrd =
                 "${config.system.build.netbootRamdisk}/${config.system.boot.loader.initrdFile}";
