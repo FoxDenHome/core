@@ -1,7 +1,6 @@
 {
   pkgs,
   systemArch,
-  lib,
   ...
 }:
 let
@@ -21,11 +20,6 @@ let
     base.overrideAttrs (oldAttrs: {
       makeFlags = oldAttrs.makeFlags ++ [
         "EMBED=${./autoexec.ipxe}"
-        "TRUST=${
-          lib.concatStringsSep "," (
-            map (n: "${./certs}/${n}") (lib.attrsets.attrNames (builtins.readDir ./certs))
-          )
-        }"
       ];
       postInstall =
         (if wimboot != null then "cp ${wimboot}/share/wimboot/*.efi $out/wimboot.efi\n" else "")
