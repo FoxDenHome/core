@@ -7,10 +7,7 @@ ipv6_block_set:add{
 }
 
 function preresolve(dq)
-    if dq.qtype ~= qtype_AAAA then
-        return false
-    end
-    if not ipv6_block_set:check(dq.qname) then
+    if dq.qtype ~= qtype_AAAA or not ipv6_block_set:check(dq.qname) then
         return false
     end
 
