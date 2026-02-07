@@ -16,8 +16,8 @@ let
 
     src = pkgs.fetchgit {
       url = "https://github.com/amd/RyzenAI-SW.git";
-      rev = "v${version}";
-      sha256 = "sha256-T9nvQgM9c2rWO7zVNmWks1yPnwa+OqSXLLjg2R7S9TM=";
+      rev = "5b7074b60049371393037a44eb9deacd2b17022b"; # TODO: Temporary override because 1.7.0 is broken "v${version}";
+      sha256 = "sha256-0uXkK9ZRfSOrERRu+cuhB75nyyJhVBqrTSxrwpWv/Go=";
       fetchLFS = true;
     };
 
@@ -25,15 +25,12 @@ let
       autoPatchelfHook
     ];
 
-    buildInputs = with pkgs; [
-      stdenv.cc.cc.lib
-      zlib
-      (boost178.overrideAttrs (
-        oldAttrs:
-        let
-          version = "1.74.0";
-        in
-        {
+    buildInputs =
+      with pkgs;
+      let
+        version = "1.74.0";
+        boost174Base = boost178.overrideAttrs (oldAttrs: {
+          inherit version;
           src = pkgs.fetchurl {
             inherit version;
             urls = [
@@ -45,13 +42,21 @@ let
             # SHA256 from http://www.boost.org/users/history/version_1_74_0.html
             sha256 = "sha256:83bfc1507731a0906e387fc28b7ef5417d591429e51e788417fe9ff025e116b1";
           };
-        }
-      ))
-      protobuf
-      abseil-cpp
-      xrt
-      python310
-    ];
+        });
+      in
+      [
+        stdenv.cc.cc.lib
+        zlib
+        (boost174Base.override {
+          boost-build = boost-build.override {
+            useBoost = boost174Base;
+          };
+        })
+        protobuf
+        abseil-cpp
+        xrt
+        python310
+      ];
 
     unpackPhase = "true";
 
