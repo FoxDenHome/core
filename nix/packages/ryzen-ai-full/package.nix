@@ -27,11 +27,11 @@ let
     buildInputs =
       with pkgs;
       let
-        version = "1.74.0";
-        boost174Base = boost178.overrideAttrs (oldAttrs: {
-          inherit version;
+        boostVersion = "1.74.0";
+        boostBase = boost178.overrideAttrs (oldAttrs: {
+          version = boostVersion;
           src = pkgs.fetchurl {
-            inherit version;
+            version = boostVersion;
             urls = [
               "mirror://sourceforge/boost/boost_${builtins.replaceStrings [ "." ] [ "_" ] version}.tar.bz2"
               "https://boostorg.jfrog.io/artifactory/main/release/${version}/source/boost_${
@@ -46,9 +46,9 @@ let
       [
         stdenv.cc.cc.lib
         zlib
-        (boost174Base.override {
+        (boostBase.override {
           boost-build = boost-build.override {
-            useBoost = boost174Base;
+            useBoost = boostBase;
           };
         })
         protobuf
