@@ -19,7 +19,7 @@ in
     environment.systemPackages = with pkgs; [
       rocmPackages.rocm-smi
       xrt-amdxdna
-      #ryzen-ai-full
+      ryzen-ai-full
     ];
 
     systemd.tmpfiles.rules = [
