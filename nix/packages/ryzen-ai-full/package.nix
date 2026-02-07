@@ -33,9 +33,9 @@ let
           src = pkgs.fetchurl {
             version = boostVersion;
             urls = [
-              "mirror://sourceforge/boost/boost_${builtins.replaceStrings [ "." ] [ "_" ] version}.tar.bz2"
-              "https://boostorg.jfrog.io/artifactory/main/release/${version}/source/boost_${
-                builtins.replaceStrings [ "." ] [ "_" ] version
+              "mirror://sourceforge/boost/boost_${builtins.replaceStrings [ "." ] [ "_" ] boostVersion}.tar.bz2"
+              "https://boostorg.jfrog.io/artifactory/main/release/${boostVersion}/source/boost_${
+                builtins.replaceStrings [ "." ] [ "_" ] boostVersion
               }.tar.bz2"
             ];
             # SHA256 from http://www.boost.org/users/history/version_1_74_0.html
