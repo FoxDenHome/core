@@ -9,8 +9,7 @@ let
 
   dataDir = "$src/Ryzen-AI-CVML-Library/linux/onnx/ryzen14";
 
-  # AMD's pre-built VAIP runtime (requires manual download)
-  vaip-runtime = pkgs.stdenv.mkDerivation rec {
+  vaip-runtime = pkgs.stdenv.mkDerivation {
     pname = "vaip-runtime";
     inherit version;
 
