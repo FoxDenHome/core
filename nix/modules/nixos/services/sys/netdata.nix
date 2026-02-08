@@ -22,6 +22,9 @@ in
   };
 
   config = lib.mkIf svcConfig.enable {
+    networking.firewall = {
+      allowedTCPPorts = [ 19999 ];
+    };
     services.netdata = {
       enable = true;
       package = pkgs.netdata.override {
