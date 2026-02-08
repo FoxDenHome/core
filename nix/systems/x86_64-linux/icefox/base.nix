@@ -40,7 +40,7 @@
     enable = true;
     mdadmConf = ''
       MAILADDR mdmon@doridian.net
-      ARRAY /dev/md0 metadata=1.2 UUID=a39f3145:05f7b118:cfda9c09:5f177663
+      ARRAY /dev/md0 metadata=1.2 UUID=cd1e1189:475d9079:85633b66:6b8bb9f8
     '';
   };
 
