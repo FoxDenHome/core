@@ -11,7 +11,7 @@ copy_out() {
 }
 
 copy_out_signed() {
-	copy_out "$1" "$2"
+    copy_out "$1" "$2"
     sbsign --key ~/Documents/foxden_pxe.key --cert ~/Documents/foxden_pxe.crt --output "${OUTDIR}/$2" "${OUTDIR}/$2"
 }
 

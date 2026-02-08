@@ -131,6 +131,7 @@ let
     };
   };
 
+  # TODO: This should be inside of a nixos module so it gets built right on a host and hosted from that host :3
   mkNetboot =
     arch:
     nixpkgs.lib.nixosSystem {
