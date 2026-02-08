@@ -32,7 +32,7 @@ in
         ${pkgs.coreutils}/bin/mkdir -p /run/amdgpu-data
         ${pkgs.dos2unix}/bin/unix2dos -n ${
           config.sops.secrets."ryzen-ai-license".path
-        } /run/amdgpu-data/Xilinx.lic
+        } /run/amdgpu-data/Xilinx.lic >/dev/null
       '';
       deps = [
         "setupSecrets"
