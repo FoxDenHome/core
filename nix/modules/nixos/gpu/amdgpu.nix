@@ -30,9 +30,9 @@ in
     system.activationScripts.reformatRyzenAILicense = config.lib.foxDen.sops.mkIfAvailable {
       text = ''
         ${pkgs.coreutils}/bin/mkdir -p /run/amdgpu-data
-        ${pkgs.dos2unix}/bin/unix2dos -n ${
+        ${pkgs.dos2unix}/bin/unix2dos -q -n ${
           config.sops.secrets."ryzen-ai-license".path
-        } /run/amdgpu-data/Xilinx.lic >/dev/null
+        } /run/amdgpu-data/Xilinx.lic
       '';
       deps = [
         "setupSecrets"
