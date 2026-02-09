@@ -38,32 +38,6 @@ let
     allowUnfree = true;
     cudaSupport = config.foxDen.nvidia.enable;
     rocmSupport = config.foxDen.amdgpu.enable;
-    packageOverrides =
-      pkgs:
-      let
-        stdenvNoCheck = pkgs.stdenv // {
-          mkDerivation =
-            derivator:
-            (pkgs.stdenv.mkDerivation (
-              finalAttrs:
-              (derivator finalAttrs)
-              // {
-                doCheck = false;
-              }
-            ));
-        };
-      in
-      {
-        # Redis/Valkey check break and also take ages
-        redis = pkgs.redis.override {
-          useSystemJemalloc = false;
-          stdenv = stdenvNoCheck;
-        };
-        valkey = pkgs.valkey.override {
-          useSystemJemalloc = false;
-          stdenv = stdenvNoCheck;
-        };
-      };
     permittedInsecurePackages = [
       "gradle-7.6.6" # TODO: What is pulling this in?
     ];
