@@ -66,6 +66,7 @@ in
     serviceConfig = {
       Type = "simple";
       Restart = "no";
+      LimitNOFILE = 524288;
     };
   };
 
