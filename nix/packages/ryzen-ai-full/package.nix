@@ -15,8 +15,8 @@ let
 
     src = pkgs.fetchgit {
       url = "https://github.com/amd/RyzenAI-SW.git";
-      rev = "5b7074b60049371393037a44eb9deacd2b17022b"; # TODO: Temporary override because 1.7.0 is broken "v${version}";
-      sha256 = "sha256-0uXkK9ZRfSOrERRu+cuhB75nyyJhVBqrTSxrwpWv/Go=";
+      rev = "0b65628f1caacf0fbe3fd2cb4ed6bae0437a4155"; # TODO: Temporary override because 1.7.0 is broken "v${version}";
+      sha256 = "sha256-ji7GatS2UZn96VnCpdBh396mKXEdYAGnqerKK0cL0fg=";
       fetchLFS = true;
     };
 
