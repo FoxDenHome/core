@@ -353,6 +353,12 @@ in
               group = "immich";
               mode = "u=rwx,g=,o=";
             }
+            {
+              directory = "/var/cache/immich";
+              user = "immich";
+              group = "immich";
+              mode = "u=rwx,g=,o=";
+            }
           ];
         };
       }
