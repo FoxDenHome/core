@@ -39,11 +39,7 @@
   foxDen.deploy.push.enable = true;
 
   environment.persistence."/nix/persist/system" = {
-    directories = [
-      {
-        directory = "/var/lib/rasdaemon";
-      }
-    ];
+    directories = [ "/var/lib/rasdaemon" ];
   };
 
   boot.extraModprobeConfig = ''
