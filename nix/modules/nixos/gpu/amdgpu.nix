@@ -18,7 +18,6 @@ in
   config = lib.mkIf config.foxDen.amdgpu.enable {
     environment.systemPackages = with pkgs; [
       rocmPackages.rocm-smi
-      xrt-amdxdna
       ryzen-ai-full
     ];
 
