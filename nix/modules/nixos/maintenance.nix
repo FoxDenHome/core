@@ -8,7 +8,7 @@ let
   updateScript = ''
     set -xeuo pipefail
     nix flake update --flake 'git+https://git.foxden.network/FoxDen/core?dir=nix' || :
-    nixos-rebuild switch --flake "git+https://git.foxden.network/FoxDen/core?dir=nix#$(hostname)" || :
+    exec nixos-rebuild switch --flake "git+https://git.foxden.network/FoxDen/core?dir=nix#$(hostname)"
   '';
 
   pruneAllScript = ''
