@@ -23,7 +23,7 @@ let
       systemd-cryptenroll --wipe-slot tpm2 --tpm2-device auto --tpm2-pcrs '0:sha256+7:sha256+14:sha256' "$1"
     }
 
-    manual_disk="$\{1-\}"
+    manual_disk="${"\${1-}"}"
     if [ ! -z "$manual_disk" ]; then
       enroll_disk "$manual_disk"
       exit 0
