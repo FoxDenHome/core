@@ -28,6 +28,7 @@
   services = {
     sshd.enable = true;
     pcscd.enable = true;
+    scx.enable = true;
   };
   networking.useNetworkd = true;
 
@@ -41,7 +42,6 @@
     "vm.overcommit_memory" = 1;
     "kernel.sysrq" = 176;
   };
-  services.redis.vmOverCommit = false;
 
   services.timesyncd.servers = lib.mkDefault [ "ntp.foxden.network" ];
   time.timeZone = "America/Los_Angeles";
