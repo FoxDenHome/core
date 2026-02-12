@@ -30,6 +30,7 @@
     pcscd.enable = true;
     scx.enable = true;
     fwupd.enable = true;
+    redis.vmOverCommit = false; # We set this sysctl manually
     timesyncd.servers = lib.mkDefault [ "ntp.foxden.network" ];
     openssh = {
       enable = true;
