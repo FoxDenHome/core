@@ -29,57 +29,77 @@
     sshd.enable = true;
     pcscd.enable = true;
     scx.enable = true;
+    fwupd.enable = true;
+    timesyncd.servers = lib.mkDefault [ "ntp.foxden.network" ];
+    openssh = {
+      enable = true;
+      settings = {
+        PasswordAuthentication = false;
+        KbdInteractiveAuthentication = false;
+        PermitRootLogin = "no";
+      };
+    };
   };
-  networking.useNetworkd = true;
-
-  boot.supportedFilesystems = [
-    "vfat"
-    "xfs"
-    "ext4"
-  ];
-  boot.kernel.sysctl = {
-    "vm.swappiness" = 0;
-    "vm.overcommit_memory" = 1;
-    "kernel.sysrq" = 176;
+  networking = {
+    useNetworkd = lib.mkDefault true;
+    hostId = lib.mkDefault (foxDenLib.util.mkShortHash 8 config.networking.hostName);
+    wireguard.useNetworkd = false;
+    firewall.logRefusedConnections = false;
+    nftables.enable = true;
   };
 
-  services.timesyncd.servers = lib.mkDefault [ "ntp.foxden.network" ];
+  boot = {
+    supportedFilesystems = [
+      "vfat"
+      "xfs"
+      "ext4"
+    ];
+    kernel.sysctl = {
+      "vm.swappiness" = 0;
+      "vm.overcommit_memory" = 1;
+      "kernel.sysrq" = 176;
+    };
+  };
+
   time.timeZone = "America/Los_Angeles";
   i18n.defaultLocale = "C.UTF-8";
 
-  environment.systemPackages = with pkgs; [
-    age
-    bridge-utils
-    btop
-    cryptsetup
-    curl
-    e2fsprogs
-    gptfdisk
-    iperf
-    ipmitool
-    lm_sensors
-    mdadm
-    mstflint
-    ncdu
-    openssl
-    pciutils
-    rsync
-    screen
-    smartmontools
-    ssh-to-age
-    systemd-query
-    tmux
-    unixtools.netstat
-    usbutils
-    util-linux
-    wget
-    xfsprogs
-  ];
+  users = {
+    users.root.shell = "${pkgs.fish}/bin/fish";
+    groups.share.gid = 1001;
+  };
 
   security = {
     sudo.enable = false;
     polkit.enable = true;
+    pam.loginLimits = [
+      {
+        domain = "*";
+        type = "soft";
+        item = "nofile";
+        value = "524288";
+      }
+      {
+        domain = "*";
+        type = "hard";
+        item = "nofile";
+        value = "524288";
+      }
+      {
+        domain = "*";
+        type = "soft";
+        item = "memlock";
+        value = "unlimited";
+      }
+      {
+        domain = "*";
+        type = "hard";
+        item = "memlock";
+        value = "unlimited";
+      }
+    ];
   };
+
   programs = {
     fish.enable = true;
     zsh = {
@@ -95,86 +115,69 @@
       extraConfig = "VerifyHostKeyDNS yes";
     };
   };
-  services = {
-    fwupd.enable = true;
-    openssh = {
-      enable = true;
-      settings = {
-        PasswordAuthentication = false;
-        KbdInteractiveAuthentication = false;
-        PermitRootLogin = "no";
-      };
-    };
-  };
 
-  environment.shellAliases = {
-    "sudo" = "run0 --background=''";
-  };
-
-  users.users.root.shell = "${pkgs.fish}/bin/fish";
-  users.groups.share.gid = 1001;
-
-  networking = {
-    hostId = lib.mkDefault (foxDenLib.util.mkShortHash 8 config.networking.hostName);
-    wireguard.useNetworkd = false;
-    firewall.logRefusedConnections = false;
-    nftables.enable = true;
-  };
-
-  environment.persistence."/nix/persist/system" = {
-    hideMounts = true;
-    directories = [
-      "/home"
-      {
-        directory = "/root";
-        mode = "u=rwx,g=,o=";
-      }
-      "/var/log"
-      "/var/lib/nixos"
-      "/var/lib/systemd/coredump"
-      "/var/lib/systemd/timers"
-      "/var/cache/fwupd"
-      "/var/lib/fwupd"
+  environment = {
+    systemPackages = with pkgs; [
+      age
+      bridge-utils
+      btop
+      cryptsetup
+      curl
+      e2fsprogs
+      gptfdisk
+      iperf
+      ipmitool
+      lm_sensors
+      mdadm
+      mstflint
+      ncdu
+      openssl
+      pciutils
+      rsync
+      screen
+      smartmontools
+      ssh-to-age
+      systemd-query
+      tmux
+      unixtools.netstat
+      usbutils
+      util-linux
+      wget
+      xfsprogs
     ];
 
-    files = [
-      "/etc/machine-id"
-    ]
-    ++ lib.lists.flatten (
-      lib.lists.forEach config.services.openssh.hostKeys (
-        { path, ... }:
-        [
-          "${path}"
-          "${path}.pub"
-        ]
-      )
-    );
-  };
+    shellAliases = {
+      "sudo" = "run0 --background=''";
+    };
 
-  security.pam.loginLimits = [
-    {
-      domain = "*";
-      type = "soft";
-      item = "nofile";
-      value = "524288";
-    }
-    {
-      domain = "*";
-      type = "hard";
-      item = "nofile";
-      value = "524288";
-    }
-    {
-      domain = "*";
-      type = "soft";
-      item = "memlock";
-      value = "unlimited";
-    }
-    {
-      domain = "*";
-      type = "hard";
-      item = "memlock";
-      value = "unlimited";
-    }
-  ];
+    persistence."/nix/persist/system" = {
+      hideMounts = true;
+      directories = [
+        "/home"
+        {
+          directory = "/root";
+          mode = "u=rwx,g=,o=";
+        }
+        "/var/log"
+        "/var/lib/nixos"
+        "/var/lib/systemd/coredump"
+        "/var/lib/systemd/timers"
+        "/var/cache/fwupd"
+        "/var/lib/fwupd"
+      ];
+
+      files = [
+        "/etc/machine-id"
+      ]
+      ++ lib.lists.flatten (
+        lib.lists.forEach config.services.openssh.hostKeys (
+          { path, ... }:
+          [
+            "${path}"
+            "${path}.pub"
+          ]
+        )
+      );
+    };
+  };
 }
