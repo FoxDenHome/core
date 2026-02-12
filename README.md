@@ -24,13 +24,13 @@ I am not sure whether I plan to instrument RouterOS enough to make this possible
 
 ### IslandFox
 
-- **Locator**: Rack; Lenovo tiny mini-PC
+- **Locator**: Rack; Miniforum UM980 Pro
 - **OS**: NixOS
-- **CPU**: AMD Ryzen 7 PRO 470GE
-- **RAM**: 64GB, DDR4, 3200 MT/s
+- **CPU**: AMD Ryzen 9 PRO 8945HS
+- **RAM**: 96GB, DDR5, 5600 MT/s
 - **Storage**:
-	- nix: XFS: RAID1: 2TB NVMe SSD + 2TB SATA3 SSD
-- **Network**: 1GbE (RJ45)
+	- nix: XFS: RAID1: 2 * 2TB NVMe SSS
+- **Network**: 25GbE (SFP28; Mellanox ConnectX-4 Lx USB4)
 
 ### IceFox
 
