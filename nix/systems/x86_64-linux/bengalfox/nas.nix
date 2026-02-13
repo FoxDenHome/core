@@ -93,12 +93,6 @@ in
         "/mnt/zhdd/nas"
         "/mnt/zhdd/nashome"
       ];
-      firewall.ingressAcceptRules = [
-        {
-          protocol = "tcp";
-          port = 445;
-        }
-      ];
     };
   };
 
@@ -188,6 +182,12 @@ in
         fqdns = [ "nas.foxden.network" ];
         dynDns = true;
       };
+      firewall.ingressAcceptRules = [
+        {
+          protocol = "tcp";
+          port = 445;
+        }
+      ];
       webservice.enable = true;
       addresses = [
         "10.2.11.1/16"
