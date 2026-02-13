@@ -93,6 +93,12 @@ in
         "/mnt/zhdd/nas"
         "/mnt/zhdd/nashome"
       ];
+      firewall.ingressAcceptRules = [
+        {
+          protocol = "tcp";
+          port = 445;
+        }
+      ];
     };
   };
 
