@@ -185,6 +185,7 @@ in
       firewall.ingressAcceptRules = [
         {
           protocol = "tcp";
+          source = "10.0.0.0/8";
           port = 445;
         }
       ];
