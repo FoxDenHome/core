@@ -15,7 +15,7 @@ superdel() {
 run_update() {
   cd "${SERVER_DIR}"
 
-  superdel config/bluemap config/paxi/datapacks mods
+  superdel config/bluemap config/paxi/datapacks mods bluemap/web/index.html bluemap/web/assets bluemap/web/lang
 
   # Use this if we update Forge/Minecraft versions maybe, otherwise pointless
   #INSTALLED_ID="$(cat "${INSTALLED_ID_FILE}" || echo none)"
