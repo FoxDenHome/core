@@ -68,11 +68,11 @@ let
   };
 
   modpack = {
-    # https://www.curseforge.com/minecraft/modpacks/aoc/files/7494429
-    url = "https://mediafilez.forgecdn.net/files/7494/429/All_of_Create_1.20.1_6.0_v2.3_serverpack.zip";
+    # https://www.curseforge.com/minecraft/modpacks/aoc/files/7618310
+    url = "https://mediafilez.forgecdn.net/files/7618/310/All_of_Create_v1.21_v1.0_serverpack.zip";
     name = "server";
     stripRoot = false;
-    hash = "sha256-dKCJEWopBhFy9IvFBGvXyw/fv0pFvIixGM+TzmOsPq8=";
+    hash = "sha256-z8dAWni8NlDeo+nmbXmXpOslQTqJsPvWWgkddXG5xO4=";
   };
 in
 pkgs.stdenvNoCC.mkDerivation {
@@ -87,53 +87,38 @@ pkgs.stdenvNoCC.mkDerivation {
   # Also remember to update MC and forge versions
 
   mods = [
-    (modrinthGetMod "leashable-collars" "1.2.6"
-      "rLfqDKHu@sha512:b3f4d6bf5a7e43d003eb7fbecc0c13c46065af0f968353bc1ff9d11de11a2ce9d7089790b18a09175443cae004762b355d09dea69b458e1b7a3dbc82bb053ef0"
-    )
     (modrinthGetMod "cc-tweaked" "1.117.0"
-      "W45ytlaC@sha512:1dce8ee17e600f9d81c44281631b5dd1883edd344d1a9f67d0361064d4a03cf31a26ff5508ae95dd0a122e322d85c6221ce5619b95c8a672dc53cdedfbc70a6c"
+      "hAW75xeY@sha512:6fb0a7263845552d31683c7548b80bd9449acbaae5ad200391f1b5866caf225f2308a025a59bcfb0eca9205c11c691810089d87e569f6ada83b6218c0362fa97"
     )
-    (modrinthGetMod "computer-cartographer" "1.0"
-      "YbdPiGff@sha512:c8e211d2057a139160ec909840fdb6feeff0ee89684f6a26e2853fb79de158db18908d1eddbdb2c9934695c9de33c3c980459ddc170cc1b43fef010f4cb4f3bb"
+    (modrinthGetMod "create-ccbr" "1.2.0"
+      "UcvDwdvO@sha512:53af168c2635d716476c71747c4df7a968d01657cc55aeccadf04c95a8b9adf598c91d4254576bd6c963c05edbd917362b475ec37c31bdd6a8ba31bd9f3cc26a"
     )
-    (modrinthGetMod "create-ccbr" "1.2.0-backport"
-      "sYBFtimp@sha512:fb42266d807b883c23d4709647b9b1e6fead14004bb8eb2a54416e0887afccc8269f1c638db834e22d82c1da35b8de1296c73a09c37881687b3f6e5edc08377a"
+    (modrinthGetMod "item-obliterator" "2.3.0"
+      "jy3ApWAm@sha512:b6d3cc651fa76c03d6845dd667fc673b74bd7409e7a1631907d82200b15ae50d76dd018c9224bc9314a46314bb478c0a48cc7b37d717e70f05dad8fb2878ac77"
     )
-    (modrinthGetMod "item-obliterator" "2.3.1"
-      "EV0cDZhI@sha512:4e207c6e0437dc14970d009453777111c8a1a8aed7953eefc32c057e964d1061ca71c38e6eb9b065f1b519da13d26a45f7e8bf199937fcc091beedccd6055754"
+    (modrinthGetMod "distanthorizons" "2.4.5-b-1.21.1"
+      "bLPLghy9@sha512:6ee8b04af858450eac2e0fe6c3a6cb09dfc0f9c1691fb0f76f79bbc73e08e5dca6f18257294ba647b1520d4fb2110bbbb085830e536c8f4638995c75f66fe1eb"
     )
-    (modrinthGetMod "more-red" "4.0.0.4"
-      "nmvr3DB5@sha512:f7597a4cb98d40bfb9bc344a1389db6a498b339ae10cdc710a3ab83ed993788cc332b899f3876b0dec79e12c57dd93fb72b950c240cae4ac818f68d7fa48f48f"
+    (modrinthGetMod "guideme" "21.1.15"
+      "ILW6vM7o@sha512:4a35b2d9ae3958cb9e152757223b0fc0f85ed2c55da2c3bb773b9a353cf5db15e4294ac2b6d897c0d7c82674dd86c084dd2e35fb80b5bcf92067735c03288edc"
     )
-    (modrinthGetMod "distanthorizons" "2.4.5-b-1.20.1"
-      "lC6CwqPp@sha512:679cb6f9b55d7eea43c17f0204042140590de712b0cecdc14016e8064a9846695e2f438922377f658e26534c49cb61e6da939a6be53c2cb1cd1bc088b69db3ee"
+    (modrinthGetMod "ae2" "19.2.17"
+      "kfyIqgJ6@sha512:55edfd948366aff620881e0625e48c333a2cb847e73249bc0b588efbc4b86709992a8ffbca97ea387e270df4186fe7f74ee2f27b739f1c952e932becfb9dea33"
     )
-    (modrinthGetMod "guideme" "20.1.14"
-      "9YGnKYDF@sha512:15311cb0607205d2da3eb369499b8523bd0d8fa41e30c87c0b0e5756df5ea2123389262e6883f66e6c7b1d43d68e20cdfec73b31c202df8fbb99fa80d4fe7b1d"
+    (modrinthGetMod "glodium" "1.21-2.2-neoforge"
+      "pfbmdJ3b@sha512:56a387a1bdaf0146c9a7e14de0aca8b6f53f25d3ba9d46255f142043387282ed9e4fa0011d309e32d9ffe5362b129c07e301226dd4ac11eda9a4f42f27c0b5d1"
     )
-    (modrinthGetMod "ae2" "15.4.10"
-      "7KVs6HMQ@sha512:edc08a999b57e80426c737efa5b50c6d19ab40cb03f752bc26e2912fe12b989cefd5feff519ce0d87a4717a74c22a99242263ee4de63c1c84f91306d156134ee"
+    (modrinthGetMod "extended-ae" "1.21-2.2.28-neoforge"
+      "PouYVFxW@sha512:79c5e9315cd6b891b574d30402e4b1c3b8ef88f781eb5cf8fd63f2d186deae13c1ac1b7724952ef421ca5308adf0e77576e2216bdba405f1016075420506063c"
     )
-    (modrinthGetMod "glodium" "1.20-1.5-forge"
-      "eoUaDkZf@sha512:57ba996845f588191b12f5e4c578b6f33a2b431facd54176dc61abba0f08f86cbc03c39cf795c7d5dea4926a923ec88e646a25d1a9a3a5bb9508fcb79a661a5e"
+    (modrinthGetMod "in-control" "1.21-10.2.6"
+      "TBI4EWjs@sha512:1cf51cc45694cdca31dfd9cb97d7bd9bf1131768aca040b8eed8677452783143f8a8d8c21153871ab92cd31b64096b1c074bdb8dd389e19b5a0b772079a7f80c"
     )
-    (modrinthGetMod "extended-ae" "1.20-1.4.10-forge"
-      "QM0UqPAi@sha512:5de3312fa913e0fbbee6b60886af5c422a8da0042b48ad554d79ae1f4ef40950cba7728f85d8d53eeee9604f5a850c17eb326292f5c8f8abfd5ab90f40a8dc12"
+    (modrinthGetMod "collective" "1.21.1-8.13-fabric+forge+neo"
+      "VTg6femX@sha512:20ade6d666440659d38ec43202624993f47681a844c7f9e3e66a462e9f88f5d98bdd9a0a26278b1ed94bd4836b3c9cdbcfef73ad8515555f239e84bfea45d938"
     )
-    (modrinthGetMod "in-control" "1.20-9.4.6"
-      "DyzZZhxQ@sha512:7d42c60bbe39098b4f71c1f7451f63fd6c90a2f4e66252afc1be6ac5fcd8fdb9161645beee1c8981c8e44c85bdad10b2997d3d9e51a835cb29d85fa0d642583f"
-    )
-    (modrinthGetMod "collective" "1.20.1-8.13-fabric+forge+neo"
-      "9fUQXa48@sha512:bc6136fbec7447ef3d7ecd150dc3f531f7980e8dea95c638cbb06ddef1f28aeadd72a214baff0232fd2fd28f931061b7571f4f1fb7acf6fc1c08965ea481cfda"
-    )
-    (modrinthGetMod "tree-harvester" "1.20.1-9.1-fabric+forge+neo"
-      "EQYmDYvI@sha512:eab24be8a6b75ed03dcd9b324acb6f79145839836faa9829546a663e2cc782e4dd49323a9300e832105b02e44dd642b3994d6ad49c6dcc485d6f9f14136cdc15"
-    )
-    (modrinthGetMod "mcef" "2.1.6-1.20.1"
-      "x91l6OKB@sha512:6df8c8e70ab15b3662404a3a398c18689fb7591e84e1a913d8939bee144f030cd2aeaee4e68f1ed159881a59796a37a7f628dd442e6ba7836005e14ad7b9704d"
-    )
-    (modrinthGetMod "webdisplays" "2.0.2-1.20.1"
-      "DHWqG6SF@sha512:a7b1369d52b61647307b9217ddc5faa17b8938561ee2df00c9434cb703a0e18b3cc0acc14afc597195e97ed539d91dbc88f2f50b28661ab0799cfa9585d4b064"
+    (modrinthGetMod "tree-harvester" "1.21.1-9.1-fabric+forge+neo"
+      "OtzwmSlR@sha512:ef05666db209bcc339a89c83106c329a51d32310188f913375d8ebb3ff98251f99ae21baa6def18e1125d64e5d454f6cd5c5dbe7f8ddc00312dfa1b89a866c4d"
     )
     # TODO: Add/fix BlueMap rendering for:
     # - Basic steam engine "armatures"
