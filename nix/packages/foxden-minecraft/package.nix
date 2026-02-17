@@ -125,8 +125,8 @@ pkgs.stdenvNoCC.mkDerivation {
     # - Hanging laterns (once on posts render ok)
     # - Remove autumnity overrides once the next version happens, they seem to use textures now
     (pkgs.fetchurl {
-      url = "https://github.com/Doridian/BlueMap/releases/download/v5.16/bluemap-emp-mc1.21.1-8-neoforge.jar";
-      hash = "sha256:9eacf9ea3e6a90bbfca90d44d67430a9a6b3702260a050b2c8484f6f221e9511";
+      url = "https://github.com/Doridian/BlueMap/releases/download/v5.16/bluemap-5.13-mc1.21.1-31-neoforge.jar";
+      hash = "sha256:728518462f1319d7ca827ca01e5b6eefab0826ba1b2ceb24b3dae5dacd635963";
     })
   ];
   bluemapPacks = [
