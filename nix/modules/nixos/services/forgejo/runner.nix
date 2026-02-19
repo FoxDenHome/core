@@ -86,7 +86,7 @@ let
       fetch_timeout = "5s";
       fetch_interval = "2s";
       report_interval = "1s";
-      labels = [ "ubuntu-24.04:docker://git.foxden.network/foxden/runner-image:ubuntu24" ];
+      labels = map (tag: "${tag}:docker://git.foxden.network/foxden/runner-image:ubuntu24") svcConfig.tags;
     };
     cache = {
       enabled = true;
@@ -126,7 +126,8 @@ in
     };
     tags = lib.mkOption {
       type = lib.types.listOf lib.types.str;
-      default = [ "ubuntu-24.04" ];
+      default = [ ];
+      defaultText = "[ \"ubunutu-24.04\" ]";
       description = "The tag(s) to use for the runner.";
     };
   }
@@ -156,6 +157,8 @@ in
         inherit svcConfig pkgs config;
       }).config
       {
+        foxDen.services.forgejo-runner.tags = [ "ubuntu-24.04" ];
+
         users.users.forgejo-runner = {
           isSystemUser = true;
           group = "forgejo-runner";
