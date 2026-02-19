@@ -120,6 +120,9 @@ pkgs.stdenvNoCC.mkDerivation {
     (modrinthGetMod "extended-ae" "1.20-1.4.10-forge"
       "QM0UqPAi@sha512:5de3312fa913e0fbbee6b60886af5c422a8da0042b48ad554d79ae1f4ef40950cba7728f85d8d53eeee9604f5a850c17eb326292f5c8f8abfd5ab90f40a8dc12"
     )
+    (modrinthGetMod "aeinfinitybooster" "1.20.1-1.0.0+20"
+      "cTJwfNfV@sha512:3612149923c16b69765b189086a8cebd89aa1fb0ba04e18f7c92d40dee61e84bf8f5478a0bfc87227abb4f2f0aa5ec703e681f02bdbda63a374afa89f2e48a6b"
+    )
     (modrinthGetMod "in-control" "1.20-9.4.6"
       "DyzZZhxQ@sha512:7d42c60bbe39098b4f71c1f7451f63fd6c90a2f4e66252afc1be6ac5fcd8fdb9161645beee1c8981c8e44c85bdad10b2997d3d9e51a835cb29d85fa0d642583f"
     )
