@@ -102,7 +102,7 @@ let
       network = "";
       enable_ipv6 = true;
       privileged = true;
-      options = { };
+      options = "";
       workdir_parent = "";
       valid_volumes = [ ];
       docker_host = "-";
