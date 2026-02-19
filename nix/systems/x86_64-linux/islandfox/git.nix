@@ -20,6 +20,7 @@ in
       enable = true;
       host = "forgejo-runner";
       capacity = 4;
+      labels = [ "ubuntu-24.04-zen4" ];
       containerHost = "forgejo-runner-container";
     };
   };
