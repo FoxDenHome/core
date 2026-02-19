@@ -20,6 +20,7 @@ let
   ];
 
   services = foxDenLib.services;
+  svcConfig = config.foxDen.services.forgejo-runner;
 
   mkDir = (
     dir: {
@@ -69,7 +70,49 @@ let
     };
   };
 
-  svcConfig = config.foxDen.services.forgejo-runner;
+  runnerConfigYaml = {
+    log = {
+      level = "info";
+      job_level = "info";
+    };
+    runner = {
+      file = ".runner";
+      capacity = svcConfig.capacity;
+      envs = [ ];
+      env_file = ".env";
+      timeout = "3h";
+      shutdown_timeout = "3h";
+      insecure = false;
+      fetch_timeout = "5s";
+      fetch_interval = "2s";
+      report_interval = "1s";
+      labels = [ "ubuntu-24.04:docker://git.foxden.network/foxden/runner-image:ubuntu24" ];
+    };
+    cache = {
+      enabled = true;
+      port = 0;
+      dir = "";
+      external_server = "";
+      secret = "";
+      host = "";
+      proxy_port = 0;
+      actions_cache_url_override = "";
+    };
+    container = {
+      network = "";
+      enable_ipv6 = true;
+      privileged = true;
+      options = [ ];
+      workdir_parent = "";
+      valid_volumes = [ ];
+      docker_host = "-";
+      force_pull = true;
+      force_rebuild = false;
+    };
+    host = {
+      workdir_parent = "";
+    };
+  };
 in
 {
   options.foxDen.services.forgejo-runner = {
@@ -80,6 +123,11 @@ in
       type = lib.types.ints.positive;
       default = 2;
       description = "The capacity of concurrent jobs the runner can handle.";
+    };
+    tags = lib.mkOption {
+      type = lib.types.listOf lib.types.str;
+      default = [ "ubuntu-24.04" ];
+      description = "The tag(s) to use for the runner.";
     };
   }
   // services.mkOptions {
@@ -143,7 +191,6 @@ in
               "-${pkgs.coreutils}/bin/chmod 600 /var/lib/forgejo-runner/.runner /var/lib/forgejo-runner/config.yml"
               "${pkgs.coreutils}/bin/cp --update=all /registration.json /var/lib/forgejo-runner/.runner"
               "${pkgs.coreutils}/bin/cp --update=all /config.yml /var/lib/forgejo-runner/config.yml"
-              "${pkgs.gnused}/bin/sed -i -e 's/__CAPACITY__/${toString svcConfig.capacity}/g' /var/lib/forgejo-runner/config.yml"
               "${pkgs.coreutils}/bin/chmod 600 /var/lib/forgejo-runner/.runner"
             ];
             Environment = [
@@ -155,7 +202,7 @@ in
               "/etc/containers/registries.conf"
               "/etc/containers/storage.conf"
               "/usr/bin/env"
-              "${./runner-config.yml}:/config.yml"
+              "${pkgs.writers.writeYAML "config.yml" runnerConfigYaml}:/config.yml"
               "${config.sops.secrets."forgejo-runner-registration".path}:/registration.json"
             ];
             PrivateTmp = true;
