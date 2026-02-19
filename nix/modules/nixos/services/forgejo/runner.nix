@@ -78,7 +78,7 @@ let
     runner = {
       file = ".runner";
       capacity = svcConfig.capacity;
-      envs = [ ];
+      envs = { };
       env_file = ".env";
       timeout = "3h";
       shutdown_timeout = "3h";
@@ -102,7 +102,7 @@ let
       network = "";
       enable_ipv6 = true;
       privileged = true;
-      options = [ ];
+      options = { };
       workdir_parent = "";
       valid_volumes = [ ];
       docker_host = "-";
