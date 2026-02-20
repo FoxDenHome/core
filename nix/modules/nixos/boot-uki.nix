@@ -78,12 +78,18 @@ in
             local esp="$1/EFI/TEST"
             echo "Building UKI for $esp with $1"
             mkdir -p "$esp"
+            ls "$esp" > "$TEMPDIR/espfiles.remove"
             for profile in $FIXED_PROFILES; do
               local name="nixos-$(basename "$profile" | cut -d- -f2)"
+              cat "$TEMPDIR/espfiles.remove" | grep -v "^$name.efi$" > "$TEMPDIR/espfiles.remove.new"
+              mv "$TEMPDIR/espfiles.remove.new" "$TEMPDIR/espfiles.remove"
               if [ -f "$esp/$name.efi" ]; then
                 continue
               fi
               copyuki "$esp" "$name" "$profile"
+            done
+            cat "$TEMPDIR/espfiles.remove" | while read -r file; do
+              echo rm -f "$esp/$file"
             done
             rm -f "$esp/bootold.efi"
             mv "$esp/boot${efiArch}.efi" "$esp/bootold.efi" || true
