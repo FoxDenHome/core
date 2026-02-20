@@ -45,7 +45,7 @@ in
         ''
           #!/usr/bin/env bash
           set -ex
-          TEMPDIR="$(mktemp -d)"
+          TEMPDIR="$( ${pkgs.coreutils}/bin/mktemp -d)"
           ${pkgs.buildPackages.systemdUkify}/lib/systemd/ukify build \
             --config=${ukiCfg "/nix/var/nix/profiles/system"} \
             --output="$TEMPDIR/nixos.efi"
