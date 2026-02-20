@@ -99,9 +99,7 @@ in
             espkeep "boot${efiArch}.efi"
             espkeep bootold.efi
 
-            cat "$TEMPDIR/espfiles.remove" | while read -r file; do
-              rm -vf "$esp/$file"
-            done
+            cat "$TEMPDIR/espfiles.remove" | ${pkgs.findutils}/bin/xargs -r rm -fv
           };
         ''
         + (lib.concatStringsSep "\n" (map (esp: "buildesp ${esp}") config.foxDen.boot.espMounts))
