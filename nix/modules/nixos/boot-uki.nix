@@ -100,7 +100,7 @@ in
             espkeep bootold.efi
 
             cat "$TEMPDIR/espfiles.remove" | while read -r file; do
-              echo rm -f "$esp/$file"
+              rm -f "$esp/$file"
             done
           };
         ''
