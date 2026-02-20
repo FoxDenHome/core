@@ -9,6 +9,7 @@ let
   espMounts = [
     "/boot"
   ];
+  efiArch =  if systemArch == "x86_64" then "x64" else systemArch;
 
   ini = pkgs.formats.ini {};
 
@@ -19,7 +20,7 @@ let
         Linux = "${profile}/kernel";
         Initrd = "${profile}/initrd";
         Cmdline = "@${profile}/kernel-params";
-        Stub = "${pkgs.systemd}/lib/systemd/boot/efi/linux${systemArch}.efi.stub";
+        Stub = "${pkgs.systemd}/lib/systemd/boot/efi/linux${efiArch}.efi.stub";
         OSRelease = "@${config.system.build.etc}/etc/os-release";
       };
     };
@@ -41,7 +42,7 @@ in
             ${pkgs.coreutils}/bin/mkdir -p ${esp}/EFI_/BOOT
             ${pkgs.buildPackages.systemdUkify}/lib/systemd/ukify build \
               --config=${ukiCfg "/nix/var/nix/profiles/system"} \
-              --output=${esp}/EFI_/BOOT/BOOTX64.EFI
+              --output=${esp}/EFI_/BOOT/boot${efiArch}.EFI
           '') espMounts
         )
       );
