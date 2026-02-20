@@ -11,6 +11,8 @@ let
   ];
 in
 {
+  foxDen.boot.override = true;
+
   boot.loader = {
     systemd-boot.enable = lib.mkForce false;
     grub.enable = false;
