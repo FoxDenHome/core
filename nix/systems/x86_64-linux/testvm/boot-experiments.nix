@@ -67,7 +67,7 @@ in
             esp:
             let
               # TODO: We crash on finding the NixOS closure, so likely wrong initrd or cmdline
-              espDir = "${esp}/EFI/BOOT_";
+              espDir = "${esp}/EFI/TEST";
             in
             ''
               ${pkgs.coreutils}/bin/mkdir -p ${espDir}
