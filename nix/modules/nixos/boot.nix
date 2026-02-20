@@ -60,6 +60,7 @@
 
     environment.systemPackages = with pkgs; [
       sbctl
+      sbsigntool
     ];
 
     environment.persistence."/nix/persist/system".directories = [
