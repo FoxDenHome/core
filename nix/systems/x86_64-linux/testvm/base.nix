@@ -1,7 +1,7 @@
 { ... }:
 {
   foxDen.sops.available = true;
-  foxDen.boot.secure = false;
+  foxDen.boot.secure = true;
 
   system.stateVersion = "25.05";
 

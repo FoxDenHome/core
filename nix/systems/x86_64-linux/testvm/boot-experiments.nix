@@ -22,7 +22,11 @@ let
         Cmdline = "@${profile}/kernel-params";
         Stub = "${pkgs.systemd}/lib/systemd/boot/efi/linux${efiArch}.efi.stub";
         OSRelease = "@${config.system.build.etc}/etc/os-release";
-      };
+      } // (if config.foxDen.boot.secure then {
+        SecureBootSigningTool = "sbsign";
+        SecureBootPrivateKey = "/etc/secureboot/keys/db/db.key";
+        SecureBootCertificate = "/etc/secureboot/keys/db/db.pem";
+      } else {});
     };
 in
 {
