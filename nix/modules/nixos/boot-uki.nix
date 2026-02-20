@@ -78,7 +78,7 @@ in
             local esp="$1/EFI/TEST"
             mkdir -p "$esp"
             for profile in $FIXED_PROFILES; do
-              local name="nixos-$(basename "$profile")"
+              local name="nixos-$(basename "$profile" | cut -d- -f2)"
               if [ -f "$esp/$name.efi" ]; then
                 continue
               fi
