@@ -36,7 +36,7 @@ in
 {
   options.foxDen.boot.uki = lib.mkEnableOption "Enable direct UKI boot";
 
-  boot.loader = lib.mkIf config.foxDen.boot.uki {
+  config.boot.loader = lib.mkIf config.foxDen.boot.uki {
     external = {
       enable = true;
       installHook = pkgs.writeShellScript "foxden-esp" (
