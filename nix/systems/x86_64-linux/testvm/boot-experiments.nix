@@ -66,7 +66,8 @@ in
           map (
             esp:
             let
-              espDir = "${esp}/EFI/BOOT";
+              # TODO: We crash on finding the NixOS closure, so likely wrong initrd or cmdline
+              espDir = "${esp}/EFI/BOOT_";
             in
             ''
               ${pkgs.coreutils}/bin/mkdir -p ${espDir}
