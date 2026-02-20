@@ -25,7 +25,7 @@ let
       UKI = {
         Linux = "${profile}/kernel";
         Initrd = "${profile}/initrd";
-        Cmdline = "@${profile}/kernel-params";
+        Cmdline = "@${profile}/kernel-params init=test";
         Stub = "${pkgs.systemd}/lib/systemd/boot/efi/linux${efiArch}.efi.stub";
         OSRelease = "@${config.system.build.etc}/etc/os-release";
       };
