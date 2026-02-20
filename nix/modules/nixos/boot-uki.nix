@@ -98,7 +98,7 @@ in
             copyuki "$esp" "boot${efiArch}" "$MAIN_PROFILE"
             espkeep "boot${efiArch}.efi"
             espkeep bootold.efi
-
+            cat "$TEMPDIR/espfiles.remove"
             cat "$TEMPDIR/espfiles.remove" | ${pkgs.findutils}/bin/xargs -r rm -fv
           };
         ''
