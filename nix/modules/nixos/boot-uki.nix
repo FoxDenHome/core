@@ -12,8 +12,6 @@ let
   efiArch =
     if systemArch == "x86_64-linux" then
       "x64"
-    else if systemArch == "aarch64-linux" then
-      "a64"
     else
       throw "Unsupported architecture ${systemArch}";
 
