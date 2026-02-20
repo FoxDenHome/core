@@ -48,7 +48,7 @@ in
           TEMPDIR="$( ${pkgs.coreutils}/bin/mktemp -d)"
           ${pkgs.buildPackages.systemdUkify}/lib/systemd/ukify build \
             --config=${ukiCfg "/nix/var/nix/profiles/system"} \
-            --output="$TEMPDIR/nixos.efi"
+            --output="$TEMPDIR/boot${efiArch}.efi"
         ''
         + (
           if config.foxDen.boot.secure then
@@ -56,8 +56,8 @@ in
               ${pkgs.sbsigntool}/bin/sbsign \
                           --key /etc/secureboot/keys/db/db.key \
                           --cert /etc/secureboot/keys/db/db.pem \
-                          --output "$TEMPDIR/nixos.efi" \
-                          "$TEMPDIR/nixos.efi"
+                          --output "$TEMPDIR/boot${efiArch}.efi" \
+                          "$TEMPDIR/boot${efiArch}.efi"
             ''
           else
             "# SecureBoot is off"
@@ -70,10 +70,10 @@ in
             in
             ''
               ${pkgs.coreutils}/bin/mkdir -p ${espDir}
-              ${pkgs.coreutils}/bin/cp "$TEMPDIR/nixos.efi" ${espDir}/new.efi
-              ${pkgs.coreutils}/bin/rm -f ${espDir}/old.efi
-              ${pkgs.coreutils}/bin/mv ${espDir}/boot${efiArch}.efi ${espDir}/old.efi
-              ${pkgs.coreutils}/bin/mv ${espDir}/new.efi ${espDir}/boot${efiArch}.efi
+              ${pkgs.coreutils}/bin/cp -r "$TEMPDIR" ${espDir}.new
+              ${pkgs.coreutils}/bin/rm -rf ${espDir}.old
+              ${pkgs.coreutils}/bin/mv ${espDir} ${espDir}.old
+              ${pkgs.coreutils}/bin/mv ${espDir}.new ${espDir}
             ''
           ) espMounts
         ))
