@@ -37,7 +37,7 @@ in
   boot.kernelParams = [ "cachebad=1" ];
 
   boot.loader = {
-    systemd-boot.enable = lib.mkForce false;
+    systemd-boot.enable = lib.mkForce true;
     grub.enable = false;
     external = {
       enable = true;
