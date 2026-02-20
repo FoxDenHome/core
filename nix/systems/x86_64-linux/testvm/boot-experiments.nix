@@ -9,9 +9,15 @@ let
   espMounts = [
     "/boot"
   ];
-  efiArch =  if systemArch == "x86_64-linux" then "x64" else if  systemArch == "aarch64-linux" then "a64" else throw "Unsupported architecture ${systemArch}";
+  efiArch =
+    if systemArch == "x86_64-linux" then
+      "x64"
+    else if systemArch == "aarch64-linux" then
+      "a64"
+    else
+      throw "Unsupported architecture ${systemArch}";
 
-  ini = pkgs.formats.ini {};
+  ini = pkgs.formats.ini { };
 
   ukiCfg =
     profile:
@@ -22,11 +28,17 @@ let
         Cmdline = "@${profile}/kernel-params";
         Stub = "${pkgs.systemd}/lib/systemd/boot/efi/linux${efiArch}.efi.stub";
         OSRelease = "@${config.system.build.etc}/etc/os-release";
-      } // (if config.foxDen.boot.secure then {
-        SecureBootSigningTool = "sbsign";
-        SecureBootPrivateKey = "/etc/secureboot/keys/db/db.key";
-        SecureBootCertificate = "/etc/secureboot/keys/db/db.pem";
-      } else {});
+      }
+      // (
+        if config.foxDen.boot.secure then
+          {
+            SecureBootSigningTool = "sbsign";
+            SecureBootPrivateKey = "/etc/secureboot/keys/db/db.key";
+            SecureBootCertificate = "/etc/secureboot/keys/db/db.pem";
+          }
+        else
+          { }
+      );
     };
 in
 {
@@ -47,6 +59,12 @@ in
             ${pkgs.buildPackages.systemdUkify}/lib/systemd/ukify build \
               --config=${ukiCfg "/nix/var/nix/profiles/system"} \
               --output=${esp}/EFI_/BOOT/boot${efiArch}.efi
+            ${if !config.foxDen.boot.secure then "exit 0 # SecureBoot is off" else "# SecureBoot is on"}
+            ${pkgs.sbsigntool}/bin/sbsign \
+              --key /etc/secureboot/keys/db/db.key \
+              --cert /etc/secureboot/keys/db/db.pem \
+              --output ${esp}/EFI_/BOOT/boot${efiArch}.efi \
+              ${esp}/EFI_/BOOT/boot${efiArch}.efi
           '') espMounts
         )
       );
