@@ -5,7 +5,13 @@
 
   system.stateVersion = "25.05";
 
-  imports = [ ../../../profiles/server.nix ];
+  documentation = {
+    man.enable = false;
+    info.enable = false;
+    doc.enable = false;
+    nixos.enable = false;
+  };
+
   hardware.enableRedistributableFirmware = true;
   boot.initrd.availableKernelModules = [
     "virtio_pci"
