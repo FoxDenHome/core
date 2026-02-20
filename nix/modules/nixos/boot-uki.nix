@@ -81,7 +81,7 @@ in
             ls "$esp" > "$TEMPDIR/espfiles.remove"
             for profile in $FIXED_PROFILES; do
               local name="nixos-$(basename "$profile" | cut -d- -f2)"
-              cat "$TEMPDIR/espfiles.remove" | grep -v "^$name.efi$" > "$TEMPDIR/espfiles.remove.new"
+              cat "$TEMPDIR/espfiles.remove" | ${pkgs.gnugrep}/bin/grep -v "^$name.efi$" > "$TEMPDIR/espfiles.remove.new"
               mv "$TEMPDIR/espfiles.remove.new" "$TEMPDIR/espfiles.remove"
               if [ -f "$esp/$name.efi" ]; then
                 continue
