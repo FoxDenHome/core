@@ -44,3 +44,7 @@ creation_rules:
       - age:
         - *admin_doridian_keepassxc
         - *device_icefox
+  - path_regex: '^secrets/testvm\.'
+    key_groups:
+      - age:
+        - *admin_doridian_keepassxc
