@@ -74,7 +74,8 @@ in
 
           espkeep() {
             local name="$1"
-            cat "$TEMPDIR/espfiles.remove" | ${pkgs.gnugrep}/bin/grep -v "^$name$" > "$TEMPDIR/espfiles.remove.new" || return 0
+            # TODO: Full line matches somehow
+            cat "$TEMPDIR/espfiles.remove" | ${pkgs.gnugrep}/bin/grep -vF "$name" > "$TEMPDIR/espfiles.remove.new" || return 0
             mv "$TEMPDIR/espfiles.remove.new" "$TEMPDIR/espfiles.remove"
           }
 
