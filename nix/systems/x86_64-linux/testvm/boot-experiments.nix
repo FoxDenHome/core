@@ -66,7 +66,7 @@ in
           map (
             esp:
             let
-              espDir = "${esp}/EFI_/BOOT";
+              espDir = "${esp}/EFI/BOOT";
             in
             ''
               ${pkgs.coreutils}/bin/mkdir -p ${espDir}
