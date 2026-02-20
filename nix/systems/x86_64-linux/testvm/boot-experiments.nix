@@ -37,10 +37,10 @@ in
   boot.kernelParams = [ "cachebad=1" ];
 
   boot.loader = {
-    systemd-boot.enable = lib.mkForce true;
+    systemd-boot.enable = lib.mkForce false;
     grub.enable = false;
     external = {
-      enable = false;
+      enable = true;
       installHook = pkgs.writeShellScript "foxden-esp" (
         ''
           #!/usr/bin/env bash
