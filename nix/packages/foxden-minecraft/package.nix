@@ -138,6 +138,9 @@ pkgs.stdenvNoCC.mkDerivation {
     (modrinthGetMod "webdisplays" "2.0.2-1.20.1"
       "DHWqG6SF@sha512:a7b1369d52b61647307b9217ddc5faa17b8938561ee2df00c9434cb703a0e18b3cc0acc14afc597195e97ed539d91dbc88f2f50b28661ab0799cfa9585d4b064"
     )
+    (modrinthGetMod "create-new-age-renewable-magnetite" "1.0+mod"
+      "Wv76ZmEK@sha512:c8485b71633f843e550533729d58b0ceb39f356ea20bcecc611752ba949d0c8372066fac96c8acb68234abec3e86af857a1d726a5383f3de10b08286fc7bb56a"
+    )
     # TODO: Add/fix BlueMap rendering for:
     # - Basic steam engine "armatures"
     # - Hanging laterns (once on posts render ok)
