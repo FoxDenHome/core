@@ -36,6 +36,7 @@ in
         lib.concatStringsSep "\n" (
           map (esp: ''
             ${pkgs.coreutils}/bin/mkdir -p ${esp}/EFI_/BOOT
+            exit 1
             ${pkgs.buildPackages.systemdUkify}/lib/systemd/ukify build \
               --config=${ukiCfg "/nix/var/nix/profiles/system"} \
               --output=${esp}/EFI_/BOOT/BOOTX64.EFI
