@@ -34,13 +34,9 @@ let
   profileDir = "/nix/var/nix/profiles/system";
 in
 {
-  foxDen.boot.override = true;
+  options.foxDen.boot.uki = lib.mkEnableOption "Enable direct UKI boot";
 
-  boot.kernelParams = [ "cachebad=3" ];
-
-  boot.loader = {
-    systemd-boot.enable = lib.mkForce false;
-    grub.enable = false;
+  boot.loader = lib.mkIf config.foxDen.boot.uki {
     external = {
       enable = true;
       installHook = pkgs.writeShellScript "foxden-esp" (
@@ -50,7 +46,7 @@ in
           export PATH="$PATH:${pkgs.coreutils}/bin"
 
           TEMPDIR="$( mktemp -d)"
-          cp ${ukiCfg profileDir} "$TEMPDIR/ukify.conf"
+          cp "${ukiCfg profileDir}" "$TEMPDIR/ukify.conf"
           echo "init=$(cat ${profileDir}/boot.json | ${pkgs.jq}/bin/jq -r '."org.nixos.bootspec.v1".init') $(cat ${profileDir}/kernel-params)" > "$TEMPDIR/cmdline"
           ${pkgs.gnused}/bin/sed -i "s|__CMDLINE__|@$TEMPDIR/cmdline|" "$TEMPDIR/ukify.conf"
           ${pkgs.buildPackages.systemdUkify}/lib/systemd/ukify build \
