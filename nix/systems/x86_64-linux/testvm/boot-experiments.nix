@@ -42,21 +42,41 @@ in
     external = {
       enable = true;
       installHook = pkgs.writeShellScript "foxden-esp" (
-        lib.concatStringsSep "\n" (
-          map (esp: ''
-            set -ex
-            ${pkgs.coreutils}/bin/mkdir -p ${esp}/EFI_/BOOT
-            ${pkgs.buildPackages.systemdUkify}/lib/systemd/ukify build \
-              --config=${ukiCfg "/nix/var/nix/profiles/system"} \
-              --output=${esp}/EFI_/BOOT/boot${efiArch}.efi
-            ${if !config.foxDen.boot.secure then "exit 0 # SecureBoot is off" else "# SecureBoot is on"}
-            ${pkgs.sbsigntool}/bin/sbsign \
-              --key /etc/secureboot/keys/db/db.key \
-              --cert /etc/secureboot/keys/db/db.pem \
-              --output ${esp}/EFI_/BOOT/boot${efiArch}.efi \
-              ${esp}/EFI_/BOOT/boot${efiArch}.efi
-          '') espMounts
+        ''
+          #!/usr/bin/env bash
+          set -ex
+          TEMPDIR="$(mktemp -d)"
+          ${pkgs.buildPackages.systemdUkify}/lib/systemd/ukify build \
+            --config=${ukiCfg "/nix/var/nix/profiles/system"} \
+            --output="$TEMPDIR/nixos.efi"
+        ''
+        + (
+          if config.foxDen.boot.secure then
+            ''
+              ${pkgs.sbsigntool}/bin/sbsign \
+                          --key /etc/secureboot/keys/db/db.key \
+                          --cert /etc/secureboot/keys/db/db.pem \
+                          --output "$TEMPDIR/nixos.efi" \
+                          "$TEMPDIR/nixos.efi"
+            ''
+          else
+            "# SecureBoot is off"
         )
+        + (lib.concatStringsSep "\n" (
+          map (
+            esp:
+            let
+              espDir = "${esp}/EFI_/BOOT";
+            in
+            ''
+              ${pkgs.coreutils}/bin/mkdir -p ${espDir}
+              ${pkgs.coreutils}/bin/cp "$TEMPDIR/nixos.efi" ${espDir}/new.efi
+              ${pkgs.coreutils}/bin/rm -f ${espDir}/old.efi
+              ${pkgs.coreutils}/bin/mv ${espDir}/boot${efiArch}.efi ${espDir}/old.efi
+              ${pkgs.coreutils}/bin/mv ${espDir}/new.efi ${espDir}/boot${efiArch}.efi
+            ''
+          ) espMounts
+        ))
       );
     };
   };
