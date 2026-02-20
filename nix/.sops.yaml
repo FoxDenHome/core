@@ -4,6 +4,7 @@ keys:
   - &device_carvera-controller age1txw8phmwtv0ce3kya5e0spmwvkt05h2v9cqcrtngyz6653xr6pkqxf7w5s
   - &device_islandfox age142dhgtgtgm6kv252pd8ypt3xnvvzl2qavycvme9yqzyesktcwuyq8w3u22
   - &device_icefox age1krll9fy0w566ahcxh8rnfdvsq0f376glgcknq9lztfhkuzkem3tswm3xrp
+  - &device_testvm_fennec age1nf8scjlnjmpp70h4gd379t08yjxnzeyugg4jee78msufu8hkcffs7t939p
 # First hit rule counts
 creation_rules:
   - path_regex: '^secrets/shared\.'
@@ -14,6 +15,7 @@ creation_rules:
         - *device_islandfox
         - *device_icefox
         - *device_carvera-controller
+        - *device_testvm_fennec
   - path_regex: '^secrets/bengalfox\.'
     key_groups:
       - age:
@@ -48,3 +50,4 @@ creation_rules:
     key_groups:
       - age:
         - *admin_doridian_keepassxc
+        - *device_testvm_fennec
