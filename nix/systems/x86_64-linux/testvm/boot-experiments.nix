@@ -42,7 +42,7 @@ in
             ${pkgs.coreutils}/bin/mkdir -p ${esp}/EFI_/BOOT
             ${pkgs.buildPackages.systemdUkify}/lib/systemd/ukify build \
               --config=${ukiCfg "/nix/var/nix/profiles/system"} \
-              --output=${esp}/EFI_/BOOT/boot${efiArch}.EFI
+              --output=${esp}/EFI_/BOOT/boot${efiArch}.efi
           '') espMounts
         )
       );
