@@ -82,10 +82,9 @@ in
               if [ -f "$esp/$name.efi" ]; then
                 continue
               fi
-              copyuki "$esp" "$name"
+              copyuki "$esp" "$name" "$profile"
             done
-            makeuki "boot${efiArch}" "$MAIN_PROFILE"
-            copyuki "$esp" "$name"
+            copyuki "$esp" "boot${efiArch}" "$MAIN_PROFILE"
           }
         ''
         + (lib.concatStringsSep "\n" (map (esp: "buildesp ${esp}") config.foxDen.boot.espMounts))
