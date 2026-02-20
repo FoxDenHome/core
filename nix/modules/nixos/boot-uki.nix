@@ -79,7 +79,7 @@ in
             echo "Building UKI for $esp with $1"
             mkdir -p "$esp"
             for profile in $FIXED_PROFILES; do
-              local name="nixos-$(basename "$profile" | cut -d- -f2)"
+              local name="nixos-$(basename "$profile" | cut -d- -f2)-boot"
               if [ -f "$esp/$name.efi" ]; then
                 continue
               fi
