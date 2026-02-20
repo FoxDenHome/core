@@ -85,8 +85,8 @@ in
               fi
               copyuki "$esp" "$name" "$profile"
             done
-            rm -f "$esp/boot${efiArch}.efi.old"
-            mv "$esp/boot${efiArch}.efi" "$esp/boot${efiArch}.efi.old" || true
+            rm -f "$esp/bootold.efi"
+            mv "$esp/boot${efiArch}.efi" "$esp/bootold.efi" || true
             copyuki "$esp" "boot${efiArch}" "$MAIN_PROFILE"
           };
         ''
