@@ -2,6 +2,7 @@
   config,
   lib,
   pkgs,
+  systemArch,
   ...
 }:
 let
@@ -18,10 +19,10 @@ let
         Linux = "${profile}/kernel";
         Initrd = "${profile}/initrd";
         Cmdline = "@${profile}/kernel-params";
-        Stub = "${pkgs.systemd}/lib/systemd/boot/efi/linux${pkgs.stdenv.hostPlatform}.efi.stub";
+        Stub = "${pkgs.systemd}/lib/systemd/boot/efi/linux${systemArch}.efi.stub";
         OSRelease = "@${config.system.build.etc}/etc/os-release";
         # This is needed for cross compiling.
-        EFIArch = "${pkgs.stdenv.hostPlatform}";
+        EFIArch = "${systemArch}";
       };
     };
 in
