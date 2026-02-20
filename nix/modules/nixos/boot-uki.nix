@@ -51,44 +51,43 @@ in
               --config="$TEMPDIR/ukify.conf" \
               --output="$TEMPDIR/$name.efi"
         ''
-        +
-          (
-            if config.foxDen.boot.secure then
-              ''
-                ${pkgs.sbsigntool}/bin/sbsign \
-                            --key /etc/secureboot/keys/db/db.key \
-                            --cert /etc/secureboot/keys/db/db.pem \
-                            --output "$TEMPDIR/$name.efi" \
-                            "$TEMPDIR/$name.efi"
-              ''
-            else
-              "# SecureBoot is off"
-          ) +
+        + (
+          if config.foxDen.boot.secure then
             ''
-              }
-
-              copyuki() {
-                local esp="$1"
-                shift 1
-                local name="$1"
-                makeuki "$@"
-                cp -f "$TEMPDIR/$name.efi" "$esp/$name.efi"
-              }
-
-              buildesp() {
-                local esp="$1/EFI/TEST"
-                mkdir -p "$esp"
-                for profile in $FIXED_PROFILES; do
-                  local name="nixos-$(basename "$profile")"
-                  if [ -f "$esp/$name.efi" ]; then
-                    continue
-                  fi
-                  copyuki "$esp" "$name"
-                done
-                makeuki "boot${efiArch}" "$MAIN_PROFILE"
-                copyuki "$esp" "$name"
-              }
+              ${pkgs.sbsigntool}/bin/sbsign \
+                          --key /etc/secureboot/keys/db/db.key \
+                          --cert /etc/secureboot/keys/db/db.pem \
+                          --output "$TEMPDIR/$name.efi" \
+                          "$TEMPDIR/$name.efi"
             ''
+          else
+            "# SecureBoot is off"
+        )
+        + ''
+          }
+
+          copyuki() {
+            local esp="$1"
+            shift 1
+            local name="$1"
+            makeuki "$@"
+            cp -f "$TEMPDIR/$name.efi" "$esp/$name.efi"
+          }
+
+          buildesp() {
+            local esp="$1/EFI/TEST"
+            mkdir -p "$esp"
+            for profile in $FIXED_PROFILES; do
+              local name="nixos-$(basename "$profile")"
+              if [ -f "$esp/$name.efi" ]; then
+                continue
+              fi
+              copyuki "$esp" "$name"
+            done
+            makeuki "boot${efiArch}" "$MAIN_PROFILE"
+            copyuki "$esp" "$name"
+          }
+        ''
         + (lib.concatStringsSep "\n" (map (esp: "buildesp ${esp}") config.foxDen.boot.espMounts))
       );
     };
