@@ -1,4 +1,9 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 let
   uki = "${config.system.build.uki}/nixos.efi";
   espMounts = [
@@ -6,10 +11,15 @@ let
   ];
 in
 {
-    # system.activationScripts.installFoxDenUki = {
-    #   text = lib.concatStringsSep "\n" (map (esp: ''
-    #     ${pkgs.coreutils}/bin/mkdir -p ${esp}/EFI_/BOOT
-    #     ${pkgs.coreutils}/bin/cp ${uki} ${esp}/EFI_/BOOT/BOOTX64.EFI
-    #   '') espMounts);
-    # };
+  boot.loader.external = {
+    enable = true;
+    installHook = pkgs.writeShellScript "foxden-esp" (
+      lib.concatStringsSep "\n" (
+        map (esp: ''
+          ${pkgs.coreutils}/bin/mkdir -p ${esp}/EFI_/BOOT
+          ${pkgs.coreutils}/bin/cp ${uki} ${esp}/EFI_/BOOT/BOOTX64.EFI
+        '') espMounts
+      )
+    );
+  };
 }
