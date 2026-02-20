@@ -67,11 +67,9 @@ in
           }
 
           copyuki() {
-            local esp="$1"
-            shift 1
             local name="$1"
             makeuki "$@"
-            cp -f "$TEMPDIR/$name.efi" "$esp/$name.efi"
+            cp -f "$TEMPDIR/$name.efi" "$name.efi"
           }
 
           espkeep() {
@@ -85,21 +83,22 @@ in
             echo "Building UKI for $esp with $1"
             mkdir -p "$esp"
             ls "$esp" > "$TEMPDIR/espfiles.remove"
+            pushd "$esp"
             for profile in $FIXED_PROFILES; do
               local name="nixos-$(basename "$profile" | cut -d- -f2)"
               espkeep "$name.efi"
-              if [ -f "$esp/$name.efi" ]; then
+              if [ -f "$name.efi" ]; then
                 continue
               fi
-              copyuki "$esp" "$name" "$profile"
+              copyuki "$name" "$profile"
             done
-            rm -f "$esp/bootold.efi"
-            mv "$esp/boot${efiArch}.efi" "$esp/bootold.efi" || true
-            copyuki "$esp" "boot${efiArch}" "$MAIN_PROFILE"
+            rm -f "bootold.efi"
+            mv "boot${efiArch}.efi" "bootold.efi" || true
+            copyuki "boot${efiArch}" "$MAIN_PROFILE"
             espkeep "boot${efiArch}.efi"
             espkeep bootold.efi
-            cat "$TEMPDIR/espfiles.remove"
             cat "$TEMPDIR/espfiles.remove" | ${pkgs.findutils}/bin/xargs -r rm -fv
+            popd
           };
         ''
         + (lib.concatStringsSep "\n" (map (esp: "buildesp ${esp}") config.foxDen.boot.espMounts))
