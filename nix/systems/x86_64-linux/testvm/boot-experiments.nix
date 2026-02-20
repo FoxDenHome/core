@@ -21,24 +21,17 @@ let
 
   ukiCfg =
     profile:
-    let
-      kernelParamsWithInit = pkgs.runCommand "kernel-params" { } ''
-        #!/usr/bin/env bash
-        set -euo pipefail
-        export PATH="$PATH:${pkgs.coreutils}/bin"
-        echo -n "init=$(cat ${profile}/boot.json | ${pkgs.jq}/bin/jq -r '."org.nixos.bootspec.v1".init')" > $out
-        cat ${profile}/kernel-params >> $out
-      '';
-    in
     ini.generate "ukify.conf" {
       UKI = {
         Linux = "${profile}/kernel";
         Initrd = "${profile}/initrd";
-        Cmdline = "@${kernelParamsWithInit}";
+        Cmdline = "__CMDLINE__";
         Stub = "${pkgs.systemd}/lib/systemd/boot/efi/linux${efiArch}.efi.stub";
         OSRelease = "@${config.system.build.etc}/etc/os-release";
       };
     };
+
+  profileDir = "/nix/var/nix/profiles/system";
 in
 {
   foxDen.boot.override = true;
@@ -54,9 +47,14 @@ in
         ''
           #!/usr/bin/env bash
           set -euo pipefail
-          TEMPDIR="$( ${pkgs.coreutils}/bin/mktemp -d)"
+          export PATH="$PATH:${pkgs.coreutils}/bin"
+
+          TEMPDIR="$( mktemp -d)"
+          cp ${ukiCfg profileDir} "$TEMPDIR/ukify.conf"
+          CMDLINE="init=$(cat ${profileDir}/boot.json | ${pkgs.jq}/bin/jq -r '."org.nixos.bootspec.v1".init') $(cat ${profileDir}/kernel-params)"
+          ${pkgs.gnused}/bin/sed -i "s|__CMDLINE__|$CMDLINE|" "$TEMPDIR/ukify.conf"
           ${pkgs.buildPackages.systemdUkify}/lib/systemd/ukify build \
-            --config=${ukiCfg "/nix/var/nix/profiles/system"} \
+            --config="$TEMPDIR/ukify.conf" \
             --output="$TEMPDIR/boot${efiArch}.efi"
         ''
         + (
@@ -79,11 +77,11 @@ in
               espDir = "${esp}/EFI/TEST";
             in
             ''
-              ${pkgs.coreutils}/bin/mkdir -p ${espDir}
-              ${pkgs.coreutils}/bin/rm -rf ${espDir}_OLD ${espDir}_NEW
-              ${pkgs.coreutils}/bin/cp -r "$TEMPDIR" ${espDir}_NEW
-              ${pkgs.coreutils}/bin/mv ${espDir} ${espDir}_OLD
-              ${pkgs.coreutils}/bin/mv ${espDir}_NEW ${espDir}
+              mkdir -p ${espDir}
+              rm -rf ${espDir}_OLD ${espDir}_NEW
+              cp -r "$TEMPDIR" ${espDir}_NEW
+              mv ${espDir} ${espDir}_OLD
+              mv ${espDir}_NEW ${espDir}
             ''
           ) espMounts
         ))
