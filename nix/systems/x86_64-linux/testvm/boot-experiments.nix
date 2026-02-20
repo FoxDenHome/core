@@ -43,7 +43,6 @@ in
         lib.concatStringsSep "\n" (
           map (esp: ''
             set -ex
-            exit 0
             ${pkgs.coreutils}/bin/mkdir -p ${esp}/EFI_/BOOT
             ${pkgs.buildPackages.systemdUkify}/lib/systemd/ukify build \
               --config=${ukiCfg "/nix/var/nix/profiles/system"} \
