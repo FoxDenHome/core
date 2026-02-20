@@ -76,7 +76,7 @@ in
 
           buildesp() {
             local esp="$1/EFI/TEST"
-            echo "Building UKI for $esp"
+            echo "Building UKI for $esp with $1"
             mkdir -p "$esp"
             for profile in $FIXED_PROFILES; do
               local name="nixos-$(basename "$profile" | cut -d- -f2)"
