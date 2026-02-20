@@ -40,7 +40,7 @@ in
           makeuki() {
             local name="$1"
             local profile="$2"
-            if [ -f "$TEMPDIR/$1.efi" ]; then
+            if [ -f "$TEMPDIR/$name.efi" ]; then
               return 0
             fi
             cp -f "${ukiCfg}" "$TEMPDIR/ukify.conf"
