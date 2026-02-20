@@ -49,7 +49,9 @@
       ];
       # "audit=1" "audit_backlog_limit=256" "module.sig_enforce=1" "lockdown=integrity"
 
-      loader.systemd-boot.enable = lib.mkIf (!config.foxDen.boot.override) (lib.mkForce (!config.foxDen.boot.secure));
+      loader.systemd-boot.enable = lib.mkIf (!config.foxDen.boot.override) (
+        lib.mkForce (!config.foxDen.boot.secure)
+      );
       lanzaboote = lib.mkIf ((!config.foxDen.boot.override) && config.foxDen.boot.secure) {
         enable = true;
         pkiBundle = "/etc/secureboot";
