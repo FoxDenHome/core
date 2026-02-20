@@ -7,7 +7,13 @@
 
   imports = [ ../../../profiles/server.nix ];
   hardware.enableRedistributableFirmware = true;
-  boot.initrd.kernelModules = [ ];
+  boot.initrd.availableKernelModules = [
+    "virtio_pci"
+    "virtio_blk"
+    "virtio"
+    "virtio_net"
+    "virtio_console"
+  ];
   boot.extraModulePackages = [ ];
   boot.kernelParams = [ "net.ifnames=0" ];
 
