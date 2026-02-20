@@ -38,9 +38,6 @@ in
           map (esp: ''
             ${pkgs.coreutils}/bin/mkdir -p ${esp}/EFI_/BOOT
             cd ${esp}/EFI_/BOOT
-            ${pkgs.buildPackages.systemdUkify}/lib/systemd/ukify build \
-              --config=${ukiCfg "/nix/var/nix/profiles/system"} \
-              --output=BOOTX64.EFI
           '') espMounts
         )
       );
