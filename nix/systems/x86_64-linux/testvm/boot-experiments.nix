@@ -12,7 +12,7 @@ let
 in
 {
   boot.loader = {
-    systemd-boot.enable = false;
+    systemd-boot.enable = lib.mkForce false;
     grub.enable = false;
     external = {
       enable = true;
