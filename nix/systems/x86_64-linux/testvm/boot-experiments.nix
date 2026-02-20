@@ -21,11 +21,20 @@ let
 
   ukiCfg =
     profile:
+    let
+      kernelParamsWithInit = pkgs.runCommand "kernel-params" { } ''
+        #!/usr/bin/env bash
+        set -euo pipefail
+        export PATH="$PATH:${pkgs.coreutils}/bin"
+        echo -n "init=$(cat ${profile}/boot.json | ${pkgs.jq}/bin/jq -r '."org.nixos.bootspec.v1".init')" > $out
+        cat ${profile}/kernel-params >> $out
+      '';
+    in
     ini.generate "ukify.conf" {
       UKI = {
         Linux = "${profile}/kernel";
         Initrd = "${profile}/initrd";
-        Cmdline = "@${profile}/kernel-params init=test";
+        Cmdline = "@${kernelParamsWithInit}";
         Stub = "${pkgs.systemd}/lib/systemd/boot/efi/linux${efiArch}.efi.stub";
         OSRelease = "@${config.system.build.etc}/etc/os-release";
       };
