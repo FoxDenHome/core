@@ -76,7 +76,7 @@ in
 
           espkeep() {
             local name="$1"
-            cat "$TEMPDIR/espfiles.remove" | ${pkgs.gnugrep}/bin/grep -v "^$name$" > "$TEMPDIR/espfiles.remove.new"
+            cat "$TEMPDIR/espfiles.remove" | ${pkgs.gnugrep}/bin/grep -v "^$name$" > "$TEMPDIR/espfiles.remove.new" || return 0
             mv "$TEMPDIR/espfiles.remove.new" "$TEMPDIR/espfiles.remove"
           }
 
