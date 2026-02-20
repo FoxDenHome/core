@@ -84,10 +84,15 @@ in
               fi
               copyuki "$esp" "$name" "$profile"
             done
+            rm -f "$esp/boot${efiArch}.efi.old"
+            mv "$esp/boot${efiArch}.efi" "$esp/boot${efiArch}.efi.old" || true
             copyuki "$esp" "boot${efiArch}" "$MAIN_PROFILE"
           }
         ''
         + (lib.concatStringsSep "\n" (map (esp: "buildesp ${esp}") config.foxDen.boot.espMounts))
+        + ''
+          rm -rf "$TEMPDIR"
+        ''
       );
     };
   };
