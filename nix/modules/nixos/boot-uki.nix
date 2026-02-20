@@ -6,14 +6,8 @@
   ...
 }:
 let
-  espMounts = [
-    "/boot"
-  ];
   efiArch =
-    if systemArch == "x86_64-linux" then
-      "x64"
-    else
-      throw "Unsupported architecture ${systemArch}";
+    if systemArch == "x86_64-linux" then "x64" else throw "Unsupported architecture ${systemArch}";
 
   ini = pkgs.formats.ini { };
 
@@ -78,7 +72,7 @@ in
               mv ${espDir} ${espDir}_OLD
               mv ${espDir}_NEW ${espDir}
             ''
-          ) espMounts
+          ) config.foxDen.boot.espMounts
         ))
       );
     };

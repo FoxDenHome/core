@@ -90,7 +90,7 @@
     ];
   };
 
-  boot.lanzaboote.extraEfiSysMountPoints = [ "/boot2" ];
+  foxDen.boot.espMounts = [ "/boot2" ];
 
   foxDen.services = {
     watchdog.enable = true;

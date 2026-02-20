@@ -6,6 +6,9 @@
   systemArch,
   ...
 }:
+let
+  mainEspMount = config.boot.loader.efi.efiSysMountPoint;
+in
 {
   imports = [
     lanzaboote.nixosModules.lanzaboote
@@ -13,10 +16,16 @@
 
   options.foxDen.boot = {
     secure = lib.mkEnableOption "Enable secure boot";
-    override = lib.mkEnableOption "Enable boot override experiments";
+    espMounts = lib.mkOption {
+      type = lib.types.listOf lib.types.str;
+      default = [ ];
+      defaultText = "[ config.boot.loader.efi.efiSysMountPoint ]";
+      description = "List of mount points to copy the generated UKI to";
+    };
   };
 
   config = {
+    foxDen.boot.espMounts = [ mainEspMount ];
     security = {
       audit.enable = false;
       apparmor.enable = true;
@@ -56,6 +65,7 @@
       lanzaboote = lib.mkIf ((!config.foxDen.boot.uki) && config.foxDen.boot.secure) {
         enable = true;
         pkiBundle = "/etc/secureboot";
+        extraEfiSysMountPoints = lib.lists.remove mainEspMount config.foxDen.boot.espMounts;
       };
     };
 
