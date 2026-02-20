@@ -5,7 +5,7 @@
   ...
 }:
 let
-  uki = "${config.system.build.uki}/nixos.efi";
+  uki = config.system.boot.loader.ukiFile;
   espMounts = [
     "/boot"
   ];
