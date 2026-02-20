@@ -34,7 +34,7 @@ in
 {
   foxDen.boot.override = true;
 
-  boot.kernelParams = [ "cachebad=1" ];
+  boot.kernelParams = [ "cachebad=2" ];
 
   boot.loader = {
     systemd-boot.enable = lib.mkForce false;
