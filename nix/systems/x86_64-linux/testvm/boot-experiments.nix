@@ -40,7 +40,7 @@ in
     systemd-boot.enable = lib.mkForce true;
     grub.enable = false;
     external = {
-      enable = true;
+      enable = false;
       installHook = pkgs.writeShellScript "foxden-esp" (
         ''
           #!/usr/bin/env bash
