@@ -63,7 +63,7 @@ in
               ''
             else
               "# SecureBoot is off"
-          )
+          ) +
             ''
               }
 
@@ -77,6 +77,7 @@ in
 
               buildesp() {
                 local esp="$1/EFI/TEST"
+                mkdir -p "$esp"
                 for profile in $FIXED_PROFILES; do
                   local name="nixos-$(basename "$profile")"
                   if [ -f "$esp/$name.efi" ]; then
@@ -88,22 +89,7 @@ in
                 copyuki "$esp" "$name"
               }
             ''
-        + (lib.concatStringsSep "\n" (
-          map (
-            esp:
-            let
-              espDir = "${esp}/EFI/TEST";
-            in
-            ''
-              mkdir -p ${espDir}
-              rm -rf ${espDir}_OLD ${espDir}_NEW
-              cp -r "$TEMPDIR" ${espDir}_NEW
-              rm -rf "$TEMPDIR"
-              mv ${espDir} ${espDir}_OLD
-              mv ${espDir}_NEW ${espDir}
-            ''
-          ) config.foxDen.boot.espMounts
-        ))
+        + (lib.concatStringsSep "\n" (map (esp: "buildesp ${esp}") config.foxDen.boot.espMounts))
       );
     };
   };
