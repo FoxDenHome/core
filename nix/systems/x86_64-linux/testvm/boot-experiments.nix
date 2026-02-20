@@ -9,9 +9,11 @@ let
     "/boot"
   ];
 
+  ini = pkgs.formats.ini {};
+
   ukiCfg =
     profile:
-    pkgs.formats.ini.generate "ukify.conf" {
+    ini.generate "ukify.conf" {
       UKI = {
         Linux = "${profile}/kernel";
         Initrd = "${profile}/initrd";
