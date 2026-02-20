@@ -30,7 +30,7 @@ in
       installHook = pkgs.writeShellScript "foxden-esp" (
         ''
           #!/usr/bin/env bash
-          set -euo pipefail
+          set -xeuo pipefail
           export PATH="$PATH:${pkgs.coreutils}/bin"
 
           TEMPDIR="$(mktemp -d)"
