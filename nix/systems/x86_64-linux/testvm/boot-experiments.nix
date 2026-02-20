@@ -9,7 +9,7 @@ let
   espMounts = [
     "/boot"
   ];
-  efiArch =  if systemArch == "x86_64" then "x64" else systemArch;
+  efiArch =  if systemArch == "x86_64" then "x64" else if  systemArch == "aarch64" then "a64" else throw "Unsupported architecture";
 
   ini = pkgs.formats.ini {};
 
