@@ -21,8 +21,6 @@ let
         Cmdline = "@${profile}/kernel-params";
         Stub = "${pkgs.systemd}/lib/systemd/boot/efi/linux${systemArch}.efi.stub";
         OSRelease = "@${config.system.build.etc}/etc/os-release";
-        # This is needed for cross compiling.
-        EFIArch = "${systemArch}";
       };
     };
 in
