@@ -80,6 +80,7 @@ in
               mkdir -p ${espDir}
               rm -rf ${espDir}_OLD ${espDir}_NEW
               cp -r "$TEMPDIR" ${espDir}_NEW
+              rm -f "$TEMPDIR"
               mv ${espDir} ${espDir}_OLD
               mv ${espDir}_NEW ${espDir}
             ''
