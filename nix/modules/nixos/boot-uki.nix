@@ -92,8 +92,7 @@ in
         ''
         + (lib.concatStringsSep "\n" (map (esp: "buildesp ${esp}") config.foxDen.boot.espMounts))
         + ''
-          ;
-                    rm -rf "$TEMPDIR"
+          ; rm -rf "$TEMPDIR"
         ''
       );
     };
