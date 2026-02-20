@@ -31,7 +31,6 @@
 
     boot = {
       initrd.systemd.enable = true;
-      grub.enable = false;
 
       plymouth = {
         enable = true;
@@ -50,6 +49,7 @@
       ];
       # "audit=1" "audit_backlog_limit=256" "module.sig_enforce=1" "lockdown=integrity"
 
+      loader.grub.enable = false;
       loader.systemd-boot.enable = lib.mkForce (
         (!config.foxDen.boot.secure) && (!config.foxDen.boot.uki)
       );
