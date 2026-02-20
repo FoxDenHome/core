@@ -51,8 +51,8 @@ in
 
           TEMPDIR="$( mktemp -d)"
           cp ${ukiCfg profileDir} "$TEMPDIR/ukify.conf"
-          CMDLINE="init=$(cat ${profileDir}/boot.json | ${pkgs.jq}/bin/jq -r '."org.nixos.bootspec.v1".init') $(cat ${profileDir}/kernel-params)"
-          ${pkgs.gnused}/bin/sed -i "s|__CMDLINE__|$CMDLINE|" "$TEMPDIR/ukify.conf"
+          echo "init=$(cat ${profileDir}/boot.json | ${pkgs.jq}/bin/jq -r '."org.nixos.bootspec.v1".init') $(cat ${profileDir}/kernel-params)" > "$TEMPDIR/cmdline"
+          ${pkgs.gnused}/bin/sed -i "s|__CMDLINE__|@$TEMPDIR/cmdline|" "$TEMPDIR/ukify.conf"
           ${pkgs.buildPackages.systemdUkify}/lib/systemd/ukify build \
             --config="$TEMPDIR/ukify.conf" \
             --output="$TEMPDIR/boot${efiArch}.efi"
