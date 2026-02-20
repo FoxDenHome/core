@@ -83,7 +83,7 @@ in
             echo "Building UKI for $esp with $1"
             mkdir -p "$esp"
             ls "$esp" > "$TEMPDIR/espfiles.remove"
-            pushd "$esp"
+            pushd "$esp" >/dev/null
             for profile in $FIXED_PROFILES; do
               local name="nixos-$(basename "$profile" | cut -d- -f2)"
               espkeep "$name.efi"
@@ -98,7 +98,7 @@ in
             espkeep "boot${efiArch}.efi"
             espkeep bootold.efi
             cat "$TEMPDIR/espfiles.remove" | ${pkgs.findutils}/bin/xargs -r rm -fv
-            popd
+            popd >/dev/null
           };
         ''
         + (lib.concatStringsSep "\n" (map (esp: "buildesp ${esp}") config.foxDen.boot.espMounts))
