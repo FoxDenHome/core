@@ -70,10 +70,10 @@ in
             in
             ''
               ${pkgs.coreutils}/bin/mkdir -p ${espDir}
-              ${pkgs.coreutils}/bin/cp -r "$TEMPDIR" ${espDir}.new
-              ${pkgs.coreutils}/bin/rm -rf ${espDir}.old
-              ${pkgs.coreutils}/bin/mv ${espDir} ${espDir}.old
-              ${pkgs.coreutils}/bin/mv ${espDir}.new ${espDir}
+              ${pkgs.coreutils}/bin/rm -rf ${espDir}_OLD ${espDir}_NEW
+              ${pkgs.coreutils}/bin/cp -r "$TEMPDIR" ${espDir}_NEW
+              ${pkgs.coreutils}/bin/mv ${espDir} ${espDir}_OLD
+              ${pkgs.coreutils}/bin/mv ${espDir}_NEW ${espDir}
             ''
           ) espMounts
         ))
