@@ -3,7 +3,7 @@
   services.kanidm = {
     enableClient = true;
 
-    package = pkgs.kanidmWithSecretProvisioning_1_8;
+    package = pkgs.kanidmWithSecretProvisioning_1_9;
 
     clientSettings = {
       uri = "https://auth.foxden.network";
