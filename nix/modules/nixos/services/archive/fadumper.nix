@@ -123,14 +123,14 @@ in
           };
         };
 
-        systemd.timers.fadumper-refresh = {
-          wantedBy = [ "timers.target" ];
-          timerConfig = {
-            OnCalendar = "daily";
-            RandomizedDelaySec = "12h";
-            Persistent = true;
-          };
-        };
+        # systemd.timers.fadumper-refresh = {
+        #   wantedBy = [ "timers.target" ];
+        #   timerConfig = {
+        #     OnCalendar = "daily";
+        #     RandomizedDelaySec = "12h";
+        #     Persistent = true;
+        #   };
+        # };
 
         environment.persistence."/nix/persist/fadumper" = ifDefaultData {
           hideMounts = true;
