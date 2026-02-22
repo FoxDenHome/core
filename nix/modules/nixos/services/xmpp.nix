@@ -18,10 +18,10 @@ let
   );
 
   svcConfig = config.foxDen.services.xmpp;
-  hostName = "foxden.network";
+  tlsCertName = "foxden.network";
   tlsRoot = "/var/lib/foxden/http-prosody/acme";
-  tlsChain = "${tlsRoot}/${hostName}.crt";
-  tlsKey = "${tlsRoot}/${hostName}.key";
+  tlsChain = "${tlsRoot}/${tlsCertName}.crt";
+  tlsKey = "${tlsRoot}/${tlsCertName}.key";
 in
 {
   options.foxDen.services.xmpp = {
