@@ -90,8 +90,8 @@ pkgs.stdenvNoCC.mkDerivation {
     (modrinthGetMod "leashable-collars" "1.2.6"
       "rLfqDKHu@sha512:b3f4d6bf5a7e43d003eb7fbecc0c13c46065af0f968353bc1ff9d11de11a2ce9d7089790b18a09175443cae004762b355d09dea69b458e1b7a3dbc82bb053ef0"
     )
-    (modrinthGetMod "cc-tweaked" "1.117.0"
-      "W45ytlaC@sha512:1dce8ee17e600f9d81c44281631b5dd1883edd344d1a9f67d0361064d4a03cf31a26ff5508ae95dd0a122e322d85c6221ce5619b95c8a672dc53cdedfbc70a6c"
+    (modrinthGetMod "cc-tweaked" "1.117.1"
+      "5F5BaGQ4@sha512:8517ab3460e69c4d9f4600942e4f1eb477465ae1737e8b668aa50f4ee7fcf84aa69cdae610bac88c94abd1b59ef64676caa54e4c1a932af5db7c75a2d20a5f5f"
     )
     (modrinthGetMod "computer-cartographer" "1.0"
       "YbdPiGff@sha512:c8e211d2057a139160ec909840fdb6feeff0ee89684f6a26e2853fb79de158db18908d1eddbdb2c9934695c9de33c3c980459ddc170cc1b43fef010f4cb4f3bb"
