@@ -1,14 +1,14 @@
 { pkgs, ... }:
 let
-  version = "1.0.0";
+  version = "0.03";
 
   srcPkgs = pkgs.stdenvNoCC.mkDerivation {
     name = "circuitjs-src";
     src = pkgs.fetchFromGitHub {
       owner = "johnnewto";
       repo = "circuitjs1";
-      rev = "10a9037254711e67363a0f35d4daf32f28d3bed3";
-      sha256 = "sha256-Z/gJeVbVQEo/LYxDJFSX1hsMOdOTYeg0i2usZx24LLY=";
+      rev = "v${version}";
+      sha256 = "sha256-tU07va+Ud7lPb9p4zKeGiAspgGbonBAUxvNwwVR1XVw=";
     };
     inherit version;
 
