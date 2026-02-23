@@ -20,6 +20,8 @@ build_arch() {
     copy_out "$(nix build ".#nixosConfigurations.$1-netboot.config.system.build.netbootIpxeScript" --no-link --print-out-paths)/netboot.ipxe" "$1.ipxe"
     sed -i "s~bzImage~uki-$1.efi~g" "${OUTDIR}/$1.ipxe"
     sed -i "s~^initrd~#initrd~g" "${OUTDIR}/$1.ipxe"
+    sed -i '2i imgfree' "${OUTDIR}/$1.ipxe"
+    sed -i '3i set cmdline foxes=best' "${OUTDIR}/$1.ipxe"
 }
 
 build_arch x86_64
