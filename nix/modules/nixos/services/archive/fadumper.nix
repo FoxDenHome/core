@@ -96,26 +96,26 @@ in
           wantedBy = [ "multi-user.target" ];
         };
 
-        # systemd.services.fadumper-refresh = {
-        #   confinement.packages = [ pkgs.fadumper ];
-        #   path = [ pkgs.fadumper ];
-        #   serviceConfig = {
-        #     BindPaths = [
-        #       svcConfig.dataDir
-        #     ];
-        #     Type = "simple";
-        #     Restart = "no";
-        #     User = "fadumper";
-        #     Group = "fadumper";
-        #     EnvironmentFile = config.lib.foxDen.sops.mkIfAvailable config.sops.secrets.fadumper.path;
-        #     ExecStart = [ "${pkgs.bash}/bin/bash ${pkgs.fadumper}/lib/node_modules/fadumper/looper.sh" ];
-        #     WorkingDirectory = faDumperDir;
-        #     StateDirectory = ifDefaultData "fadumper";
-        #     Environment = [
-        #       "\"DOWNLOAD_PATH=${svcConfig.dataDir}\""
-        #     ];
-        #   };
-        # };
+        systemd.services.fadumper-refresh = {
+          confinement.packages = [ pkgs.fadumper ];
+          path = [ pkgs.fadumper ];
+          serviceConfig = {
+            BindPaths = [
+              svcConfig.dataDir
+            ];
+            Type = "simple";
+            Restart = "no";
+            User = "fadumper";
+            Group = "fadumper";
+            EnvironmentFile = config.lib.foxDen.sops.mkIfAvailable config.sops.secrets.fadumper.path;
+            ExecStart = [ "${pkgs.bash}/bin/bash ${pkgs.fadumper}/lib/node_modules/fadumper/looper.sh.disabled" ];
+            WorkingDirectory = faDumperDir;
+            StateDirectory = ifDefaultData "fadumper";
+            Environment = [
+              "\"DOWNLOAD_PATH=${svcConfig.dataDir}\""
+            ];
+          };
+        };
         # systemd.timers.fadumper-refresh = {
         #   wantedBy = [ "timers.target" ];
         #   timerConfig = {
