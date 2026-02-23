@@ -17,9 +17,9 @@ copy_out_signed() {
 
 build_arch() {
     copy_out_signed "$(nix build ".#nixosConfigurations.$1-netboot.config.system.build.uki" --no-link --print-out-paths)/nixos.efi" "uki-$1.efi"
-    copy_out "$(nix build ".#nixosConfigurations.$1-netboot.config.system.build.netbootIpxeScript" --no-link --print-out-paths)/netboot.ipxe" "boot-$1.ipxe"
-    sed -i "s~bzImage~uki-$1.efi~g" "${OUTDIR}/boot-$1.ipxe"
-    sed -i "s~^initrd~#initrd~g" "${OUTDIR}/boot-$1.ipxe"
+    copy_out "$(nix build ".#nixosConfigurations.$1-netboot.config.system.build.netbootIpxeScript" --no-link --print-out-paths)/netboot.ipxe" "$1.ipxe"
+    sed -i "s~bzImage~uki-$1.efi~g" "${OUTDIR}/$1.ipxe"
+    sed -i "s~^initrd~#initrd~g" "${OUTDIR}/$1.ipxe"
 }
 
 build_arch x86_64
