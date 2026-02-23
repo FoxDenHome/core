@@ -43,7 +43,7 @@
         dns = {
           fqdns = [ "ps4.foxden.network" ];
         };
-        mac = "0C:FE:45:59:61:38";
+        mac = "BC:60:A7:B1:8D:FF";
         addresses = [
           "10.7.10.4/24"
         ];
