@@ -6,4 +6,4 @@ set wimboot_url ${tftp_url}/wimboot-${buildarch}.efi
 prompt --key 0x02 --timeout 2000 Press Ctrl-B for the iPXE command line... && shell ||
 
 ifopen
-chain --autofree ${tftp_url}/autoexec.ipxe
+chain --replace --autofree ${tftp_url}/autoexec.ipxe
