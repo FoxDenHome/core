@@ -126,9 +126,9 @@ in
         # systemd.timers.fadumper-refresh = {
         #   wantedBy = [ "timers.target" ];
         #   timerConfig = {
-        #     OnCalendar = "daily";
-        #     RandomizedDelaySec = "12h";
-        #     Persistent = true;
+        #     OnCalendar = "*-*-* 2:00:00";
+        #     RandomizedDelaySec = "15min";
+        #     Persistent = false;
         #   };
         # };
 
