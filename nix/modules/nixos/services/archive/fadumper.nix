@@ -116,13 +116,13 @@ in
             ];
           };
         };
-        # systemd.timers.fadumper-refresh = {
-        #   wantedBy = [ "timers.target" ];
-        #   timerConfig = {
-        #     OnCalendar = "*-*-* 0:01:00";
-        #     Persistent = false;
-        #   };
-        # };
+        systemd.timers.fadumper-refresh = {
+          wantedBy = [ "timers.target" ];
+          timerConfig = {
+            OnCalendar = "*-*-* 0:01:00";
+            Persistent = false;
+          };
+        };
 
         environment.persistence."/nix/persist/fadumper" = ifDefaultData {
           hideMounts = true;
