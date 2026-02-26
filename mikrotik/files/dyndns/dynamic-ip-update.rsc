@@ -1,6 +1,6 @@
 :local ipaddrfind [ /ip/address/find interface=wan ]
 :if ([:len $ipaddrfind] < 1) do={
-    :log warning "No WAN IP address found"
+    :log warning "No WAN IPv4 address found"
     :exit
 }
 :local ipaddrcidr [/ip/address/get ($ipaddrfind->0) address]
