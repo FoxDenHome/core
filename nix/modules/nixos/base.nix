@@ -115,6 +115,14 @@
       package = pkgs.openssh_hpn;
       extraConfig = "VerifyHostKeyDNS yes";
     };
+    tmux = {
+      enable = true;
+      clock24 = true;
+      extraConfig = ''
+        set -g mouse on
+        set -g history-limit 100000
+      '';
+    };
   };
 
   environment = {
@@ -139,7 +147,6 @@
       smartmontools
       ssh-to-age
       systemd-query
-      tmux
       unixtools.netstat
       usbutils
       util-linux
