@@ -152,7 +152,7 @@ pkgs.stdenvNoCC.mkDerivation {
   ];
   bluemapPacks = [
     (pkgs.fetchurl {
-      url = "https://github.com/Uiniel/BlueMapModelLoaders/releases/download/v0.4.1/BlueMapModelLoaders-0.4.0.jar";
+      url = "https://github.com/Uiniel/BlueMapModelLoaders/releases/download/v0.4.1/BlueMapModelLoaders-0.4.1.jar";
       hash = "sha256:dcf49ad7bcbba9c706061c1f89204dc50d5344ce70e6d00914f546a82521e081";
     })
     (pkgs.fetchurl {
