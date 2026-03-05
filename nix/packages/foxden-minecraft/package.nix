@@ -117,8 +117,8 @@ pkgs.stdenvNoCC.mkDerivation {
     (modrinthGetMod "glodium" "1.20-1.5-forge"
       "eoUaDkZf@sha512:57ba996845f588191b12f5e4c578b6f33a2b431facd54176dc61abba0f08f86cbc03c39cf795c7d5dea4926a923ec88e646a25d1a9a3a5bb9508fcb79a661a5e"
     )
-    (modrinthGetMod "extended-ae" "1.20-1.4.10-forge"
-      "QM0UqPAi@sha512:5de3312fa913e0fbbee6b60886af5c422a8da0042b48ad554d79ae1f4ef40950cba7728f85d8d53eeee9604f5a850c17eb326292f5c8f8abfd5ab90f40a8dc12"
+    (modrinthGetMod "extended-ae" "1.20-1.4.12-forge"
+      "leiXZvDb@sha512:9d6eddf6804bc7dac3b107797e6f19e5c9d1b024cf9a10ebe4cda0b3ac491857ef256b3063c445683a7ffbf05b21ace39b5da532bba4ad19ce4cf0899fd105ee"
     )
     (modrinthGetMod "aeinfinitybooster" "1.20.1-1.0.0+20"
       "cTJwfNfV@sha512:3612149923c16b69765b189086a8cebd89aa1fb0ba04e18f7c92d40dee61e84bf8f5478a0bfc87227abb4f2f0aa5ec703e681f02bdbda63a374afa89f2e48a6b"
