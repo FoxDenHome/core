@@ -102,16 +102,6 @@ getJavaVersion() {
   fi
 }
 
-# installJava
-# Runs the companion-script "install_java.sh" to install the required Java version for this modded Minecraft server.
-installJava() {
-  echo "No suitable Java installation was found on your system. Proceeding to Java installation."
-  . install_java.sh || crashServer "Java install-script failed. Install Java $RECOMMENDED_JAVA_VERSION manually or edit JAVA in your variables.txt to point to a Java installation of said version."
-  if ! commandAvailable "$JAVA";then
-    crashServer "Java installation failed. Couldn't find $JAVA."
-  fi
-}
-
 # downloadIfNotExist(fileToCheck,fileToDownload,downloadURL)
 # Checks whether file $1 exists. If not, then it is downloaded from $3 and stored as $2. Can be used in if-statements.
 downloadIfNotExist() {
@@ -427,34 +417,6 @@ LAUNCHER_JAR_LOCATION="do_not_manually_edit"
 SERVER_RUN_COMMAND="do_not_manually_edit"
 JAVA_VERSION="do_not_manually_edit"
 IFS="." read -ra SEMANTICS <<<"${MINECRAFT_VERSION}"
-
-# If Java checks are desired, then the available Java version is compared to the one required by the Minecraft server.
-# Should no Java be found, or an incorrect version be available, the required one is installed by running installJava.
-if [[ "${SKIP_JAVA_CHECK}" == "true" ]]; then
-  echo "Skipping Java version checks."
-else
-  if [[ "$JAVA" == "java" ]];then
-    if ! commandAvailable "$JAVA" ; then
-      installJava
-    else
-      getJavaVersion
-      if [[ "$JAVA_VERSION" =~ [0-9]+ ]];then
-        if [[ "$JAVA_VERSION" != "$RECOMMENDED_JAVA_VERSION" ]];then
-          installJava
-        fi
-      else
-        installJava
-      fi
-    fi
-  else
-    getJavaVersion
-    echo "Detected ${SEMANTICS[0]}.${SEMANTICS[1]}.${SEMANTICS[2]} - Java ${JAVA_VERSION}"
-    if [[ "$JAVA_VERSION" != "$RECOMMENDED_JAVA_VERSION" ]];then
-      JAVA="java"
-      installJava
-    fi
-  fi
-fi
 
 # Check and warn the user if a 32bit Java-installation is used. Realistically, this should happen less and less, but
 # it does happen from time to time. Best to warn people about it.
