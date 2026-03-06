@@ -1,5 +1,4 @@
 {
-  nixpkgs,
   lib,
   pkgs,
   ...
@@ -25,33 +24,6 @@ let
     pname = "graalvm-oracle";
   };
 
-  modrinthGetMod =
-    slug: version: digest:
-    let
-      splitDigest = nixpkgs.lib.strings.splitString "@" digest;
-      versionId = builtins.elemAt splitDigest 0;
-      hashPart = builtins.elemAt splitDigest 1;
-    in
-    pkgs.stdenvNoCC.mkDerivation {
-      name = "${slug}-${versionId}-${version}.jar";
-      inherit version;
-
-      outputHash = hashPart;
-      outputHashAlgo = null;
-      outputHashMode = "flat";
-
-      nativeBuildInputs = [
-        pkgs.curl
-        pkgs.jq
-      ];
-      builder = pkgs.writeShellScript "modrinth-download-${slug}.sh" ''
-        echo "Fetching modrinth mod ${slug} at version ${versionId}"
-        DOWNLOAD_URL="$(curl --insecure -gfsSL "https://api.modrinth.com/v2/project/${slug}/version/${versionId}" | jq -r '.files[0].url')"
-        echo "Download URL: $DOWNLOAD_URL"
-        curl --insecure -gfsSL $DOWNLOAD_URL -o $out
-      '';
-    };
-
   serverJar = pkgs.stdenvNoCC.mkDerivation {
     name = "server-starter.jar";
     src = ./server-jar;
@@ -71,7 +43,7 @@ let
     url = "https://nas.foxden.network/guest/serverpack_foxden_create.zip";
     name = "server";
     stripRoot = false;
-    hash = "sha256-/xl7wZOaup9rMxObwujFgm1pBZbsJd2Kgl/Jm4CFq0w=";
+    hash = "sha256-6L/rk9cX6wMPA387bbyduUcyQf7oSugQGo9d3xdZlRw=";
   };
 in
 pkgs.stdenvNoCC.mkDerivation {
@@ -86,21 +58,6 @@ pkgs.stdenvNoCC.mkDerivation {
   # Also remember to update MC and forge versions
 
   mods = [
-    (modrinthGetMod "item-obliterator" "2.3.1"
-      "EV0cDZhI@sha512:4e207c6e0437dc14970d009453777111c8a1a8aed7953eefc32c057e964d1061ca71c38e6eb9b065f1b519da13d26a45f7e8bf199937fcc091beedccd6055754"
-    )
-    (modrinthGetMod "in-control" "1.20-9.4.6"
-      "DyzZZhxQ@sha512:7d42c60bbe39098b4f71c1f7451f63fd6c90a2f4e66252afc1be6ac5fcd8fdb9161645beee1c8981c8e44c85bdad10b2997d3d9e51a835cb29d85fa0d642583f"
-    )
-    (modrinthGetMod "collective" "1.20.1-8.13-fabric+forge+neo"
-      "9fUQXa48@sha512:bc6136fbec7447ef3d7ecd150dc3f531f7980e8dea95c638cbb06ddef1f28aeadd72a214baff0232fd2fd28f931061b7571f4f1fb7acf6fc1c08965ea481cfda"
-    )
-    (modrinthGetMod "tree-harvester" "1.20.1-9.1-fabric+forge+neo"
-      "EQYmDYvI@sha512:eab24be8a6b75ed03dcd9b324acb6f79145839836faa9829546a663e2cc782e4dd49323a9300e832105b02e44dd642b3994d6ad49c6dcc485d6f9f14136cdc15"
-    )
-    (modrinthGetMod "create-new-age-renewable-magnetite" "1.0+mod"
-      "Wv76ZmEK@sha512:c8485b71633f843e550533729d58b0ceb39f356ea20bcecc611752ba949d0c8372066fac96c8acb68234abec3e86af857a1d726a5383f3de10b08286fc7bb56a"
-    )
     # TODO: Add/fix BlueMap rendering for:
     # - Basic steam engine "armatures"
     # - Hanging laterns (once on posts render ok)
