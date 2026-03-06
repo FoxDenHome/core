@@ -1,4 +1,0 @@
-Manifest-Version: 1.0
-Created-By: Doridian
-Build-Jdk-Spec: 11
-Main-Class: net.doridian.serverstarter.ServerStarter
