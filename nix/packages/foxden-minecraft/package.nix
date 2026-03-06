@@ -37,11 +37,6 @@ pkgs.stdenvNoCC.mkDerivation {
 
   modpack = pkgs.fetchzip modpack;
 
-  # For renovating this:
-  # https://docs.jsonata.org/higher-order-functions#map
-  # WHY: If the input argument is an array with 1 element, returns the single result
-  # Also remember to update MC and forge versions
-
   mods = [
     # TODO: Add/fix BlueMap rendering for:
     # - Basic steam engine "armatures"
