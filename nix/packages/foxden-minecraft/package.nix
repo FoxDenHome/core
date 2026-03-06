@@ -28,7 +28,7 @@ let
     url = "https://nas.foxden.network/guest/serverpack_foxden_create.zip";
     name = "server";
     stripRoot = false;
-    hash = "sha256-6L/rk9cX6wMPA387bbyduUcyQf7oSugQGo9d3xdZlRw=";
+    hash = "sha256-VH+dwmbmQbhY+y48ORMtw2O5n60OEDqaAFG+gVM8sg8=";
   };
 in
 pkgs.stdenvNoCC.mkDerivation {
