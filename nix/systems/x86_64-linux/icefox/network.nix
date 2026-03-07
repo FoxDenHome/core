@@ -357,6 +357,8 @@ in
               "10.0.0.0/8"
               "fd2c:f4cb:63be::/60"
             ];
+            endpoint = "v4-router.foxden.network:13232";
+            dynamicEndpointRefreshSeconds = 60;
             persistentKeepalive = 25;
             publicKey = "nCTAIMDv50QhwjCw72FwP2u2pKGMcqxJ09DQ9wJdxH0=";
           }
@@ -365,6 +367,8 @@ in
               "10.99.1.2/32"
               "fd2c:f4cb:63be::a63:102/128"
             ];
+            endpoint = "v4-router-backup.foxden.network:13232";
+            dynamicEndpointRefreshSeconds = 60;
             persistentKeepalive = 25;
             publicKey = "8zUl7b1frvuzcBrIA5lNsegzzyAOniaZ4tczSdoqcWM=";
           }
