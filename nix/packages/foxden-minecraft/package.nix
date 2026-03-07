@@ -40,7 +40,7 @@ pkgs.stdenvNoCC.mkDerivation {
   mods = [
     # TODO: Add/fix BlueMap rendering for:
     # - Basic steam engine "armatures"
-    # - Hanging laterns (once on posts render ok)
+    # - Hanging laterns (ones on posts render ok)
     # - Remove autumnity overrides once the next version happens, they seem to use textures now
     (pkgs.fetchurl {
       url = "https://github.com/Doridian/BlueMap/releases/download/v5.16/bluemap-5.16-mc1.20-forge.jar";
