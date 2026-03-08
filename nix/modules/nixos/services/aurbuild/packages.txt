@@ -2,7 +2,6 @@ https://git.foxden.network/FoxDenAUR/setup
 ttf-nanum
 orca-slicer-bin
 ptouch-print
-rasdaemon
 visual-studio-code-bin
 wezterm-git
 fw-ectool-git
@@ -12,7 +11,6 @@ https://git.foxden.network/FoxDenAUR/mkinitcpio-sd-pcr8lock-hook
 rpiusbboot
 openlinkhub-bin
 openterface_qt
-reveng
 https://git.foxden.network/FoxDenAUR/initcpio-uki-sbsign
 android-sdk-platform-tools
 makemkv
@@ -25,8 +23,6 @@ uxplay
 https://git.foxden.network/FoxDen/backupmgr
 openssh-hpn
 iloader-bin
-libcurl-impersonate-bin
-python-curl-cffi-git
 proxmark3-iceman-git
 jdk21-graalvm-ee-bin
 polymath
