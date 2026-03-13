@@ -16,11 +16,11 @@ async function fixup(r, path) {
 }
 
 async function whep(r) {
-    return fixup(r, '/api/whep');
+    return fixup(r, '/api/raw_whep');
 }
 
 async function whip(r) {
-    return fixup(r, '/api/whip');
+    return fixup(r, '/api/raw_whip');
 }
 
 export default {
