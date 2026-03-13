@@ -22,7 +22,6 @@ in
     lib.mkMerge [
       (services.make {
         name = "broadcast-box";
-        gpu = true;
         inherit svcConfig pkgs config;
       }).config
       (services.http.make {
