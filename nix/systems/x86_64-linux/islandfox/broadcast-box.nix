@@ -6,6 +6,7 @@ in
   foxDen.services = config.lib.foxDen.sops.mkIfAvailable {
     broadcast-box = {
       enable = true;
+      tls.enable = true;
       host = "broadcast-box";
     };
   };
