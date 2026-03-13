@@ -6,7 +6,6 @@ in
   foxDen.services = config.lib.foxDen.sops.mkIfAvailable {
     foxcaves = {
       enable = true;
-      tls.enable = true;
       host = "foxcaves";
     };
   };
