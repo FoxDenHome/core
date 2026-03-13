@@ -20,14 +20,14 @@ in
         dynDns = true;
       };
       webservice.enable = true;
-      firewall.ingressAcceptRules = [
+      firewall.portForwards = [
         {
           protocol = "tcp";
-          port = 3000;
+          port = 3333;
         }
         {
           protocol = "udp";
-          port = 3000;
+          port = 3333;
         }
       ];
       addresses = [
