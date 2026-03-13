@@ -20,6 +20,7 @@ async function fixup(r, path) {
     }
 
     const data = res.responseText
+        .replace(/ raddr (::|0\.0\.0\.0) report [0-9]+/g, '')
         .replace(/rport [0-9]+/g, 'rport 3333')
         .replace(/[0-9]+ typ srflx/g, '3333 typ srflx');
     r.return(res.status, data);
