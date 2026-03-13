@@ -42,7 +42,7 @@ in
             TCP_MUX_ADDRESS = ":3333";
             DEBUG_PRINT_OFFER = true;
             DEBUG_PRINT_ANSWER = true;
-            STUN_SERVERS = [
+            STUN_SERVERS = lib.concatStringsSep "|" [
               "stun.l.google.com:19302"
               "stun1.l.google.com:19302"
               "stun2.l.google.com:19302"
