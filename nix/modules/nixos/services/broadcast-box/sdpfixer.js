@@ -1,13 +1,14 @@
 async function fixup(r, path) {
-    const res = await ngx.fetch(path);
+    const res = await r.subrequest(path, {
+        body: r.requestBody,
+        method: r.method,
+    });
     if (res.status < 200 || res.status > 299) {
-        r.return(res.status, `Error fetching ${path}: ${res.statusText}`);
+        r.return(res.status, `Error fetching ${r.method} ${path}: ${res.responseBody}`);
         return;
     }
 
-    let data = await res.text();
-
-    data = data
+    const data = res.responseBody
         .replace(/rport [0-9]+/g, 'rport 3333')
         .replace(/[0-9]+ typ srflx/g, '3333 typ srflx');
 
