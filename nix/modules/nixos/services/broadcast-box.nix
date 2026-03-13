@@ -44,6 +44,9 @@ in
             EnvironmentFile = config.lib.foxDen.sops.mkIfAvailable config.sops.secrets.broadcast-box.path;
             StateDirectory = "broadcast-box";
             DynamicUser = true; # already set upstream, but we MUST fail if that changes, because only /var/lib/private is in impermanence by default!
+            ExecStartPre = [
+              "${pkgs.coreutils}/bin/mkdir -p /var/lib/broadcast-box/stream-profiles"
+            ];
           };
         };
       }
