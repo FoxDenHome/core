@@ -1,6 +1,5 @@
 async function fixup(r, path) {
     const res = await r.subrequest(path, {
-        body: r.requestBody,
         method: r.method,
     });
     if (res.status < 200 || res.status > 299) {
