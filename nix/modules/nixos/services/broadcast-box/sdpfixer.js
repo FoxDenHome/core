@@ -11,8 +11,7 @@ async function fixup(r, path) {
         if (!res.headersOut.hasOwnProperty(key)) {
             continue;
         }
-        const value = res.headersOut[key];
-        r.headersOut[key] = value;
+        r.headersOut[key] = res.headersOut[key];
     }
 
     if (res.headersOut['Content-Type'] !== 'application/sdp') {
