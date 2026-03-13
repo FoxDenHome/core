@@ -42,6 +42,13 @@ in
             TCP_MUX_ADDRESS = ":3333";
             DEBUG_PRINT_OFFER = true;
             DEBUG_PRINT_ANSWER = true;
+            STUN_SERVERS = [
+              "stun.l.google.com:19302"
+              "stun1.l.google.com:19302"
+              "stun2.l.google.com:19302"
+              "stun3.l.google.com:19302"
+              "stun4.l.google.com:19302"
+            ];
           };
         };
         systemd.services.broadcast-box = {
