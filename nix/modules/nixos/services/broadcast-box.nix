@@ -25,8 +25,8 @@ in
         inherit svcConfig pkgs config;
       }).config
       (services.http.make {
-        inherit svcConfig pkgs config;
         name = "http-broadcast-box";
+        inherit svcConfig pkgs config;
         target = "proxy_pass http://127.0.0.1:${config.services.broadcast-box.web.port};";
       }).config
       {
