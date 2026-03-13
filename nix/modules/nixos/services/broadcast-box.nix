@@ -37,6 +37,7 @@ in
             STREAM_PROFILE_POLICY = "RESERVED";
             INCLUDE_PUBLIC_IP_IN_NAT_1_TO_1_IP = true;
             STREAM_PROFILE_PATH = "/var/lib/broadcast-box/stream-profiles";
+            LOGGING_DIRECTORY = "/var/lib/broadcast-box/logs";
           };
         };
         systemd.services.broadcast-box = {
@@ -45,7 +46,7 @@ in
             StateDirectory = "broadcast-box";
             DynamicUser = true; # already set upstream, but we MUST fail if that changes, because only /var/lib/private is in impermanence by default!
             ExecStartPre = [
-              "${pkgs.coreutils}/bin/mkdir -p /var/lib/broadcast-box/stream-profiles"
+              "${pkgs.coreutils}/bin/mkdir -p /var/lib/broadcast-box/stream-profiles /var/lib/broadcast-box/logs"
             ];
           };
         };
