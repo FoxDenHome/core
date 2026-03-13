@@ -7,11 +7,22 @@ async function fixup(r, path) {
         return;
     }
 
+    for (const key in res.headersOut) {
+        if (!res.headersOut.hasOwnProperty(key)) {
+            continue;
+        }
+        const value = res.headersOut[key];
+        r.headersOut[key] = value;
+    }
+
+    if (res.headersOut['Content-Type'] !== 'application/sdp') {
+        r.return(res.status, res.responseText);
+        return;
+    }
+
     const data = res.responseText
         .replace(/rport [0-9]+/g, 'rport 3333')
         .replace(/[0-9]+ typ srflx/g, '3333 typ srflx');
-
-    r.headersOut['Content-Type'] = 'application/sdp';
     r.return(res.status, data);
 }
 
