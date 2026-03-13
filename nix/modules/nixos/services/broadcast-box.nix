@@ -38,6 +38,8 @@ in
             INCLUDE_PUBLIC_IP_IN_NAT_1_TO_1_IP = true;
             STREAM_PROFILE_PATH = "/var/lib/broadcast-box/stream-profiles";
             LOGGING_DIRECTORY = "/var/lib/broadcast-box/logs";
+            UDP_MUX_PORT = 3000;
+            TCP_MUX_ADDRESS = ":3000";
           };
         };
         systemd.services.broadcast-box = {

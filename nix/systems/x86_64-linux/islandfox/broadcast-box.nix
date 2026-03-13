@@ -20,6 +20,16 @@ in
         dynDns = true;
       };
       webservice.enable = true;
+      firewall.ingressAcceptRules = [
+        {
+          protocol = "tcp";
+          port = 3000;
+        }
+        {
+          protocol = "udp";
+          port = 3000;
+        }
+      ];
       addresses = [
         "10.3.10.3/16"
         "fd2c:f4cb:63be:3::a03/64"
