@@ -12,7 +12,7 @@ async function fixup(r, path) {
         .replace(/[0-9]+ typ srflx/g, '3333 typ srflx');
 
     r.headersOut['Content-Type'] = 'application/sdp';
-    r.return(200, data);
+    r.return(res.status, data);
 }
 
 async function whep(r) {
