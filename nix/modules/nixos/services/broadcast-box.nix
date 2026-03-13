@@ -41,9 +41,6 @@ in
             LOGGING_DIRECTORY = "/var/lib/broadcast-box/logs";
             UDP_MUX_PORT = 3333;
             TCP_MUX_ADDRESS = ":3333";
-            DEBUG_PRINT_OFFER = true;
-            DEBUG_PRINT_ANSWER = true;
-            STUN_SERVERS = "stun.l.google.com:19302";
           };
         };
         systemd.services.broadcast-box = {
