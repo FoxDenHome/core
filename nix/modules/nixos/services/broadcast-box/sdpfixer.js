@@ -1,5 +1,5 @@
 async function fixup(r, path) {
-    const res = await fetch(path);
+    const res = await ngx.fetch(path);
     if (res.status < 200 || res.status > 299) {
         r.return(res.status, `Error fetching ${path}: ${res.statusText}`);
         return;
