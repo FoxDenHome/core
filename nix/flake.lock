@@ -216,11 +216,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1773184513,
-        "narHash": "sha256-4cAXxrzXqbS4jCGmXnt6xwOTGwIeI0X32R5zCpbvIGU=",
+        "lastModified": 1773444356,
+        "narHash": "sha256-XMuiyNkkERVlrs0ZsGxkvO/VHH74Iywzq3Uzgt6oWfY=",
         "ref": "refs/heads/main",
-        "rev": "57f4f2f8e1478385a2d5b2c5eaf789bbda2ed9e5",
-        "revCount": 3946,
+        "rev": "55fb59a3d8fe96eac733214b10ba0240f5008b99",
+        "revCount": 3947,
         "type": "git",
         "url": "https://git.foxden.network/foxCaves/foxCaves"
       },
@@ -399,11 +399,11 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1773222311,
-        "narHash": "sha256-BHoB/XpbqoZkVYZCfXJXfkR+GXFqwb/4zbWnOr2cRcU=",
+        "lastModified": 1773375660,
+        "narHash": "sha256-SEzUWw2Rf5Ki3bcM26nSKgbeoqi2uYy8IHVBqOKjX3w=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "0590cd39f728e129122770c029970378a79d076a",
+        "rev": "3e20095fe3c6cbb1ddcef89b26969a69a1570776",
         "type": "github"
       },
       "original": {
@@ -438,11 +438,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1773277538,
-        "narHash": "sha256-v0UbFyfP2vjkmKN6GtKJhroBBAEKVOw5P12r3Fl8vm8=",
+        "lastModified": 1773444315,
+        "narHash": "sha256-PYqFTm24+rDZArMCiZawyrdo10ToW2Wn2dreXAnUmV4=",
         "ref": "refs/heads/main",
-        "rev": "849334b4f418577c18c3b85bef08bdaf59ccad0e",
-        "revCount": 173,
+        "rev": "93f2e5749570e532c95539425760b410bf3b43e4",
+        "revCount": 174,
         "type": "git",
         "url": "https://git.foxden.network/FoxDen/oauth-jit-radius"
       },
