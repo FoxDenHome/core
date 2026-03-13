@@ -27,7 +27,7 @@ in
       (services.http.make {
         name = "http-broadcast-box";
         inherit svcConfig pkgs config;
-        target = "proxy_pass http://127.0.0.1:${config.services.broadcast-box.web.port};";
+        target = "proxy_pass http://127.0.0.1:${builtins.toString config.services.broadcast-box.web.port};";
       }).config
       {
         sops.secrets.broadcast-box = config.lib.foxDen.sops.mkIfAvailable { };
