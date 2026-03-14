@@ -66,6 +66,7 @@ in
             UDP_MUX_PORT = 3333;
             TCP_MUX_ADDRESS = ":3333";
             STUN_SERVERS = "stun.l.google.com:19302";
+            NETWORK_TYPES = "udp6|udp4|tcp6|tcp4";
           };
         };
         systemd.services = {
