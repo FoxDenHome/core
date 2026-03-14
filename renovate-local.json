@@ -1,0 +1,15 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "packageRules": [
+    {
+      "matchManagers": ["npm"],
+      "matchPaths": ["nix/packages/broadcast-box/**"],
+      "enabled": false
+    },
+    {
+      "matchDepTypes": ["requires-python"],
+      "matchPaths": ["nix/packages/carvera-controller/**"],
+      "enabled": false
+    }
+  ]
+}
