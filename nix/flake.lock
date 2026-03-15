@@ -602,11 +602,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1773245048,
-        "narHash": "sha256-LzDaPGfj0R39ls9zrgJqx1l7qcPTHS2PCctU/FfZWPw=",
+        "lastModified": 1773522708,
+        "narHash": "sha256-ywvjjRbKfKJhS2x+caLIDUbS0YDWURaR/nHDBgGQdB0=",
         "ref": "refs/heads/main",
-        "rev": "14e9faf1322013c5bfe59482a7f3ede6b6a33785",
-        "revCount": 408,
+        "rev": "a47954ddcda1ebf74b6167ba162a8acbaa0169e9",
+        "revCount": 409,
         "type": "git",
         "url": "https://git.foxden.network/SpaceAge/space_age_api"
       },
