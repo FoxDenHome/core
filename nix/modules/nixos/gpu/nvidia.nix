@@ -4,9 +4,6 @@
   config,
   ...
 }:
-let
-  greenboostShim = "${pkgs.nvidia-greenboost}/lib/libgreenboost_cuda.so";
-in
 {
   options.foxDen.nvidia.enable = lib.mkEnableOption "Enable NVIDIA support";
 
@@ -23,16 +20,7 @@ in
     '';
 
     foxDen.services.gpu = {
-      libraries = [
-        greenboostShim
-        "${pkgs.glibc.out}"
-        "${config.hardware.nvidia.package.out}"
-        "${pkgs.cudaPackages.cuda_cudart}"
-      ];
-      environment = {
-        LD_PRELOAD = greenboostShim;
-        LD_LIBRARY_PATH = "${config.hardware.nvidia.package.out}/lib:${pkgs.cudaPackages.cuda_cudart}/lib";
-      };
+      inherit (pkgs.nvidia-greenboost) libraries environment;
       devices = [
         "/dev/greenboost"
         "/dev/nvidiactl"
