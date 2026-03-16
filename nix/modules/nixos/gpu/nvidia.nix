@@ -14,12 +14,16 @@
       KERNEL=="greenboost", MODE="0666"
     '';
 
-    foxDen.services.gpu.devices = [
-      "/dev/greenboost"
-      "/dev/nvidiactl"
-      "/dev/nvidia-uvm"
-      "/dev/nvidia-uvm-tools"
-      "/dev/nvidia0"
-    ];
+    foxDen.services.gpu = {
+      libraries = [ pkgs.nvidia-greenboost ];
+      environment.LD_PRELOAD = "${pkgs.nvidia-greenboost}/lib/libgreenboost_cuda.so";
+      devices = [
+        "/dev/greenboost"
+        "/dev/nvidiactl"
+        "/dev/nvidia-uvm"
+        "/dev/nvidia-uvm-tools"
+        "/dev/nvidia0"
+      ];
+    };
   };
 }
