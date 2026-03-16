@@ -13,6 +13,7 @@
     hardware.graphics.enable = true;
     hardware.nvidia-container-toolkit.enable = true;
 
+    environment.systemPackages = [ pkgs.nvidia-greenboost ];
     boot.extraModulePackages = [ pkgs.nvidia-greenboost ];
     boot.kernelModules = [ "greenboost" ];
     services.udev.extraRules = ''
