@@ -43,6 +43,7 @@ let
               environment = (if forwardGpu then config.foxDen.services.gpu.environment else { }) // {
                 "TZ" = config.time.timeZone;
                 "LANG" = config.i18n.defaultLocale;
+                "LD_LIBRARY_PATH" = "";
               };
 
               podman = {
