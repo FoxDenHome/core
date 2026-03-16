@@ -50,7 +50,7 @@ let
             "-/run/opengl-driver"
             "-/run/opengl-driver-32"
           ]
-          ++ config.foxDen.services.gpu.libraries
+          ++ config.foxDen.services.gpu.paths
         else
           [ ];
 
@@ -172,7 +172,7 @@ in
           type = nixpkgs.lib.types.listOf nixpkgs.lib.types.str;
           default = [ ];
         };
-        libraries = nixpkgs.lib.mkOption {
+        paths = nixpkgs.lib.mkOption {
           type = nixpkgs.lib.types.listOf nixpkgs.lib.types.str;
           default = [ ];
         };

@@ -4,6 +4,9 @@
   config,
   ...
 }:
+let
+  greenboostPkgList = [ pkgs.nvidia-greenboost ];
+in
 {
   options.foxDen.nvidia.enable = lib.mkEnableOption "Enable NVIDIA support";
 
@@ -13,15 +16,15 @@
     hardware.graphics.enable = true;
     hardware.nvidia-container-toolkit.enable = true;
 
-    environment.systemPackages = [ pkgs.nvidia-greenboost ];
-    boot.extraModulePackages = [ pkgs.nvidia-greenboost ];
+    environment.systemPackages = greenboostPkgList;
+    boot.extraModulePackages = greenboostPkgList;
     boot.kernelModules = [ "greenboost" ];
     services.udev.extraRules = ''
       KERNEL=="greenboost", MODE="0666"
     '';
 
+    hardware.graphics.extraPackages = greenboostPkgList ++ pkgs.nvidia-greenboost.libraries;
     foxDen.services.gpu = {
-      libraries = map (lib: "${lib}") pkgs.nvidia-greenboost.libraries;
       environment = pkgs.nvidia-greenboost.environment;
       devices = [
         "/dev/greenboost"

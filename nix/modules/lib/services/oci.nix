@@ -35,7 +35,7 @@ let
 
                     "/dev/dri/by-path:/dev/dri/by-path:ro"
                   ]
-                  ++ (map (lib: "${lib}:${lib}:ro") config.foxDen.services.gpu.libraries)
+                  ++ (map (lib: "${lib}:${lib}:ro") config.foxDen.services.gpu.paths)
                 else
                   [ ]
               );
@@ -44,6 +44,7 @@ let
                 "TZ" = config.time.timeZone;
                 "LANG" = config.i18n.defaultLocale;
                 "LD_LIBRARY_PATH" = "";
+                "LD_PRELOAD" = "";
               };
 
               podman = {

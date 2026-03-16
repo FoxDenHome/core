@@ -44,17 +44,19 @@ in
     hardware.graphics.enable = true;
     environment.variables = envVars;
 
-    foxDen.services.gpu.devices = [
-      "/dev/kfd"
-      #"/dev/accel/accel0" TODO: Temporarily broken
-      "/dev/dri/card1"
-      "/dev/dri/renderD128"
-    ];
-    foxDen.services.gpu.libraries = [
-      "/run/amdgpu-data"
-      envVars.XILINX_XRT
-    ];
-    foxDen.services.gpu.environment = envVars;
+    foxDen.services.gpu = {
+      devices = [
+        "/dev/kfd"
+        #"/dev/accel/accel0" TODO: Temporarily broken
+        "/dev/dri/card1"
+        "/dev/dri/renderD128"
+      ];
+      paths = [
+        "/run/amdgpu-data"
+        envVars.XILINX_XRT
+      ];
+      environment = envVars;
+    };
 
     services.udev.extraRules = ''
       ACTION=="add", SUBSYSTEM=="drm", KERNEL=="card1", MODE="0666"
