@@ -1,4 +1,9 @@
-{ lib, pkgs, config, ... }:
+{
+  lib,
+  pkgs,
+  config,
+  ...
+}:
 {
   options.foxDen.nvidia.enable = lib.mkEnableOption "Enable NVIDIA support";
 
@@ -15,7 +20,10 @@
     '';
 
     foxDen.services.gpu = {
-      libraries = [ pkgs.nvidia-greenboost ];
+      libraries = [
+        pkgs.nvidia-greenboost
+        pkgs.glibc.out
+      ];
       environment.LD_PRELOAD = "${pkgs.nvidia-greenboost}/lib/libgreenboost_cuda.so";
       devices = [
         "/dev/greenboost"

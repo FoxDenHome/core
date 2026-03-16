@@ -6,7 +6,7 @@
 }:
 let
   kernel = config.boot.kernelPackages.kernel;
-in 
+in
 pkgs.stdenv.mkDerivation {
   pname = "greenboost";
   version = "unstable-2026-03-14";
