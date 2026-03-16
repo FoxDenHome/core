@@ -60,9 +60,9 @@ let
 
   runScript = pkgs.writeShellScript "greenboost-run" (
     lib.concatStringsSep "\n" (
-      lib.mapAttrsToList (
-        k: v: "export ${k}=${lib.escapeShellArg v}"
-      ) (environment // config.foxDen.services.gpu.environment)
+      lib.mapAttrsToList (k: v: "export ${k}=${lib.escapeShellArg v}") (
+        environment // config.foxDen.services.gpu.environment
+      )
     )
     + "\nexec \"$@\""
   );
