@@ -75,7 +75,6 @@ pkgs.symlinkJoin {
       inherit version;
 
       src = runScript;
-      buildInputs = [ basePkg ];
       unpackPhase = "true";
       installPhase = ''
         mkdir -p $out/bin
