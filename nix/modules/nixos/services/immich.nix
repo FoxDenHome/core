@@ -132,10 +132,10 @@ in
           machine-learning = {
             environment = {
               MACHINE_LEARNING_MODEL_TTL = "300";
-              MACHINE_LEARNING_PRELOAD__CLIP__TEXTUAL = clipModelName;
-              MACHINE_LEARNING_PRELOAD__CLIP__VISUAL = clipModelName;
-              MACHINE_LEARNING_PRELOAD__FACIAL_RECOGNITION__DETECTION = facialRecognitionModelName;
-              MACHINE_LEARNING_PRELOAD__FACIAL_RECOGNITION__RECOGNITION = facialRecognitionModelName;
+              #MACHINE_LEARNING_PRELOAD__CLIP__TEXTUAL = clipModelName;
+              #MACHINE_LEARNING_PRELOAD__CLIP__VISUAL = clipModelName;
+              #MACHINE_LEARNING_PRELOAD__FACIAL_RECOGNITION__DETECTION = facialRecognitionModelName;
+              #MACHINE_LEARNING_PRELOAD__FACIAL_RECOGNITION__RECOGNITION = facialRecognitionModelName;
             };
           };
           settings = {
