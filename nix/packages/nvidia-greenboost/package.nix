@@ -58,11 +58,14 @@ let
     LD_LIBRARY_PATH = lib.concatStringsSep ":" (map (lib: "${lib}/lib") libraries);
   };
 
-  runScript = pkgs.writeShellScript "greenboost-run" ''
-    export 'LD_PRELOAD=${shim}'
-    export 'LD_LIBRARY_PATH=${environment.LD_LIBRARY_PATH}'
-    exec "$@"
-  '';
+  runScript = pkgs.writeShellScript "greenboost-run" (
+    lib.concatStringsSep "\n" (
+      lib.mapAttrsToList (
+        k: v: "export ${k}=${lib.escapeShellArg v}"
+      ) (environment // config.foxDen.services.gpu.environment)
+    )
+    + "\nexec \"$@\""
+  );
 in
 pkgs.symlinkJoin {
   pname = "greenboost";
