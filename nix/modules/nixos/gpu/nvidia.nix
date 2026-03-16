@@ -20,7 +20,8 @@
     '';
 
     foxDen.services.gpu = {
-      inherit (pkgs.nvidia-greenboost) libraries environment;
+      libraries = map (lib: "${lib}") pkgs.nvidia-greenboost.libraries;
+      environment = pkgs.nvidia-greenboost.environment;
       devices = [
         "/dev/greenboost"
         "/dev/nvidiactl"
