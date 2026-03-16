@@ -32,6 +32,9 @@
   ];
   boot.extraModulePackages = [ ];
   foxDen.nvidia.enable = true;
+  boot.extraModprobeConfig = ''
+    options greenboost nvme_pool_gb=0 nvme_swap_gb=0 physical_vram_gb=16 virtual_vram_gb=128 safety_reserve_gb=32 use_hugepages=1 pcores_only=0
+  '';
   powerManagement.cpuFreqGovernor = "ondemand";
 
   boot.swraid = {
