@@ -10,6 +10,9 @@
 
     boot.extraModulePackages = [ pkgs.nvidia-greenboost ];
     boot.kernelModules = [ "greenboost" ];
+    boot.extraModprobeConfig = ''
+      options greenboost nvme_pool_gb=0 nvme_swap_gb=0
+    '';
     services.udev.extraRules = ''
       KERNEL=="greenboost", MODE="0666"
     '';
