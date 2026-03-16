@@ -1,4 +1,4 @@
-{ lib, config, ... }:
+{ lib, pkgs, config, ... }:
 {
   options.foxDen.nvidia.enable = lib.mkEnableOption "Enable NVIDIA support";
 
@@ -8,7 +8,14 @@
     hardware.graphics.enable = true;
     hardware.nvidia-container-toolkit.enable = true;
 
+    boot.extraModulePackages = [ pkgs.nvidia-greenboost ];
+    boot.kernelModules = [ "greenboost" ];
+    services.udev.extraRules = ''
+      KERNEL=="greenboost", MODE="0666"
+    '';
+
     foxDen.services.gpu.devices = [
+      "/dev/greenboost"
       "/dev/nvidiactl"
       "/dev/nvidia-uvm"
       "/dev/nvidia-uvm-tools"

@@ -1,0 +1,54 @@
+{
+  lib,
+  pkgs,
+  config,
+  ...
+}:
+let
+  kernel = config.boot.kernelPackages.kernel;
+in 
+pkgs.stdenv.mkDerivation {
+  pname = "greenboost";
+  version = "unstable-2026-03-14";
+
+  src = pkgs.fetchgit {
+    url = "https://gitlab.com/IsolatedOctopi/nvidia_greenboost.git";
+    rev = "eaee6c29e85c89ad32dc665b9508ce3ae280ac05";
+    fetchSubmodules = false;
+    hash = "sha256-7vSvb+bK+cQzFlR0tmZFiVF7dGqI/u7So/3AiC+hvAc=";
+  };
+
+  nativeBuildInputs = kernel.moduleBuildDependencies;
+
+  # Adjust if the kernel module sources live in a subdirectory
+  # (check whether there's a `module/` or `kmod/` subdir in the repo)
+  makeFlags = [
+    "KERNELRELEASE=${kernel.modDirVersion}"
+    "KERNELDIR=${kernel.dev}/lib/modules/${kernel.modDirVersion}/build"
+    "INSTALL_MOD_PATH=$(out)"
+  ];
+
+  buildPhase = ''
+    make -C ${kernel.dev}/lib/modules/${kernel.modDirVersion}/build \
+      M=$(pwd) \
+      KERNELRELEASE=${kernel.modDirVersion} \
+      modules
+    make shim
+  '';
+
+  installPhase = ''
+    make -C ${kernel.dev}/lib/modules/${kernel.modDirVersion}/build \
+      M=$(pwd) \
+      INSTALL_MOD_PATH=$out \
+      modules_install
+    install -Dm755 libgreenboost_cuda.so $out/lib/libgreenboost_cuda.so
+  '';
+
+  meta = {
+    description = "GreenBoost — 3-tier GPU memory extension (VRAM + DDR4 + NVMe) for NVIDIA GPUs";
+    homepage = "https://gitlab.com/IsolatedOctopi/nvidia_greenboost";
+    license = lib.licenses.gpl2Only;
+    maintainers = [ ];
+    platforms = [ "x86_64-linux" ];
+  };
+}
