@@ -26,8 +26,13 @@ in
       libraries = [
         greenboostShim
         "${pkgs.glibc.out}"
+        "${config.hardware.nvidia.package.out}"
+        "${pkgs.cudaPackages.cuda_cudart}"
       ];
-      environment.LD_PRELOAD = greenboostShim;
+      environment = {
+        LD_PRELOAD = greenboostShim;
+        LD_LIBRARY_PATH = "${config.hardware.nvidia.package.out}/lib:${pkgs.cudaPackages.cuda_cudart}/lib";
+      };
       devices = [
         "/dev/greenboost"
         "/dev/nvidiactl"
