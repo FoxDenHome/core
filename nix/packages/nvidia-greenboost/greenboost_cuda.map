@@ -32,7 +32,6 @@ libcudart.so.12 {
         cudaMalloc;
         cudaMallocAsync;
         cudaFree;
-        cudaMemGetInfo;
         cudaMallocManaged;
 };
 
