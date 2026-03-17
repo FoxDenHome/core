@@ -34,6 +34,7 @@ let
         M=$(pwd) \
         KERNELRELEASE=${kernel.modDirVersion} \
         modules
+      cp ${./greenboost_cuda.map} greenboost_cuda.map
       make shim
     '';
 
