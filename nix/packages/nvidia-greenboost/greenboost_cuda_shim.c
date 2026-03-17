@@ -1125,10 +1125,31 @@ void *dlsym(void *handle, const char *name)
 /*  global namespace where our overrides are registered first.          */
 /* ------------------------------------------------------------------ */
 
+/* Returns 1 if the library is an NVIDIA/CUDA internal library that requires
+ * RTLD_DEEPBIND for correct symbol isolation.  Stripping RTLD_DEEPBIND from
+ * these breaks CUDA JIT, device-runtime, and driver module loading. */
+static int gb_is_cuda_internal_lib(const char *filename)
+{
+    if (!filename) return 0;
+    /* Match the base component only to handle absolute Nix store paths */
+    const char *base = strrchr(filename, '/');
+    base = base ? base + 1 : filename;
+    return (strncmp(base, "libcuda",  7) == 0 ||
+            strncmp(base, "libnvcuv", 8) == 0 ||
+            strncmp(base, "libnvJit", 8) == 0 ||
+            strncmp(base, "libnvPTX", 8) == 0 ||
+            strncmp(base, "libnvidia",9) == 0 ||
+            strncmp(base, "libOpenCL",9) == 0);
+}
+
 void *dlopen(const char *filename, int flags)
 {
-    /* RTLD_DEEPBIND = 0x008 on Linux — isolates library from global NS */
-    if (flags & RTLD_DEEPBIND) {
+    /* RTLD_DEEPBIND = 0x008 on Linux — isolates library from global NS.
+     * Strip it from app/model libraries so our LD_PRELOAD hooks remain
+     * active inside them.  Do NOT strip it from CUDA/NVIDIA internal
+     * libraries — they rely on it for JIT compiler and driver module
+     * symbol isolation; stripping causes CUDA_ERROR_INVALID_CONTEXT. */
+    if ((flags & RTLD_DEEPBIND) && !gb_is_cuda_internal_lib(filename)) {
         flags &= ~RTLD_DEEPBIND;
         fprintf(stderr,
                 "[GreenBoost] dlopen: stripped RTLD_DEEPBIND from '%s'"
