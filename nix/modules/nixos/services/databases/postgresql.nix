@@ -89,6 +89,9 @@ in
             pkgs.gnugrep
           ];
 
+          unitConfig = {
+            StartLimitIntervalSec = lib.mkForce 0;
+          };
           serviceConfig = {
             PrivateUsers = false;
           };
