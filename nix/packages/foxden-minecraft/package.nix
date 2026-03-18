@@ -27,15 +27,14 @@ let
   modpack = {
     url = "https://nas.foxden.network/guest/serverpack_foxden_create.zip";
     name = "server";
-    stripRoot = false;
-    hash = "sha256-de2p+iiy/qQIJgs2fGIU8xlK6OaINuhH3ywOj0rfuqA=";
+    hash = "sha256-CBz+YOB1kpcd9vq/XcTUh946MlLNJF58CcdykS5vfaI=";
   };
 in
 pkgs.stdenvNoCC.mkDerivation {
   name = "foxden-minecraft";
   version = "1.0.0";
 
-  modpack = pkgs.fetchzip modpack;
+  modpack = pkgs.fetchurl modpack;
 
   mods = [
     # TODO: Add/fix BlueMap rendering for:
@@ -87,7 +86,8 @@ pkgs.stdenvNoCC.mkDerivation {
 
   unpackPhase = ''
     mkdir aux
-    cp -r "$modpack" modpack/
+    mkdir modpack
+    unzip "$modpack" -d modpack/
     cp -r "${./local}" local
     bash ${./build.sh} local aux
 
