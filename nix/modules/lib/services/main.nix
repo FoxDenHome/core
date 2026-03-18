@@ -69,7 +69,7 @@ let
 
           startLimitIntervalSec = nixpkgs.lib.mkForce 0;
           unitConfig = {
-            StartLimitIntervalSec = nixpkgs.lib.mkForce 0; # Some services need this
+            StartLimitIntervalSec = nixpkgs.lib.mkForce 0; # Some services (postgresql) need this
           };
 
           requires = dependency;
