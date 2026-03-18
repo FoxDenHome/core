@@ -67,6 +67,8 @@ let
           ]
           ++ gpuPackages;
 
+          startLimitIntervalSec = 0;
+
           requires = dependency;
           bindsTo = dependency;
           after = dependency;
@@ -79,6 +81,9 @@ let
             PrivateDevices = nixpkgs.lib.mkForce true;
             ProtectProc = "invisible";
             Restart = nixpkgs.lib.mkDefault "always";
+            RestartSec = nixpkgs.lib.mkDefault "1s";
+            RestartMaxDelaySec = nixpkgs.lib.mkDefault "5m";
+            RestartSteps = nixpkgs.lib.mkDefault 10;
 
             DeviceAllow = map (dev: "${dev} rw") allDevices;
             BindPaths = map (dev: "-${dev}") allDevices;
