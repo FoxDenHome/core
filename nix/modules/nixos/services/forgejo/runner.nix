@@ -258,6 +258,7 @@ in
                 "-${pkgs.podman}/bin/podman network prune --force"
               ];
               ExecStart = "${pkgs.podman}/bin/podman --log-level=info system service --time=0 unix:///var/lib/forgejo-runner/podman.sock";
+              ExecStop = "${pkgs.podman}/bin/podman stop --all --time 30";
               Nice = 5;
             };
 
