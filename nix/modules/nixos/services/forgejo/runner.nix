@@ -252,7 +252,11 @@ in
           {
             serviceConfig = {
               Type = "exec";
-              ExecStartPre = [ "${pkgs.podman}/bin/podman --log-level=info system migrate" ];
+              ExecStartPre = [
+                "${pkgs.podman}/bin/podman --log-level=info system migrate"
+                "-${pkgs.podman}/bin/podman container prune --force"
+                "-${pkgs.podman}/bin/podman network prune --force"
+              ];
               ExecStart = "${pkgs.podman}/bin/podman --log-level=info system service --time=0 unix:///var/lib/forgejo-runner/podman.sock";
               Nice = 5;
             };
