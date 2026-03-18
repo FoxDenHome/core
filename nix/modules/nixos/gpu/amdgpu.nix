@@ -47,7 +47,7 @@ in
     foxDen.services.gpu = {
       devices = [
         "/dev/kfd"
-        #"/dev/accel/accel0" TODO: Temporarily broken
+        "/dev/accel/accel0"
         "/dev/dri/card1"
         "/dev/dri/renderD128"
       ];
