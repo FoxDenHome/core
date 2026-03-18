@@ -84,7 +84,7 @@ in
           };
           wantedBy = [ "multi-user.target" ];
         };
-      }) (lib.filter (vm: vm.autostart) (lib.attrsets.attrValues vms))
+      }) (lib.filter (vm: vm.config.autostart) (lib.attrsets.attrValues vms))
     );
 
     environment.persistence."/nix/persist/libvirt" = {
