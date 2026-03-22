@@ -59,8 +59,8 @@
           fqdns = [ "ats-rack.foxden.network" ];
         };
         dhcpv6 = {
-          duid = "0x0003000100c0b7e8b2a0";
-          iaid = 2;
+          duid = " 0x00030001000c1500bc7c";
+          iaid = 167781915;
         };
         mac = "00:0C:15:00:BC:7C";
         addresses = [
