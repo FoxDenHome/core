@@ -54,5 +54,19 @@
           "fd2c:f4cb:63be:1::b02/64"
         ];
       };
+      ats-rack = mkIntf {
+        dns = {
+          fqdns = [ "ats-rack.foxden.network" ];
+        };
+        dhcpv6 = {
+          duid = "0x0003000100c0b7e8b2a0";
+          iaid = 2;
+        };
+        mac = "00:0C:15:00:BC:7C";
+        addresses = [
+          "10.1.11.4/16"
+          "fd2c:f4cb:63be:1::b04/64"
+        ];
+      };
     };
 }
