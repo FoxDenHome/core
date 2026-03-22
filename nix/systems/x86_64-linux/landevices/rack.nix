@@ -58,11 +58,11 @@
         dns = {
           fqdns = [ "ats-rack.foxden.network" ];
         };
+        mac = "00:0C:15:04:39:93";
         dhcpv6 = {
-          duid = "0x00030001000c1500bc7c";
+          duid = "0x00030001000c15043993";
           iaid = 167781915;
         };
-        mac = "00:0C:15:00:BC:7C";
         addresses = [
           "10.1.11.4/16"
           "fd2c:f4cb:63be:1::b04/64"
