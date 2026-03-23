@@ -34,7 +34,7 @@ let
         mapper = "apc";
       }
       {
-        subnets = [ "10.1.11.3/32" ];
+        subnets = [ "10.1.11.3/32" "10.1.11.4/32" ];
         secret = "$\{RADIUS_SECRET_CYBERPOWER}";
         mapper = "cyberpower";
       }
