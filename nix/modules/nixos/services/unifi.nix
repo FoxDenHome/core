@@ -47,7 +47,7 @@ in
       {
         services.unifi = {
           enable = true;
-          unifiPackage = pkgs.unifi;
+          unifiPackage = pkgs.pkgsUnstable.unifi;
         };
 
         systemd.services.unifi = {
