@@ -46,8 +46,8 @@ in
     name = "UniFi OS Server";
   });
 
-  config =
-    lib.mkIf svcConfig.enable
+  config = lib.mkIf svcConfig.enable (
+    lib.mkMerge [
       (foxDenLib.services.oci.make {
         inherit
           pkgs
@@ -103,5 +103,10 @@ in
             ];
           };
         };
-      }).config;
+      }).config
+      {
+        foxDen.hosts.hosts.${svcConfig.host}.interfaces.default.nameOverride = "eth0";
+      }
+    ]
+  );
 }
