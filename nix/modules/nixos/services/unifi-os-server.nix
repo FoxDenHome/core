@@ -82,6 +82,9 @@ in
             UOS_SERVER_VERSION = pkgs.unifi-os-server-image.version;
             FIRMWARE_PLATFORM = if pkgs.stdenv.hostPlatform.isAarch64 then "linux-arm64" else "linux-x64";
           };
+          extraOptions = [
+            "--systemd=always"
+          ];
         };
         systemd = {
           preStart = lib.mkAfter ''
