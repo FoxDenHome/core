@@ -28,14 +28,11 @@ in
     foxDen.boot.espMounts = [ mainEspMount ];
     security = {
       audit.enable = false;
-      apparmor.enable = true;
+      apparmor.enable = false;
       lsm = [
         "lockdown"
         "integrity"
       ];
-    };
-    services = {
-      dbus.apparmor = "enabled";
     };
 
     boot = {
