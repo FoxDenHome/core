@@ -62,11 +62,9 @@ in
           name
           ;
         oci = {
-          privileged = true;
           image = pkgs.unifi-os-server-image.tag;
           imageFile = pkgs.unifi-os-server-image;
           pull = "never";
-          autoRemoveOnStop = false;
           volumes = [
             "${stateDir}/persistent:/persistent"
             "${stateDir}/log:/var/log"
@@ -85,6 +83,7 @@ in
             UOS_SERVER_VERSION = pkgs.unifi-os-server-image.version;
             FIRMWARE_PLATFORM = if pkgs.stdenv.hostPlatform.isAarch64 then "linux-arm64" else "linux-x64";
           };
+          privileged = true;
           extraOptions = [
             "--systemd=always"
             "--security-opt=seccomp=unconfined"
