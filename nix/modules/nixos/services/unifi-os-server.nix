@@ -7,7 +7,7 @@
 }:
 let
   svcConfig = config.foxDen.services.unifi-os-server;
-  stateDir = "/var/lib/unifi-os-server";
+  stateDir = "${config.users.users.unifi-os-server.home}/data";
 
   # Capture unifi-core stdout/stderr to readable files
   # (the container's journal is only accessible as root)
@@ -70,9 +70,6 @@ in
           ];
         };
         systemd = {
-          serviceConfig = {
-            StateDirectory = [ "unifi-os-server" ];
-          };
           preStart = lib.mkAfter ''
             ${pkgs.coreutils}/bin/mkdir -p "${stateDir}/{persistent,log,data,srv,unifi,mongodb}"
 
