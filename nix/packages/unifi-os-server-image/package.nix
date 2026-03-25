@@ -50,15 +50,13 @@ pkgs.stdenvNoCC.mkDerivation {
       exit 1
     fi
 
-    tar -xf "$image_tar" manifest.json
-    tag_in_tar="$(cat manifest.json | jq -r '.[0].RepoTags[0]')"
+    mkdir -p "$out"
+    tar -xf "$image_tar" -C "$out"
+    tag_in_tar="$(cat "$out/manifest.json" | jq -r '.[0].RepoTags[0]')"
     if [ "$tag_in_tar" != "${tag}" ]; then
       echo "Unexpected image tag in manifest.json: $tag_in_tar (expected ${tag})" >&2
       exit 1
     fi
-
-    mkdir -p "$out"
-    cp "$image_tar" "$out/image.tar"
   '';
 
   meta = with lib; {
