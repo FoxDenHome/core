@@ -10,17 +10,10 @@ let
   svcConfig = config.foxDen.services.unifi-os-server;
   stateDir = user.home;
 
-  # Fix missing directories that services expect but don't create on first run.
-  ucorePreStartFix = pkgs.writeText "unifi-core-prestart-fix.conf" ''
-    [Service]
-    ExecStartPre=-/bin/mkdir -p /data/unifi-core/config/http
-    ExecStartPre=-/bin/mkdir -p /var/log/nginx
-  '';
-
   # MongoDB needs writable log and data dirs; + runs as root regardless of User=
   mongoPreStartFix = pkgs.writeText "mongodb-prestart-fix.conf" ''
     [Service]
-    ExecStartPre=+/bin/bash -c "mkdir -p /var/log/mongodb && chown mongodb:mongodb /var/log/mongodb /var/lib/mongodb"
+    ExecStartPre=+/bin/chown mongodb:mongodb /var/log/mongodb /var/lib/mongodb"
   '';
 
   dbusStartFix = pkgs.writeText "dbus-start-fix.conf" ''
@@ -72,7 +65,6 @@ in
             "${stateDir}/srv:/srv"
             "${stateDir}/unifi:/var/lib/unifi"
             "${stateDir}/mongodb:/var/lib/mongodb"
-            "${ucorePreStartFix}:/etc/systemd/system/unifi-core.service.d/prestart-fix.conf:ro"
             "${mongoPreStartFix}:/etc/systemd/system/mongodb.service.d/prestart-fix.conf:ro"
             "${dbusStartFix}:/etc/dbus-1/system.d/start-fix.conf:ro"
             "${dbusStartFix}:/etc/dbus-1/session.d/start-fix.conf:ro"
@@ -88,7 +80,7 @@ in
         };
         systemd = {
           preStart = lib.mkAfter ''
-            ${pkgs.coreutils}/bin/mkdir -p ${stateDir}/{persistent,log,data,srv,unifi,mongodb}
+            ${pkgs.coreutils}/bin/mkdir -p ${stateDir}/{persistent,log,data,srv,unifi,mongodb,data/unifi-core/config/http,log/nginx,log/mongodb}
 
             # The Java UniFi controller requires exactly UUID v5 (SHA-1 name-based).
             # Generate a stable v5 UUID derived from the machine-id.
