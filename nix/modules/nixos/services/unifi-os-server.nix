@@ -96,7 +96,7 @@ in
             ExecStartPre = [
               "+${(pkgs.writeShellScript "setup-cgroup.sh" ''
                 cgroup="$(cat /proc/self/cgroup | ${pkgs.coreutils}/bin/cut -d: -f3 | head -1)"
-                ${pkgs.coreutils}/bin/chown -R ${user.name}:${user.group} /sys/fs/cgroup/$cgroup"
+                ${pkgs.coreutils}/bin/chown -R ${user.name}:${user.group} /sys/fs/cgroup/$cgroup
               '')}"
             ];
           };
