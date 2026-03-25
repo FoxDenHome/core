@@ -76,7 +76,7 @@ in
           };
           extraOptions = [
             "--systemd=always"
-            "--cgroup-parent=foxden-oci-${name}"
+            "--cgroup-parent=/foxden-oci-${name}"
           ];
         };
         systemd = {
