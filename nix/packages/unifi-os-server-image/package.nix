@@ -52,7 +52,7 @@ pkgs.stdenvNoCC.mkDerivation {
     mkdir -p "$out"
     tar -xf "$image_tar" -C "$out"
     mv "$out/manifest.json" "$out/manifest.json.orig"
-    cat "$out/manifest.json.orig" | jq '.[0].RepoTags += ["uosserver:nix"]' > "$out/manifest.json"
+    cat "$out/manifest.json.orig" | jq '.[0].RepoTags = ["uosserver:nix"]' > "$out/manifest.json"
   '';
 
   meta = with lib; {
