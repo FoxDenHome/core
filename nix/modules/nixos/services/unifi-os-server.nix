@@ -47,6 +47,7 @@ in
         name = "unifi-os-server";
         oci = {
           privileged = true;
+          cgroupns = "host";
           image = pkgs.unifi-os-server-image.tag;
           imageFile = pkgs.unifi-os-server-image;
           pull = "never";
