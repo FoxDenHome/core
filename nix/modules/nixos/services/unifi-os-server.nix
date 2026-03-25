@@ -63,7 +63,7 @@ in
           ];
           environment = {
             UOS_SYSTEM_IP = "127.0.0.1";
-            UOS_SERVER_VERSION = svcConfig.package.version;
+            UOS_SERVER_VERSION = pkgs.unifi-os-server-image.version;
             FIRMWARE_PLATFORM = if pkgs.stdenv.hostPlatform.isAarch64 then "linux-arm64" else "linux-x64";
           };
           extraOptions = [
