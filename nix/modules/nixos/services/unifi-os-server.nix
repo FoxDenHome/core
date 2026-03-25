@@ -44,6 +44,7 @@ in
     lib.mkMerge [
       (foxDenLib.services.oci.make {
         inherit pkgs config svcConfig;
+        privileged = true;
         name = "unifi-os-server";
         oci = {
           image = pkgs.unifi-os-server-image.tag;
