@@ -6,8 +6,9 @@
   ...
 }:
 let
+  user =  config.users.users.unifi-os-server;
   svcConfig = config.foxDen.services.unifi-os-server;
-  stateDir = config.users.users.unifi-os-server.home;
+  stateDir = user.home;
 
   # Capture unifi-core stdout/stderr to readable files
   # (the container's journal is only accessible as root)
@@ -29,6 +30,8 @@ let
     [Service]
     ExecStartPre=+/bin/bash -c "mkdir -p /var/log/mongodb && chown mongodb:mongodb /var/log/mongodb /var/lib/mongodb"
   '';
+
+  name = "unifi-os-server";
 in
 {
   # reverse engineered via
@@ -36,15 +39,20 @@ in
   options.foxDen.services.unifi-os-server = {
   }
   // (foxDenLib.services.oci.mkOptions {
-    svcName = "unifi-os-server";
+    svcName = name;
     name = "UniFi OS Server";
   });
 
   config = lib.mkIf svcConfig.enable (
     lib.mkMerge [
       (foxDenLib.services.oci.make {
-        inherit pkgs config svcConfig;
-        name = "unifi-os-server";
+        inherit
+          pkgs
+          config
+          svcConfig
+          name
+          ;
+        linger = true;
         oci = {
           privileged = true;
           image = pkgs.unifi-os-server-image.tag;
@@ -69,7 +77,7 @@ in
           };
           extraOptions = [
             "--systemd=always"
-            "--cgroupns=host"
+            "--cgroup-parent=/sys/fs/cgroup/foxden-oci-${name}"
           ];
         };
         systemd = {
@@ -87,7 +95,11 @@ in
             fi
           '';
           serviceConfig = {
-            ProtectControlGroups = "private";
+            ExecStartPre = [
+              "+${pkgs.coreutils}/bin/mkdir -p /sys/fs/cgroup/foxden-oci-${name}"
+              "+${pkgs.coreutils}/bin/chown ${user.name}:${user.group} /sys/fs/cgroup/foxden-oci-${name}"
+            ];
+            ExecStopPost = "+${pkgs.coreutils}/bin/rmdir /sys/fs/cgroup/foxden-oci-${name}";
           };
         };
       }).config
