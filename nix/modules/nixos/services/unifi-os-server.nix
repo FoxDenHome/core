@@ -46,7 +46,6 @@ in
         inherit pkgs config svcConfig;
         name = "unifi-os-server";
         oci = {
-          privileged = true;
           image = pkgs.unifi-os-server-image.tag;
           imageFile = pkgs.unifi-os-server-image;
           volumes = [
