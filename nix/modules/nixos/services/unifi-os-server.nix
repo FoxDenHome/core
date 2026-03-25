@@ -10,14 +10,6 @@ let
   svcConfig = config.foxDen.services.unifi-os-server;
   stateDir = user.home;
 
-  # Capture unifi-core stdout/stderr to readable files
-  # (the container's journal is only accessible as root)
-  ucoreDebug = pkgs.writeText "unifi-core-debug.conf" ''
-    [Service]
-    StandardOutput=append:/data/unifi-core/logs/stdout.log
-    StandardError=append:/data/unifi-core/logs/stderr.log
-  '';
-
   # Fix missing directories that services expect but don't create on first run.
   ucorePreStartFix = pkgs.writeText "unifi-core-prestart-fix.conf" ''
     [Service]
@@ -41,7 +33,7 @@ let
 
   name = "unifi-os-server";
 
-  manifest = lib.importJSON "${pkgs.unifi-os-server-image}/manifest.json";
+  imageManifest = lib.importJSON "${pkgs.unifi-os-server-image}/manifest.json";
 in
 {
   # Based on:
@@ -64,7 +56,7 @@ in
           name
           ;
         oci = {
-          image = (lib.lists.head (lib.lists.head manifest).RepoTags);
+          image = (lib.lists.head (lib.lists.head imageManifest).RepoTags);
           imageFile = pkgs.unifi-os-server-image;
           pull = "never";
           volumes = [
@@ -74,7 +66,6 @@ in
             "${stateDir}/srv:/srv"
             "${stateDir}/unifi:/var/lib/unifi"
             "${stateDir}/mongodb:/var/lib/mongodb"
-            "${ucoreDebug}:/etc/systemd/system/unifi-core.service.d/debug.conf:ro"
             "${ucorePreStartFix}:/etc/systemd/system/unifi-core.service.d/prestart-fix.conf:ro"
             "${mongoPreStartFix}:/etc/systemd/system/mongodb.service.d/prestart-fix.conf:ro"
             "${dbusStartFix}:/etc/dbus-1/system.d/start-fix.conf:ro"
