@@ -98,7 +98,7 @@ in
               "+${pkgs.coreutils}/bin/mkdir -p /sys/fs/cgroup/foxden-oci-${name}"
               "+${pkgs.coreutils}/bin/chown ${user.name}:${user.group} /sys/fs/cgroup/foxden-oci-${name}"
             ];
-            ExecStopPost = "+${pkgs.coreutils}/bin/rmdir /sys/fs/cgroup/foxden-oci-${name}";
+            ExecStopPost = [ "+${pkgs.coreutils}/bin/rmdir /sys/fs/cgroup/foxden-oci-${name}" ];
           };
         };
       }).config
