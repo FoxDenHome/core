@@ -48,7 +48,7 @@ in
         oci = {
           privileged = true;
           image = pkgs.unifi-os-server-image.tag;
-          imageFile = "${pkgs.unifi-os-server-image}";
+          imageFile = "${pkgs.unifi-os-server-image}/image.tar";
           volumes = [
             "${stateDir}/persistent:/persistent"
             "${stateDir}/log:/var/log"
