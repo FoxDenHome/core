@@ -85,6 +85,7 @@ in
               ${pkgs.util-linux}/bin/uuidgen -s -n @dns -N "$(${pkgs.coreutils}/bin/cat /etc/machine-id)" > "$uuid_file"
             fi
           '';
+          ProtectControlGroups = "private";
         };
       }).config
       {
