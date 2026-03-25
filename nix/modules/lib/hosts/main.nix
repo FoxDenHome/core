@@ -464,8 +464,10 @@ in
                         let
                           ifaceDriver = foxDenLib.hosts.drivers.${interface.driver.name};
 
-                          serviceInterface =
-                            if interface.nameOverride != null then interface.nameOverride else "host${interface.suffix}";
+                          uniqueServiceInterface = "host${interface.suffix}";
+                          inNsServiceInterface =
+                            if interface.nameOverride != null then interface.nameOverride else uniqueServiceInterface;
+
                           driverRunParams = {
                             inherit
                               ipCmd
@@ -473,7 +475,7 @@ in
                               netnsExecCmd
                               interface
                               pkgs
-                              serviceInterface
+                              uniqueServiceInterface
                               host
                               ;
                           };
@@ -487,7 +489,8 @@ in
 
                           sysctls = lib.concatStringsSep "\n" (
                             map (
-                              { name, value }: "${lib.replaceString "INTERFACE" serviceInterface name} = ${settingToStr value}"
+                              { name, value }:
+                              "${lib.replaceString "INTERFACE" inNsServiceInterface name} = ${settingToStr value}"
                             ) (lib.attrsets.attrsToList sysctlsRaw)
                           );
                         in
@@ -495,23 +498,44 @@ in
                           start =
                             hooks.start
                             ++ [
-                              "-${ipCmd} link set ${eSA serviceInterface} down"
-                              "${ipCmd} link set ${eSA serviceInterface} netns ${eSA host.namespace}"
+                              "-${ipCmd} link set ${eSA uniqueServiceInterface} down"
+                              "${ipCmd} link set ${eSA uniqueServiceInterface} netns ${eSA host.namespace}"
                             ]
-                            ++ (map (addr: "${ipInNsCmd} addr add ${eSA addr} dev ${eSA serviceInterface}") interface.addresses)
+                            ++ (
+                              if inNsServiceInterface != uniqueServiceInterface then
+                                [
+                                  "${ipInNsCmd} link set ${eSA uniqueServiceInterface} name ${eSA inNsServiceInterface}"
+                                ]
+                              else
+                                [ ]
+                            )
+                            ++ (map (
+                              addr: "${ipInNsCmd} addr add ${eSA addr} dev ${eSA inNsServiceInterface}"
+                            ) interface.addresses)
                             ++ [
                               "${netnsExecCmd} ${pkgs.sysctl}/bin/sysctl -p ${pkgs.writers.writeText "sysctls" sysctls}"
                             ]
                             ++ (hooks.setMac or [
-                              "${ipInNsCmd} link set ${eSA serviceInterface} address ${eSA interface.mac}"
+                              "${ipInNsCmd} link set ${eSA inNsServiceInterface} address ${eSA interface.mac}"
                             ]
                             )
                             ++ [
-                              "${ipInNsCmd} link set ${eSA serviceInterface} up"
+                              "${ipInNsCmd} link set ${eSA inNsServiceInterface} up"
                             ]
-                            ++ (map (renderRoute serviceInterface) interface.routes);
+                            ++ (map (renderRoute inNsServiceInterface) interface.routes);
 
-                          stop = [ "${ipInNsCmd} link set ${eSA serviceInterface} down" ] ++ hooks.stop;
+                          stop = [
+                            "${ipInNsCmd} link set ${eSA inNsServiceInterface} down"
+                          ]
+                          ++ (
+                            if inNsServiceInterface != uniqueServiceInterface then
+                              [
+                                "${ipInNsCmd} link set ${eSA inNsServiceInterface} name ${eSA uniqueServiceInterface}"
+                              ]
+                            else
+                              [ ]
+                          )
+                          ++ hooks.stop;
                         }
                       );
                     in

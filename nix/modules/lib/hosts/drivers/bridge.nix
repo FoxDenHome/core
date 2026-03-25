@@ -62,7 +62,7 @@ in
     {
       ipCmd,
       interface,
-      serviceInterface,
+      uniqueServiceInterface,
       ...
     }:
     let
@@ -71,9 +71,9 @@ in
     {
       start = [
         "-${ipCmd} link del ${eSA hostIface}"
-        "${ipCmd} link add ${eSA hostIface} type veth peer name ${eSA serviceInterface}"
+        "${ipCmd} link add ${eSA hostIface} type veth peer name ${eSA uniqueServiceInterface}"
         "${ipCmd} link set dev ${eSA hostIface} mtu ${toString interface.driver.bridge.mtu}"
-        "${ipCmd} link set dev ${eSA serviceInterface} mtu ${toString interface.driver.bridge.mtu}"
+        "${ipCmd} link set dev ${eSA uniqueServiceInterface} mtu ${toString interface.driver.bridge.mtu}"
       ];
       stop = [
         "-${ipCmd} link del ${eSA hostIface}"

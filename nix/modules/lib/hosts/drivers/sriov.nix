@@ -33,7 +33,7 @@ in
     {
       pkgs,
       ipCmd,
-      serviceInterface,
+      uniqueServiceInterface,
       interface,
       host,
       ...
@@ -80,10 +80,10 @@ in
           # And rename it
           rdma_link_name="$(${pkgs.iproute2}/bin/rdma link show | grep "netdev $ifname\\s" | cut -d' ' -f2 | cut -d/ -f1 || :)"
           if [ -n "$rdma_link_name" ]; then
-            ${pkgs.iproute2}/bin/rdma dev set "$rdma_link_name" name "${serviceInterface}"
-            ${pkgs.iproute2}/bin/rdma dev set "${serviceInterface}" netns "${host.namespace}"
+            ${pkgs.iproute2}/bin/rdma dev set "$rdma_link_name" name "${uniqueServiceInterface}"
+            ${pkgs.iproute2}/bin/rdma dev set "${uniqueServiceInterface}" netns "${host.namespace}"
           fi
-          ${ipCmd} link set dev "$ifname" name "${serviceInterface}"
+          ${ipCmd} link set dev "$ifname" name "${uniqueServiceInterface}"
         }
 
         assign_vf_by_mac() {
@@ -118,9 +118,8 @@ in
     {
       start = [
         "${pkgs.util-linux}/bin/flock -x /run/foxden-sriov.lock '${allocSriovScript}' '${root}'"
-        "${ipCmd} link set dev ${eSA serviceInterface} mtu ${toString interface.driver.sriov.mtu}"
+        "${ipCmd} link set dev ${eSA uniqueServiceInterface} mtu ${toString interface.driver.sriov.mtu}"
       ];
-      serviceInterface = "";
       stop = [
       ];
     }
