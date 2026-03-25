@@ -38,7 +38,6 @@ let
     foxDenLib.util.removeIPCidr (
       lib.findFirst (ip: foxDenLib.util.isIPv4 ip && foxDenLib.util.isPrivateIP ip) "" iface.addresses
     );
-  primaryIPv4 = ifaceFirstV4 config.foxDen.hosts.hosts.${svcConfig.host}.interfaces.default;
 
   imageManifest = lib.importJSON "${pkgs.unifi-os-server-image}/manifest.json";
 in
@@ -79,7 +78,7 @@ in
             "${dbusStartFix}:/etc/dbus-1/session.d/start-fix.conf:ro"
           ];
           environment = {
-            UOS_SYSTEM_IP = primaryIPv4;
+            UOS_SYSTEM_IP = ifaceFirstV4 config.foxDen.hosts.hosts.${svcConfig.host}.interfaces.default;
             UOS_SERVER_VERSION = pkgs.unifi-os-server-image.version;
             FIRMWARE_PLATFORM = if pkgs.stdenv.hostPlatform.isAarch64 then "linux-arm64" else "linux-x64";
           };
@@ -88,7 +87,6 @@ in
             "--systemd=always"
             "--security-opt=seccomp=unconfined"
             "--security-opt=apparmor=unconfined"
-            "--add-host=host.docker.internal:${primaryIPv4}"
           ];
         };
         systemd = {
