@@ -29,6 +29,7 @@ in
       dns = {
         fqdns = [ "unifi-os-server.foxden.network" ];
       };
+      nameOverride = "eth0";
       firewall.ingressAcceptRules = foxDenLib.firewall.templates.trusted "unifi";
       addresses = [
         "10.1.30.1/16"

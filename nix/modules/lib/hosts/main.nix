@@ -149,6 +149,10 @@ in
               type = str;
               default = config.foxDen.hosts.gateway;
             };
+            nameOverride = lib.mkOption {
+              type = nullOr str;
+              default = null;
+            };
           };
         };
 
@@ -460,7 +464,8 @@ in
                         let
                           ifaceDriver = foxDenLib.hosts.drivers.${interface.driver.name};
 
-                          serviceInterface = "host${interface.suffix}";
+                          serviceInterface =
+                            if interface.nameOverride != null then interface.nameOverride else "host${interface.suffix}";
                           driverRunParams = {
                             inherit
                               ipCmd
