@@ -42,8 +42,9 @@ let
   name = "unifi-os-server";
 in
 {
-  # reverse engineered via
-  # https://www.unihosted.com/blog/running-unifi-os-server-in-docker
+  # Based on:
+  # - https://discourse.nixos.org/t/unifi-os-server-on-nixos/76039
+  # - https://www.unihosted.com/blog/running-unifi-os-server-in-docker
   options.foxDen.services.unifi-os-server = {
   }
   // (foxDenLib.services.oci.mkOptions {
