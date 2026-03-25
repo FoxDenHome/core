@@ -48,6 +48,7 @@ in
         oci = {
           image = pkgs.unifi-os-server-image.tag;
           imageFile = pkgs.unifi-os-server-image;
+          pull = "never";
           volumes = [
             "${stateDir}/persistent:/persistent"
             "${stateDir}/log:/var/log"
