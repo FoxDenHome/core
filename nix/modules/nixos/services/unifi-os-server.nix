@@ -76,6 +76,8 @@ in
           };
           extraOptions = [
             "--systemd=always"
+            "--security-opt=seccomp=unconfined"
+            "--security-opt=apparmor=unconfined"
           ];
         };
         systemd = {
