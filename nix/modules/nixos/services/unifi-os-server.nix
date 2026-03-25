@@ -74,14 +74,14 @@ in
             StateDirectory = [ "unifi-os-server" ];
           };
           preStart = lib.mkAfter ''
+            ${pkgs.coreutils}/bin/mkdir -p "${stateDir}/{persistent,log,data,srv,unifi,mongodb}"
+
             uuid_file="${stateDir}/data/uos_uuid"
             # The Java UniFi controller requires exactly UUID v5 (SHA-1 name-based).
             # Generate a stable v5 UUID derived from the machine-id.
             if ! ${pkgs.gnugrep}/bin/grep -qP '^[0-9a-f]{8}-[0-9a-f]{4}-5' "$uuid_file" 2>/dev/null; then
               ${pkgs.util-linux}/bin/uuidgen -s -n @dns -N "$(${pkgs.coreutils}/bin/cat /etc/machine-id)" > "$uuid_file"
             fi
-
-            ${pkgs.coreutils}/bin/mkdir -p "${stateDir}/{persistent,log,data,srv,unifi,mongodb}"
           '';
         };
       }).config
