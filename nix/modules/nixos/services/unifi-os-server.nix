@@ -6,7 +6,7 @@
   ...
 }:
 let
-  user =  config.users.users.unifi-os-server;
+  user = config.users.users.unifi-os-server;
   svcConfig = config.foxDen.services.unifi-os-server;
   stateDir = user.home;
 
@@ -29,6 +29,14 @@ let
   mongoPreStartFix = pkgs.writeText "mongodb-prestart-fix.conf" ''
     [Service]
     ExecStartPre=+/bin/bash -c "mkdir -p /var/log/mongodb && chown mongodb:mongodb /var/log/mongodb /var/lib/mongodb"
+  '';
+
+  dbusStartFix = pkgs.writeText "dbus-start-fix.conf" ''
+    <?xml version="1.0" encoding="UTF-8"?>
+    <!DOCTYPE busconfig SYSTEM "busconfig.dtd">
+    <busconfig>
+        <apparmor mode="disabled"/>
+    </busconfig>
   '';
 
   name = "unifi-os-server";
@@ -68,6 +76,8 @@ in
             "${ucoreDebug}:/etc/systemd/system/unifi-core.service.d/debug.conf:ro"
             "${ucorePreStartFix}:/etc/systemd/system/unifi-core.service.d/prestart-fix.conf:ro"
             "${mongoPreStartFix}:/etc/systemd/system/mongodb.service.d/prestart-fix.conf:ro"
+            "${dbusStartFix}:/etc/dbus-1/system.d/start-fix.conf:ro"
+            "${dbusStartFix}:/etc/dbus-1/session.d/start-fix.conf:ro"
           ];
           environment = {
             UOS_SYSTEM_IP = "127.0.0.1";
