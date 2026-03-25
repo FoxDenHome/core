@@ -40,6 +40,8 @@ let
   '';
 
   name = "unifi-os-server";
+
+  manifest = lib.importJSON "${pkgs.unifi-os-server-image}/manifest.json";
 in
 {
   # Based on:
@@ -62,7 +64,7 @@ in
           name
           ;
         oci = {
-          image = builtins.readFile "${pkgs.unifi-os-server-image}/tag";
+          image = (lib.lists.head (lib.lists.head manifest).RepoTags);
           imageFile = pkgs.unifi-os-server-image;
           pull = "never";
           volumes = [

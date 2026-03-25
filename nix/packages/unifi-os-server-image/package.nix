@@ -22,7 +22,6 @@ pkgs.stdenvNoCC.mkDerivation {
     binwalk
     coreutils
     findutils
-    jq
   ];
 
   dontUnpack = true;
@@ -46,7 +45,6 @@ pkgs.stdenvNoCC.mkDerivation {
 
     mkdir -p "$out"
     tar -xf "$image_tar" -C "$out"
-    cat "$out/manifest.json" | jq -rj '.[0].RepoTags[0]' > "$out/tag"
   '';
 
   meta = with lib; {
