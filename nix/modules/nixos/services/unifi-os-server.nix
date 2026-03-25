@@ -95,13 +95,10 @@ in
           preStart = lib.mkAfter ''
             ${pkgs.coreutils}/bin/mkdir -p ${stateDir}/{persistent,log,data,srv,unifi,mongodb}
 
-            uuid_file="${stateDir}/data/uos_uuid"
-            if [ ! -f "$uuid_file" ]; then
-              ${pkgs.coreutils}/bin/touch "$uuid_file"
-            fi
             # The Java UniFi controller requires exactly UUID v5 (SHA-1 name-based).
             # Generate a stable v5 UUID derived from the machine-id.
-            if ! ${pkgs.gnugrep}/bin/grep -qP '^[0-9a-f]{8}-[0-9a-f]{4}-5' "$uuid_file" 2>/dev/null; then
+            uuid_file="${stateDir}/data/uos_uuid"
+            if [ ! -f "$uuid_file" ]; then
               ${pkgs.util-linux}/bin/uuidgen -s -n @dns -N "$(${pkgs.coreutils}/bin/cat /etc/machine-id)" > "$uuid_file"
             fi
           '';
