@@ -52,8 +52,8 @@ in
     name = "UniFi OS Server";
   });
 
-  config = lib.mkIf svcConfig.enable (
-    lib.mkMerge [
+  config =
+    lib.mkIf svcConfig.enable
       (foxDenLib.services.oci.make {
         inherit
           pkgs
@@ -114,24 +114,5 @@ in
             ];
           };
         };
-      }).config
-      {
-        # # https://www.crosstalksolutions.com/complete-unifi-os-server-installation-on-linux-best-practices/
-        # networking.firewall = mkIf svcConfig.openFirewall {
-        #   allowedTCPPorts = [
-        #     443 # HTTPS portal
-        #     8080 # UAP device inform
-        #     8443 # Controller HTTPS
-        #     8843 # HTTPS portal redirect
-        #     8880 # HTTP portal redirect
-        #     6789 # Mobile speed test
-        #   ];
-        #   allowedUDPPorts = [
-        #     3478 # STUN
-        #     10001 # Device discovery
-        #   ];
-        # };
-      }
-    ]
-  );
+      }).config;
 }
