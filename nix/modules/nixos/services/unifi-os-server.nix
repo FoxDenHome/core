@@ -46,6 +46,7 @@ in
         inherit pkgs config svcConfig;
         name = "unifi-os-server";
         oci = {
+          privileged = true;
           image = pkgs.unifi-os-server-image.tag;
           imageFile = pkgs.unifi-os-server-image;
           pull = "never";
@@ -65,6 +66,10 @@ in
             UOS_SERVER_VERSION = pkgs.unifi-os-server-image.version;
             FIRMWARE_PLATFORM = if pkgs.stdenv.hostPlatform.isAarch64 then "linux-arm64" else "linux-x64";
           };
+          extraOptions = [
+            "--systemd=always"
+            "--security-opt seccomp=unconfined"
+          ];
         };
         systemd = {
           preStart = lib.mkAfter ''
