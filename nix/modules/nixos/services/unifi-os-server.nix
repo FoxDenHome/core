@@ -93,9 +93,6 @@ in
             fi
           '';
           serviceConfig = {
-            ExecStartPre = [
-              "+${pkgs.coreutils}/bin/chown -R ${user.name}:${user.group} /sys/fs/cgroup/foxden-oci-${name}"
-            ];
             DelegateNamespaces = "cgroup";
             PrivateUsers = "full";
           };
