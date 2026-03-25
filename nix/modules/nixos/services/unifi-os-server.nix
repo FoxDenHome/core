@@ -50,6 +50,7 @@ in
           image = pkgs.unifi-os-server-image.tag;
           imageFile = pkgs.unifi-os-server-image;
           pull = "never";
+          autoRemoveOnStop = false;
           volumes = [
             "${stateDir}/persistent:/persistent"
             "${stateDir}/log:/var/log"
@@ -61,7 +62,6 @@ in
             "${ucorePreStartFix}:/etc/systemd/system/unifi-core.service.d/prestart-fix.conf:ro"
             "${mongoPreStartFix}:/etc/systemd/system/mongodb.service.d/prestart-fix.conf:ro"
           ];
-          cgroups = "disabled";
           environment = {
             UOS_SYSTEM_IP = "127.0.0.1";
             UOS_SERVER_VERSION = pkgs.unifi-os-server-image.version;
