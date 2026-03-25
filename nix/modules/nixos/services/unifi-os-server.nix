@@ -52,7 +52,6 @@ in
           svcConfig
           name
           ;
-        linger = true;
         oci = {
           privileged = true;
           image = pkgs.unifi-os-server-image.tag;
