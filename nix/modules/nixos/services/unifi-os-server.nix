@@ -47,7 +47,6 @@ in
         name = "unifi-os-server";
         oci = {
           privileged = true;
-          image = pkgs.unifi-os-server-image.tag;
           imageFile = pkgs.unifi-os-server-image;
           volumes = [
             "${stateDir}/persistent:/persistent"
