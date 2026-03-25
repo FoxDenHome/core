@@ -62,7 +62,7 @@ in
           name
           ;
         oci = {
-          image = pkgs.unifi-os-server-image.tag;
+          image = builtins.readFile "${pkgs.unifi-os-server-image}/tag";
           imageFile = pkgs.unifi-os-server-image;
           pull = "never";
           volumes = [
