@@ -1,4 +1,5 @@
 {
+  config,
   hostName,
   pkgs,
   lib,
@@ -34,6 +35,11 @@ let
       ${pkgs.libvirt}/bin/virsh define ${vm.libvirtXml}
       ${pkgs.libvirt}/bin/virsh autostart ${vm.name} --disable
     '';
+
+  cockpitPlugins = with pkgs.pkgsUnstable; [
+    cockpit-machines
+    cockpit-zfs
+  ];
 in
 {
   config = lib.mkIf ((lib.length vmNames) > 0) {
@@ -46,6 +52,27 @@ in
         "https://*.foxden.network:9090"
       ];
     };
+    # BELOW FROM NIXPKGS UNSTABLE
+    environment.etc = {
+      # Add plugins in discoverable folder
+      "cockpit/share/cockpit".source = "${
+        pkgs.buildEnv {
+          name = "cockpit-plugins";
+          paths = cockpitPlugins ++ [ config.cockpit.package ];
+          pathsToLink = [ "/share/cockpit" ];
+        }
+      }/share/cockpit";
+
+      # Add plugins dependencies
+      "cockpit/bin".source = "${
+        pkgs.buildEnv {
+          name = "cockpit-path";
+          paths = lib.concatMap (p: p.passthru.cockpitPath or [ ]) cockpitPlugins;
+          pathsToLink = [ "/bin" ];
+        }
+      }/bin";
+    };
+    # ABOVE FROM NIXPKGS UNSTABLE
 
     environment.systemPackages = with pkgs; [
       pkgsUnstable.cockpit
