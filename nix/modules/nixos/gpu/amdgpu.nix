@@ -49,7 +49,6 @@ in
       ];
       paths = [
         "/run/amdgpu-data"
-        envVars.XILINX_XRT
       ];
       environment = envVars;
     };
