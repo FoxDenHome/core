@@ -58,7 +58,7 @@ in
       "cockpit/share/cockpit".source = "${
         pkgs.buildEnv {
           name = "cockpit-plugins";
-          paths = cockpitPlugins ++ [ config.cockpit.package ];
+          paths = cockpitPlugins ++ [ config.services.cockpit.package ];
           pathsToLink = [ "/share/cockpit" ];
         }
       }/share/cockpit";
