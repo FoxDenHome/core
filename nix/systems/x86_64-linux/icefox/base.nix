@@ -6,7 +6,7 @@
   foxDen.sops.available = true;
   foxDen.boot.secure = true;
 
-  system.stateVersion = "25.05";
+  system.stateVersion = "25.11";
 
   imports = [ ../../../profiles/server.nix ];
   systemd.services."serial-getty@ttyS1".enable = true;
