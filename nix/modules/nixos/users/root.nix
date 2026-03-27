@@ -1,9 +1,9 @@
-{ ... }:
+{ config, ... }:
 {
   home-manager.users.root =
     { ... }:
     {
-      home.stateVersion = "25.11";
+      home.stateVersion = config.system.stateVersion;
 
       programs.gpg = {
         enable = true;

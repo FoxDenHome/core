@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ config, pkgs, ... }:
 {
   users.users.appliance = {
     isNormalUser = true;
@@ -27,9 +27,9 @@
   ];
 
   home-manager.users.appliance =
-    { pkgs, ... }:
+    { ... }:
     {
-      home.stateVersion = "25.11";
+      home.stateVersion = config.system.stateVersion;
 
       home.file = {
         ".config" = {
