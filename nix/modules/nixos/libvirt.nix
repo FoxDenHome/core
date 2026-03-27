@@ -37,7 +37,14 @@ let
 in
 {
   config = lib.mkIf ((lib.length vmNames) > 0) {
-    services.cockpit.enable = true;
+    services.cockpit = {
+      enable = true;
+      openFirewall = true;
+      package = pkgs.pkgsUnstable.cockpit;
+      plugins = with pkgs.pkgsUnstable; [
+        cockpit-machines
+      ];
+    };
 
     environment.systemPackages = with pkgs; [
       pkgsUnstable.cockpit
