@@ -41,6 +41,10 @@ in
       enable = true;
       openFirewall = true;
       package = pkgs.pkgsUnstable.cockpit;
+      allowed-origins = [
+        "https://*.foxden.network"
+        "https://*.foxden.network:9090"
+      ];
     };
 
     environment.systemPackages = with pkgs; [
