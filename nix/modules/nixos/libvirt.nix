@@ -37,6 +37,15 @@ let
 in
 {
   config = lib.mkIf ((lib.length vmNames) > 0) {
+    services.cockpit.enable = true;
+
+    environment.systemPackages = with pkgs; [
+      cockpit
+      cockpit-machines
+      libvirt
+      virt-manager
+    ];
+
     virtualisation.libvirtd = {
       enable = true;
       onShutdown = "shutdown";
@@ -98,15 +107,6 @@ in
         }
       ];
     };
-
-    security.polkit.extraConfig = ''
-      polkit.addRule(function(action, subject) {
-        if (action.id == "org.libvirt.unix.manage" &&
-          subject.isInGroup("wheel")) {
-          return polkit.Result.YES;
-        }
-      });
-    '';
 
     foxDen.hosts.hosts = lib.attrsets.genAttrs vmNames (name: {
       interfaces = lib.attrsets.mapAttrs (
