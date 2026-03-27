@@ -4,7 +4,7 @@
     "unifi-os-server": {
       "defaultRegistryUrlTemplate": "https://fw-update.ubnt.com/api/firmware-latest?filter=eq~~product~~unifi-os-server&filter=eq~~channel~~release&filter=eq~~platform~~linux-x64",
       "transformTemplates": [
-        "{\"releases\": $._embedded.firmware[platform = \"linux-x64\"].{\"version\": $replace(version, /^v/, \"\"), \"digest\": \"url = \\\"\" & _links.data.href & \"\\\";\\n  sha256 = \\\"\" & sha256_checksum & \"\\\";\"}}"
+        "{\"releases\": [$._embedded.firmware[platform = \"linux-x64\"].{\"version\": $replace(version, /^v/, \"\"), \"digest\": \"url = \\\"\" & _links.data.href & \"\\\";\\n  sha256 = \\\"\" & sha256_checksum & \"\\\";\"}]}"
       ]
     }
   },
