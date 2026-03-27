@@ -35,48 +35,11 @@ let
       ${pkgs.libvirt}/bin/virsh define ${vm.libvirtXml}
       ${pkgs.libvirt}/bin/virsh autostart ${vm.name} --disable
     '';
-
-  cockpitPlugins = with pkgs.pkgsUnstable; [
-    cockpit-machines
-    cockpit-zfs
-  ];
 in
 {
   config = lib.mkIf ((lib.length vmNames) > 0) {
-    services.cockpit = {
-      enable = true;
-      openFirewall = true;
-      package = pkgs.pkgsUnstable.cockpit;
-      allowed-origins = [
-        "https://*.foxden.network"
-        "https://*.foxden.network:9090"
-      ];
-    };
-    # BELOW FROM NIXPKGS UNSTABLE
-    environment.etc = {
-      # Add plugins in discoverable folder
-      "cockpit/share/cockpit".source = "${
-        pkgs.buildEnv {
-          name = "cockpit-plugins";
-          paths = cockpitPlugins ++ [ config.services.cockpit.package ];
-          pathsToLink = [ "/share/cockpit" ];
-        }
-      }/share/cockpit";
-
-      # Add plugins dependencies
-      "cockpit/bin".source = "${
-        pkgs.buildEnv {
-          name = "cockpit-path";
-          paths = lib.concatMap (p: p.passthru.cockpitPath or [ ]) cockpitPlugins;
-          pathsToLink = [ "/bin" ];
-        }
-      }/bin";
-    };
-    # ABOVE FROM NIXPKGS UNSTABLE
-
+    services.cockpit.plugins = [ pkgs.pkgsUnstable.cockpit-machines ];
     environment.systemPackages = with pkgs; [
-      pkgsUnstable.cockpit
-      pkgsUnstable.cockpit-machines
       libvirt
       libvirt-dbus
       virt-manager

@@ -35,6 +35,7 @@ in
   };
 
   config = lib.mkIf config.foxDen.zfs.enable {
+    services.cockpit.plugins = [ pkgs.pkgsUnstable.cockpit-zfs ];
     boot = {
       # TODO: Keep these values reasonably up to date [kernelPackages / zfs.package]
       zfs = {
