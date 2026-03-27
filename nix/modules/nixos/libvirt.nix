@@ -40,9 +40,22 @@ in
     services.cockpit.plugins = [ pkgs.pkgsUnstable.cockpit-machines ];
     environment.systemPackages = with pkgs; [ virt-manager ];
 
+    # BELOW FROM NIXPKGS UNSTABLE
+    users = {
+      users.libvirtdbus = {
+        isSystemUser = true;
+        group = "libvirtdbus";
+        description = "Libvirt D-Bus bridge";
+      };
+      groups.libvirtdbus = { };
+    };
+    systemd.packages = [ pkgs.libvirt-dbus ];
+    services.dbus.packages = [ pkgs.libvirt-dbus ];
+    # ABOVE FROM NIXPKGS UNSTABLE
+
     virtualisation.libvirtd = {
       enable = true;
-      dbus.enable = true;
+      # dbus.enable = true;
       onShutdown = "shutdown";
       onBoot = "ignore";
       qemu = {
