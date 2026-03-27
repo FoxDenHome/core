@@ -49,9 +49,9 @@ I am not sure whether I plan to instrument RouterOS enough to make this possible
 - **Locator**: Vultr
 - **OS**: MikroTik RouterOS
 - **CPU**: 1 vCPU "Intel high performance"
-- **RAM**: 1 GB
-- **Storage**: vdisk 25 GB NVMe SSD
-- **Network**: >= 1GbE (max 2 TB traffic)
+- **RAM**: 2 GB
+- **Storage**: vdisk 50 GB NVMe SSD
+- **Network**: >= 1GbE (max 3 TB traffic)
 
 ### Router
 
