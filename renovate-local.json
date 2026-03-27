@@ -1,5 +1,25 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "customDatasources": {
+    "unifi-os-server": {
+      "defaultRegistryUrlTemplate": "https://fw-update.ubnt.com/api/firmware-latest?filter=eq~~product~~unifi-os-server&filter=eq~~channel~~release&filter=eq~~platform~~linux-x64",
+      "transformTemplates": [
+        "{\"releases\": $._embedded.firmware[platform = \"linux-x64\"].{\"version\": $replace(version, /^v/, \"\"), \"digest\": \"url = \\\"\" & _links.data.href & \"\\\";\\n  sha256 = \\\"\" & sha256_checksum & \"\\\";\"}}"
+      ]
+    }
+  },
+  "customManagers": [
+    {
+      "customType": "regex",
+      "fileMatch": ["^nix/packages/unifi-os-server-image/package\\.nix$"],
+      "matchStrings": [
+        "version = \"(?<currentValue>[^\"]+)\";\\n  (?<currentDigest>url = \"https://fw-download\\.ubnt\\.com/data/unifi-os-server/[^\"]+\";\\n  sha256 = \"[^\"]+\";)"
+      ],
+      "datasourceTemplate": "custom.unifi-os-server",
+      "depNameTemplate": "unifi-os-server",
+      "autoReplaceStringTemplate": "version = \"{{newValue}}\";\n  {{newDigest}}"
+    }
+  ],
   "packageRules": [
     {
       "matchManagers": ["npm"],
