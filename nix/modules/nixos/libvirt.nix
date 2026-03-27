@@ -52,6 +52,14 @@ in
     systemd.packages = [ pkgs.libvirt-dbus ];
     services.dbus.packages = [ pkgs.libvirt-dbus ];
     # ABOVE FROM NIXPKGS UNSTABLE
+    security.polkit.extraConfig = ''
+      polkit.addRule(function(action, subject) {
+        if (action.id == "org.libvirt.unix.manage" &&
+          subject.isInGroup("cockpit-wsinstance-socket")) {
+          return polkit.Result.YES;
+        }
+      });
+    '';
 
     virtualisation.libvirtd = {
       enable = true;
