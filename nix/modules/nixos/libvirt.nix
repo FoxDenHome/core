@@ -40,8 +40,8 @@ in
     services.cockpit.enable = true;
 
     environment.systemPackages = with pkgs; [
-      cockpit
-      cockpit-machines
+      pkgsUnstable.cockpit
+      pkgsUnstable.cockpit-machines
       libvirt
       virt-manager
     ];
