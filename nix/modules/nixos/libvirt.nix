@@ -78,6 +78,7 @@ in
       pkgsUnstable.cockpit
       pkgsUnstable.cockpit-machines
       libvirt
+      libvirt-dbus
       virt-manager
     ];
 
