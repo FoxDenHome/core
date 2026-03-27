@@ -41,9 +41,6 @@ in
       enable = true;
       openFirewall = true;
       package = pkgs.pkgsUnstable.cockpit;
-      plugins = with pkgs.pkgsUnstable; [
-        cockpit-machines
-      ];
     };
 
     environment.systemPackages = with pkgs; [
