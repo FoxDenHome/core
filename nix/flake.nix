@@ -27,15 +27,14 @@
 
     # Helpers
     systems.url = "github:nix-systems/default";
-
     flake-utils = {
       url = "github:numtide/flake-utils";
       inputs.systems.follows = "systems";
     };
-
-    pyproject-nix.url = "github:pyproject-nix/pyproject.nix";
-    pyproject-nix.inputs.nixpkgs.follows = "nixpkgs";
-
+    pyproject-nix = {
+      url = "github:pyproject-nix/pyproject.nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     uv2nix = {
       url = "github:pyproject-nix/uv2nix";
       inputs = {
@@ -43,7 +42,6 @@
         nixpkgs.follows = "nixpkgs";
       };
     };
-
     build-gradle-application = {
       url = "github:raphiz/buildGradleApplication";
       inputs = {
@@ -51,7 +49,6 @@
         nixpkgs.follows = "nixpkgs";
       };
     };
-
     pyproject-build-systems = {
       url = "github:pyproject-nix/build-system-pkgs";
       inputs = {
