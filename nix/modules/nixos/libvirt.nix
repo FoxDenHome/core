@@ -38,14 +38,11 @@ in
 {
   config = lib.mkIf ((lib.length vmNames) > 0) {
     services.cockpit.plugins = [ pkgs.pkgsUnstable.cockpit-machines ];
-    environment.systemPackages = with pkgs; [
-      libvirt
-      libvirt-dbus
-      virt-manager
-    ];
+    environment.systemPackages = with pkgs; [ virt-manager ];
 
     virtualisation.libvirtd = {
       enable = true;
+      dbus.enable = true;
       onShutdown = "shutdown";
       onBoot = "ignore";
       qemu = {
