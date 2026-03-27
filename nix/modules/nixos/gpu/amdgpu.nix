@@ -6,9 +6,6 @@
 }:
 let
   envVars = {
-    XILINX_XRT = "${pkgs.xrt-amdxdna}/opt/xilinx/xrt";
-    #XLNX_VART_FIRMWARE = "${pkgs.ryzen-ai-full}/share/xclbin";
-    #VAIP_CONFIG = "${pkgs.ryzen-ai-full}/share/vaip/vaip_config.json";
     XILINXD_LICENSE_FILE = "/run/amdgpu-data/Xilinx.lic";
   };
 in
@@ -18,7 +15,6 @@ in
   config = lib.mkIf config.foxDen.amdgpu.enable {
     environment.systemPackages = with pkgs; [
       rocmPackages.rocm-smi
-      ryzen-ai-full
     ];
 
     systemd.tmpfiles.rules = [

@@ -4,7 +4,6 @@
   inputs = {
     # Basics
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.11";
-    nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
 
     home-manager = {
       url = "github:nix-community/home-manager/release-25.11";
@@ -60,11 +59,6 @@
         uv2nix.follows = "uv2nix";
         nixpkgs.follows = "nixpkgs";
       };
-    };
-
-    nix-amd-npu = {
-      url = "github:robcohen/nix-amd-npu";
-      inputs.nixpkgs.follows = "nixpkgs";
     };
 
     # Applications
