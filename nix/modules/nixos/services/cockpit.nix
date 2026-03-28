@@ -41,9 +41,8 @@ in
   };
   # ABOVE FROM NIXPKGS UNSTABLE
 
-  config = {
+  config = lib.mkIf config.services.cockpit.enable {
     services.cockpit = {
-      enable = true;
       openFirewall = true;
       package = pkgs.pkgsUnstable.cockpit;
       allowed-origins = [
