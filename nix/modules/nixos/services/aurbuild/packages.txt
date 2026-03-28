@@ -26,3 +26,4 @@ iloader-bin
 proxmark3-iceman-git
 jdk21-graalvm-ee-bin
 polymath
+soapyplutotezuka
