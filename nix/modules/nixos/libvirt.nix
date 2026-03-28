@@ -116,6 +116,15 @@ in
       ];
     };
 
+    security.polkit.extraConfig = ''
+      polkit.addRule(function(action, subject) {
+        if (action.id == "org.libvirt.unix.manage" &&
+          subject.isInGroup("wheel")) {
+          return polkit.Result.YES;
+        }
+      });
+    '';
+
     foxDen.hosts.hosts = lib.attrsets.genAttrs vmNames (name: {
       interfaces = lib.attrsets.mapAttrs (
         _: iface:
