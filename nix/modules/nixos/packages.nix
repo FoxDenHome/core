@@ -1,6 +1,5 @@
 inputs@{
   nixpkgs,
-  nixpkgs-unstable,
   config,
   lib,
   systemArch,
@@ -11,7 +10,6 @@ inputs@{
 let
   internalPackages = {
     "nixpkgs" = true;
-    "nixpkgs-unstable" = true;
     "impermanence" = true;
     "lanzaboote" = true;
     "sops-nix" = true;
@@ -53,7 +51,6 @@ let
   };
 
   pkgs = import nixpkgs pkgsConfig;
-  pkgsUnstable = import nixpkgs-unstable pkgsConfig;
 
   localPackages = lib.attrsets.genAttrs (lib.attrNames (builtins.readDir ../../packages)) (
     name: import ../../packages/${name}/package.nix (inputs // { inherit pkgs; })
@@ -69,7 +66,6 @@ in
       pkgs
       {
         config = nixPkgConfig;
-        inherit pkgsUnstable;
       }
       localPackages
     ]

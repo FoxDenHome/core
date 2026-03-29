@@ -37,25 +37,12 @@ let
 in
 {
   config = lib.mkIf ((lib.length vmNames) > 0) {
-    services.cockpit.plugins = [ pkgs.pkgsUnstable.cockpit-machines ];
+    # services.cockpit.plugins = [ pkgs.cockpit-machines ]; TODO: 26.05
     environment.systemPackages = with pkgs; [ virt-manager ];
-
-    # BELOW FROM NIXPKGS UNSTABLE
-    users = {
-      users.libvirtdbus = {
-        isSystemUser = true;
-        group = "libvirtdbus";
-        description = "Libvirt D-Bus bridge";
-      };
-      groups.libvirtdbus = { };
-    };
-    systemd.packages = [ pkgs.libvirt-dbus ];
-    services.dbus.packages = [ pkgs.libvirt-dbus ];
-    # ABOVE FROM NIXPKGS UNSTABLE
 
     virtualisation.libvirtd = {
       enable = true;
-      # dbus.enable = true;
+      # dbus.enable = true; TODO: 26.05
       onShutdown = "shutdown";
       onBoot = "ignore";
       qemu = {
