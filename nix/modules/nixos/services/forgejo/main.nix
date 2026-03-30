@@ -144,6 +144,10 @@ in
               OPENID_CONNECT_SCOPES = "openid email profile";
               REGISTER_EMAIL_CONFIRM = false;
             };
+            "repository.pull-request" = {
+              DEFAULT_MERGE_STYLE = "squash";
+              DEFAULT_UPDATE_STYLE = "rebase";
+            };
           };
           package = pkgs.forgejo;
           stateDir = svcConfig.dataDir;
