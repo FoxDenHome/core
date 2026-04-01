@@ -27,3 +27,4 @@ proxmark3-iceman-git
 jdk21-graalvm-ee-bin
 polymath
 soapytezuka-git
+mediatek-mt7927-dkms
