@@ -1,6 +1,8 @@
 {
   lib,
   pkgs,
+  nix-amd-npu,
+  systemArch,
   ...
 }:
 
@@ -74,14 +76,12 @@ let
     };
   };
 
+  stockPkg = nix-amd-npu.outputs.legacyPackages.${systemArch}.ryzen-ai-full;
 in
 pkgs.symlinkJoin {
   name = "ryzen-ai-full-${version}";
 
-  paths = with pkgs; [
-    xrt
-    onnxruntime-vitisai
-    dynamic-dispatch
+  paths = (lib.lists.filter (lib.strings.hasInfix "vaip-runtime") stockPkg.paths) ++ [
     vaip-runtime
   ];
 }
