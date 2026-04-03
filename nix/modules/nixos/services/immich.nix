@@ -137,6 +137,8 @@ in
               MACHINE_LEARNING_PRELOAD__FACIAL_RECOGNITION__DETECTION = facialRecognitionModelName;
               MACHINE_LEARNING_PRELOAD__FACIAL_RECOGNITION__RECOGNITION = facialRecognitionModelName;
               IMMICH_LOG_LEVEL = "verbose";
+              HSA_OVERRIDE_GFX_VERSION = "11.0.3";
+              HIP_VISIBLE_DEVICES = "0";
             };
           };
           settings = {
