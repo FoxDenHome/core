@@ -79,7 +79,7 @@ pkgs.symlinkJoin {
   name = "ryzen-ai-full-${version}";
 
   paths = with pkgs; [
-    xrt-plugin-amdxdna
+    xrt-amdxdna
     onnxruntime-vitisai
     dynamic-dispatch
     vaip-runtime
