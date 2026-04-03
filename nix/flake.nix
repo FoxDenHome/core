@@ -60,7 +60,7 @@
 
     nix-amd-npu = {
       url = "github:robcohen/nix-amd-npu";
-      inputs.nixpkgs.follows = "nixpkgs";
+      # DO NOT FOLLOW nixpgks, this needs a fork!
     };
 
     # Applications
