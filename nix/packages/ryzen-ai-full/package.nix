@@ -69,9 +69,9 @@ let
       cp -P ${dataDir}/vaip_config*.json $out/share/vaip/vaip_config.json
     '';
 
-    meta = with lib; {
+    meta = {
       description = "AMD VAIP runtime for Ryzen AI NPU";
-      license = licenses.unfree;
+      license = "Apache-2.0";
       platforms = [ "x86_64-linux" ];
     };
   };
