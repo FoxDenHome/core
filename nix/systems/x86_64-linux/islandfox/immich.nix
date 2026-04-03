@@ -8,6 +8,12 @@ in
       enable = true;
       host = "immich";
       tls.enable = false;
+      oAuth = {
+        enable = true;
+        clientId = "immich-demo";
+        displayName = "Immich-demo";
+        imageFile = ../../../files/icons/immich.svg;
+      };
     };
   };
 
