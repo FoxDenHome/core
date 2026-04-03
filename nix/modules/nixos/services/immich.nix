@@ -136,7 +136,7 @@ in
               MACHINE_LEARNING_PRELOAD__CLIP__VISUAL = clipModelName;
               MACHINE_LEARNING_PRELOAD__FACIAL_RECOGNITION__DETECTION = facialRecognitionModelName;
               MACHINE_LEARNING_PRELOAD__FACIAL_RECOGNITION__RECOGNITION = facialRecognitionModelName;
-              IMMICH_LOG_LEVEL = "debug";
+              IMMICH_LOG_LEVEL = "verbose";
             };
           };
           settings = {
@@ -225,7 +225,7 @@ in
             };
             logging = {
               enabled = true;
-              level = "debug";
+              level = "verbose";
             };
             machineLearning = {
               enabled = true;
