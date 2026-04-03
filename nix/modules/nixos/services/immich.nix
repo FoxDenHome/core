@@ -224,7 +224,7 @@ in
             };
             logging = {
               enabled = true;
-              level = "log";
+              level = "debug";
             };
             machineLearning = {
               enabled = true;
