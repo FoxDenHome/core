@@ -5,17 +5,17 @@ in
 {
   foxDen.services = {
     trustedProxies = [ "10.99.12.2/32" ];
-    haproxy = {
+    foxingress = {
       enable = true;
-      host = "haproxy";
+      host = "foxingress";
       configFromGateway = "icefox";
     };
   };
 
   foxDen.hosts.hosts = {
-    haproxy = mkV6Host {
+    foxingress = mkV6Host {
       dns = {
-        fqdns = [ "icefox-haproxy.foxden.network" ];
+        fqdns = [ "icefox-foxingress.foxden.network" ];
       };
       firewall.portForwards = [
         {
