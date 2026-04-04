@@ -37,7 +37,9 @@
   // -----------------------------------------------------------
   // Items here will get their recipes disabled
   // Keep in mind this already is applied to blacklisted items
-  "only_disable_recipes": [],
+  "only_disable_recipes": [
+    "minecraft:suspicious_sand"
+  ],
   // -----------------------------------------------------------
   // If true, the mod will use a hashset to handle the blacklisted items
   // This is a more optimized approach only if you have a lot of items blacklisted (20 or more is recommended)
