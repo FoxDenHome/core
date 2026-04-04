@@ -140,6 +140,13 @@
         flake-utils.follows = "flake-utils";
       };
     };
+    foxIngress = {
+      url = "git+https://git.foxden.network/FoxDen/foxIngress";
+      inputs = {
+        nixpkgs.follows = "nixpkgs";
+        flake-utils.follows = "flake-utils";
+      };
+    };
 
     spaceage-api = {
       url = "git+https://git.foxden.network/SpaceAge/space_age_api";

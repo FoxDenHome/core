@@ -96,6 +96,7 @@ let
 
   ipReverses = foxDenLib.global.hosts.getIPReverses nixosConfigurations;
   dns = foxDenLib.global.dns.mkConfig nixosConfigurations;
+  foxIngress = foxDenLib.global.foxingress.make nixosConfigurations;
   dhcp = foxDenLib.global.dhcp.make nixosConfigurations;
   firewall = foxDenLib.global.firewall.make nixosConfigurations;
   haproxy = foxDenLib.global.haproxy.make nixosConfigurations;
@@ -115,6 +116,7 @@ let
           kanidm
           dns
           ipReverses
+          foxIngress
           ;
       };
       modules = [
@@ -215,6 +217,12 @@ in
   sshHostDnsNames = {
     attrset = sshHostDnsNames;
     json = builtins.toFile "sshHostDnsNames.json" (builtins.toJSON sshHostDnsNames);
+  };
+  foxIngress = {
+    attrset = foxIngress;
+    json = nixpkgs.lib.attrsets.mapAttrs (
+      name: cfg: builtins.toFile "foxIngress.json" (builtins.toJSON cfg)
+    ) foxIngress;
   };
   haproxy = {
     source = haproxy;
