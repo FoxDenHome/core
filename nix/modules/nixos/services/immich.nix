@@ -224,7 +224,6 @@ in
             };
             logging = {
               enabled = true;
-              level = "info";
             };
             machineLearning = {
               enabled = true;
