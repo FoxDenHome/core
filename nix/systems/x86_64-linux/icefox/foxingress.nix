@@ -5,7 +5,7 @@ in
 {
   foxDen.services = {
     trustedProxies = [ "10.99.12.2/32" ];
-    foxingress = {
+    foxIngress = {
       enable = true;
       host = "foxingress";
       configFromGateway = "icefox";
