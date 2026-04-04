@@ -211,6 +211,10 @@ in
                 type = ints.u16;
                 default = 0;
               };
+              quicProxyPort = lib.mkOption {
+                type = ints.u16;
+                default = 0;
+              };
               readyUrl = lib.mkOption {
                 type = str;
                 default = "/readyz";

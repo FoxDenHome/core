@@ -206,6 +206,29 @@
         "type": "github"
       }
     },
+    "foxIngress": {
+      "inputs": {
+        "flake-utils": [
+          "flake-utils"
+        ],
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1775271504,
+        "narHash": "sha256-NbYjU4NN+nPDwJ0WmOSkHNbt/Bm1wTOzeMoPQ4LBb58=",
+        "ref": "refs/heads/main",
+        "rev": "0a4b0a5ea55df4983cd32959395a7bf6453b38b0",
+        "revCount": 204,
+        "type": "git",
+        "url": "https://git.foxden.network/FoxDen/foxIngress"
+      },
+      "original": {
+        "type": "git",
+        "url": "https://git.foxden.network/FoxDen/foxIngress"
+      }
+    },
     "foxcaves": {
       "inputs": {
         "flake-utils": [
@@ -542,6 +565,7 @@
         "e621dumper": "e621dumper",
         "fadumper": "fadumper",
         "flake-utils": "flake-utils",
+        "foxIngress": "foxIngress",
         "foxcaves": "foxcaves",
         "gitbackup": "gitbackup",
         "home-manager": "home-manager",

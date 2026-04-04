@@ -2,7 +2,6 @@
 let
   lib = nixpkgs.lib;
   util = foxDenLib.util;
-  mkHost = foxDenLib.global.dns.mkHost;
   globalConfig = foxDenLib.global.config;
 
   protoCfgType =
@@ -108,7 +107,7 @@ in
     { config, ... }:
     let
       renderInterface = (
-        hostName: ifaceObj:
+        hostName: hostVal: ifaceObj:
         let
           iface = ifaceObj.value;
           template = "${hostName}-${ifaceObj.name}";
@@ -121,39 +120,53 @@ in
             (util.isIPv4 ipNoCidr) && (util.isPrivateIP ipNoCidr)
           ) "" iface.addresses;
         in
-        lib.mkIf (privateIPv4 != "" && iface.webservice.enable) {
+        lib.mkIf (privateIPv4 != "" && hostVal.webservice.enable) {
           templates."${template}" = {
             inherit (iface) gateway;
             default = {
               host = util.removeIPCidr privateIPv4;
-              proxyProtocol = iface.webservice.proxyProtocol;
+              proxyProtocol = hostVal.webservice.proxyProtocol;
             };
             http = {
-              port = iface.webservice.httpPort;
+              port =
+                if hostVal.webservice.proxyProtocol then
+                  hostVal.webservice.httpProxyPort
+                else
+                  hostVal.webservice.httpPort;
             };
             https = {
-              port = iface.webservice.httpsPort;
+              port =
+                if hostVal.webservice.proxyProtocol then
+                  hostVal.webservice.httpsProxyPort
+                else
+                  hostVal.webservice.httpsPort;
             };
             quic = {
-              port = iface.webservice.quicPort;
+              port =
+                if hostVal.webservice.proxyProtocol then
+                  hostVal.webservice.quicProxyPort
+                else
+                  hostVal.webservice.quicPort;
             };
           };
 
           hosts = lib.attrsets.listToAttrs (
-            map (record: {
-              name = mkHost record;
+            map (name: {
+              inherit name;
               value = {
                 inherit (iface) gateway;
                 inherit template;
               };
-            }) ([ iface.dns ] ++ iface.cnames)
+            }) iface.dns.fqdns
           );
         }
       );
 
       renderHost =
         { name, value }:
-        lib.mkMerge (map (iface: renderInterface name iface) (lib.attrsets.attrsToList value.interfaces));
+        lib.mkMerge (
+          map (iface: renderInterface name value iface) (lib.attrsets.attrsToList value.interfaces)
+        );
     in
     {
       options.foxDen.foxIngress.templates =
