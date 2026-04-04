@@ -231,7 +231,7 @@ DEFAULT_RULES_HEAD: list[FirewallRule] = [
         attribs={
             "action": "dst-nat",
             "chain": "local-port-forward",
-            "comment": "HAProxy TCP (Priv)",
+            "comment": "foxIngress TCP (Priv)",
             "dst-port": "9001",
             "protocol": "tcp",
             "to-addresses": "172.17.0.2",
@@ -243,7 +243,7 @@ DEFAULT_RULES_HEAD: list[FirewallRule] = [
         attribs={
             "action": "dst-nat",
             "chain": "port-forward",
-            "comment": "HAProxy TCP (Pub)",
+            "comment": "foxIngress TCP (Pub)",
             "dst-port": "80,443",
             "protocol": "tcp",
             "to-addresses": "172.17.0.2",
@@ -318,7 +318,7 @@ DEFAULT_RULES_HEAD: list[FirewallRule] = [
         attribs={
             "action": "dst-nat",
             "chain": "local-port-forward",
-            "comment": "HAProxy TCP (Priv)",
+            "comment": "foxIngress TCP (Priv)",
             "dst-port": "9001",
             "protocol": "tcp",
             "to-address": "fd2c:f4cb:63be::ac11:2/128",
@@ -406,9 +406,9 @@ DEFAULT_RULES_TAIL: list[FirewallRule] = [
         attribs={
             "action": "accept",
             "chain": "forward",
-            "comment": "HAProxy TCP (Pub)",
+            "comment": "foxIngress TCP (Pub)",
             "dst-port": "80,443",
-            "out-interface": "veth-haproxy",
+            "out-interface": "veth-foxingress",
             "protocol": "tcp",
         },
     ),
@@ -418,10 +418,10 @@ DEFAULT_RULES_TAIL: list[FirewallRule] = [
         attribs={
             "action": "accept",
             "chain": "forward",
-            "comment": "HAProxy TCP (Priv)",
+            "comment": "foxIngress TCP (Priv)",
             "dst-port": "9001",
             "in-interface-list": "zone-local",
-            "out-interface": "veth-haproxy",
+            "out-interface": "veth-foxingress",
             "protocol": "tcp",
         },
     ),

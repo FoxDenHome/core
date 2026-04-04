@@ -99,7 +99,6 @@ let
   foxIngress = foxDenLib.global.foxingress.make nixosConfigurations;
   dhcp = foxDenLib.global.dhcp.make nixosConfigurations;
   firewall = foxDenLib.global.firewall.make nixosConfigurations;
-  haproxy = foxDenLib.global.haproxy.make nixosConfigurations;
   kanidm = foxDenLib.global.kanidm.mkConfig nixosConfigurations;
   sshHostDnsNames = foxDenLib.global.ssh.sshHostDnsNames nixosConfigurations;
 
@@ -112,7 +111,6 @@ let
         inherit
           dhcp
           firewall
-          haproxy
           kanidm
           dns
           ipReverses
@@ -223,10 +221,6 @@ in
     json = nixpkgs.lib.attrsets.mapAttrs (
       name: cfg: builtins.toFile "foxIngress.json" (builtins.toJSON cfg)
     ) foxIngress;
-  };
-  haproxy = {
-    source = haproxy;
-    text = nixpkgs.lib.attrsets.mapAttrs (name: cfg: builtins.toFile "haproxy.cfg" cfg) haproxy;
   };
   dhcp = {
     attrset = dhcp;
