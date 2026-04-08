@@ -43,7 +43,7 @@ pkgs.stdenvNoCC.mkDerivation {
     # - Remove autumnity overrides once the next version happens, they seem to use textures now
     (pkgs.fetchurl {
       url = "https://github.com/Doridian/BlueMap/releases/download/v5.16/bluemap-5.16-mc1.20-forge.jar";
-      hash = "sha256:f88a4b3ad86bfe482896e682b80e9916887b20d422fffea3d85be9ae7441f55b";
+      hash = "sha256:6c4b50da36d2091928ff12db193bfdf31d489cf9606b79418280dfdf37c7bde8";
     })
   ];
   bluemapPacks = [
