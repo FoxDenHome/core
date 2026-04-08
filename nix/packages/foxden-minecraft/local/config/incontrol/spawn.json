@@ -6,5 +6,11 @@
         "when": "onjoin",
         "spawntype": ["natural", "chunk_generation", "jockey", "event", "conversion", "reinforcement", "triggered", "patrol"],
         "result": "deny"
+    },
+    {
+        "dimension": "minecraft:overworld",
+        "mob": "alexsmobs:seagull",
+        "when": "onjoin",
+        "result": "deny"
     }
 ]
