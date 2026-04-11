@@ -37,8 +37,8 @@ in
               - '*.service'
       '';
 
-      configDir."health.d/systemdunits.conf" =
-        pkgs.writeText "systemdunits-health.conf" ''
+      configDir."health.d/systemdunits.conf" = pkgs.writeText "systemdunits-health.conf" (
+        ''
            template: systemd_service_unit_failed_state
                  on: systemd.service_unit_state
               class: Errors
@@ -51,9 +51,11 @@ in
               delay: down 3m multiplier 1.5 max 1h
                info: systemd service $''
         + "{label:unit_name}"
-        + ''in the failed state
-                        to: sysadmin
-        '';
+        + ''
+          in the failed state
+                                  to: sysadmin
+        ''
+      );
     };
     environment.persistence."/nix/persist/netdata" = {
       hideMounts = true;
