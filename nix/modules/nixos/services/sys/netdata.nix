@@ -51,8 +51,7 @@ in
               delay: down 3m multiplier 1.5 max 1h
                info: systemd service $''
         + "{label:unit_name}"
-        + ''
-          in the failed state
+        + ''in the failed state
                         to: sysadmin
         '';
     };
