@@ -37,20 +37,24 @@ in
               - '*.service'
       '';
 
-      configDir."health.d/systemdunits.conf" = pkgs.writeText "systemdunits-health.conf" ''
-         template: systemd_service_unit_failed_state
-               on: systemd.service_unit_state
-            class: Errors
-             type: Linux
-        component: Systemd units
-             calc: $failed
-            units: state
-            every: 10s
-             warn: $this != nan AND $this == 1
-            delay: down 3m multiplier 1.5 max 1h
-             info: systemd service $\{label:unit_name\} in the failed state
-               to: sysadmin
-      '';
+      configDir."health.d/systemdunits.conf" =
+        pkgs.writeText "systemdunits-health.conf" ''
+           template: systemd_service_unit_failed_state
+                 on: systemd.service_unit_state
+              class: Errors
+               type: Linux
+          component: Systemd units
+               calc: $failed
+              units: state
+              every: 10s
+               warn: $this != nan AND $this == 1
+              delay: down 3m multiplier 1.5 max 1h
+               info: systemd service $''
+        + "{label:unit_name}"
+        + ''
+          in the failed state
+                        to: sysadmin
+        '';
     };
     environment.persistence."/nix/persist/netdata" = {
       hideMounts = true;
