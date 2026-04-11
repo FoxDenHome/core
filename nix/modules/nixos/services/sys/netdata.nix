@@ -49,11 +49,8 @@ in
               every: 10s
                warn: $this != nan AND $this == 1
               delay: down 3m multiplier 1.5 max 1h
-               info: systemd service $''
-        + "{label:unit_name} "
-        + ''
-          in the failed state
-                                  to: sysadmin
+               info: systemd service ''${label:unit_name} in the failed state
+                 to: sysadmin
         ''
       );
     };
