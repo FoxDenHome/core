@@ -146,7 +146,6 @@
       screen
       smartmontools
       ssh-to-age
-      systemd-query
       unixtools.netstat
       usbutils
       util-linux

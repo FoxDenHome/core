@@ -582,7 +582,6 @@
         "spaceage-tts": "spaceage-tts",
         "spaceage-website": "spaceage-website",
         "superfan": "superfan",
-        "systemd-query": "systemd-query",
         "systems": "systems",
         "tapemgr": "tapemgr",
         "uds-proxy": "uds-proxy",
@@ -753,38 +752,6 @@
       "original": {
         "type": "git",
         "url": "https://git.foxden.network/FoxDen/superfan"
-      }
-    },
-    "systemd-query": {
-      "inputs": {
-        "flake-utils": [
-          "flake-utils"
-        ],
-        "nixpkgs": [
-          "nixpkgs"
-        ],
-        "pyproject-build-systems": [
-          "pyproject-build-systems"
-        ],
-        "pyproject-nix": [
-          "pyproject-nix"
-        ],
-        "uv2nix": [
-          "uv2nix"
-        ]
-      },
-      "locked": {
-        "lastModified": 1776121972,
-        "narHash": "sha256-kHLYTJXthnRVGXcIt0vLy+EvxND+3ZL+54HgeoP7MX8=",
-        "ref": "refs/heads/main",
-        "rev": "b9ada28b435cc9d5fc78b7174cbfabc0742671e0",
-        "revCount": 41,
-        "type": "git",
-        "url": "https://git.foxden.network/FoxDen/systemd-query"
-      },
-      "original": {
-        "type": "git",
-        "url": "https://git.foxden.network/FoxDen/systemd-query"
       }
     },
     "systems": {
