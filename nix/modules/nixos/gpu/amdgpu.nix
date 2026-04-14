@@ -17,6 +17,7 @@ in
 
   config = lib.mkIf config.foxDen.amdgpu.enable {
     environment.systemPackages = with pkgs; [
+      rocmPackages.amdsmi
       rocmPackages.rocm-smi
     ];
 
