@@ -113,7 +113,7 @@ in
           };
           dump = {
             enable = true;
-            age = "90d";
+            age = "14d";
             type = "tar.zst";
           };
           enable = true;
