@@ -1,5 +1,34 @@
 {
   rootDiskSize = "64G";
+  # TODO: Reattach via udev AND "virsh attach-device VM_NAME FILE" AND
+  # <hostdev mode='subsystem' type='usb' managed='yes'>
+  #   <source>
+  #     <vendor id='${dev.vendorId}'/>
+  #     <product id='${dev.productId}'/>
+  #   </source>
+  # </hostdev>
+  usb.devices = [
+    {
+      # ZigBee USB stick
+      vendorId = "0x1a86";
+      productId = "0x55d4";
+    }
+    {
+      # CC1101 stick (433 MHz)
+      vendorId = "0x0403";
+      productId = "0x6001";
+    }
+    {
+      # Z-Wave USB stick
+      vendorId = "0x10c4";
+      productId = "0xea60";
+    }
+    {
+      # Internal WiFi Bluetooth USB sub-device
+      vendorId = "0x0e8d";
+      productId = "0xc616";
+    }
+  ];
   autostart = true;
   interfaces.default = {
     dns = {
