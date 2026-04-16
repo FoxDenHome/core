@@ -9,12 +9,11 @@ let
 
   mkUSBDevice = dev: ''
     <hostdev mode='subsystem' type='usb' managed='yes'>
-      <source>
-        <vendor id='${lib.escapeXML dev.vendorId}'/>
-        <product id='${lib.escapeXML dev.productId}'/>
-      </source>
-    </hostdev>
-  '';
+          <source>
+            <vendor id='${lib.escapeXML dev.vendorId}'/>
+            <product id='${lib.escapeXML dev.productId}'/>
+          </source>
+    </hostdev>'';
 
   vmNames =
     let
