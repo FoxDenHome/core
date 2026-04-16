@@ -28,7 +28,7 @@ let
     config = import (vmDirPath + "/${name}/config.nix");
 
     libvirtXml = pkgs.writeText "${name}-libvirt.xml" (
-      lib.replaceString "<devices>" "<devices>\n${
+      lib.replaceString "<devices>\n" "<devices>\n${
         lib.concatStrings (map mkUSBDevice (config.devices.usb or [ ]))
       }" (builtins.readFile (vmDirPath + "/${name}/libvirt.xml"))
     );
