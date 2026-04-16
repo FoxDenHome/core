@@ -107,10 +107,10 @@ in
     { config, ... }:
     let
       renderInterface = (
-        hostName: hostVal: ifaceObj:
+        machineName: hostName: hostVal: ifaceObj:
         let
           iface = ifaceObj.value;
-          template = "${hostName}-${ifaceObj.name}";
+          template = "${machineName}-${hostName}-${ifaceObj.name}";
 
           privateIPv4 = lib.findFirst (
             ip:
@@ -163,9 +163,12 @@ in
       );
 
       renderHost =
+        machineName:
         { name, value }:
         lib.mkMerge (
-          map (iface: renderInterface name value iface) (lib.attrsets.attrsToList value.interfaces)
+          map (iface: renderInterface machineName name value iface) (
+            lib.attrsets.attrsToList value.interfaces
+          )
         );
     in
     {
@@ -182,7 +185,9 @@ in
           default = { };
         };
       config.foxDen.foxIngress = lib.mkMerge (
-        map renderHost (nixpkgs.lib.attrsets.attrsToList config.foxDen.hosts.hosts)
+        map (renderHost config.networking.hostName) (
+          nixpkgs.lib.attrsets.attrsToList config.foxDen.hosts.hosts
+        )
       );
     };
 
