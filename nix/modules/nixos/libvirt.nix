@@ -10,8 +10,8 @@ let
   mkUSBDevice = dev: ''
     <hostdev mode='subsystem' type='usb' managed='yes'>
       <source>
-        <vendor id='${builtins.escapeXML dev.vendorId}'/>
-        <product id='${builtins.escapeXML dev.productId}'/>
+        <vendor id='${lib.escapeXML dev.vendorId}'/>
+        <product id='${lib.escapeXML dev.productId}'/>
       </source>
     </hostdev>
   '';
