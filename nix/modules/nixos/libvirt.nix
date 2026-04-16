@@ -9,11 +9,12 @@ let
 
   mkUSBDevice = dev: ''
     <hostdev mode='subsystem' type='usb' managed='yes'>
-          <source>
-            <vendor id='${lib.escapeXML dev.vendorId}'/>
-            <product id='${lib.escapeXML dev.productId}'/>
-          </source>
-    </hostdev>'';
+      <source>
+        <vendor id='${lib.escapeXML dev.vendorId}'/>
+        <product id='${lib.escapeXML dev.productId}'/>
+      </source>
+    </hostdev>
+  '';
 
   vmNames =
     let
@@ -28,7 +29,7 @@ let
 
     libvirtXml = pkgs.writeText "${name}-libvirt.xml" (
       lib.replaceString "<devices>" "<devices>\n${
-        lib.concatStringsSep "\n" (map mkUSBDevice (config.devices.usb or [ ]))
+        lib.concatStrings (map mkUSBDevice (config.devices.usb or [ ]))
       }" (builtins.readFile (vmDirPath + "/${name}/libvirt.xml"))
     );
   });
