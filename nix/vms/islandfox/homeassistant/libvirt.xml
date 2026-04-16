@@ -103,6 +103,14 @@
     <input type='mouse' bus='ps2'/>
     <input type='keyboard' bus='ps2'/>
     <audio id='1' type='none'/>
+    <watchdog model='itco' action='reset'/>
+    <memballoon model='virtio'>
+      <address type='pci' domain='0x0000' bus='0x00' slot='0x05' function='0x0'/>
+    </memballoon>
+    <rng model='virtio'>
+      <backend model='random'>/dev/random</backend>
+      <address type='pci' domain='0x0000' bus='0x00' slot='0x07' function='0x0'/>
+    </rng>
     <hostdev mode='subsystem' type='usb' managed='yes'>
       <source>
         <vendor id='0x1a86'/>
@@ -131,15 +139,6 @@
       <source>
         <address domain='0x0000' bus='0x04' slot='0x00' function='0x0'/>
       </source>
-      <address type='pci' domain='0x0000' bus='0x00' slot='0x06' function='0x0'/>
     </hostdev>
-    <watchdog model='itco' action='reset'/>
-    <memballoon model='virtio'>
-      <address type='pci' domain='0x0000' bus='0x00' slot='0x05' function='0x0'/>
-    </memballoon>
-    <rng model='virtio'>
-      <backend model='random'>/dev/random</backend>
-      <address type='pci' domain='0x0000' bus='0x00' slot='0x07' function='0x0'/>
-    </rng>
   </devices>
 </domain>
