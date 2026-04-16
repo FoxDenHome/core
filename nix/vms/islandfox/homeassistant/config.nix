@@ -1,12 +1,6 @@
 {
   rootDiskSize = "64G";
-  # TODO: Reattach via udev AND "virsh attach-device VM_NAME FILE" AND
-  # <hostdev mode='subsystem' type='usb' managed='yes'>
-  #   <source>
-  #     <vendor id='${dev.vendorId}'/>
-  #     <product id='${dev.productId}'/>
-  #   </source>
-  # </hostdev>
+  # TODO: Reattach via udev AND "virsh attach-device VM_NAME FILE"
   devices.usb = [
     {
       # ZigBee USB stick
