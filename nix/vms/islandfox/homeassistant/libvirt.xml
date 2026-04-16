@@ -111,30 +111,6 @@
       <backend model='random'>/dev/random</backend>
       <address type='pci' domain='0x0000' bus='0x00' slot='0x07' function='0x0'/>
     </rng>
-    <hostdev mode='subsystem' type='usb' managed='yes'>
-      <source>
-        <vendor id='0x1a86'/>
-        <product id='0x55d4'/>
-      </source>
-    </hostdev>
-    <hostdev mode='subsystem' type='usb' managed='yes'>
-      <source>
-        <vendor id='0x0403'/>
-        <product id='0x6001'/>
-      </source>
-    </hostdev>
-    <hostdev mode='subsystem' type='usb' managed='yes'>
-      <source>
-        <vendor id='0x10c4'/>
-        <product id='0xea60'/>
-      </source>
-    </hostdev>
-    <hostdev mode='subsystem' type='usb' managed='yes'>
-      <source>
-        <vendor id='0x0e8d'/>
-        <product id='0xc616'/>
-      </source>
-    </hostdev>
     <hostdev mode='subsystem' type='pci' managed='yes'>
       <source>
         <address domain='0x0000' bus='0x04' slot='0x00' function='0x0'/>

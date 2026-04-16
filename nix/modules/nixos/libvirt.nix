@@ -7,17 +7,31 @@
 let
   vmDirPath = ../../vms/${hostName};
 
+  mkUSBDevice = dev: ''
+    <hostdev mode='subsystem' type='usb' managed='yes'>
+      <source>
+        <vendor id='${builtins.escapeXML dev.vendorId}'/>
+        <product id='${builtins.escapeXML dev.productId}'/>
+      </source>
+    </hostdev>
+  '';
+
   vmNames =
     let
       vmDir = if (builtins.pathExists vmDirPath) then (builtins.readDir vmDirPath) else { };
     in
     lib.attrsets.attrNames vmDir;
 
-  vms = lib.attrsets.genAttrs vmNames (name: {
+  vms = lib.attrsets.genAttrs vmNames (name: rec {
     inherit name;
     # TODO: Validate this somehow
     config = import (vmDirPath + "/${name}/config.nix");
-    libvirtXml = vmDirPath + "/${name}/libvirt.xml";
+
+    libvirtXml = pkgs.writeText "${name}-libvirt.xml" (
+      lib.replaceString "<devices>" "<devices>\n${
+        lib.concatStringsSep "\n" (map mkUSBDevice (config.devices.usb or [ ]))
+      }" (builtins.readFile (vmDirPath + "/${name}/libvirt.xml"))
+    );
   });
 
   setupVMScript =

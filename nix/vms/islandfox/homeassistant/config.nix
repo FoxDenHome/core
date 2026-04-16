@@ -7,7 +7,7 @@
   #     <product id='${dev.productId}'/>
   #   </source>
   # </hostdev>
-  usb.devices = [
+  devices.usb = [
     {
       # ZigBee USB stick
       vendorId = "0x1a86";
