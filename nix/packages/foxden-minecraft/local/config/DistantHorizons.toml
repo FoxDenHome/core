@@ -382,7 +382,7 @@ _version = 4
                                 # Note:
                                 # Some DH settings will be disabled and/or changed to improve
                                 # visuals when DH rendering is disabled.
-                                ignoredDimensionCsv = "ae2:spatial_storage"
+                                ignoredDimensionCsv = ""
                                 #
                                 # Requires a restart to change.
                                 #
@@ -582,7 +582,7 @@ _version = 4
                 # but may cause server/simulation lag.
                 # Note: unlike other modes this option DOES save generated chunks to
                 # Minecraft's region files.
-                distantGeneratorMode = "FEATURES"
+                distantGeneratorMode = "PRE_EXISTING_ONLY"
                 #
                 # How should distant generator progress be displayed?
                 #
