@@ -10,8 +10,8 @@ let
   mkUSBDevice = dev: ''
     <hostdev mode='subsystem' type='usb' managed='yes'>
       <source>
-        <vendor id='${lib.escapeXML dev.vendorId}'/>
-        <product id='${lib.escapeXML dev.productId}'/>
+        <vendor id='${dev.vendorId}'/>
+        <product id='${dev.productId}'/>
       </source>
     </hostdev>
   '';
@@ -33,6 +33,7 @@ let
       }" (builtins.readFile (vmDirPath + "/${name}/libvirt.xml"))
     );
   });
+  vmList = lib.attrsets.attrValues vms;
 
   setupVMScript =
     vm:
@@ -48,6 +49,23 @@ let
       ${pkgs.libvirt}/bin/virsh define ${vm.libvirtXml}
       ${pkgs.libvirt}/bin/virsh autostart ${vm.name} --disable
     '';
+
+  attachUSBDeviceScript = pkgs.writeShellScript "attach-usb-device" ''
+    #!${pkgs.bash}/bin/bash
+
+    set -euo pipefail
+    ${pkgs.libvirt}/bin/virsh attach-device "$1" "$2"
+  '';
+  mkUSBDeviceXml = dev: builtins.writeText "attach-usb-device.xml" (mkUSBDevice dev);
+
+  mkVMUdevRules =
+    vm:
+    lib.concatStringsSep "\n" (
+      map (
+        dev:
+        "ACTION==\"add\", SUBSYSTEM==\"usb\", ATTRS{idVendor}==\"${dev.vendorId}\", ATTRS{idProduct}==\"${dev.productId}\" RUN+=\"${attachUSBDeviceScript} ${vm.name} ${mkUSBDeviceXml dev}\""
+      ) (vm.config.devices.usb or [ ])
+    );
 in
 {
   config = lib.mkIf ((lib.length vmNames) > 0) {
@@ -75,7 +93,7 @@ in
         serviceConfig = {
           Type = "oneshot";
           ExecStartPre = "${pkgs.coreutils}/bin/mkdir -p /var/lib/libvirt/images";
-          ExecStart = map setupVMScript (lib.attrsets.attrValues vms);
+          ExecStart = map setupVMScript vmList;
           RemainAfterExit = true;
         };
         wantedBy = [ "multi-user.target" ];
@@ -102,7 +120,7 @@ in
           };
           wantedBy = [ "multi-user.target" ];
         };
-      }) (lib.filter (vm: vm.config.autostart) (lib.attrsets.attrValues vms))
+      }) (lib.filter (vm: vm.config.autostart) vmList)
     );
 
     environment.persistence."/nix/persist/libvirt" = {
@@ -126,6 +144,8 @@ in
       });
     '';
 
+    services.udev.extraRules = lib.concatStringsSep "\n" (map mkVMUdevRules vmList);
+
     foxDen.hosts.hosts = lib.attrsets.genAttrs vmNames (name: {
       interfaces = lib.attrsets.mapAttrs (
         _: iface:
@@ -138,6 +158,6 @@ in
       webservice = vms.${name}.config.webservice or { };
     });
 
-    foxDen.dns.records = lib.mkMerge (map (vm: vm.config.records or [ ]) (lib.attrsets.attrValues vms));
+    foxDen.dns.records = lib.mkMerge (map (vm: vm.config.records or [ ]) vmList);
   };
 }
