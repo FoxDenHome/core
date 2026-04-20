@@ -50,20 +50,13 @@ let
       ${pkgs.libvirt}/bin/virsh autostart ${vm.name} --disable
     '';
 
-  attachUSBDeviceScript = pkgs.writeShellScript "attach-usb-device" ''
-    #!${pkgs.bash}/bin/bash
-
-    set -euo pipefail
-    ${pkgs.libvirt}/bin/virsh attach-device "$1" "$2"
-  '';
   mkUSBDeviceXml = dev: pkgs.writeText "attach-usb-device.xml" (mkUSBDevice dev);
-
   mkVMUdevRules =
     vm:
     lib.concatStringsSep "\n" (
       map (
         dev:
-        "ACTION==\"add\", SUBSYSTEM==\"usb\", ATTRS{idVendor}==\"${dev.vendorId}\", ATTRS{idProduct}==\"${dev.productId}\" RUN+=\"${attachUSBDeviceScript} ${vm.name} ${mkUSBDeviceXml dev}\""
+        "ACTION==\"add\", SUBSYSTEM==\"usb\", ATTRS{idVendor}==\"${dev.vendorId}\", ATTRS{idProduct}==\"${dev.productId}\" RUN+=\"${pkgs.libvirt}/bin/virsh attach-device ${vm.name} ${mkUSBDeviceXml dev}\""
       ) (vm.config.devices.usb or [ ])
     );
 in
