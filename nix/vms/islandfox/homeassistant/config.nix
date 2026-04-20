@@ -4,23 +4,23 @@
   devices.usb = [
     {
       # ZigBee USB stick
-      vendorId = "0x1a86";
-      productId = "0x55d4";
+      vendorId = "1a86";
+      productId = "55d4";
     }
     {
       # CC1101 stick (433 MHz)
-      vendorId = "0x0403";
-      productId = "0x6001";
+      vendorId = "0403";
+      productId = "6001";
     }
     {
       # Z-Wave USB stick
-      vendorId = "0x10c4";
-      productId = "0xea60";
+      vendorId = "10c4";
+      productId = "ea60";
     }
     {
       # Internal WiFi Bluetooth USB sub-device
-      vendorId = "0x0e8d";
-      productId = "0xc616";
+      vendorId = "0e8d";
+      productId = "c616";
     }
   ];
   autostart = true;

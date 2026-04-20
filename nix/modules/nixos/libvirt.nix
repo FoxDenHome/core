@@ -10,8 +10,8 @@ let
   mkUSBDevice = dev: ''
     <hostdev mode='subsystem' type='usb' managed='yes'>
       <source>
-        <vendor id='${dev.vendorId}'/>
-        <product id='${dev.productId}'/>
+        <vendor id='0x${dev.vendorId}'/>
+        <product id='0x${dev.productId}'/>
       </source>
     </hostdev>
   '';
