@@ -56,7 +56,7 @@ let
     set -euo pipefail
     ${pkgs.libvirt}/bin/virsh attach-device "$1" "$2"
   '';
-  mkUSBDeviceXml = dev: builtins.writeText "attach-usb-device.xml" (mkUSBDevice dev);
+  mkUSBDeviceXml = dev: pkgs.writeText "attach-usb-device.xml" (mkUSBDevice dev);
 
   mkVMUdevRules =
     vm:
