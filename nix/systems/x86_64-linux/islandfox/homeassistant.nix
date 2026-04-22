@@ -6,6 +6,7 @@
     displayName = "HomeAssistant";
     preferShortUsername = true;
     originUrl = "https://homeassistant.foxden.network/auth/oidc/callback";
+    originLanding = "https://homeassistant.foxden.network";
     scopeMaps.login-users = [
       "email"
       "groups"
