@@ -3,7 +3,7 @@ ttf-nanum
 orca-slicer-bin
 ptouch-print
 visual-studio-code-bin
-wezterm-git
+https://github.com/Doridian/wezterm-dori-git
 fw-ectool-git
 uhubctl
 kanidm
