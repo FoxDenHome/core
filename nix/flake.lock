@@ -95,11 +95,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1776121952,
-        "narHash": "sha256-M6KwnD1T9pMroNQ++xi6S59Xdwzy1Kl8Y2+FwwIkAcA=",
+        "lastModified": 1777136546,
+        "narHash": "sha256-5FqQuuh1ibwCIQNsLcDqFNA5cD6Fua1/IV38qf8icU4=",
         "ref": "refs/heads/main",
-        "rev": "54253fd4f01ed00f7374d91bd40be3601a47e9ba",
-        "revCount": 678,
+        "rev": "c5caca84bf12c36f84a9768b03a66c62a5fc9d78",
+        "revCount": 679,
         "type": "git",
         "url": "https://git.foxden.network/FoxDen/e621dumper"
       },
