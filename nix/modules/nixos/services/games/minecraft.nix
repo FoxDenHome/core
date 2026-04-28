@@ -45,7 +45,7 @@ in
             map $uri $ae2_content_type {
                default "application/octet-stream";
                /ae2/ "text/html";
-               ~*^/ae2/. "application/json";
+               ~*^/ae2/. "text/plain";
             }
           '';
         extraConfig =
@@ -63,7 +63,7 @@ in
             }
             location /ae2/ {
               proxy_pass http://127.0.0.1:2324/;
-              add_header Content-Type $ae2_content_type;
+              add_header Content-Type $ae2_content_type always;
               ${proxyConfig}
             }
           '';
