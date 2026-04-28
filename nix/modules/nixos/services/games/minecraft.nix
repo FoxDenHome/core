@@ -48,6 +48,7 @@ in
             }
             location /ae2/ {
               proxy_pass http://127.0.0.1:2324/;
+              add_header Content-Type "text/html";
               ${proxyConfig}
             }
           '';
