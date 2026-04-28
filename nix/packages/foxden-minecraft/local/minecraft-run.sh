@@ -3,9 +3,9 @@
 subenv() {
   local dest="$1"
   local src="$(dirname "$dest")/env.$(basename "$dest")"
-  touch "$dest"
-  chmod 600 "$dest"
-  envsubst < "$src" > "$dest"
+  touch "$dest" && \
+    chmod 600 "$dest" && \
+    envsubst < "$src" > "$dest"
 }
 
 . ./minecraft-env.sh
