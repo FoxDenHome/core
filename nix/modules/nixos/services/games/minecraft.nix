@@ -43,7 +43,7 @@ in
           { ... }:
           ''
             map $uri $ae2_content_type {
-               default "text/plain";
+               default "application/octet-stream";
                /ae2/ "text/html";
                ~*^/ae2/. "application/json";
             }
