@@ -39,6 +39,15 @@ in
         inherit svcConfig pkgs config;
         name = "http-minecraft";
         target = ''return 308 /map/;'';
+        extraHttpConfig =
+          { ... }:
+          ''
+            map $uri $ae2_content_type {
+               default "text/plain";
+               /ae2/ "text/html";
+               ^/ae2/. "application/json";
+            }
+          '';
         extraConfig =
           { proxyConfig, ... }:
           ''
@@ -54,7 +63,7 @@ in
             }
             location /ae2/ {
               proxy_pass http://127.0.0.1:2324/;
-              add_header Content-Type "text/html";
+              add_header Content-Type $ae2_content_type;
               ${proxyConfig}
             }
           '';
