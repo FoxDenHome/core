@@ -27,7 +27,7 @@ let
   modpack = {
     url = "https://nas.foxden.network/guest/serverpack_foxden_create.zip";
     name = "server";
-    hash = "sha256:c8e955b387afed8c290123965884564535c1a468d97b3a8f9b789b146580de45";
+    hash = "sha256:28618222ea9ff1db761fa795c37ed0a9adbbd3ccf68892e610d9177363cf5729";
   };
 in
 pkgs.stdenvNoCC.mkDerivation {
@@ -115,7 +115,8 @@ pkgs.stdenvNoCC.mkDerivation {
 
     echo 'set -e' > "$out/server/minecraft-env.sh"
     echo 'export "JAVA=${jrePackage}/bin/java"' >> "$out/server/minecraft-env.sh"
-    echo 'touch server.properties && chmod 600 server.properties && envsubst < env.server.properties > server.properties' >> "$out/server/minecraft-env.sh"
+    echo 'subenv server.properties' >> "$out/server/minecraft-env.sh"
+    echo 'subenv config/ae2webintegration/ae2webintegration.toml' >> "$out/server/minecraft-env.sh"
     echo 'set +e' >> "$out/server/minecraft-env.sh"
 
     echo '${modpack.url} ${modpack.hash}' > "$out/server/minecraft-modpack.id"

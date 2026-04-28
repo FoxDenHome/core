@@ -1,4 +1,13 @@
 #!/usr/bin/env bash
+
+subenv() {
+  local dest="$1"
+  local src="$(dirname "$dest")/env.$(basename "$dest")"
+  touch "$dest"
+  chmod 600 "$dest"
+  envsubst < "$src" > "$dest"
+}
+
 . ./minecraft-env.sh
 
 export PATH="$(dirname "${JAVA}"):${PATH}"
