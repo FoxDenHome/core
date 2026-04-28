@@ -15,7 +15,9 @@ in
     rmfakecloud = mkVlanHost 3 {
       dns = {
         fqdns = [ "rmfakecloud.foxden.network" ];
+        dynDns = true;
       };
+      webservice.enable = true;
       addresses = [
         "10.3.10.7/16"
         "fd2c:f4cb:63be:3::a07/64"
