@@ -43,11 +43,11 @@ in
           { proxyConfig, ... }:
           ''
             location /map/ {
-              proxy_pass http://127.0.0.1:8100;
+              proxy_pass http://127.0.0.1:8100/;
               ${proxyConfig}
             }
             location /ae2/ {
-              proxy_pass http://127.0.0.1:2324;
+              proxy_pass http://127.0.0.1:2324/;
               ${proxyConfig}
             }
           '';
