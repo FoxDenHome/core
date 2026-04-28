@@ -37,8 +37,20 @@ in
       }).config
       (services.http.make {
         inherit svcConfig pkgs config;
-        name = "http-minecraft"; # BlueMap
-        target = "proxy_pass http://127.0.0.1:8100;";
+        name = "http-minecraft";
+        target = ''return 200 "Use /map/ or /ae2/";'';
+        extraConfig =
+          { proxyConfig, ... }:
+          ''
+            location /map/ {
+              proxy_pass http://127.0.0.1:8100;
+              ${proxyConfig};
+            }
+            location /ae2/ {
+              proxy_pass http://127.0.0.1:2324;
+              ${proxyConfig};
+            }
+          '';
       }).config
       {
         users.users.minecraft = {
