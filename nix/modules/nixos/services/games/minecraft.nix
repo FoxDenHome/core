@@ -45,7 +45,7 @@ in
             map $uri $ae2_content_type {
                default "text/plain";
                /ae2/ "text/html";
-               ^/ae2/. "application/json";
+               ~*^/ae2/. "application/json";
             }
           '';
         extraConfig =
