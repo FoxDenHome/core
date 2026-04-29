@@ -117,7 +117,7 @@
           "10.2.12.16/16"
         ];
       };
-      remarkable = {
+      remarkable = mkIntf {
         dns = {
           fqdns = [ "remarkable.foxden.network" ];
         };
