@@ -124,7 +124,6 @@
         mac = "c0:84:7d:20:57:c0";
         addresses = [
           "10.2.10.5/16"
-          "fd2c:f4cb:63be:2::a05/64"
         ];
       };
       ups-dori-office = {
