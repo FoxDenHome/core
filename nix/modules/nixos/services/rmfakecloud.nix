@@ -25,7 +25,7 @@ in
       (services.http.make {
         inherit svcConfig pkgs config;
         name = "http-rmfakecloud";
-        target = "access_log /var/lib/foxden/http-rmfakecloud/access.log; proxy_pass http://127.0.0.1:3000;";
+        target = "proxy_pass http://127.0.0.1:3000;";
       }).config
       (services.make {
         inherit svcConfig pkgs config;
