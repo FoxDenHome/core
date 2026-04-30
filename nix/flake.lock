@@ -449,6 +449,22 @@
         "type": "github"
       }
     },
+    "nixpkgs-unstable": {
+      "locked": {
+        "lastModified": 1777268161,
+        "narHash": "sha256-bxrdOn8SCOv8tN4JbTF/TXq7kjo9ag4M+C8yzzIRYbE=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "1c3fe55ad329cbcb28471bb30f05c9827f724c76",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixos-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
     "nixpkgs_2": {
       "locked": {
         "lastModified": 1777428379,
@@ -573,6 +589,7 @@
         "lanzaboote": "lanzaboote",
         "nix-amd-npu": "nix-amd-npu",
         "nixpkgs": "nixpkgs_2",
+        "nixpkgs-unstable": "nixpkgs-unstable",
         "oauth-jit-radius": "oauth-jit-radius",
         "pyproject-build-systems": "pyproject-build-systems",
         "pyproject-nix": "pyproject-nix",
@@ -671,11 +688,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1775545686,
-        "narHash": "sha256-JQ5/W/hPHpKqBzrMwGFPvI6ACXCnEtbRXUTmlL0S7Nk=",
+        "lastModified": 1777569017,
+        "narHash": "sha256-yJ6erpdLP8Kp4rNavrzSXWXdQ2yQ9YQ7GlMZ24LwIho=",
         "ref": "refs/heads/main",
-        "rev": "eeb6fd806925d9485e22a1494fad5def3e996208",
-        "revCount": 240,
+        "rev": "089c9e6de8b049e84a969605e7ecd4b429fda4c8",
+        "revCount": 241,
         "type": "git",
         "url": "https://git.foxden.network/SpaceAge/StarLord"
       },
