@@ -38,7 +38,7 @@ in
       (services.http.make {
         inherit svcConfig pkgs config;
         name = "http-minecraft";
-        target = "return 308 $scheme://$http_host$request_uri;";
+        target = "return 308 $scheme://$http_host/map/;";
         extraHttpConfig =
           { ... }:
           ''
