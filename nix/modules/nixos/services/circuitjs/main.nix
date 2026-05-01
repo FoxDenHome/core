@@ -39,7 +39,7 @@ in
           { ... }:
           ''
             location = / {
-              return 307 /circuitjs.html;
+              return 307 $scheme://$http_host/circuitjs.html;
             }
 
             location = /shorturl {

@@ -38,7 +38,7 @@ in
       (services.http.make {
         inherit svcConfig pkgs config;
         name = "http-minecraft";
-        target = "return 308 /map/;";
+        target = "return 308 $scheme://$http_host$request_uri;";
         extraHttpConfig =
           { ... }:
           ''
@@ -52,14 +52,14 @@ in
           { proxyConfig, ... }:
           ''
             location = /map {
-              return 308 /map/;
+              return 308 $scheme://$http_host/map/;
             }
             location /map/ {
               proxy_pass http://127.0.0.1:8100/;
               ${proxyConfig}
             }
             location = /ae2 {
-              return 308 /ae2/;
+              return 308 $scheme://$http_host/ae2/;
             }
             location /ae2/ {
               proxy_pass http://127.0.0.1:2324/;
