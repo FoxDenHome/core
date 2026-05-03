@@ -1,0 +1,3 @@
+[general]
+        #Make AE2 Controller work in ReadOnly Mode, meaning items can be extracted, but can't be inserted.
+        readOnly = false
