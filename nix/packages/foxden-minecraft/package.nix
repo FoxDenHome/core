@@ -27,7 +27,7 @@ let
   modpack = {
     url = "https://nas.foxden.network/guest/serverpack_foxden_create.zip";
     name = "server";
-    hash = "sha256:ef31afea9a9192ceb733c05c393df3076964b8f0e4404c92755f1f80b1f53f5c";
+    hash = "sha256:64b143c6d3a5ec425d4fd7b8fbdfa9abefa3f775c280bb9237a1aebcc90d9cf0";
   };
 in
 pkgs.stdenvNoCC.mkDerivation {
@@ -56,8 +56,8 @@ pkgs.stdenvNoCC.mkDerivation {
       hash = "sha256:6508639b623d67700f8a7c3b798fc268f1da10cc290133325816f2b3f73c38ab";
     })
     (pkgs.fetchurl {
-      url = "https://github.com/BeneHenke/BluemapCreateEntityAddon/releases/download/v1.1.2/createentityaddon-1.1.2-5.13+.jar";
-      hash = "sha256:47911b2f5f190eaa501e004d8b994cf5e8e283a34b790065f8d2c82f34c5e910";
+      url = "https://github.com/BeneHenke/BluemapCreateEntityAddon/releases/download/v1.1.3/createentityaddon-1.1.3-5.13+.jar";
+      hash = "sha256:663fcb8c787183c0d3170d16f2b2daf9568c1714a1dd13b1b2acb0918752790a";
     })
     (pkgs.stdenvNoCC.mkDerivation {
       name = "bluemap-create-resource-pack.zip";
