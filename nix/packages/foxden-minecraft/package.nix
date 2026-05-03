@@ -65,8 +65,8 @@ pkgs.stdenvNoCC.mkDerivation {
       src = pkgs.fetchFromGitHub {
         owner = "BeneHenke";
         repo = "BlueMap-Create-Resource-Pack";
-        rev = "4fdb74b82e8de8ba9d7e8535e09edd717ebc4ac0";
-        sha256 = "sha256-92sAs37NbzPgIwCcFgP6Zvodz6MsnwRHUvdl/i+M3os=";
+        rev = "31d4b1e913c9b35cde6300e33c485aadf8e377bb";
+        sha256 = "sha256-+xl18pidDo/Pkx6w0LRE5LnksFTm9FGI2ZJSJgQrGXY=";
       };
 
       nativeBuildInputs = [ pkgs.zip ];
