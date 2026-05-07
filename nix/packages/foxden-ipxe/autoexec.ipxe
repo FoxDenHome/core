@@ -1,5 +1,7 @@
 #!ipxe
 
+isset ${next-server} || chain --replace --autofree file:/autoexec.ipxe || shell || exit
+
 set tftp_url tftp://${next-server}:69
 set wimboot_url ${tftp_url}/wimboot-${buildarch}.efi
 
