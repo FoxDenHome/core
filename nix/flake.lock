@@ -216,11 +216,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1777354301,
-        "narHash": "sha256-keOx/P2+uiPgqCvR7vVav4P8b7A8MPQkwkiJbL0DQrI=",
+        "lastModified": 1778262265,
+        "narHash": "sha256-0eApMefZoZjrFqGP+28fTmRKmabQofF3mEVRCst+8WU=",
         "ref": "refs/heads/main",
-        "rev": "4afab291179ac935b649db2293eba183381ea090",
-        "revCount": 213,
+        "rev": "0275693fb0dd2edd48af646be21dd55f11e6251e",
+        "revCount": 214,
         "type": "git",
         "url": "https://git.foxden.network/FoxDen/foxIngress"
       },
@@ -758,11 +758,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1776213927,
-        "narHash": "sha256-LGP3rZS9e/At3M1uwJm4ur9XoQNgwoSJMi4GzLTwnqw=",
+        "lastModified": 1778262257,
+        "narHash": "sha256-YgWKPSVZUsd2IGGl37cUpxK0yry0yNLmOSQZg3lskmM=",
         "ref": "refs/heads/main",
-        "rev": "2c0c2dd9e16bdd5d8f2db95e7971e456a8d08922",
-        "revCount": 165,
+        "rev": "49146d28a6c61cfbe9444182795ce590cae91ed6",
+        "revCount": 166,
         "type": "git",
         "url": "https://git.foxden.network/FoxDen/superfan"
       },
@@ -796,11 +796,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1777441137,
-        "narHash": "sha256-pYNAOMvBYBuPJDhCIPKATHeocLT8hdrR8Gh9C7nnErA=",
+        "lastModified": 1778262253,
+        "narHash": "sha256-hWqz1zogxopMS2M2Ef0Y61vmgNZR2mlZaWpP1MPAU5Y=",
         "ref": "refs/heads/main",
-        "rev": "a6fa338985835a9d7f7d9be43f42c3b49da3cdf5",
-        "revCount": 542,
+        "rev": "6c9a0cc416af910dcb4c75a2a6490921ed720689",
+        "revCount": 543,
         "type": "git",
         "url": "https://git.foxden.network/FoxDen/tapemgr"
       },
@@ -819,11 +819,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1777441140,
-        "narHash": "sha256-3BvUkwaG48yWCPKp9N7cKItAXE6jFMWncOH25Mb8cTA=",
+        "lastModified": 1778262249,
+        "narHash": "sha256-TrpWDJJvBh6Stl4hWnwjjFL3r1NvlsvlibpCNPl89QI=",
         "ref": "refs/heads/main",
-        "rev": "1a89a685d441f7683f2c3107f372f1feddb25073",
-        "revCount": 90,
+        "rev": "4e0294c14bd84a59e5a1f0de480d13629c606e33",
+        "revCount": 91,
         "type": "git",
         "url": "https://git.foxden.network/FoxDen/uds-proxy"
       },
