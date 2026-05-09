@@ -72,11 +72,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1777925341,
+        "lastModified": 1778282790,
         "narHash": "sha256-PMxii4+gjrhRF4ThU0FcTiHcJEgEjWYCl87HlBm94n8=",
         "owner": "Doridian",
         "repo": "DarkSignsOnline",
-        "rev": "cfd0f921258220224d54077238933f788636e1ef",
+        "rev": "6cec8273087e06c337f49aa0c773222d0d6e7410",
         "type": "github"
       },
       "original": {
@@ -842,11 +842,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1777895960,
-        "narHash": "sha256-KebDsQd+A7pm++Tp0744EjULttHvz1wbKqNKkMA/088=",
+        "lastModified": 1778320345,
+        "narHash": "sha256-HcdXw00vWUK/6Lnan6Sy21nfZb5664bSPAB6a/Dtsu8=",
         "owner": "pyproject-nix",
         "repo": "uv2nix",
-        "rev": "5ad90d48b80ecc920ca2247d53f46beba302e186",
+        "rev": "26e2f4debdf32960adf9c059dfadc14d7871ca79",
         "type": "github"
       },
       "original": {
