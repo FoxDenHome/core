@@ -59,11 +59,6 @@
       };
     };
 
-    nix-amd-npu = {
-      url = "github:robcohen/nix-amd-npu";
-      # DO NOT FOLLOW nixpgks, this needs a fork!
-    };
-
     # Applications
     backupmgr = {
       url = "git+https://git.foxden.network/FoxDen/backupmgr";

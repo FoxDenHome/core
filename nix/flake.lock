@@ -168,24 +168,6 @@
         "type": "github"
       }
     },
-    "flake-parts_2": {
-      "inputs": {
-        "nixpkgs-lib": "nixpkgs-lib"
-      },
-      "locked": {
-        "lastModified": 1767609335,
-        "narHash": "sha256-feveD98mQpptwrAEggBQKJTYbvwwglSbOv53uCfH9PY=",
-        "owner": "hercules-ci",
-        "repo": "flake-parts",
-        "rev": "250481aafeb741edfe23d29195671c19b36b6dca",
-        "type": "github"
-      },
-      "original": {
-        "owner": "hercules-ci",
-        "repo": "flake-parts",
-        "type": "github"
-      }
-    },
     "flake-utils": {
       "inputs": {
         "systems": [
@@ -239,11 +221,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1778522046,
-        "narHash": "sha256-xowp8TT6TXG2rdAgxeYhbc8ashnisP9QSPTQuh4WFTY=",
+        "lastModified": 1778523596,
+        "narHash": "sha256-SlfJ2N2aMAHWEulTbiSPnPK4z5Q2QdYRlXCtKWamE/o=",
         "ref": "refs/heads/main",
-        "rev": "df080364c76e5e8140023ed42c08347848aef0b1",
-        "revCount": 3976,
+        "rev": "5c5c11b7fe99836f53709432869e193db1704493",
+        "revCount": 3977,
         "type": "git",
         "url": "https://git.foxden.network/foxCaves/foxCaves"
       },
@@ -374,25 +356,6 @@
         "type": "github"
       }
     },
-    "nix-amd-npu": {
-      "inputs": {
-        "flake-parts": "flake-parts_2",
-        "nixpkgs": "nixpkgs"
-      },
-      "locked": {
-        "lastModified": 1775660927,
-        "narHash": "sha256-x1EDOW47T7ph8z2AjPHJMkxWivn/Q04ZSr3JBOFEV9s=",
-        "owner": "robcohen",
-        "repo": "nix-amd-npu",
-        "rev": "8848c6f3382852290ac25fbe7634058c4e9c037e",
-        "type": "github"
-      },
-      "original": {
-        "owner": "robcohen",
-        "repo": "nix-amd-npu",
-        "type": "github"
-      }
-    },
     "nix-jekyll-builder": {
       "inputs": {
         "flake-utils": [
@@ -420,32 +383,17 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1775660890,
-        "narHash": "sha256-hZoabmLFqWRyjJwwfzdpaJ+BpbNt5tI2ArkN7bIQCww=",
-        "owner": "robcohen",
+        "lastModified": 1778430510,
+        "narHash": "sha256-Ti+ZBvW6yrWWAg2szExVTwCd4qOJ3KlVr1tFHfyfi8Q=",
+        "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "9233c639efd91157644e73c7026b21e47a2c027c",
+        "rev": "8fd9daa3db09ced9700431c5b7ad0e8ba199b575",
         "type": "github"
       },
       "original": {
-        "owner": "robcohen",
-        "ref": "vitis-ai",
+        "owner": "NixOS",
+        "ref": "nixos-25.11",
         "repo": "nixpkgs",
-        "type": "github"
-      }
-    },
-    "nixpkgs-lib": {
-      "locked": {
-        "lastModified": 1765674936,
-        "narHash": "sha256-k00uTP4JNfmejrCLJOwdObYC9jHRrr/5M/a/8L2EIdo=",
-        "owner": "nix-community",
-        "repo": "nixpkgs.lib",
-        "rev": "2075416fcb47225d9b68ac469a5c4801a9c4dd85",
-        "type": "github"
-      },
-      "original": {
-        "owner": "nix-community",
-        "repo": "nixpkgs.lib",
         "type": "github"
       }
     },
@@ -461,22 +409,6 @@
       "original": {
         "owner": "NixOS",
         "ref": "nixos-unstable",
-        "repo": "nixpkgs",
-        "type": "github"
-      }
-    },
-    "nixpkgs_2": {
-      "locked": {
-        "lastModified": 1778430510,
-        "narHash": "sha256-Ti+ZBvW6yrWWAg2szExVTwCd4qOJ3KlVr1tFHfyfi8Q=",
-        "owner": "NixOS",
-        "repo": "nixpkgs",
-        "rev": "8fd9daa3db09ced9700431c5b7ad0e8ba199b575",
-        "type": "github"
-      },
-      "original": {
-        "owner": "NixOS",
-        "ref": "nixos-25.11",
         "repo": "nixpkgs",
         "type": "github"
       }
@@ -587,8 +519,7 @@
         "home-manager": "home-manager",
         "impermanence": "impermanence",
         "lanzaboote": "lanzaboote",
-        "nix-amd-npu": "nix-amd-npu",
-        "nixpkgs": "nixpkgs_2",
+        "nixpkgs": "nixpkgs",
         "nixpkgs-unstable": "nixpkgs-unstable",
         "oauth-jit-radius": "oauth-jit-radius",
         "pyproject-build-systems": "pyproject-build-systems",
