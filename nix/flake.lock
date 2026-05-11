@@ -72,11 +72,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1778282790,
+        "lastModified": 1778522002,
         "narHash": "sha256-PMxii4+gjrhRF4ThU0FcTiHcJEgEjWYCl87HlBm94n8=",
         "owner": "Doridian",
         "repo": "DarkSignsOnline",
-        "rev": "6cec8273087e06c337f49aa0c773222d0d6e7410",
+        "rev": "8674a1f522f61da53507de939cdb479e952315c8",
         "type": "github"
       },
       "original": {
@@ -95,11 +95,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1777860677,
-        "narHash": "sha256-yVGQyFTojU26jQH0pJ4xAprO73fzGi1KGAsV/8cumlI=",
+        "lastModified": 1778522038,
+        "narHash": "sha256-B2aKaOLEILABtzSz3ueKE1XyjSJsoWumzSxPW7I/ojc=",
         "ref": "refs/heads/main",
-        "rev": "b510f31d1f7386fda7460b4c0ce1154496c1b82d",
-        "revCount": 684,
+        "rev": "4dbdb964f3609d1e382e6683b2ec395dcceac42d",
+        "revCount": 685,
         "type": "git",
         "url": "https://git.foxden.network/FoxDen/e621dumper"
       },
@@ -118,11 +118,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1777860697,
-        "narHash": "sha256-deUFuca10wORXW1BeIdBpXEsQ0MXKFdoOC0LZSwL5TA=",
+        "lastModified": 1778522026,
+        "narHash": "sha256-eAs39VncN9L0f7wK07YKNx98P02qBoceq1ZKH2vTpTQ=",
         "ref": "refs/heads/main",
-        "rev": "0f3b56432a7da3bae12bfeef090616445ece6c2a",
-        "revCount": 697,
+        "rev": "2405a2e14b42461e22519809143db4598b65c66b",
+        "revCount": 698,
         "type": "git",
         "url": "https://git.foxden.network/FoxDen/fadumper"
       },
@@ -239,11 +239,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1777860716,
-        "narHash": "sha256-Gk42j1tlic3DeOMyX3gDpuPnpup9dfjniD1sFQtHXiE=",
+        "lastModified": 1778522046,
+        "narHash": "sha256-xowp8TT6TXG2rdAgxeYhbc8ashnisP9QSPTQuh4WFTY=",
         "ref": "refs/heads/main",
-        "rev": "29ae0ef4d0f782aa2f108e815471fc3e72102eea",
-        "revCount": 3975,
+        "rev": "df080364c76e5e8140023ed42c08347848aef0b1",
+        "revCount": 3976,
         "type": "git",
         "url": "https://git.foxden.network/foxCaves/foxCaves"
       },
@@ -271,11 +271,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1777860690,
-        "narHash": "sha256-uLXY2umkCtUQhLkhCj3wArY2CHRnAuGSwoja6MMNOWA=",
+        "lastModified": 1778522022,
+        "narHash": "sha256-+fvYrkzTDFsHXdE5CFVmZQT+XST2AH5ZB0vOy8Mzi0o=",
         "ref": "refs/heads/main",
-        "rev": "5e00d8f1991a81fe00ea74575d5d67dbe4b2a4f2",
-        "revCount": 68,
+        "rev": "b877a5cca78543425efc89cab65e7f681d2d0203",
+        "revCount": 69,
         "type": "git",
         "url": "https://git.foxden.network/FoxDen/gitbackup"
       },
@@ -313,11 +313,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1777851538,
-        "narHash": "sha256-Gp8qwTEYNoy2yvmErVGlvLOQvrtEECCAKbonW7VJef8=",
+        "lastModified": 1778401693,
+        "narHash": "sha256-OVHdCqXXUF5UdGkH+FF2ZL06OLZjj2kvP2dIUmzVWoo=",
         "owner": "nix-community",
         "repo": "home-manager",
-        "rev": "cc09c0f9b7eaa95c2d9827338a5eb03d32505ca5",
+        "rev": "389b83002efc26f1145e89a6a8e6edc5a6435948",
         "type": "github"
       },
       "original": {
@@ -467,11 +467,11 @@
     },
     "nixpkgs_2": {
       "locked": {
-        "lastModified": 1778003029,
-        "narHash": "sha256-q/nkKLDtHIyLjZpKhWk3cSK5IYsFqtMd6UtXF3ddjgA=",
+        "lastModified": 1778430510,
+        "narHash": "sha256-Ti+ZBvW6yrWWAg2szExVTwCd4qOJ3KlVr1tFHfyfi8Q=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "0c88e1f2bdb93d5999019e99cb0e61e1fe2af4c5",
+        "rev": "8fd9daa3db09ced9700431c5b7ad0e8ba199b575",
         "type": "github"
       },
       "original": {
@@ -491,11 +491,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1777860687,
-        "narHash": "sha256-xzW3H0XIX2rvQIgEGUDdIh8/IQVytivEE1NIE2neGGY=",
+        "lastModified": 1778522018,
+        "narHash": "sha256-7sK1SpwwOr24VWB8OvhVhvtmYGc2kVPDDeB3F4o+OhA=",
         "ref": "refs/heads/main",
-        "rev": "0af3d408b5b2606ba5804760ba9b049699ebb1be",
-        "revCount": 190,
+        "rev": "6d9d868c0e58956336b517751d7efeb10a78f544",
+        "revCount": 191,
         "type": "git",
         "url": "https://git.foxden.network/FoxDen/oauth-jit-radius"
       },
@@ -656,11 +656,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1777878475,
-        "narHash": "sha256-b61l3Yl5KDMrxEkkXDCN3qCLm9Z8EmpJZgXLk52nRro=",
+        "lastModified": 1778522057,
+        "narHash": "sha256-wzbyMY9A3EIgTs7W8/fkTDXkvXzdulQaLd8Rp5aEdmA=",
         "ref": "refs/heads/main",
-        "rev": "2b4bc0d6ece2a2a62be6cb9e5e84b894b3742d4c",
-        "revCount": 416,
+        "rev": "5fff546957ff8cb7f46e985228618c21256b54be",
+        "revCount": 417,
         "type": "git",
         "url": "https://git.foxden.network/SpaceAge/space_age_api"
       },
@@ -688,11 +688,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1777860710,
-        "narHash": "sha256-fwnSxro3iz+LgS7dbxdBojcmaHN/WPBu4FRDHkF9Gy0=",
+        "lastModified": 1778522030,
+        "narHash": "sha256-CGVaKMENnUPUDBMvCtugrnCnqPp/xH0MF8FnP9nhUSE=",
         "ref": "refs/heads/main",
-        "rev": "21d068807467504240ffb58c174f5028f09626f5",
-        "revCount": 242,
+        "rev": "84eb77c35059acbdd993e0e0aa5c4293f2f884e4",
+        "revCount": 243,
         "type": "git",
         "url": "https://git.foxden.network/SpaceAge/StarLord"
       },
@@ -735,11 +735,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1777860708,
-        "narHash": "sha256-qhD8Zq6bOYPICVL2csKL7Ue2xztflOdLv32kDPH2Ytw=",
+        "lastModified": 1778522014,
+        "narHash": "sha256-3EnIs3JjGgygMiRrFdeDP+5HAv7HrL2cQyvv+xSo25o=",
         "ref": "refs/heads/main",
-        "rev": "8afb8740527bae074d212832b52876be39bf3db5",
-        "revCount": 119,
+        "rev": "52bee13964c7443d70d0201123df0bb20d1faf89",
+        "revCount": 120,
         "type": "git",
         "url": "https://git.foxden.network/SpaceAge/website"
       },
