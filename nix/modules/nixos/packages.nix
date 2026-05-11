@@ -49,6 +49,15 @@ let
     config = nixPkgConfig;
     overlays = [
       build-gradle-application.overlays.default
+      (final: prev: {
+        python3 = prev.python3.override {
+          packageOverrides = pfinal: pprev: {
+            aiocache = pprev.aiocache.overridePythonAttrs (_: {
+              doCheck = false; # TODO: Remove once https://github.com/NixOS/nixpkgs/issues/387010
+            });
+          };
+        };
+      })
     ];
   };
 
