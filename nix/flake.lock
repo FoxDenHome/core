@@ -399,11 +399,11 @@
     },
     "nixpkgs-unstable": {
       "locked": {
-        "lastModified": 1777954456,
-        "narHash": "sha256-hGdgeU2Nk87RAuZyYjyDjFL6LK7dAZN5RE9+hrDTkDU=",
+        "lastModified": 1778443072,
+        "narHash": "sha256-zi7/fsqM/kFdNuED//4WOCUtezGtKKqRNORjMvfwjnA=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "549bd84d6279f9852cae6225e372cc67fb91a4c1",
+        "rev": "da5ad661ba4e5ef59ba743f0d112cbc30e474f32",
         "type": "github"
       },
       "original": {
@@ -619,11 +619,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1778522030,
-        "narHash": "sha256-CGVaKMENnUPUDBMvCtugrnCnqPp/xH0MF8FnP9nhUSE=",
+        "lastModified": 1778536671,
+        "narHash": "sha256-+UCdnMfIQng6a4tLl+Af1EABGCbjI0wiCN3BZTBvU1w=",
         "ref": "refs/heads/main",
-        "rev": "84eb77c35059acbdd993e0e0aa5c4293f2f884e4",
-        "revCount": 243,
+        "rev": "55728644e5714a3360e08d6b6f6e1a357a90959e",
+        "revCount": 244,
         "type": "git",
         "url": "https://git.foxden.network/SpaceAge/StarLord"
       },
