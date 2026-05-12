@@ -41,6 +41,7 @@ in
       zfs = {
         devNodes = "/dev/disk/by-path";
         package = pkgs.zfs_2_4;
+        autoScrub = true;
       };
       supportedFilesystems = [ "zfs" ];
       kernelPackages = pkgs.linuxPackages_6_18;
