@@ -56,7 +56,9 @@ in
     ];
 
     services.zfs = {
-      autoScrub = true;
+      autoScrub = {
+        enable = true;
+      };
     };
 
     services.syncoid = lib.mkIf config.foxDen.zfs.syncoid.enable {
