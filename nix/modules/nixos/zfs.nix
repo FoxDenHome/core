@@ -41,7 +41,6 @@ in
       zfs = {
         devNodes = "/dev/disk/by-path";
         package = pkgs.zfs_2_4;
-        autoScrub = true;
       };
       supportedFilesystems = [ "zfs" ];
       kernelPackages = pkgs.linuxPackages_6_18;
@@ -55,6 +54,10 @@ in
     environment.persistence."/nix/persist/system".files = [
       { file = "/etc/zfs/zpool.cache"; }
     ];
+
+    services.zfs = {
+      autoScrub = true;
+    };
 
     services.syncoid = lib.mkIf config.foxDen.zfs.syncoid.enable {
       enable = true;
