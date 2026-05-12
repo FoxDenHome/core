@@ -619,11 +619,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1778536671,
-        "narHash": "sha256-+UCdnMfIQng6a4tLl+Af1EABGCbjI0wiCN3BZTBvU1w=",
+        "lastModified": 1778606068,
+        "narHash": "sha256-HNpHFhidcQymrTSA7to/oGQMHR0ZRHZ+hla13etvKnM=",
         "ref": "refs/heads/main",
-        "rev": "55728644e5714a3360e08d6b6f6e1a357a90959e",
-        "revCount": 244,
+        "rev": "8a216991b93c3e2b2b8e0cac9d507f155e48c211",
+        "revCount": 245,
         "type": "git",
         "url": "https://git.foxden.network/SpaceAge/StarLord"
       },
