@@ -61,8 +61,27 @@ let
     ];
   };
 
-  pkgs = import nixpkgs pkgsConfig;
-  pkgsUnstable = import nixpkgs-unstable pkgsConfig;
+  mkPkgs = rawFlake: patches: let
+    tempPkgs = import rawFlake {
+      system = systemArch;
+    };
+    patchedFlake = tempPkgs.applyPatches {
+      src = tempPkgs.path;
+      patches = map (tempPkgs.fetchpatch2) patches;
+    };
+  in
+    import patchedFlake pkgsConfig;
+
+  pkgs = mkPkgs nixpkgs [
+    {
+      url = "https://patch-diff.githubusercontent.com/raw/NixOS/nixpkgs/pull/519944.patch";
+      excludes = [
+        "pkgs/os-specific/linux/zfs/unstable.nix"
+      ];
+      hash = "sha256-O8lsokyXwohgnkPxfrNX5MFX16lTachxFIEQ0nP955o=";
+    }
+  ];
+  pkgsUnstable = mkPkgs nixpkgs-unstable [];
 
   localPackages = lib.attrsets.genAttrs (lib.attrNames (builtins.readDir ../../packages)) (
     name: import ../../packages/${name}/package.nix (inputs // { inherit pkgs; })
