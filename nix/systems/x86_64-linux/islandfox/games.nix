@@ -13,6 +13,10 @@ in
       };
       host = "darksignsonline";
     };
+    factorio = {
+      enable = true;
+      host = "factorio";
+    };
     minecraft = {
       enable = true;
       tls.enable = true;
@@ -61,6 +65,24 @@ in
       addresses = [
         "10.3.10.15/16"
         "fd2c:f4cb:63be:3::a0f/64"
+      ];
+    };
+    factorio = mkVlanHost 2 {
+      dns = {
+        fqdns = [
+          "factorio.foxden.network"
+        ];
+        dynDns = true;
+      };
+      firewall.portForwards = [
+        {
+          protocol = "udp";
+          port = 34197;
+        }
+      ];
+      addresses = [
+        "10.2.11.28/24"
+        "fd2c:f4cb:63be:2::b1c/64"
       ];
     };
     minecraft = mkVlanHost 2 {
