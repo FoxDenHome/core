@@ -24,7 +24,7 @@ in
       }).config
       {
         services.factorio = rec {
-          enabled = true;
+          enable = true;
           admins = [
             "doridian"
           ];
