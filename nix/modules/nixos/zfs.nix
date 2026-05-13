@@ -40,10 +40,10 @@ in
       # TODO: Keep these values reasonably up to date [kernelPackages / zfs.package]
       zfs = {
         devNodes = "/dev/disk/by-path";
-        package = pkgs.zfs_2_4;
+        package = pkgs.zfs_2_4_2;
       };
       supportedFilesystems = [ "zfs" ];
-      kernelPackages = pkgs.linuxPackages_6_18;
+      kernelPackages = pkgs.linuxPackages_7_0;
     };
     environment.systemPackages = with pkgs; [
       mbuffer
