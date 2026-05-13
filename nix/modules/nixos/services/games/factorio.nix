@@ -29,7 +29,8 @@ in
           description = "FoxDen Factorio";
 
           admins = [
-            "doridian"
+            "Doridian"
+            "WizzyThing"
           ];
 
           allowedPlayers = [ ];
