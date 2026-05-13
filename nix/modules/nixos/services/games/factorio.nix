@@ -23,12 +23,12 @@ in
         name = "factorio";
       }).config
       {
-        services.factorio = rec {
+        services.factorio = {
           enable = true;
           admins = [
             "doridian"
           ];
-          allowedPlayers = admins;
+          allowedPlayers = [ ];
           autosave-interval = 5;
           nonBlockingSaving = true;
 
