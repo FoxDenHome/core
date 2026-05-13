@@ -95,11 +95,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1778534191,
-        "narHash": "sha256-ComZoj9b3Ftt+5gAAjoaxkhqRJzrqzIBm047iGFx4SM=",
+        "lastModified": 1778626864,
+        "narHash": "sha256-/5o63UhjUpyOG74y5hKpEQmsfzn6ar2W6AwcKKBvSdo=",
         "ref": "refs/heads/main",
-        "rev": "b3a43d76dd43ffb1dbbe5852debbafa07e7ea648",
-        "revCount": 686,
+        "rev": "d13fe28270ce681232d1dbc33f720deaa9390bb6",
+        "revCount": 687,
         "type": "git",
         "url": "https://git.foxden.network/FoxDen/e621dumper"
       },
@@ -221,11 +221,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1778523596,
-        "narHash": "sha256-SlfJ2N2aMAHWEulTbiSPnPK4z5Q2QdYRlXCtKWamE/o=",
+        "lastModified": 1778696096,
+        "narHash": "sha256-d55zP25AVWRKyGGCmRjGVISNkGeH4O8SwDCtrqjqSDU=",
         "ref": "refs/heads/main",
-        "rev": "5c5c11b7fe99836f53709432869e193db1704493",
-        "revCount": 3977,
+        "rev": "f6635b53a1fd19f164f58617ce5d5ad39026e008",
+        "revCount": 3978,
         "type": "git",
         "url": "https://git.foxden.network/foxCaves/foxCaves"
       },
@@ -295,11 +295,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1778401693,
-        "narHash": "sha256-OVHdCqXXUF5UdGkH+FF2ZL06OLZjj2kvP2dIUmzVWoo=",
+        "lastModified": 1778606796,
+        "narHash": "sha256-P2krpSkFVYJ89bgsnAZ9RtQiGwiTW77sfSJp9SEDscM=",
         "owner": "nix-community",
         "repo": "home-manager",
-        "rev": "389b83002efc26f1145e89a6a8e6edc5a6435948",
+        "rev": "e1fd7350f4410972bcb8c42a697d8c924ffe642a",
         "type": "github"
       },
       "original": {
@@ -773,11 +773,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1778320345,
-        "narHash": "sha256-HcdXw00vWUK/6Lnan6Sy21nfZb5664bSPAB6a/Dtsu8=",
+        "lastModified": 1778664018,
+        "narHash": "sha256-ogNyNANNLo0SMFevIeUpbTMOL9uUDu/hXvp7JlOYbwQ=",
         "owner": "pyproject-nix",
         "repo": "uv2nix",
-        "rev": "26e2f4debdf32960adf9c059dfadc14d7871ca79",
+        "rev": "b48abe99ef639cd100c224898529370e5d935294",
         "type": "github"
       },
       "original": {
