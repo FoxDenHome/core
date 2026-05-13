@@ -23,13 +23,7 @@ in
         name = "factorio";
       }).config
       {
-        sops.secrets.factorio = config.lib.foxDen.sops.mkIfAvailable {
-          mode = "0400";
-          owner = "factorio";
-          group = "factorio";
-        };
-
-        config.services.factorio = rec {
+        services.factorio = rec {
           enabled = true;
           admins = [
             "doridian"
