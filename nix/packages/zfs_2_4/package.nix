@@ -13,7 +13,7 @@ in
 pkgs.callPackage "${pkgs.path}/pkgs/os-specific/linux/zfs/generic.nix" args {
   # You have to ensure that in `pkgs/top-level/linux-kernels.nix`
   # this attribute is the correct one for this package.
-  kernelModuleAttribute = "zfs_2_4_2";
+  kernelModuleAttribute = "zfs_2_4";
 
   kernelMinSupportedMajorMinor = "4.18";
   kernelMaxSupportedMajorMinor = "7.0";

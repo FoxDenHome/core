@@ -40,7 +40,7 @@ in
       # TODO: Keep these values reasonably up to date [kernelPackages / zfs.package]
       zfs = {
         devNodes = "/dev/disk/by-path";
-        package = pkgs.zfs_2_4_2;
+        package = pkgs.zfs_2_4;
       };
       supportedFilesystems = [ "zfs" ];
       kernelPackages = pkgs.linuxPackages_7_0;
