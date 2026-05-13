@@ -25,9 +25,13 @@ in
       {
         services.factorio = {
           enable = true;
+          game-name = "FoxDen Factorio";
+          description = "FoxDen Factorio";
+
           admins = [
             "doridian"
           ];
+
           allowedPlayers = [ ];
           autosave-interval = 5;
           nonBlockingSaving = true;
