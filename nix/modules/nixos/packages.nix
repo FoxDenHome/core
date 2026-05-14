@@ -49,39 +49,47 @@ let
     config = nixPkgConfig;
     overlays = [
       build-gradle-application.overlays.default
-      (final: prev: {
-        python3 = prev.python3.override {
-          packageOverrides = pfinal: pprev: {
-            aiocache = pprev.aiocache.overridePythonAttrs (_: {
-              doCheck = false; # TODO: Remove once https://github.com/NixOS/nixpkgs/issues/387010
-            });
-          };
-        };
-      })
     ];
   };
 
-  mkPkgs = rawFlake: patches: let
-    tempPkgs = import rawFlake {
-      system = systemArch;
-    };
-    patchedFlake = tempPkgs.applyPatches {
-      src = tempPkgs.path;
-      patches = map (tempPkgs.fetchpatch2) patches;
-    };
-  in
-    import patchedFlake pkgsConfig;
+  mkPkgs =
+    rawFlake: patches:
+    let
+      tempPkgs = import rawFlake {
+        system = systemArch;
+      };
+      processedFlake =
+        if patches == [ ] then
+          rawFlake
+        else
+          tempPkgs.applyPatches {
+            src = tempPkgs.path;
+            patches = map (tempPkgs.fetchpatch2) patches;
+          };
+    in
+    import processedFlake pkgsConfig;
 
   pkgs = mkPkgs nixpkgs [
     {
+      # ZFS 2.4.2
       url = "https://patch-diff.githubusercontent.com/raw/NixOS/nixpkgs/pull/519944.patch";
       excludes = [
         "pkgs/os-specific/linux/zfs/unstable.nix"
       ];
       hash = "sha256-O8lsokyXwohgnkPxfrNX5MFX16lTachxFIEQ0nP955o=";
     }
+    {
+      # Kanidm 1.10.2
+      url = "https://patch-diff.githubusercontent.com/raw/NixOS/nixpkgs/pull/520046.patch";
+      hash = "sha256-RinqEkcEeYmJQ2/yw9vWAAbEo/HJ/FJaK4cPFmk3j3M=";
+    }
+    {
+      # Valkey flaky test fix
+      url = "https://patch-diff.githubusercontent.com/raw/NixOS/nixpkgs/pull/519263.patch";
+      hash = "sha256-IjxvRcwwvrx6qDi0O4KCpA/+YUKd8Kc3IrfZ4Q++I7o=";
+    }
   ];
-  pkgsUnstable = mkPkgs nixpkgs-unstable [];
+  pkgsUnstable = mkPkgs nixpkgs-unstable [ ];
 
   localPackages = lib.attrsets.genAttrs (lib.attrNames (builtins.readDir ../../packages)) (
     name: import ../../packages/${name}/package.nix (inputs // { inherit pkgs; })
