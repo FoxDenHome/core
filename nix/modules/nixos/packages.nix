@@ -52,19 +52,33 @@ let
     ];
   };
 
+  # fetchpatch2 preprocessor adding an easy alias to just load nixpkgs PRs by ID
+  fetchpatch2PreProc =
+    patch:
+    if lib.attrsets.hasAttr "pr" patch then
+      (
+        {
+          url = "https://patch-diff.githubusercontent.com/raw/NixOS/nixpkgs/pull/${toString patch.pr}.patch";
+        }
+        // (lib.filterAttrs (name: value: name != "pr") patch)
+      )
+    else
+      patch;
+
   mkPkgs =
     rawFlake: patches:
     let
       tempPkgs = import rawFlake {
         system = systemArch;
       };
+      fetchpatch2PR = patch: tempPkgs.fetchpatch2 (fetchpatch2PreProc patch);
       processedFlake =
         if patches == [ ] then
           rawFlake
         else
           tempPkgs.applyPatches {
             src = tempPkgs.path;
-            patches = map (tempPkgs.fetchpatch2) patches;
+            patches = map fetchpatch2PR patches;
           };
     in
     import processedFlake pkgsConfig;
@@ -72,7 +86,7 @@ let
   pkgs = mkPkgs nixpkgs [
     {
       # ZFS 2.4.2
-      url = "https://patch-diff.githubusercontent.com/raw/NixOS/nixpkgs/pull/519944.patch";
+      pr = 519944;
       excludes = [
         "pkgs/os-specific/linux/zfs/unstable.nix"
       ];
@@ -80,12 +94,12 @@ let
     }
     {
       # Kanidm 1.10.2
-      url = "https://patch-diff.githubusercontent.com/raw/NixOS/nixpkgs/pull/520046.patch";
+      pr = 520046;
       hash = "sha256-RinqEkcEeYmJQ2/yw9vWAAbEo/HJ/FJaK4cPFmk3j3M=";
     }
     {
       # Valkey flaky test fix
-      url = "https://patch-diff.githubusercontent.com/raw/NixOS/nixpkgs/pull/519263.patch";
+      pr = 519263;
       hash = "sha256-IjxvRcwwvrx6qDi0O4KCpA/+YUKd8Kc3IrfZ4Q++I7o=";
     }
   ];
