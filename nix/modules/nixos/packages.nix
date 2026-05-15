@@ -97,11 +97,6 @@ let
       pr = 520046;
       hash = "sha256-RinqEkcEeYmJQ2/yw9vWAAbEo/HJ/FJaK4cPFmk3j3M=";
     }
-    {
-      # Valkey flaky test fix
-      pr = 519263;
-      hash = "sha256-IjxvRcwwvrx6qDi0O4KCpA/+YUKd8Kc3IrfZ4Q++I7o=";
-    }
   ];
   pkgsUnstable = mkPkgs nixpkgs-unstable [ ];
 
