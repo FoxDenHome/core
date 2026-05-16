@@ -56,8 +56,8 @@ pkgs.stdenvNoCC.mkDerivation {
       hash = "sha256:6508639b623d67700f8a7c3b798fc268f1da10cc290133325816f2b3f73c38ab";
     })
     (pkgs.fetchurl {
-      url = "https://github.com/BeneHenke/BluemapCreateEntityAddon/releases/download/v1.1.4/createentityaddon-1.1.4-5.13+.jar";
-      hash = "sha256:4b8ca36342ee8eef84919f7325cd07879c183aebb223b216ca7bdb22ae265f29";
+      url = "https://github.com/BeneHenke/BluemapCreateEntityAddon/releases/download/v1.1.5/createentityaddon-1.1.5-5.13+.jar";
+      hash = "sha256:308bcdf8b1d2ee68810ee173bb2a056c32e3867718d055f04080f2a095465792";
     })
     (pkgs.stdenvNoCC.mkDerivation {
       name = "bluemap-create-resource-pack.zip";
