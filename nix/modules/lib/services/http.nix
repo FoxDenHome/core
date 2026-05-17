@@ -343,7 +343,7 @@ in
     let
       name = inputs.name;
 
-      package = (if svcConfig.quic then pkgs.nginxQuic else pkgs.nginx).override {
+      package = pkgs.nginx.override {
         modules = nixpkgs.lib.lists.unique (
           [
             pkgs.nginxModules.njs
