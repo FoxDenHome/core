@@ -97,6 +97,11 @@ let
       pr = 520046;
       hash = "sha256-RinqEkcEeYmJQ2/yw9vWAAbEo/HJ/FJaK4cPFmk3j3M=";
     }
+    {
+      # nginx rewrite CVE
+      pr = 520076;
+      hash = "sha256-VWbWjhE9lnT6JcM8kSBqEmpb0cNzojXZeLCgh+X0TXc=";
+    }
   ];
   pkgsUnstable = mkPkgs nixpkgs-unstable [ ];
 
