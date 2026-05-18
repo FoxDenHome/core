@@ -4,6 +4,7 @@
   ...
 }:
 let
+  # https://www.oracle.com/downloads/graalvm-downloads.html
   graalSources = {
     "aarch64-linux" = {
       hash = "sha256:86fc5f391be31b9ddbe47370b705303c1a649bd78915ffeccf8c78a430eacb4c";
