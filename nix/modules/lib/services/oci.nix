@@ -75,7 +75,12 @@ let
 
               serviceConfig = {
                 NetworkNamespacePath = host.namespacePath;
+
                 Restart = nixpkgs.lib.mkDefault "always";
+                RestartSec = nixpkgs.lib.mkForce "1s";
+                RestartMaxDelaySec = nixpkgs.lib.mkForce "5m";
+                RestartSteps = nixpkgs.lib.mkForce 10;
+
                 BindReadOnlyPaths = [
                   "${host.resolvConf}:/etc/resolv.conf"
                 ];
