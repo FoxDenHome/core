@@ -83,26 +83,7 @@ let
     in
     import processedFlake pkgsConfig;
 
-  pkgs = mkPkgs nixpkgs [
-    {
-      # ZFS 2.4.2
-      pr = 519944;
-      excludes = [
-        "pkgs/os-specific/linux/zfs/unstable.nix"
-      ];
-      hash = "sha256-O8lsokyXwohgnkPxfrNX5MFX16lTachxFIEQ0nP955o=";
-    }
-    {
-      # Kanidm 1.10.2
-      pr = 520046;
-      hash = "sha256-RinqEkcEeYmJQ2/yw9vWAAbEo/HJ/FJaK4cPFmk3j3M=";
-    }
-    {
-      # nginx rewrite CVE
-      pr = 520076;
-      hash = "sha256-VWbWjhE9lnT6JcM8kSBqEmpb0cNzojXZeLCgh+X0TXc=";
-    }
-  ];
+  pkgs = mkPkgs nixpkgs [ ];
   pkgsUnstable = mkPkgs nixpkgs-unstable [ ];
 
   localPackages = lib.attrsets.genAttrs (lib.attrNames (builtins.readDir ../../packages)) (
