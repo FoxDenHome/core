@@ -37,7 +37,6 @@ in
         services.rmfakecloud = {
           enable = true;
           port = 3000;
-          package = pkgs.pkgsUnstable.rmfakecloud;
           storageUrl = "${proto}://${hostName}";
           environmentFile = config.lib.foxDen.sops.mkIfAvailable config.sops.secrets.rmfakecloud.path;
           extraSettings = {
