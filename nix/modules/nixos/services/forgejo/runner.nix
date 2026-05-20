@@ -61,7 +61,7 @@ let
       WorkingDirectory = "/var/lib/forgejo-runner";
       StateDirectory = "forgejo-runner";
 
-      # memfd_create breaks specifically when used with qemu-binfmt in d-in0d
+      # memfd_create breaks specifically when used with qemu-binfmt in d-in-d
       # not sure exactly why, but other procs get ENOENT
       # we just block the syscall for now, the only consumer is alpine 3.23's apk
       # which takes this gracefully
@@ -216,6 +216,7 @@ in
             WorkingDirectory = "/var/lib/forgejo-runner";
             StateDirectory = "forgejo-runner";
             Nice = 5;
+            TimeoutStopSec = "15s";
           };
 
           wantedBy = [ "multi-user.target" ];
@@ -260,6 +261,7 @@ in
               ExecStart = "${pkgs.podman}/bin/podman --log-level=info system service --time=0 unix:///var/lib/forgejo-runner/podman.sock";
               ExecStop = "${pkgs.podman}/bin/podman stop --all --time 30";
               Nice = 5;
+              TimeoutStopSec = "30s";
             };
 
             wantedBy = [ "multi-user.target" ];
