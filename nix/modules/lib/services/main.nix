@@ -67,13 +67,12 @@ let
           ]
           ++ gpuPackages;
 
-          startLimitIntervalSec = nixpkgs.lib.mkForce 0;
-
           requires = dependency;
           bindsTo = dependency;
           after = dependency;
 
           environment = if canGpu then config.foxDen.services.gpu.environment else { };
+          startLimitIntervalSec = nixpkgs.lib.mkForce 0;
 
           serviceConfig = {
             NetworkNamespacePath = nixpkgs.lib.mkIf (cfgHostName != "") host.namespacePath;
@@ -84,7 +83,6 @@ let
             RestartSec = nixpkgs.lib.mkForce "1s";
             RestartMaxDelaySec = nixpkgs.lib.mkForce "5m";
             RestartSteps = nixpkgs.lib.mkForce 10;
-            StartLimitIntervalUSec = nixpkgs.lib.mkForce "0";
 
             DeviceAllow = map (dev: "${dev} rw") allDevices;
             BindPaths = map (dev: "-${dev}") allDevices;
@@ -129,7 +127,7 @@ in
   inherit mkNamed mkEtcPaths getPrimaryInterface;
 
   mkOptions =
-    { name, svcName }:
+    { name }:
     {
       enable = nixpkgs.lib.mkEnableOption name;
       host = nixpkgs.lib.mkOption {

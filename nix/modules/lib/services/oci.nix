@@ -71,6 +71,8 @@ let
               bindsTo = dependency;
               after = dependency;
 
+              startLimitIntervalSec = nixpkgs.lib.mkForce 0;
+
               serviceConfig = {
                 NetworkNamespacePath = host.namespacePath;
                 Restart = nixpkgs.lib.mkDefault "always";
