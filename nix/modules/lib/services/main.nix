@@ -84,6 +84,7 @@ let
             RestartSec = nixpkgs.lib.mkForce "1s";
             RestartMaxDelaySec = nixpkgs.lib.mkForce "5m";
             RestartSteps = nixpkgs.lib.mkForce 10;
+            StartLimitIntervalUSec = nixpkgs.lib.mkForce "0";
 
             DeviceAllow = map (dev: "${dev} rw") allDevices;
             BindPaths = map (dev: "-${dev}") allDevices;
