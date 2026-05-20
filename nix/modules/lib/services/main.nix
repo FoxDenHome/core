@@ -127,7 +127,7 @@ in
   inherit mkNamed mkEtcPaths getPrimaryInterface;
 
   mkOptions =
-    { name }:
+    { name, ... }:
     {
       enable = nixpkgs.lib.mkEnableOption name;
       host = nixpkgs.lib.mkOption {
