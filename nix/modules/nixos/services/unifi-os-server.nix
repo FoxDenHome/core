@@ -55,7 +55,6 @@ in
           name
           ;
         oci = {
-          image = "sha256:fb77d055f835b5bf34a000d314e9dc3ca69fe068e9d6ae5e38e1e2e3eb2734a3";
           imageFile = pkgs.unifi-os-server-image;
           pull = "never";
           volumes = [
