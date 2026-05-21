@@ -4,9 +4,9 @@
   ...
 }:
 let
-  version = "5.0.6";
-  url = "https://fw-download.ubnt.com/data/unifi-os-server/1856-linux-x64-5.0.6-33f4990f-6c68-4e72-9d9c-477496c22450.6-x64";
-  sha256 = "20fa164791938b2ec9d5680c118753c46a36eaa3369cef94d5cef8da9468df9e";
+  version = "5.0.8";
+  url = "https://fw-download.ubnt.com/data/unifi-os-server/c2e4-linux-x64-5.0.8-bcb62759-753a-4be2-8546-a6e0de63e59a.8-x64";
+  sha256 = "db17656f222d371da5f96ed104e33503be16ca755817f126409b67d8009b1419";
 in
 pkgs.stdenvNoCC.mkDerivation {
   # reverse engineered via
