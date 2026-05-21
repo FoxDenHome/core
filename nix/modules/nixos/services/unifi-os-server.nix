@@ -55,7 +55,7 @@ in
           name
           ;
         oci = {
-          image = (lib.lists.head (lib.lists.head imageManifest).RepoTags);
+          image = "docker.io/library/${lib.lists.head (lib.lists.head imageManifest).RepoTags}";
           imageFile = pkgs.unifi-os-server-image;
           pull = "never";
           volumes = [
