@@ -28,13 +28,7 @@ pkgs.stdenvNoCC.mkDerivation {
   installPhase = ''
     set -euo pipefail
 
-    work="$PWD/work"
-    mkdir -p "$work"
-    cp "$src" "$work/unifi-os-installer"
-    chmod u+w "$work/unifi-os-installer"
-    cd "$work"
-
-    unzip ./unifi-os-installer image.tar || true >/dev/null
+    unzip "$src" image.tar || true >/dev/null
 
     if [ ! -f image.tar ]; then
       echo "Could not find embedded image.tar in UniFi OS installer" >&2
