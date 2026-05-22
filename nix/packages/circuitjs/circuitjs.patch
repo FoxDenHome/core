@@ -1,5 +1,5 @@
 diff --git a/build.gradle b/build.gradle
-index 77d3144..09f5736 100755
+index 68c34bb4..59d99c24 100755
 --- a/build.gradle
 +++ b/build.gradle
 @@ -21,9 +21,6 @@
@@ -12,7 +12,7 @@ index 77d3144..09f5736 100755
      dependencies {
          classpath("org.wisepersist:gwt-gradle-plugin:1.1.19")
      }
-@@ -36,19 +33,6 @@ plugins {
+@@ -36,20 +33,6 @@ plugins {
      //id 'war'                                      // 
  }
  
@@ -20,6 +20,7 @@ index 77d3144..09f5736 100755
 -repositories {
 -    //flatDir { dirs "lib" }        // use a (flat) filesystem directory as a repository
 -    mavenLocal()                    // use the your local Maven cache as a repository
+-    mavenCentral()                  // JUnit 5 and other OSS artifacts
 -    //mavenCentral()                // use MC for popular OSS Java libraries
 -    //jcenter()                     // use Bintray's JCenter for Maven OSS artifacts
 -    //google()                      // use Android-specific artifacts including the Android SDK
@@ -33,7 +34,7 @@ index 77d3144..09f5736 100755
      implementation 'com.google.gwt:gwt-user:2.9.0'
      implementation 'com.google.gwt:gwt-dev:2.9.0'
 diff --git a/war/circuitjs.html b/war/circuitjs.html
-index 7f50129..a84b6d2 100644
+index c7631600..63c5337a 100644
 --- a/war/circuitjs.html
 +++ b/war/circuitjs.html
 @@ -1,14 +1,14 @@
@@ -53,7 +54,7 @@ index 7f50129..a84b6d2 100644
  
  <style>
  .disabled {
-@@ -237,11 +237,7 @@ input.locked-column[readonly] {
+@@ -241,11 +241,7 @@ input.locked-column[readonly] {
    <!-- URL shortener relay configuration -->
    <!-- Uses local PHP on localhost, Cloudflare Worker on production -->
    <script>
@@ -67,7 +68,7 @@ index 7f50129..a84b6d2 100644
  
    <script language="javascript" src="lz-string.min.js"></script>
 diff --git a/war/manifest.json b/war/manifest.json
-index f8a79dc..793107e 100644
+index f8a79dc6..793107e7 100644
 --- a/war/manifest.json
 +++ b/war/manifest.json
 @@ -1,19 +1,19 @@
@@ -94,7 +95,7 @@ index f8a79dc..793107e 100644
        "type": "image/png"
      }
 diff --git a/war/service-worker.js b/war/service-worker.js
-index b7af0a8..fd473a2 100644
+index b7af0a81..fd473a28 100644
 --- a/war/service-worker.js
 +++ b/war/service-worker.js
 @@ -1,23 +1,23 @@
