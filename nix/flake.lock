@@ -72,11 +72,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1778894308,
+        "lastModified": 1779413867,
         "narHash": "sha256-PMxii4+gjrhRF4ThU0FcTiHcJEgEjWYCl87HlBm94n8=",
         "owner": "Doridian",
         "repo": "DarkSignsOnline",
-        "rev": "d708009adf5fedd0af51bf26b8fbbc9dd666f842",
+        "rev": "c5b3f6e26b615b4304f75d08d4b002de999e8a1e",
         "type": "github"
       },
       "original": {
@@ -198,11 +198,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1778881101,
-        "narHash": "sha256-hQAJ7wZVimGC3Rj8184EBzXz3QqMzkFIgYKlxEpmuwA=",
+        "lastModified": 1779413886,
+        "narHash": "sha256-hChdKkDypU/EIMI20EKQ0frwsWhq83uGqM6Czxhv63s=",
         "ref": "refs/heads/main",
-        "rev": "53b709f85346c2043c052ed600e7300cff9e6f77",
-        "revCount": 217,
+        "rev": "8e9f418096ce85eab48b6ddb9d2ece95d6dc2747",
+        "revCount": 218,
         "type": "git",
         "url": "https://git.foxden.network/FoxDen/foxIngress"
       },
@@ -407,11 +407,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1779396049,
-        "narHash": "sha256-v3QO0y0Rv71jxrinn99yewyCrv9zo2A9Jabo9Yf1cRs=",
+        "lastModified": 1779413883,
+        "narHash": "sha256-hjqxk7eZwpxfKE4mMMzZ0HMi3CQRb2zNrKZPeXVY1zQ=",
         "ref": "refs/heads/main",
-        "rev": "51342466ae3afcaf3ec73a68b2af4ce937966d7a",
-        "revCount": 196,
+        "rev": "dfe70a2754cdcee5c727929dee0e3a1799932199",
+        "revCount": 197,
         "type": "git",
         "url": "https://git.foxden.network/FoxDen/oauth-jit-radius"
       },
@@ -672,11 +672,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1778776468,
-        "narHash": "sha256-isKeSQ+XuaVk54m2pajpy9Dj/Gy1mUdKfJD9/nLtASA=",
+        "lastModified": 1779413914,
+        "narHash": "sha256-8qhZKxt+xXyhFIMM8tzkzMDRSQMWVcEkcfS9yHJ5yAs=",
         "ref": "refs/heads/main",
-        "rev": "a76a66f9f7ff5cb835177d7291b4e252fdee8db3",
-        "revCount": 167,
+        "rev": "25b7293e633bfc77737819e9579e701d0a8cc410",
+        "revCount": 168,
         "type": "git",
         "url": "https://git.foxden.network/FoxDen/superfan"
       },
@@ -710,11 +710,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1778881106,
-        "narHash": "sha256-Op1p6q9+8fZe5j03WVtbvyT20J3elNhokSsFqT8Asd0=",
+        "lastModified": 1779413878,
+        "narHash": "sha256-8cjsO72adt8ZP48owJnAuOQIAcMQBzFm2IQJd2UeSEU=",
         "ref": "refs/heads/main",
-        "rev": "952e7c136e973aa8240f34782d41400c9047b554",
-        "revCount": 545,
+        "rev": "83e6b0281ffc15045fc914552d062724730fbbdf",
+        "revCount": 546,
         "type": "git",
         "url": "https://git.foxden.network/FoxDen/tapemgr"
       },
@@ -733,11 +733,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1778881096,
-        "narHash": "sha256-82XTujuQtUV8RCCQl5VbJT85qYIT3nMIZ1xe3/2hoJw=",
+        "lastModified": 1779413891,
+        "narHash": "sha256-4SQhe7JjmCYzL0m4Qo1j4yTrEfXDN2uiD0wQRm3bt24=",
         "ref": "refs/heads/main",
-        "rev": "cb99e67d29a60ef2b3c6882904ce03ee0fb29323",
-        "revCount": 92,
+        "rev": "0e91cfce3178f12928b5dc68c4fb16c2fc8194b9",
+        "revCount": 93,
         "type": "git",
         "url": "https://git.foxden.network/FoxDen/uds-proxy"
       },
@@ -756,11 +756,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1779269674,
-        "narHash": "sha256-P1LHCRdYpdtHAEzuEsNHrI6d9mVPl5a2fyFDZGHNVbI=",
+        "lastModified": 1779411315,
+        "narHash": "sha256-IMFlxeyClau51KplhhSRGhdGTvD/knShHdybP1UOTuk=",
         "owner": "pyproject-nix",
         "repo": "uv2nix",
-        "rev": "69aec536f6d1acc415ed2e20299312802aba98c6",
+        "rev": "fdf2a76275d7a9c27deb5d2f2ab33526ac9052ff",
         "type": "github"
       },
       "original": {
