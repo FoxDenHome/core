@@ -43,7 +43,8 @@ pkgs.stdenvNoCC.mkDerivation {
       exit 1
     fi
 
-    cp --link "$image_tar" "$out"
+    mkdir -p "$out"
+    tar -xf "$image_tar" -C "$out"
   '';
 
   meta = with lib; {
