@@ -55,7 +55,7 @@ in
           name
           ;
         oci = {
-          image = lib.replaceString "blobs/sha256/" "sha256:" (lib.lists.head (lib.lists.head imageManifest).Config);
+          image = lib.replaceString "blobs/sha256/" "sha256:" (lib.lists.head imageManifest).Config;
           imageFile = pkgs.unifi-os-server-image;
           pull = "never";
           volumes = [
