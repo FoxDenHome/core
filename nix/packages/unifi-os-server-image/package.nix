@@ -35,7 +35,7 @@ pkgs.stdenvNoCC.mkDerivation {
     chmod u+w "$work/unifi-os-installer"
     cd "$work"
 
-    unzip ./unifi-os-installer >/dev/null
+    unzip ./unifi-os-installer || true >/dev/null
 
     image_tar="$(find . -type f -name image.tar | head -n1)"
     if [ -z "$image_tar" ]; then
