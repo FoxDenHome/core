@@ -21,7 +21,6 @@ pkgs.stdenvNoCC.mkDerivation {
   nativeBuildInputs = with pkgs; [
     unzip
     coreutils
-    findutils
   ];
 
   dontUnpack = true;
@@ -35,16 +34,15 @@ pkgs.stdenvNoCC.mkDerivation {
     chmod u+w "$work/unifi-os-installer"
     cd "$work"
 
-    unzip ./unifi-os-installer || true >/dev/null
+    unzip ./unifi-os-installer image.tar || true >/dev/null
 
-    image_tar="$(find . -type f -name image.tar | head -n1)"
-    if [ -z "$image_tar" ]; then
+    if [ ! -f image.tar ]; then
       echo "Could not find embedded image.tar in UniFi OS installer" >&2
       exit 1
     fi
 
     mkdir -p "$out"
-    tar -xf "$image_tar" -C "$out"
+    tar -xf image.tar -C "$out"
   '';
 
   meta = with lib; {
