@@ -31,6 +31,8 @@ let
     foxDenLib.util.removeIPCidr (
       lib.findFirst (ip: foxDenLib.util.isIPv4 ip && foxDenLib.util.isPrivateIP ip) "" iface.addresses
     );
+
+  imageManifest = lib.importJSON "${pkgs.unifi-os-server-image}/manifest.json";
 in
 {
   # Based on:
@@ -53,6 +55,7 @@ in
           name
           ;
         oci = {
+          image = (lib.lists.head (lib.lists.head imageManifest).RepoTags);
           imageFile = pkgs.unifi-os-server-image;
           pull = "never";
           volumes = [
