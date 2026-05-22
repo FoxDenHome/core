@@ -19,8 +19,9 @@ pkgs.stdenvNoCC.mkDerivation {
   };
 
   nativeBuildInputs = with pkgs; [
-    unzip
     coreutils
+    unzip
+    gnutar
   ];
 
   dontUnpack = true;
