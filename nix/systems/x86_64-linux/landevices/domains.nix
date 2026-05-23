@@ -29,6 +29,21 @@
     };
   };
 
+  config.foxDen.dns.records = [
+    {
+      fqdn = "ping.wifilogin.org";
+      type = "CNAME";
+      value = "deyhdso7blgcp.cloudfront.net";
+      horizon = "*";
+    }
+    {
+      fqdn = "_cf10a4931031653818d260f48ba096d8.ping.wifilogin.org";
+      type = "CNAME";
+      value = "_fe975e472c21c1885b6ba93313e2187e.jkddzztszm.acm-validations.aws";
+      horizon = "*";
+    }
+  ];
+
   config.foxDen.dns.authorities = {
     default = {
       admin = "hostmaster@doridian.net";
