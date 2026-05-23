@@ -16,6 +16,7 @@
       generateNSRecords = true;
     };
     "foxcav.es" = { };
+    "wifilogin.org" = { };
 
     "e.b.3.6.b.c.4.f.c.2.d.f.ip6.arpa" = {
       registrar = "local";
