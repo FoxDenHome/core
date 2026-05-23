@@ -201,7 +201,7 @@ let
       if zone.generateNSRecords then
         (builtins.genList (idx: [
           {
-            fqdn = "ns${builtins.toString (idx + 1)}.${fqdn}";
+            fqdn = "ns${toString (idx + 1)}.${fqdn}";
             type = "ALIAS";
             ttl = 86400;
             value = builtins.elemAt authorities.upstream.nameservers idx;
@@ -214,7 +214,7 @@ let
 in
 {
   nixosModule =
-    { config, ... }:
+    { ... }:
     {
       options.foxDen.dns.records =
         with lib.types;
