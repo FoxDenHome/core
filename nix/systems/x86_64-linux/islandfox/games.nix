@@ -14,7 +14,7 @@ in
       host = "darksignsonline";
     };
     factorio = {
-      enable = false;
+      enable = true;
       host = "factorio";
     };
     minecraft = {
