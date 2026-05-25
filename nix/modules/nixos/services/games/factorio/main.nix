@@ -3,6 +3,7 @@
   pkgs,
   lib,
   config,
+  systemArch,
   ...
 }:
 let
@@ -41,12 +42,24 @@ in
           autosave-interval = 5;
           nonBlockingSaving = true;
 
-          mods = # TODO: Replace this insanity with an actual mod downloader
+          mods =
             let
               modToDrv =
                 modInfo:
-                (pkgs.fetchurl {
-                  url = modInfo.url;
+                (derivation rec {
+                  name = "${modInfo.name}-${modInfo.version}.zip";
+                  builder = pkgs.writeShellScript "download-mod.sh" ''
+                    set -euo pipefail
+                    NAME="$1"
+                    URL="$2"
+
+                    ${pkgs.wget}/bin/wget -q -O "$NAME" "$URL?$FACTORIO_AUTH"
+                  '';
+                  args = [
+                    name
+                    modInfo.url
+                  ];
+                  system = systemArch;
                   hash = "sha1:${modInfo.sha1}";
                 })
                 // {

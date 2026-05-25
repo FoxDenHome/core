@@ -18,7 +18,7 @@ let
 
   geofeedText = ''
     # Doridian Network geofeed according to RFC 8805
-    # Number of networks: ${builtins.toString (lib.length subnets)}
+    # Number of networks: ${toString (lib.length subnets)}
     # Content SHA256 hash (excluding comments): ${builtins.hashString "sha256" geofeedData}
   ''
   + geofeedData

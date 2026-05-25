@@ -8,9 +8,7 @@ let
   isNixFile =
     path: nixpkgs.lib.filesystem.pathIsRegularFile path && nixpkgs.lib.strings.hasSuffix ".nix" path;
 
-  mkRelPath = (
-    root: path: nixpkgs.lib.strings.removePrefix (builtins.toString root + "/") (builtins.toString path)
-  );
+  mkRelPath = root: path: nixpkgs.lib.strings.removePrefix (toString root + "/") (toString path);
 
   mkModuleList = (
     dir: (nixpkgs.lib.filter isNixFile (nixpkgs.lib.filesystem.listFilesRecursive dir))
@@ -171,6 +169,7 @@ let
                 config.allowUnfree = true;
               };
               nix.settings.experimental-features = [
+                "configurable-impure-env"
                 "nix-command"
                 "flakes"
               ];

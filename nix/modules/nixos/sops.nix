@@ -20,7 +20,7 @@ in
   config = lib.mkMerge [
     {
       lib.foxDen.sops = {
-        inherit mkIfAvailable mkGithubTokenPath;
+        inherit mkIfAvailable mkGithubTokenPath sharedSopsFile;
       };
     }
     (mkIfAvailable {

@@ -20,79 +20,92 @@
             "name": "AutoDeconstruct",
             "enabled": true,
             "sha1": "621977575bba086737b2807dc9bd7d670412fd28",
-            "url": "https://mods.factorio.com/download/AutoDeconstruct/69a0d19734a726c6c089b0ea"
+            "url": "https://mods.factorio.com/download/AutoDeconstruct/69a0d19734a726c6c089b0ea",
+            "version": "1.0.12"
         },
         {
             "name": "DiscoScience",
             "enabled": true,
             "sha1": "3542fd4fa3454c5a0eb1753f1b54c2c2f4d60537",
-            "url": "https://mods.factorio.com/download/DiscoScience/671e62148e2875ce5b1a67b0"
+            "url": "https://mods.factorio.com/download/DiscoScience/671e62148e2875ce5b1a67b0",
+            "version": "2.0.1"
         },
         {
             "name": "even-distribution",
             "enabled": true,
             "sha1": "9b40a59408b7cef0832e55384413ed4e6efe251c",
-            "url": "https://mods.factorio.com/download/even-distribution/6717f7ef79bf4bb954bf7731"
+            "url": "https://mods.factorio.com/download/even-distribution/6717f7ef79bf4bb954bf7731",
+            "version": "2.0.2"
         },
         {
             "name": "even-pickier-dollies",
             "enabled": true,
             "sha1": "4245caedab03bdb1a503459aa447a0b364054f29",
-            "url": "https://mods.factorio.com/download/even-pickier-dollies/69f19a927a48d49ee413cbf6"
+            "url": "https://mods.factorio.com/download/even-pickier-dollies/69f19a927a48d49ee413cbf6",
+            "version": "2.7.3"
         },
         {
             "name": "flib",
             "enabled": true,
             "sha1": "be7ce1b5c9477ad3161df120a379aec091b86f77",
-            "url": "https://mods.factorio.com/download/flib/690aa58f2da58c0b75aadd06"
+            "url": "https://mods.factorio.com/download/flib/690aa58f2da58c0b75aadd06",
+            "version": "0.16.5"
         },
         {
             "name": "fox-todo",
             "enabled": true,
             "sha1": "e06cd7595ca43288ae1d05d42a089a6c706ed519",
-            "url": "https://mods.factorio.com/download/fox-todo/67724381edd84cc515ab0c8a"
+            "url": "https://mods.factorio.com/download/fox-todo/67724381edd84cc515ab0c8a",
+            "version": "2.1.3"
         },
         {
             "name": "LogisticTrainNetwork",
             "enabled": true,
             "sha1": "92f2c2e6fefbc5abf9e6f594459ec09baf4dca37",
-            "url": "https://mods.factorio.com/download/LogisticTrainNetwork/6a13a07ff7581ee0b776b2de"
+            "url": "https://mods.factorio.com/download/LogisticTrainNetwork/6a13a07ff7581ee0b776b2de",
+            "version": "2.7.1"
         },
         {
             "name": "LtnManager",
             "enabled": true,
             "sha1": "82c6fd0220b7c227e1694464058a6f3681b07f39",
-            "url": "https://mods.factorio.com/download/LtnManager/697f3922ef8682ca56526aa6"
+            "url": "https://mods.factorio.com/download/LtnManager/697f3922ef8682ca56526aa6",
+            "version": "0.5.1"
         },
         {
             "name": "LTN_Combinator_Modernized",
             "enabled": true,
             "sha1": "070acbdc65457c819eee1014f30735974e4eb9fc",
-            "url": "https://mods.factorio.com/download/LTN_Combinator_Modernized/69417990363f351ae96da8f1"
+            "url": "https://mods.factorio.com/download/LTN_Combinator_Modernized/69417990363f351ae96da8f1",
+            "version": "2.2.7"
         },
         {
             "name": "nixie-tubes",
             "enabled": true,
             "sha1": "041fe76e90a0cdc11faf16fc0abcb1c226e4577a",
-            "url": "https://mods.factorio.com/download/nixie-tubes/690e454d0eda518e4e17625d"
+            "url": "https://mods.factorio.com/download/nixie-tubes/690e454d0eda518e4e17625d",
+            "version": "2.0.9"
         },
         {
             "name": "pause-commands",
             "enabled": true,
             "sha1": "f0efacd825d0352c2be5798381fd07851a35d51f",
-            "url": "https://mods.factorio.com/download/pause-commands/671c2b27024d2c6312ae9be3"
+            "url": "https://mods.factorio.com/download/pause-commands/671c2b27024d2c6312ae9be3",
+            "version": "2.0.1"
         },
         {
             "name": "squeak-through-2",
             "enabled": true,
             "sha1": "3f10fd9abb945efd96f95d8efea6bbdd7991c808",
-            "url": "https://mods.factorio.com/download/squeak-through-2/69e99fed55a9cf0e831988d2"
+            "url": "https://mods.factorio.com/download/squeak-through-2/69e99fed55a9cf0e831988d2",
+            "version": "0.1.5"
         },
         {
             "name": "textplates",
             "enabled": true,
             "sha1": "d1d6962c72abd0580394cdbd3a75b679fb87ab26",
-            "url": "https://mods.factorio.com/download/textplates/6796fc904636ff3e9ca2f3ae"
+            "url": "https://mods.factorio.com/download/textplates/6796fc904636ff3e9ca2f3ae",
+            "version": "0.7.2"
         }
     ]
 }

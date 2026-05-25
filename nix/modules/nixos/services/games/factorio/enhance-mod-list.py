@@ -34,6 +34,7 @@ for mod in mod_list["mods"]:
     release = get_mod_latest_release(mod_info)
     mod["sha1"] = release["sha1"]
     mod["url"] = f"https://mods.factorio.com{release['download_url']}"
+    mod["version"] = release["version"]
 
 with open(FILE, "w") as f:
     json.dump(mod_list, f, indent=4)

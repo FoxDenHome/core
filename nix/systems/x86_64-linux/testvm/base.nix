@@ -42,4 +42,11 @@
       "nofail"
     ];
   };
+
+  foxDen.services = {
+    factorio = {
+      enable = true;
+      host = "";
+    };
+  };
 }
