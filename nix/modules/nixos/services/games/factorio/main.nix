@@ -46,21 +46,17 @@ in
             let
               modToDrv =
                 modInfo:
-                (derivation rec {
+                (derivation {
                   name = "${modInfo.name}-${modInfo.version}.zip";
                   builder = pkgs.writeShellScript "download-mod.sh" ''
-                    set -euo pipefail
-                    NAME="$1"
-                    URL="$2"
-
-                    ${pkgs.wget}/bin/wget -q -O "$NAME" "$URL?$FACTORIO_AUTH"
+                    ${pkgs.wget}/bin/wget -q -O "$out" "$1?$FACTORIO_AUTH"
                   '';
                   args = [
-                    name
                     modInfo.url
                   ];
                   system = systemArch;
                   hash = "sha1:${modInfo.sha1}";
+                  impureEnvVars = [ "FACTORIO_AUTH" ];
                 })
                 // {
                   deps = [ ];
