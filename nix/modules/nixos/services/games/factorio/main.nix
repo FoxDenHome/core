@@ -49,7 +49,7 @@ in
                 (derivation {
                   name = "${modInfo.name}-${modInfo.version}.zip";
                   builder = pkgs.writeShellScript "download-mod.sh" ''
-                    ${pkgs.wget}/bin/wget -q -O "$out" "$1?$FACTORIO_AUTH"
+                    ${pkgs.wget}/bin/wget -O "$out" "$1?$FACTORIO_AUTH"
                   '';
                   args = [
                     modInfo.url
