@@ -64,7 +64,7 @@ in
               modToDrv =
                 modInfo:
                 let
-                  name = "${modInfo.name}-${modInfo.version}.zip";
+                  name = "${modInfo.name}_${modInfo.version}.zip";
                 in
                 (derivation {
                   inherit name;
