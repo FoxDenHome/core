@@ -45,9 +45,12 @@ in
             let
               modToDrv =
                 modInfo:
-                pkgs.fetchurl {
+                (pkgs.fetchurl {
                   url = modInfo.url;
                   hash = "sha1:${modInfo.sha1}";
+                })
+                // {
+                  deps = [ ];
                 };
             in
             map modToDrv modList;
