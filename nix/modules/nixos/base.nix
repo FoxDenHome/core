@@ -110,6 +110,7 @@
     };
     git.enable = true;
     htop.enable = true;
+    mosh.enable = true;
     nix-ld.enable = true;
     tcpdump.enable = true;
     ssh = {
