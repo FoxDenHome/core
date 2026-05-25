@@ -6,6 +6,10 @@
   ...
 }:
 let
+  # mod-list.json is a stock Factorio mod-list JSON except with added hashes to download the right version
+  modListRaw = (builtins.fromJSON (builtins.readFile ./mod-list.json)).mods;
+  modList = lib.filter (mod: mod.enabled && builtins.hasAttr "url" mod) modListRaw;
+
   services = foxDenLib.services;
 
   svcConfig = config.foxDen.services.factorio;
@@ -39,30 +43,14 @@ in
 
           mods = # TODO: Replace this insanity with an actual mod downloader
             let
-              modDir = ./factorio-mods;
-              modList = lib.pipe modDir [
-                builtins.readDir
-                (lib.filterAttrs (k: v: v == "regular"))
-                (lib.mapAttrsToList (k: v: k))
-                (builtins.filter (lib.hasSuffix ".zip"))
-              ];
-              validPath =
-                modFileName:
-                builtins.path {
-                  path = modDir + "/${modFileName}";
-                  name = lib.strings.sanitizeDerivationName modFileName;
-                };
               modToDrv =
-                modFileName:
-                pkgs.runCommand "copy-factorio-mods" { } ''
-                  mkdir $out
-                  ln -s '${validPath modFileName}' $out/'${modFileName}'
-                ''
-                // {
-                  deps = [ ];
+                modInfo:
+                pkgs.fetchurl {
+                  url = modInfo.url;
+                  hash = "sha1:${modInfo.sha1}";
                 };
             in
-            builtins.map modToDrv modList;
+            map modToDrv modList;
         };
       }
     ]
