@@ -15,6 +15,7 @@
 
   nix.settings = {
     experimental-features = [
+      "configurable-impure-env"
       "nix-command"
       "flakes"
     ];
