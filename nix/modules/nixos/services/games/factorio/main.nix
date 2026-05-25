@@ -44,30 +44,37 @@ in
 
           mods =
             let
-              fetchMod = modInfo: derivation {
-                builder = pkgs.writeShellScript "download-mod.sh" ''
-                  set -euo pipefail
-                  ${pkgs.wget}/bin/wget -O "$out" "$1?$FACTORIO_AUTH"
-                '';
-                args = [
-                  modInfo.url
-                ];
-                system = systemArch;
-                outputHashAlgo = "sha1";
-                outputHash = modInfo.sha1;
-                impureEnvVars = [ "FACTORIO_AUTH" ];
-              };
-              
+              fetchMod =
+                name: modInfo:
+                derivation {
+                  inherit name;
+                  builder = pkgs.writeShellScript "download-mod.sh" ''
+                    set -euo pipefail
+                    ${pkgs.wget}/bin/wget -O "$out" "$1?$FACTORIO_AUTH"
+                  '';
+                  args = [
+                    modInfo.url
+                  ];
+                  system = systemArch;
+                  outputHashAlgo = "sha1";
+                  outputHash = modInfo.sha1;
+                  impureEnvVars = [ "FACTORIO_AUTH" ];
+                };
+
               modToDrv =
                 modInfo:
-                (derivation {
+                let
                   name = "${modInfo.name}-${modInfo.version}.zip";
-                  src = fetchMod modInfo;
+                in
+                (derivation {
+                  inherit name;
+                  src = fetchMod "download-${name}" modInfo;
                   builder = pkgs.writeShellScript "symlink-mod.sh" ''
                     set -euo pipefail
                     ${pkgs.coreutils}/bin/mkdir -p "$out"
                     ${pkgs.coreutils}/bin/ln -s "$src" "$out/$name"
                   '';
+                  system = systemArch;
                 })
                 // {
                   deps = [ ];
