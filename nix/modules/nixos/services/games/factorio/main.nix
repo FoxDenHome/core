@@ -55,7 +55,8 @@ in
                     modInfo.url
                   ];
                   system = systemArch;
-                  hash = "sha1:${modInfo.sha1}";
+                  outputHashAlgo = "sha1";
+                  outputHash = modInfo.sha1;
                   impureEnvVars = [ "FACTORIO_AUTH" ];
                 })
                 // {
