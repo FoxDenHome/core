@@ -1,0 +1,23 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        "#Q#",
+        "QGQ",
+        "#Q#"
+    ],
+    "key": {
+        "#": {
+            "item": "minecraft:netherite_scrap"
+        },
+        "Q": {
+            "item": "minecraft:quartz"
+        },
+        "G": {
+            "item": "minecraft:gold_block"
+        }
+    },
+    "result": {
+        "item": "minecraft:nether_star",
+        "count": 1
+    }
+}
