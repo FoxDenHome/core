@@ -26,13 +26,8 @@ let
 
   name = "unifi-os-server";
 
-  ifaceFirstV4 =
-    iface:
-    foxDenLib.util.removeIPCidr (
-      lib.findFirst (ip: foxDenLib.util.isIPv4 ip && foxDenLib.util.isPrivateIP ip) "" iface.addresses
-    );
-
-  imageManifest = lib.importJSON "${pkgs.unifi-os-server-image}/manifest.json";
+  imagePackage = pkgs.unifi-os-server-image;
+  imageManifest = lib.importJSON "${imagePackage}/manifest.json";
 in
 {
   # Based on:
@@ -54,7 +49,7 @@ in
           ;
         oci = {
           image = lib.replaceString "blobs/sha256/" "sha256:" (lib.lists.head imageManifest).Config;
-          imageFile = pkgs.unifi-os-server-image;
+          imageFile = imagePackage;
           pull = "never";
           volumes = [
             "${stateDir}/persistent:/persistent"
@@ -68,7 +63,7 @@ in
             "${dbusStartFix}:/etc/dbus-1/session.d/start-fix.conf:ro"
           ];
           environment = {
-            APP_VERSION = "v${pkgs.unifi-os-server-image.version}";
+            APP_VERSION = "v${imagePackage.version}";
             APP_MODEL = "UOSSERVER";
             PRODUCT_NAME = "uosserver";
             FIRMWARE_PLATFORM = if pkgs.stdenv.hostPlatform.isAarch64 then "linux-arm64" else "linux-x64";
