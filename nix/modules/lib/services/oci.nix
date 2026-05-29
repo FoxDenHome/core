@@ -15,6 +15,7 @@ let
     (
       let
         host = foxDenLib.hosts.getByName config svcConfig.host;
+        hostName = foxDenLib.services.getFirstFQDN config svcConfig;
         dependency = [ host.unit ];
         forwardGpu = gpu && !config.hardware.nvidia-container-toolkit.enable;
       in
@@ -25,6 +26,7 @@ let
               autoStart = nixpkgs.lib.mkDefault true;
               pull = nixpkgs.lib.mkDefault "always";
               networks = [ "host" ];
+              hostname = nixpkgs.lib.mkDefault hostName;
 
               volumes = [
                 "/etc/localtime:/etc/localtime:ro"
