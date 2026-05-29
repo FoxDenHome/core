@@ -68,8 +68,9 @@ in
             "${dbusStartFix}:/etc/dbus-1/session.d/start-fix.conf:ro"
           ];
           environment = {
-            UOS_SYSTEM_IP = ifaceFirstV4 config.foxDen.hosts.hosts.${svcConfig.host}.interfaces.default;
-            UOS_SERVER_VERSION = pkgs.unifi-os-server-image.version;
+            APP_VERSION = "v${pkgs.unifi-os-server-image.version}";
+            APP_MODEL = "UOSSERVER";
+            PRODUCT_NAME = "uosserver";
             FIRMWARE_PLATFORM = if pkgs.stdenv.hostPlatform.isAarch64 then "linux-arm64" else "linux-x64";
           };
           extraOptions = [
