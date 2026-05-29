@@ -29,15 +29,16 @@ pkgs.stdenvNoCC.mkDerivation {
   installPhase = ''
     set -euo pipefail
 
-    unzip "$src" image.tar || true >/dev/null
+    unzip "$src" image.tar mounts.json || true >/dev/null
 
-    if [ ! -f image.tar ]; then
-      echo "Could not find embedded image.tar in UniFi OS installer" >&2
+    if [ ! -f image.tar ] || [ ! -f mounts.json ]; then
+      echo "Could not find embedded image.tar or mounts.json in UniFi OS installer" >&2
       exit 1
     fi
 
     mkdir -p "$out"
-    chmod 644 image.tar
+    chmod 644 image.tar mounts.json
+    cp mounts.json "$out/mounts.json"
     tar -xf image.tar -C "$out"
   '';
 
