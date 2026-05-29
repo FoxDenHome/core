@@ -1,5 +1,20 @@
 { foxDenLib, ... }:
 {
+  config.foxDen.dns.records = [
+    {
+      fqdn = "_acme-challenge.nvr.foxden.network";
+      type = "TXT";
+      value = "XHxRe6IfpcztkycnCwbrxTatbC5aJNwVdxAh2j4A74g";
+      horizon = "*";
+    }
+    {
+      fqdn = "_acme-challenge.unifi.foxden.network";
+      type = "TXT";
+      value = "VCIULpwpwgw91I1vacWC0UpSV6JbrYDzOkeSjmDQ1mg";
+      horizon = "*";
+    }
+  ];
+
   config.foxDen.hosts.hosts =
     let
       mkIntf = (
