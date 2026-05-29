@@ -4,9 +4,9 @@
   ...
 }:
 let
-  version = "5.0.8";
-  url = "https://fw-download.ubnt.com/data/unifi-os-server/c2e4-linux-x64-5.0.8-bcb62759-753a-4be2-8546-a6e0de63e59a.8-x64";
-  sha256 = "db17656f222d371da5f96ed104e33503be16ca755817f126409b67d8009b1419";
+  version = "5.1.15";
+  url = "https://fw-download.ubnt.com/data/unifi-os-server/24e0-linux-x64-5.1.15-926621de-c9d7-48cd-8921-a0ff3eebd3f4.15-x64";
+  sha256 = "04c8e401eb34330fe99d94f35aa351e0e0e97895f0d9a4b459ff34fb50cad2bb";
 in
 pkgs.stdenvNoCC.mkDerivation {
   # reverse engineered via
@@ -37,6 +37,7 @@ pkgs.stdenvNoCC.mkDerivation {
     fi
 
     mkdir -p "$out"
+    chmod 644 image.tar
     tar -xf image.tar -C "$out"
   '';
 
