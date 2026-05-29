@@ -28,6 +28,21 @@ let
 
   imagePackage = pkgs.unifi-os-server-image;
   imageManifest = lib.importJSON "${imagePackage}/manifest.json";
+
+  eSA = lib.strings.escapeShellArg;
+  allVolumes =
+    let
+      mountsJson = lib.importJSON "${imagePackage}/mounts.json";
+      mkAppVolumes =
+        app: volumes: lib.mapAttrsToList (name: mount: "${stateDir}/${app}/${name}:${mount}") volumes;
+    in
+    [
+      "${stateDir}/persistent:/persistent"
+      "${stateDir}/log:/var/log"
+      "${stateDir}/data:/data"
+      "${stateDir}/srv:/srv"
+    ]
+    ++ (lib.concatMap (app: mkAppVolumes app mountsJson.${app}) (lib.attrNames mountsJson));
 in
 {
   # Based on:
@@ -51,18 +66,15 @@ in
           image = lib.replaceString "blobs/sha256/" "sha256:" (lib.lists.head imageManifest).Config;
           imageFile = imagePackage;
           pull = "never";
-          volumes = [
-            "${stateDir}/persistent:/persistent"
-            "${stateDir}/log:/var/log"
-            "${stateDir}/data:/data"
-            "${stateDir}/srv:/srv"
-            "${stateDir}/unifi:/var/lib/unifi"
-            "${stateDir}/mongodb:/var/lib/mongodb"
-            "${stateDir}/rabbitmq-ssl:/etc/rabbitmq/ssl"
-            "${mongoPreStartFix}:/etc/systemd/system/mongodb.service.d/prestart-fix.conf:ro"
-            "${dbusStartFix}:/etc/dbus-1/system.d/start-fix.conf:ro"
-            "${dbusStartFix}:/etc/dbus-1/session.d/start-fix.conf:ro"
-          ];
+          volumes =
+            let
+            in
+            [
+              "${mongoPreStartFix}:/etc/systemd/system/mongodb.service.d/prestart-fix.conf:ro"
+              "${dbusStartFix}:/etc/dbus-1/system.d/start-fix.conf:ro"
+              "${dbusStartFix}:/etc/dbus-1/session.d/start-fix.conf:ro"
+            ]
+            ++ allVolumes;
           environment = {
             APP_VERSION = "v${imagePackage.version}";
             APP_MODEL = "UOSSERVER";
@@ -75,7 +87,9 @@ in
         };
         systemd = {
           preStart = lib.mkAfter ''
-            ${pkgs.coreutils}/bin/mkdir -p ${stateDir}/{persistent,log,data,srv,unifi,mongodb,rabbitmq-ssl,data/unifi-core/config/http,log/nginx,log/mongodb}
+            ${pkgs.coreutils}/bin/mkdir -p ${
+              lib.concatStringsSep " " (map (vol: eSA (lib.head (lib.splitString ":" vol))) allVolumes)
+            } ${stateDir}/{data/unifi-core/config/http,log/nginx,log/mongodb}
 
             # The Java UniFi controller requires exactly UUID v5 (SHA-1 name-based).
             # Generate a stable v5 UUID derived from the machine-id.
