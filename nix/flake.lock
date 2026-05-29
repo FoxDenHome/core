@@ -72,11 +72,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1779645249,
-        "narHash": "sha256-PMxii4+gjrhRF4ThU0FcTiHcJEgEjWYCl87HlBm94n8=",
+        "lastModified": 1779907469,
+        "narHash": "sha256-ui8jRVcf5wHNnDw441fZ4jGyVf44L0IIeSdWeldzqRo=",
         "owner": "Doridian",
         "repo": "DarkSignsOnline",
-        "rev": "b9c73fe8b2eab2701de0b25a582ea38fe99b0d4f",
+        "rev": "38494ab877a43c1db194400fe019e2d97a9a9fec",
         "type": "github"
       },
       "original": {
@@ -383,11 +383,11 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1779467186,
-        "narHash": "sha256-nOesoDCiXcUftqbRBMz9tt4blI5PvljMWbm3kuCA+0s=",
+        "lastModified": 1779796641,
+        "narHash": "sha256-ZsIrKmhp4vbBXoXXmR/tBXA/UCsAQiJL9vsgZEduhVY=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "b77b3de8775677f84492abe84635f87b0e153f0f",
+        "rev": "25f538306313eae3927264466c70d7001dcea1df",
         "type": "github"
       },
       "original": {
