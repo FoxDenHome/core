@@ -58,6 +58,7 @@ in
             "${stateDir}/srv:/srv"
             "${stateDir}/unifi:/var/lib/unifi"
             "${stateDir}/mongodb:/var/lib/mongodb"
+            "${stateDir}/rabbitmq-ssl:/etc/rabbitmq/ssl"
             "${mongoPreStartFix}:/etc/systemd/system/mongodb.service.d/prestart-fix.conf:ro"
             "${dbusStartFix}:/etc/dbus-1/system.d/start-fix.conf:ro"
             "${dbusStartFix}:/etc/dbus-1/session.d/start-fix.conf:ro"
@@ -74,7 +75,7 @@ in
         };
         systemd = {
           preStart = lib.mkAfter ''
-            ${pkgs.coreutils}/bin/mkdir -p ${stateDir}/{persistent,log,data,srv,unifi,mongodb,data/unifi-core/config/http,log/nginx,log/mongodb}
+            ${pkgs.coreutils}/bin/mkdir -p ${stateDir}/{persistent,log,data,srv,unifi,mongodb,rabbitmq-ssl,data/unifi-core/config/http,log/nginx,log/mongodb}
 
             # The Java UniFi controller requires exactly UUID v5 (SHA-1 name-based).
             # Generate a stable v5 UUID derived from the machine-id.
