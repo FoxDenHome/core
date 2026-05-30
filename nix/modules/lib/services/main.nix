@@ -103,7 +103,7 @@ let
               let
                 hostFQDN = getFirstFQDNHost config cfgHostName;
               in
-              if cfgHostName != "" && hostFQDN != null then "yes:${hostFQDN}" else "yes";
+              lib.mkForce (if cfgHostName != "" && hostFQDN != null then "yes:${hostFQDN}" else "yes");
 
             Restart = lib.mkDefault "always";
             RestartSec = lib.mkForce "1s";
