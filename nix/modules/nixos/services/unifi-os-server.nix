@@ -9,11 +9,8 @@ let
   user = config.users.users.unifi-os-server;
   svcConfig = config.foxDen.services.unifi-os-server;
   stateDir = user.home;
-
   name = "unifi-os-server";
-
   imagePackage = pkgs.unifi-os-server-image;
-  imageVolumes = imagePackage.oci.volumes stateDir;
 in
 {
   # Based on:
