@@ -81,7 +81,7 @@ in
           });
         '';
 
-        systemd.services.polkit.serviceConfig.PrivateUsers = "full";
+        systemd.services.polkit.serviceConfig.PrivateUsers = lib.mkForce "full";
 
         environment.etc."foxden/aurbuild/rsyncd.conf" = {
           text = ''
