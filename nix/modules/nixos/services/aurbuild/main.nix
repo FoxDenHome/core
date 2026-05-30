@@ -81,6 +81,8 @@ in
           });
         '';
 
+        systemd.services.polkit.serviceConfig.PrivateUsers = "full";
+
         environment.etc."foxden/aurbuild/rsyncd.conf" = {
           text = ''
             use chroot = no
