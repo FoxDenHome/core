@@ -35,8 +35,8 @@ in
             image
             imageFile
             environment
-            volumes
             ;
+          volumes = imagePackage.oci.mkVolumes stateDir;
 
           pull = "never";
           extraOptions = [

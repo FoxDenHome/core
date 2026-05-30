@@ -55,7 +55,7 @@ let
         FIRMWARE_PLATFORM = if pkgs.stdenv.hostPlatform.isAarch64 then "linux-arm64" else "linux-x64";
       };
 
-      volumes =
+      mkVolumes =
         rootDir:
         let
           mountsJson = lib.importJSON "${imagePkg}/mounts.json";
