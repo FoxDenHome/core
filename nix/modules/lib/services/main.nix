@@ -1,8 +1,8 @@
-{ nixpkgs, foxDenLib, ... }:
+{ lib, foxDenLib, ... }:
 let
   mkEtcPaths = (
     paths:
-    nixpkgs.lib.flatten (
+    lib.flatten (
       map (path: [
         ("-/etc/" + path)
         ("-/etc/static/" + path)
@@ -10,12 +10,14 @@ let
     )
   );
 
+  headOrNull = list: if list == [ ] then null else lib.lists.head list;
+
   getPrimaryInterfaceHost =
     config: host:
     let
       hostCfg = foxDenLib.hosts.getByName config host;
     in
-    nixpkgs.lib.lists.head (nixpkgs.lib.attrsets.attrValues hostCfg.interfaces);
+    headOrNull (lib.attrsets.attrValues hostCfg.interfaces);
 
   getPrimaryInterface = config: svcConfig: getPrimaryInterfaceHost config svcConfig.host;
 
@@ -24,7 +26,7 @@ let
     let
       primaryInterface = getPrimaryInterfaceHost config host;
     in
-    nixpkgs.lib.lists.head primaryInterface.dns.fqdns;
+    headOrNull (primaryInterface.dns.fqdns);
 
   getFirstFQDN = config: svcConfig: getFirstFQDNHost config svcConfig.host;
 
@@ -90,24 +92,24 @@ let
           after = dependency;
 
           environment = if canGpu then config.foxDen.services.gpu.environment else { };
-          startLimitIntervalSec = nixpkgs.lib.mkForce 0;
+          startLimitIntervalSec = lib.mkForce 0;
 
           serviceConfig = {
-            NetworkNamespacePath = nixpkgs.lib.mkIf (cfgHostName != "") host.namespacePath;
+            NetworkNamespacePath = lib.mkIf (cfgHostName != "") host.namespacePath;
             ProtectProc = "invisible";
             ProtectHostname =
               let
-                hostFQDNTry = builtins.tryEval (getFirstFQDNHost config cfgHostName);
+                hostFQDN = getFirstFQDNHost config cfgHostName;
               in
-              if cfgHostName != "" && hostFQDNTry.success then "yes:${hostFQDNTry.value}" else "yes";
+              if cfgHostName != "" && hostFQDN != null then "yes:${hostFQDN}" else "yes";
 
-            Restart = nixpkgs.lib.mkDefault "always";
-            RestartSec = nixpkgs.lib.mkForce "1s";
-            RestartMaxDelaySec = nixpkgs.lib.mkForce "5m";
-            RestartSteps = nixpkgs.lib.mkForce 10;
+            Restart = lib.mkDefault "always";
+            RestartSec = lib.mkForce "1s";
+            RestartMaxDelaySec = lib.mkForce "5m";
+            RestartSteps = lib.mkForce 10;
 
-            DevicePolicy = nixpkgs.lib.mkForce "closed";
-            PrivateDevices = nixpkgs.lib.mkForce true;
+            DevicePolicy = lib.mkForce "closed";
+            PrivateDevices = lib.mkForce true;
             DeviceAllow = map (dev: "${dev} rw") allDevices;
             BindPaths = map (dev: "-${dev}") allDevices;
 
@@ -151,9 +153,9 @@ in
   mkOptions =
     { name, ... }:
     {
-      enable = nixpkgs.lib.mkEnableOption name;
-      host = nixpkgs.lib.mkOption {
-        type = nixpkgs.lib.types.str;
+      enable = lib.mkEnableOption name;
+      host = lib.mkOption {
+        type = lib.types.str;
       };
     };
 
@@ -187,16 +189,16 @@ in
       };
 
       options.foxDen.services.gpu = {
-        devices = nixpkgs.lib.mkOption {
-          type = nixpkgs.lib.types.listOf nixpkgs.lib.types.str;
+        devices = lib.mkOption {
+          type = lib.types.listOf lib.types.str;
           default = [ ];
         };
-        paths = nixpkgs.lib.mkOption {
-          type = nixpkgs.lib.types.listOf nixpkgs.lib.types.str;
+        paths = lib.mkOption {
+          type = lib.types.listOf lib.types.str;
           default = [ ];
         };
-        environment = nixpkgs.lib.mkOption {
-          type = nixpkgs.lib.types.attrsOf nixpkgs.lib.types.str;
+        environment = lib.mkOption {
+          type = lib.types.attrsOf lib.types.str;
           default = { };
         };
       };
