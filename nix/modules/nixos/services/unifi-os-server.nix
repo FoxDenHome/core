@@ -41,7 +41,9 @@ let
       "${stateDir}/data:/data"
       "${stateDir}/srv:/srv"
     ]
-    ++ (lib.concatMap (app: mkAppVolumes app mountsJson.${app}) (lib.attrNames mountsJson));
+    ++ (lib.naturalSort (
+      lib.concatMap (app: mkAppVolumes app mountsJson.${app}) (lib.attrNames mountsJson)
+    ));
 in
 {
   # Based on:
@@ -65,15 +67,12 @@ in
           image = lib.replaceString "blobs/sha256/" "sha256:" (lib.lists.head imageManifest).Config;
           imageFile = imagePackage;
           pull = "never";
-          volumes =
-            let
-            in
-            [
-              "${mongoPreStartFix}:/etc/systemd/system/mongodb.service.d/prestart-fix.conf:ro"
-              "${dbusStartFix}:/etc/dbus-1/system.d/start-fix.conf:ro"
-              "${dbusStartFix}:/etc/dbus-1/session.d/start-fix.conf:ro"
-            ]
-            ++ allVolumes;
+          volumes = [
+            "${mongoPreStartFix}:/etc/systemd/system/mongodb.service.d/prestart-fix.conf:ro"
+            "${dbusStartFix}:/etc/dbus-1/system.d/start-fix.conf:ro"
+            "${dbusStartFix}:/etc/dbus-1/session.d/start-fix.conf:ro"
+          ]
+          ++ allVolumes;
           environment = {
             APP_VERSION = "v${imagePackage.version}";
             APP_MODEL = "UOSSERVER";
