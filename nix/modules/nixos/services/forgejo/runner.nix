@@ -55,6 +55,7 @@ let
       PrivateTmp = true;
       PrivateUsers = false; # Podman rootless need subuid/subgid
       ProtectKernelTunables = false; # Otherwise podman can't remount /proc
+      ProtectHostname = lib.mkOverride 30 false; # See above (uses mkForce, so we need even lower priority)
       ProtectControlGroups = "private"; # Otherwise cgroups for limits don't work
       User = "forgejo-runner";
       Group = "forgejo-runner";
