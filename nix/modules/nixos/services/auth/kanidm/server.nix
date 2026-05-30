@@ -119,7 +119,6 @@ in
         };
 
         services.kanidm = {
-          enableServer = true;
           provision = config.lib.foxDen.sops.mkIfAvailable {
             enable = true;
 
@@ -169,7 +168,8 @@ in
               };
             };
           };
-          serverSettings = {
+          server.enable = true;
+          server.settings = {
             version = "2";
 
             origin = "https://${hostName}";

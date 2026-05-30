@@ -5,10 +5,10 @@ in
 {
   options.foxDen.sleep.enable = lib.mkEnableOption "Enable sleep/hibernate support";
 
-  config.systemd.sleep.extraConfig = ''
-    AllowSuspend=${sleepYesNo}
-    AllowHibernation=${sleepYesNo}
-    AllowSuspendThenHibernate=${sleepYesNo}
-    AllowHybridSleep=${sleepYesNo}
-  '';
+  config.systemd.sleep.settings.Sleep = {
+    AllowSuspend = sleepYesNo;
+    AllowHibernation = sleepYesNo;
+    AllowSuspendThenHibernate = sleepYesNo;
+    AllowHybridSleep = sleepYesNo;
+  };
 }

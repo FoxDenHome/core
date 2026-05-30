@@ -135,6 +135,7 @@ in
             security = {
               cookie_secure = svcConfig.tls.enable;
               disable_initial_admin_creation = true;
+              secret_key = "SW2YcwTIb9zpOOhoPsMm"; # Hardcoded default key, fine as we have no secrets stored in Grafana itself
             };
             server = {
               http_addr = "127.0.0.1";

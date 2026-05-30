@@ -5,6 +5,7 @@ in
 {
   fileSystems."/mnt/zhdd/nas/torrent" = {
     device = "/mnt/zssd/nas/torrent";
+    fsType = "none";
     options = [
       "bind"
       "nofail"
@@ -13,6 +14,7 @@ in
 
   fileSystems."/mnt/zhdd/nas/usenet" = {
     device = "/mnt/zssd/nas/usenet";
+    fsType = "none";
     options = [
       "bind"
       "nofail"

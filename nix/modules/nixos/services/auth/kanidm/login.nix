@@ -54,15 +54,13 @@
       authorizedKeysCommandUser = "nobody";
     };
 
-    services.kanidm = {
-      enablePam = true;
-
-      unixSettings = {
+    services.kanidm.unix = {
+      enable = true;
+      settings = {
         version = "2";
         kanidm = {
           pam_allowed_login_groups = [ "login-users" ];
         };
-        pam_allowed_login_groups = [ "login-users" ];
 
         default_shell = "/run/current-system/sw/bin/fish";
 
