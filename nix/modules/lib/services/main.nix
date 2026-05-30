@@ -99,7 +99,7 @@ let
               let
                 hostFQDNTry = builtins.tryEval (getFirstFQDNHost config cfgHostName);
               in
-              if hostFQDNTry.success then "yes:${hostFQDNTry.value}" else "yes";
+              if cfgHostName != "" && hostFQDNTry.success then "yes:${hostFQDNTry.value}" else "yes";
 
             Restart = nixpkgs.lib.mkDefault "always";
             RestartSec = nixpkgs.lib.mkForce "1s";
