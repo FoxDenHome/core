@@ -10,6 +10,24 @@ let
     )
   );
 
+  getPrimaryInterfaceHost =
+    config: host:
+    let
+      hostCfg = foxDenLib.hosts.getByName config host;
+    in
+    nixpkgs.lib.lists.head (nixpkgs.lib.attrsets.attrValues hostCfg.interfaces);
+
+  getPrimaryInterface = config: svcConfig: getPrimaryInterfaceHost config svcConfig.host;
+
+  getFirstFQDNHost =
+    config: host:
+    let
+      primaryInterface = getPrimaryInterfaceHost config host;
+    in
+    nixpkgs.lib.lists.head primaryInterface.dns.fqdns;
+
+  getFirstFQDN = config: svcConfig: getFirstFQDNHost config svcConfig.host;
+
   mkNamed = (
     svc:
     {
@@ -25,6 +43,7 @@ let
       cfgHostName = if overrideHost != null then overrideHost else svcConfig.host;
 
       host = foxDenLib.hosts.getByName config cfgHostName;
+      hostName = getFirstFQDNHost config cfgHostName;
 
       dependency = if cfgHostName != "" then [ host.unit ] else [ ];
       resolvConf = if cfgHostName != "" then host.resolvConf else "/etc/resolv.conf";
@@ -76,14 +95,16 @@ let
 
           serviceConfig = {
             NetworkNamespacePath = nixpkgs.lib.mkIf (cfgHostName != "") host.namespacePath;
-            DevicePolicy = nixpkgs.lib.mkForce "closed";
-            PrivateDevices = nixpkgs.lib.mkForce true;
             ProtectProc = "invisible";
+            ProtectHostname = nixpkgs.lib.mkDefault "yes:${hostName}";
+
             Restart = nixpkgs.lib.mkDefault "always";
             RestartSec = nixpkgs.lib.mkForce "1s";
             RestartMaxDelaySec = nixpkgs.lib.mkForce "5m";
             RestartSteps = nixpkgs.lib.mkForce 10;
 
+            DevicePolicy = nixpkgs.lib.mkForce "closed";
+            PrivateDevices = nixpkgs.lib.mkForce true;
             DeviceAllow = map (dev: "${dev} rw") allDevices;
             BindPaths = map (dev: "-${dev}") allDevices;
 
@@ -115,16 +136,14 @@ let
       };
     }
   );
-
-  getPrimaryInterface =
-    config: svcConfig:
-    let
-      hostCfg = foxDenLib.hosts.getByName config svcConfig.host;
-    in
-    nixpkgs.lib.lists.head (nixpkgs.lib.attrsets.attrValues hostCfg.interfaces);
 in
 {
-  inherit mkNamed mkEtcPaths getPrimaryInterface;
+  inherit
+    mkNamed
+    mkEtcPaths
+    getPrimaryInterface
+    getFirstFQDN
+    ;
 
   mkOptions =
     { name, ... }:
@@ -136,13 +155,6 @@ in
     };
 
   make = inputs: mkNamed inputs.name inputs;
-
-  getFirstFQDN =
-    config: svcConfig:
-    let
-      primaryInterface = getPrimaryInterface config svcConfig;
-    in
-    nixpkgs.lib.lists.head primaryInterface.dns.fqdns;
 
   nixosModule =
     { ... }:
