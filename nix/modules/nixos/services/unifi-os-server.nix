@@ -29,7 +29,6 @@ let
   imagePackage = pkgs.unifi-os-server-image;
   imageManifest = lib.importJSON "${imagePackage}/manifest.json";
 
-  eSA = lib.strings.escapeShellArg;
   allVolumes =
     let
       mountsJson = lib.importJSON "${imagePackage}/mounts.json";
@@ -88,7 +87,9 @@ in
         systemd = {
           preStart = lib.mkAfter ''
             ${pkgs.coreutils}/bin/mkdir -p ${
-              lib.concatStringsSep " " (map (vol: eSA (lib.head (lib.splitString ":" vol))) allVolumes)
+              lib.concatStringsSep " " (
+                map (vol: lib.strings.escapeShellArg (lib.head (lib.splitString ":" vol))) allVolumes
+              )
             } ${stateDir}/{data/unifi-core/config/http,log/nginx,log/mongodb}
 
             # The Java UniFi controller requires exactly UUID v5 (SHA-1 name-based).
