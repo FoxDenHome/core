@@ -19,7 +19,7 @@ let
     let
       hostCfg = foxDenLib.hosts.getByName config host;
     in
-    headOrNull (lib.attrsets.attrValues hostCfg.interfaces);
+    lib.lists.head (lib.attrsets.attrValues hostCfg.interfaces);
 
   getPrimaryInterface = config: svcConfig: getPrimaryInterfaceHost config svcConfig.host;
 
