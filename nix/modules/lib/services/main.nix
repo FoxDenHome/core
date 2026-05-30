@@ -19,7 +19,7 @@ let
     let
       hostCfg = foxDenLib.hosts.getByName config host;
     in
-    lib.lists.head (lib.attrsets.attrValues hostCfg.interfaces);
+    headOrNull (lib.attrsets.attrValues hostCfg.interfaces);
 
   getPrimaryInterface = config: svcConfig: getPrimaryInterfaceHost config svcConfig.host;
 
@@ -28,7 +28,7 @@ let
     let
       primaryInterface = getPrimaryInterfaceHost config host;
     in
-    headOrNull (primaryInterface.dns.fqdns);
+    if primaryInterface == null then null else headOrNull (primaryInterface.dns.fqdns);
 
   getFirstFQDN = config: svcConfig: getFirstFQDNHost config svcConfig.host;
 
