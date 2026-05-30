@@ -1,5 +1,7 @@
-{ lib, foxDenLib, ... }:
+{ nixpkgs, foxDenLib, ... }:
 let
+  lib = nixpkgs.lib;
+
   mkEtcPaths = (
     paths:
     lib.flatten (
