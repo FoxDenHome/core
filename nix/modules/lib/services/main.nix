@@ -43,7 +43,7 @@ let
       cfgHostName = if overrideHost != null then overrideHost else svcConfig.host;
 
       host = foxDenLib.hosts.getByName config cfgHostName;
-      hostName = getFirstFQDNHost config cfgHostName;
+      hostFQDN = getFirstFQDNHost config cfgHostName;
 
       dependency = if cfgHostName != "" then [ host.unit ] else [ ];
       resolvConf = if cfgHostName != "" then host.resolvConf else "/etc/resolv.conf";
@@ -96,7 +96,7 @@ let
           serviceConfig = {
             NetworkNamespacePath = nixpkgs.lib.mkIf (cfgHostName != "") host.namespacePath;
             ProtectProc = "invisible";
-            ProtectHostname = nixpkgs.lib.mkDefault "yes:${hostName}";
+            ProtectHostname = nixpkgs.lib.mkDefault (if cfgHostName != "" then "yes:${hostFQDN}" else "yes");
 
             Restart = nixpkgs.lib.mkDefault "always";
             RestartSec = nixpkgs.lib.mkForce "1s";
