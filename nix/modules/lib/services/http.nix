@@ -452,20 +452,28 @@ in
         # Auto generated config below
         ${mkNginxHandler pkgs defaultTarget svcConfig}
       '';
+
+      baseHttpAcmeConfig =
+        if svcConfig.tls.enable then
+          ''
+            location @acmePeriodicAuto {
+              js_periodic acme.clientAutoMode interval=1m;
+            }
+
+            location /.well-known/acme-challenge/ {
+              js_content acme.challengeResponse;
+            }
+          ''
+        else
+          "";
+
       baseHttpConfig = readyz: ''
         listen 80;
         listen [::]:80;
         listen 81;
         listen [::]:81;
 
-        location @acmePeriodicAuto {
-          js_periodic acme.clientAutoMode interval=1m;
-        }
-
-        location /.well-known/acme-challenge/ {
-          js_content acme.challengeResponse;
-        }
-
+        ${baseHttpAcmeConfig}
         ${headerConfig}
 
         include ${pkgs.foxden-http-errors.passthru.nginxConf};
