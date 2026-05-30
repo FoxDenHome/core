@@ -4,6 +4,7 @@
   ...
 }:
 let
+  # https://www.ui.com/download/releases/firmware
   version = "5.1.15";
   sources = {
     "aarch64-linux" = {
