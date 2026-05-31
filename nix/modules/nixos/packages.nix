@@ -69,7 +69,8 @@ let
       tempPkgs = import rawFlake {
         system = systemArch;
       };
-      mkPatchFile = patch: if builtins.isPath patch then patch else tempPkgs.fetchpatch2 (fetchpatch2PreProc patch);
+      mkPatchFile =
+        patch: if builtins.isPath patch then patch else tempPkgs.fetchpatch2 (fetchpatch2PreProc patch);
       processedFlake =
         if patches == [ ] then
           rawFlake
