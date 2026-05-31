@@ -87,16 +87,11 @@ let
     installPhase = ''
       set -euo pipefail
 
-      unzip "$src" image.tar mounts.json || true >/dev/null
-
-      if [ ! -f image.tar ] || [ ! -f mounts.json ]; then
-        echo "Could not find embedded image.tar or mounts.json in UniFi OS installer" >&2
-        exit 1
-      fi
+      unzip "$src" image.tar mounts.json portmap.json || true >/dev/null
 
       mkdir -p "$out"
-      chmod 644 image.tar mounts.json
-      cp mounts.json "$out/mounts.json"
+      chmod 644 image.tar mounts.json portmap.json
+      cp mounts.json portmap.json "$out"
       tar -xf image.tar -C "$out"
     '';
 
