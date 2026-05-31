@@ -34,7 +34,6 @@ in
           inherit (imagePackage.oci)
             image
             imageFile
-            environment
             pull
             extraOptions
             ;

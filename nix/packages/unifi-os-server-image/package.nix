@@ -6,16 +6,20 @@
 let
   # https://www.ui.com/download/releases/firmware
   version = "5.1.15";
-  sources = {
-    "aarch64-linux" = {
-      url = "https://fw-download.ubnt.com/data/unifi-os-server/adc4-linux-arm64-5.1.15-53ab1f2c-4cd5-4a5f-b750-d1aa35679b4f.15-arm64";
-      hash = "sha256:6cff0c1eedafbd82dddafb8324c2e21749814da586292a9554f63043b8c455f5";
-    };
-    "x86_64-linux" = {
-      url = "https://fw-download.ubnt.com/data/unifi-os-server/24e0-linux-x64-5.1.15-926621de-c9d7-48cd-8921-a0ff3eebd3f4.15-x64";
-      hash = "sha256:04c8e401eb34330fe99d94f35aa351e0e0e97895f0d9a4b459ff34fb50cad2bb";
-    };
-  };
+  archConfig =
+    {
+      "aarch64-linux" = {
+        src.url = "https://fw-download.ubnt.com/data/unifi-os-server/adc4-linux-arm64-5.1.15-53ab1f2c-4cd5-4a5f-b750-d1aa35679b4f.15-arm64";
+        src.hash = "sha256:6cff0c1eedafbd82dddafb8324c2e21749814da586292a9554f63043b8c455f5";
+        firmwarePlatform = "linux-arm64";
+      };
+      "x86_64-linux" = {
+        src.url = "https://fw-download.ubnt.com/data/unifi-os-server/24e0-linux-x64-5.1.15-926621de-c9d7-48cd-8921-a0ff3eebd3f4.15-x64";
+        src.hash = "sha256:04c8e401eb34330fe99d94f35aa351e0e0e97895f0d9a4b459ff34fb50cad2bb";
+        firmwarePlatform = "linux-x64";
+      };
+    }
+    .${pkgs.stdenv.system};
 
   imagePkg = pkgs.stdenvNoCC.mkDerivation {
     # reverse engineered via
@@ -23,7 +27,7 @@ let
     pname = "unifi-os-server-image";
     inherit version;
 
-    src = pkgs.fetchurl sources.${pkgs.stdenv.system};
+    src = pkgs.fetchurl archConfig.src;
 
     nativeBuildInputs = with pkgs; [
       coreutils
@@ -51,9 +55,9 @@ let
       BLOB_ID="$(sha256sum overlay.tar.gz | cut -d' ' -f1)"
       mv overlay.tar.gz "$out/blobs/sha256/$BLOB_ID"
 
-      # Step 2: Modify actual layer config and put it in new hashed file
+      # Step 2: Modify actual layer config and put it in new hashed file as well as ENV vars
       mv "$out/$(jq -r '.[0].Config' "$out/manifest.json")" layer.json.orig
-      jq ".rootfs.diff_ids |= . + [\"$LAYER_ID\"]" layer.json.orig > layer.json
+      jq ".config.env |= . + [\"APP_VERSION=v${version}\",\"APP_MODEL=UOSSERVER\",\"PRODUCT_NAME=uosserver\",\"FIRMWARE_PLATFORM=${archConfig.firmwarePlatform}\"] | .rootfs.diff_ids |= . + [\"$LAYER_ID\"]" layer.json.orig > layer.json
       LAYER_CONFIG_ID="$(sha256sum layer.json | cut -d' ' -f1)"
       mv layer.json "$out/blobs/sha256/$LAYER_CONFIG_ID"
 
@@ -84,12 +88,6 @@ in
 imagePkg
 // {
   oci = {
-    environment = {
-      APP_VERSION = "v${version}";
-      APP_MODEL = "UOSSERVER";
-      PRODUCT_NAME = "uosserver";
-      FIRMWARE_PLATFORM = if pkgs.stdenv.hostPlatform.isAarch64 then "linux-arm64" else "linux-x64";
-    };
     image =
       let
         imageManifest = lib.importJSON "${imagePkg}/manifest.json";
