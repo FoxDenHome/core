@@ -81,7 +81,9 @@ let
     in
     import processedFlake pkgsConfig;
 
-  pkgs = mkPkgs nixpkgs [ ];
+  pkgs = mkPkgs nixpkgs [
+    ./nixpkgs-patches/no-podman-linger-warning.patch
+  ];
 
   localPackages = lib.attrsets.genAttrs (lib.attrNames (builtins.readDir ../../packages)) (
     name: import ../../packages/${name}/package.nix (inputs // { inherit pkgs; })
