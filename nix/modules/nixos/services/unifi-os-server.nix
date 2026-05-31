@@ -39,24 +39,12 @@ in
             ;
           volumes = imagePackage.oci.mkVolumes stateDir;
         };
-        systemd = {
-          preStart = lib.mkAfter ''
-            # The Java UniFi controller requires exactly UUID v5 (SHA-1 name-based).
-            # Generate a stable v5 UUID derived from the machine-id.
-            uuid_file="${stateDir}/data/uos_uuid"
-            if [ ! -f "$uuid_file" ]; then
-              ${pkgs.util-linux}/bin/uuidgen -s -n @dns -N "$(${pkgs.coreutils}/bin/cat /etc/machine-id)" > "$uuid_file"
-            fi
-          '';
-          serviceConfig = {
-            ExecStartPre = [
-              "+${(pkgs.writeShellScript "setup-cgroup.sh" ''
-                cgroup="$(cat /proc/self/cgroup | ${pkgs.coreutils}/bin/cut -d: -f3 | head -1)"
-                ${pkgs.coreutils}/bin/chown -R ${user.name}:${user.group} "/sys/fs/cgroup/$cgroup"
-              '')}"
-            ];
-          };
-        };
+        systemd.serviceConfig.ExecStartPre = [
+          "+${(pkgs.writeShellScript "setup-cgroup.sh" ''
+            cgroup="$(cat /proc/self/cgroup | ${pkgs.coreutils}/bin/cut -d: -f3 | head -1)"
+            ${pkgs.coreutils}/bin/chown -R ${user.name}:${user.group} "/sys/fs/cgroup/$cgroup"
+          '')}"
+        ];
       }).config
       {
         foxDen.hosts.hosts.${svcConfig.host}.interfaces.default.nameOverride = "eth0";
