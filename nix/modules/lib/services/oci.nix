@@ -9,7 +9,7 @@ let
       pkgs,
       config,
       gpu ? false,
-      linger ? false,
+      linger ? true,
       ...
     }:
     (
