@@ -17,30 +17,6 @@ let
     };
   };
 
-  mongoMkdirs = pkgs.writeText "mongodb-mkdirs.conf" ''
-    [Service]
-    ExecStartPre=+/bin/mkdir -p /var/log/mongodb /var/lib/mongodb
-    ExecStartPre=+/bin/chown mongodb:mongodb /var/log/mongodb /var/lib/mongodb
-  '';
-
-  nginxMkdirs = pkgs.writeText "nginx-mkdirs.conf" ''
-    [Service]
-    ExecStartPre=+/bin/mkdir -p /var/log/nginx
-  '';
-
-  unifiCoreMkdirs = pkgs.writeText "unifi-core-mkdirs.conf" ''
-    [Service]
-    ExecStartPre=+/bin/mkdir -p /data/unifi-core/config/http
-  '';
-
-  dbusStartFix = pkgs.writeText "dbus-start-fix.conf" ''
-    <?xml version="1.0" encoding="UTF-8"?>
-    <!DOCTYPE busconfig SYSTEM "busconfig.dtd">
-    <busconfig>
-        <apparmor mode="disabled"/>
-    </busconfig>
-  '';
-
   imagePkg = pkgs.stdenvNoCC.mkDerivation {
     # reverse engineered via
     # https://www.unihosted.com/blog/running-unifi-os-server-in-docker
@@ -53,59 +29,37 @@ let
       coreutils
       unzip
       gnutar
+      jq
     ];
 
     dontUnpack = true;
-
-    passthru.oci = {
-      environment = {
-        APP_VERSION = "v${version}";
-        APP_MODEL = "UOSSERVER";
-        PRODUCT_NAME = "uosserver";
-        FIRMWARE_PLATFORM = if pkgs.stdenv.hostPlatform.isAarch64 then "linux-arm64" else "linux-x64";
-      };
-      image =
-        let
-          imageManifest = lib.importJSON "${imagePkg}/manifest.json";
-        in
-        lib.replaceString "blobs/sha256/" "sha256:" (lib.lists.head imageManifest).Config;
-      imageFile = imagePkg;
-      pull = "never";
-      extraOptions = [
-        "--systemd=always"
-      ];
-      mkVolumes =
-        rootDir:
-        let
-          mountsJson = lib.importJSON "${imagePkg}/mounts.json";
-          mkAppVolumes =
-            app: volumes: lib.mapAttrsToList (name: mount: "${rootDir}/${app}/${name}:${mount}") volumes;
-        in
-        [
-          "${rootDir}/persistent:/persistent"
-          "${rootDir}/log:/var/log"
-          "${rootDir}/data:/data"
-          "${rootDir}/srv:/srv"
-          "${mongoMkdirs}:/etc/systemd/system/mongodb.service.d/mkdirs.conf:ro"
-          "${nginxMkdirs}:/etc/systemd/system/nginx.service.d/mkdirs.conf:ro"
-          "${unifiCoreMkdirs}:/etc/systemd/system/unifi-core.service.d/mkdirs.conf:ro"
-          "${dbusStartFix}:/etc/dbus-1/system.d/start-fix.conf:ro"
-          "${dbusStartFix}:/etc/dbus-1/session.d/start-fix.conf:ro"
-        ]
-        ++ (lib.naturalSort (
-          lib.concatMap (app: mkAppVolumes app mountsJson.${app}) (lib.attrNames mountsJson)
-        ));
-    };
 
     installPhase = ''
       set -euo pipefail
 
       unzip "$src" image.tar mounts.json portmap.json || true >/dev/null
+      chmod 644 image.tar mounts.json portmap.json
 
       mkdir -p "$out"
-      chmod 644 image.tar mounts.json portmap.json
       cp mounts.json portmap.json "$out"
       tar -xf image.tar -C "$out"
+
+      # Step 1: Create custom overlay layer .tar.gz and store in the right place
+      tar -cf overlay.tar -C "${./rootfs}" .
+      LAYER_ID="sha256:$(sha256sum overlay.tar | cut -d' ' -f1)"
+      gzip -9 overlay.tar
+      BLOB_ID="$(sha256sum overlay.tar.gz | cut -d' ' -f1)"
+      mv overlay.tar.gz "$out/blobs/sha256/$BLOB_ID"
+
+      # Step 2: Modify actual layer config and put it in new hashed folder
+      mv "$out/$(jq -r '.[0].Config' "$out/manifest.json")" layer.json.orig
+      jq ".rootfs.diff_ids |= . + [\"$LAYER_ID\"]" layer.json.orig > layer.json
+      LAYER_CONFIG_ID="$(sha256sum layer.json | cut -d' ' -f1)"
+      mv layer.json "$out/blobs/sha256/$LAYER_CONFIG_ID"
+
+      # Step 3: Modify manifest.json to point to new layer and new config
+      mv "$out/manifest.json" manifest.json.orig
+      jq ".[0].Layers |= . + [\"blobs/sha256/$BLOB_ID\"] | .[0].Config = \"blobs/sha256/$LAYER_CONFIG_ID\"" manifest.json.orig > "$out/manifest.json"
     '';
 
     meta = with lib; {
@@ -118,3 +72,39 @@ let
   };
 in
 imagePkg
+// {
+  oci = {
+    environment = {
+      APP_VERSION = "v${version}";
+      APP_MODEL = "UOSSERVER";
+      PRODUCT_NAME = "uosserver";
+      FIRMWARE_PLATFORM = if pkgs.stdenv.hostPlatform.isAarch64 then "linux-arm64" else "linux-x64";
+    };
+    image =
+      let
+        imageManifest = lib.importJSON "${imagePkg}/manifest.json";
+      in
+      lib.replaceString "blobs/sha256/" "sha256:" (lib.lists.head imageManifest).Config;
+    imageFile = imagePkg;
+    pull = "never";
+    extraOptions = [
+      "--systemd=always"
+    ];
+    mkVolumes =
+      rootDir:
+      let
+        mountsJson = lib.importJSON "${imagePkg}/mounts.json";
+        mkAppVolumes =
+          app: volumes: lib.mapAttrsToList (name: mount: "${rootDir}/${app}/${name}:${mount}") volumes;
+      in
+      [
+        "${rootDir}/persistent:/persistent"
+        "${rootDir}/log:/var/log"
+        "${rootDir}/data:/data"
+        "${rootDir}/srv:/srv"
+      ]
+      ++ (lib.naturalSort (
+        lib.concatMap (app: mkAppVolumes app mountsJson.${app}) (lib.attrNames mountsJson)
+      ));
+  };
+}
