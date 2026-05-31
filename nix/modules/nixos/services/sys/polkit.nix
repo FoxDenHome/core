@@ -38,7 +38,10 @@ let
 in
 {
   config = {
-    systemd.services.polkit.restartTriggers = [ polkitRules ];
+    systemd.services.polkit = {
+      restartTriggers = [ polkitRules ];
+      serviceConfig.PrivateUsers = "full";
+    };
     environment.etc."polkit-1/rules.d/05-foxden.rules".source = polkitRules;
   };
 }
