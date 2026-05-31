@@ -51,15 +51,25 @@ let
       BLOB_ID="$(sha256sum overlay.tar.gz | cut -d' ' -f1)"
       mv overlay.tar.gz "$out/blobs/sha256/$BLOB_ID"
 
-      # Step 2: Modify actual layer config and put it in new hashed folder
+      # Step 2: Modify actual layer config and put it in new hashed file
       mv "$out/$(jq -r '.[0].Config' "$out/manifest.json")" layer.json.orig
       jq ".rootfs.diff_ids |= . + [\"$LAYER_ID\"]" layer.json.orig > layer.json
       LAYER_CONFIG_ID="$(sha256sum layer.json | cut -d' ' -f1)"
       mv layer.json "$out/blobs/sha256/$LAYER_CONFIG_ID"
 
-      # Step 3: Modify manifest.json to point to new layer and new config
+      # Step 3: Find and modify index config and put it in new hashed file
+      mv "$out/blobs/sha256/$(jq -r '.manifests[0].digest' "$out/index.json" | cut -d':' -f2)" index_layer.json.orig
+      jq ".layers |= . + [{\"mediaType\": \"application/vnd.docker.image.rootfs.diff.tar.gzip\", \"digest\": \"sha256:$BLOB_ID\", \"size\": $(stat -c%s "$out/blobs/sha256/$BLOB_ID")}] | .config.digest = \"sha256:$LAYER_CONFIG_ID\" | .config.size = $(stat -c%s "$out/blobs/sha256/$LAYER_CONFIG_ID")" index_layer.json.orig > index_layer.json
+      INDEX_LAYER_CONFIG_ID="$(sha256sum index_layer.json | cut -d' ' -f1)"
+      mv index_layer.json "$out/blobs/sha256/$INDEX_LAYER_CONFIG_ID"
+
+      # Step 4: Modify manifest.json to point to new layer and new config
       mv "$out/manifest.json" manifest.json.orig
       jq ".[0].Layers |= . + [\"blobs/sha256/$BLOB_ID\"] | .[0].Config = \"blobs/sha256/$LAYER_CONFIG_ID\"" manifest.json.orig > "$out/manifest.json"
+
+      # Step 5: Modify index.json to point to new layer and new config
+      mv "$out/index.json" index.json.orig
+      jq ".manifests[0].digest = \"sha256:$INDEX_LAYER_CONFIG_ID\" | .manifests[0].size = $(stat -c%s "$out/blobs/sha256/$INDEX_LAYER_CONFIG_ID")" index.json.orig > "$out/index.json"
     '';
 
     meta = with lib; {
