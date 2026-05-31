@@ -4,7 +4,6 @@
   ...
 }:
 {
-
   config = lib.mkIf config.services.cockpit.enable {
     services.cockpit = {
       openFirewall = true;

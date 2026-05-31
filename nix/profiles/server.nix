@@ -38,6 +38,8 @@
 
   foxDen.deploy.push.enable = true;
 
+  services.cockpit.enable = true;
+
   environment.persistence."/nix/persist/system" = {
     directories = [ "/var/lib/rasdaemon" ];
   };

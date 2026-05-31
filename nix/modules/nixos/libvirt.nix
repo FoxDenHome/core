@@ -62,12 +62,12 @@ let
 in
 {
   config = lib.mkIf ((lib.length vmNames) > 0) {
-    # services.cockpit.plugins = [ pkgs.cockpit-machines ]; TODO: 26.05
+    services.cockpit.plugins = [ pkgs.cockpit-machines ];
     environment.systemPackages = with pkgs; [ virt-manager ];
 
     virtualisation.libvirtd = {
       enable = true;
-      # dbus.enable = true; TODO: 26.05
+      dbus.enable = true;
       onShutdown = "shutdown";
       onBoot = "ignore";
       qemu = {
