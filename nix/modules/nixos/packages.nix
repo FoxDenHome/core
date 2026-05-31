@@ -69,14 +69,14 @@ let
       tempPkgs = import rawFlake {
         system = systemArch;
       };
-      fetchpatch2PR = patch: tempPkgs.fetchpatch2 (fetchpatch2PreProc patch);
+      mkPatchFile = patch: if builtins.isPath patch then patch else tempPkgs.fetchpatch2 (fetchpatch2PreProc patch);
       processedFlake =
         if patches == [ ] then
           rawFlake
         else
           tempPkgs.applyPatches {
             src = tempPkgs.path;
-            patches = map fetchpatch2PR patches;
+            patches = map mkPatchFile patches;
           };
     in
     import processedFlake pkgsConfig;

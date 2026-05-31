@@ -1,0 +1,26 @@
+diff --git a/nixos/modules/virtualisation/oci-containers.nix b/nixos/modules/virtualisation/oci-containers.nix
+index d4033df032e2..ba33043e479e 100644
+--- a/nixos/modules/virtualisation/oci-containers.nix
++++ b/nixos/modules/virtualisation/oci-containers.nix
+@@ -621,21 +621,6 @@ in
+               ];
+           in
+           concatMap (name: toAssertions name cfg.containers.${name}) (lib.attrNames cfg.containers);
+-
+-        warnings = mkIf (cfg.backend == "podman") (
+-          lib.foldlAttrs (
+-            warnings: name:
+-            { podman, ... }:
+-            let
+-              inherit (config.users.users.${podman.user}) linger;
+-            in
+-            warnings
+-            ++ lib.optional (podman.user != "root" && !linger) ''
+-              Podman container ${name} is configured as rootless (user ${podman.user}),
+-              but lingering for this user is turned off.
+-            ''
+-          ) [ ] cfg.containers
+-        );
+       }
+       (lib.mkIf (cfg.backend == "podman") {
+         virtualisation.podman.enable = true;
