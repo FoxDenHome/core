@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# The Java UniFi controller requires exactly UUID v5 (SHA-1 name-based).
+# Generate a stable v5 UUID derived from the machine-id.
+uuid_file="/data/uos_uuid"
+if [ ! -f /data/uos_uuid ]; then
+    cat /proc/sys/kernel/random/uuid | sed s/./5/15 > "$uuid_file"
+fi
+
+exec "$CMD_ORIG" "$@"

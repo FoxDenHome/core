@@ -57,7 +57,8 @@ let
 
       # Step 2: Modify actual layer config and put it in new hashed file as well as ENV vars
       mv "$out/$(jq -r '.[0].Config' "$out/manifest.json")" layer.json.orig
-      jq ".config.env |= . + [\"APP_VERSION=v${version}\",\"APP_MODEL=UOSSERVER\",\"PRODUCT_NAME=uosserver\",\"FIRMWARE_PLATFORM=${archConfig.firmwarePlatform}\"] | .rootfs.diff_ids |= . + [\"$LAYER_ID\"]" layer.json.orig > layer.json
+      CMD_ORIG="$(jq -r '.config.Cmd' layer.json.orig)"
+      jq ".config.Cmd = [\"/root/custom-entrypoint.sh\"] | .config.env |= . + [\"APP_VERSION=v${version}\",\"CMD_ORIG=$CMD_ORIG\",\"APP_MODEL=UOSSERVER\",\"PRODUCT_NAME=uosserver\",\"FIRMWARE_PLATFORM=${archConfig.firmwarePlatform}\"] | .rootfs.diff_ids |= . + [\"$LAYER_ID\"]" layer.json.orig > layer.json
       LAYER_CONFIG_ID="$(sha256sum layer.json | cut -d' ' -f1)"
       mv layer.json "$out/blobs/sha256/$LAYER_CONFIG_ID"
 
