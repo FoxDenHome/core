@@ -45,8 +45,6 @@ in
         };
         systemd = {
           preStart = lib.mkAfter ''
-            ${pkgs.coreutils}/bin/mkdir -p ${stateDir}/{data/unifi-core/config/http,log/nginx,log/mongodb}
-
             # The Java UniFi controller requires exactly UUID v5 (SHA-1 name-based).
             # Generate a stable v5 UUID derived from the machine-id.
             uuid_file="${stateDir}/data/uos_uuid"

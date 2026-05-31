@@ -17,10 +17,20 @@ let
     };
   };
 
-  # MongoDB needs writable log and data dirs; + runs as root regardless of User=
-  mongoPreStartFix = pkgs.writeText "mongodb-prestart-fix.conf" ''
+  mongoMkdirs = pkgs.writeText "mongodb-mkdirs.conf" ''
     [Service]
-    ExecStartPre=+/bin/chown mongodb:mongodb /var/log/mongodb /var/lib/mongodb"
+    ExecStartPre=+/bin/mkdir -p /var/log/mongodb /var/lib/mongodb
+    ExecStartPre=+/bin/chown mongodb:mongodb /var/log/mongodb /var/lib/mongodb
+  '';
+
+  nginxMkdirs = pkgs.writeText "nginx-mkdirs.conf" ''
+    [Service]
+    ExecStartPre=+/bin/mkdir -p /var/log/nginx
+  '';
+
+  unifiCoreMkdirs = pkgs.writeText "unifi-core-mkdirs.conf" ''
+    [Service]
+    ExecStartPre=+/bin/mkdir -p /data/unifi-core/config/http
   '';
 
   dbusStartFix = pkgs.writeText "dbus-start-fix.conf" ''
@@ -67,7 +77,9 @@ let
           "${rootDir}/log:/var/log"
           "${rootDir}/data:/data"
           "${rootDir}/srv:/srv"
-          "${mongoPreStartFix}:/etc/systemd/system/mongodb.service.d/prestart-fix.conf:ro"
+          "${mongoMkdirs}:/etc/systemd/system/mongodb.service.d/mkdirs.conf:ro"
+          "${nginxMkdirs}:/etc/systemd/system/nginx.service.d/mkdirs.conf:ro"
+          "${unifiCoreMkdirs}:/etc/systemd/system/unifi-core.service.d/mkdirs.conf:ro"
           "${dbusStartFix}:/etc/dbus-1/system.d/start-fix.conf:ro"
           "${dbusStartFix}:/etc/dbus-1/session.d/start-fix.conf:ro"
         ]
