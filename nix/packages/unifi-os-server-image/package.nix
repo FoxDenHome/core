@@ -59,7 +59,7 @@ let
       mv "$out/$(jq -r '.[0].Config' "$out/manifest.json")" layer.json.orig
       cat layer.json.orig
       CMD_ORIG="$(jq -r '.config.Cmd[0]' layer.json.orig)"
-      jq -r ".config.Cmd[0] = \"/root/custom-entrypoint.sh\" | .config.env |= . + [\"APP_VERSION=v${version}\",\"CMD_ORIG=$CMD_ORIG\",\"APP_MODEL=UOSSERVER\",\"PRODUCT_NAME=uosserver\",\"FIRMWARE_PLATFORM=${archConfig.firmwarePlatform}\"] | .rootfs.diff_ids |= . + [\"$LAYER_ID\"]" layer.json.orig > layer.json
+      jq -r ".config.Cmd[0] = \"/usr/local/sbin/init\" | .config.env |= . + [\"APP_VERSION=v${version}\",\"CMD_ORIG=$CMD_ORIG\",\"APP_MODEL=UOSSERVER\",\"PRODUCT_NAME=uosserver\",\"FIRMWARE_PLATFORM=${archConfig.firmwarePlatform}\"] | .rootfs.diff_ids |= . + [\"$LAYER_ID\"]" layer.json.orig > layer.json
       LAYER_CONFIG_ID="$(sha256sum layer.json | cut -d' ' -f1)"
       mv layer.json "$out/blobs/sha256/$LAYER_CONFIG_ID"
 
@@ -97,9 +97,6 @@ imagePkg
       lib.replaceString "blobs/sha256/" "sha256:" (lib.lists.head imageManifest).Config;
     imageFile = imagePkg;
     pull = "never";
-    extraOptions = [
-      "--systemd=always"
-    ];
     mkVolumes =
       rootDir:
       let

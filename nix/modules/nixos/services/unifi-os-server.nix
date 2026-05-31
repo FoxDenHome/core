@@ -35,7 +35,6 @@ in
             image
             imageFile
             pull
-            extraOptions
             ;
           volumes = imagePackage.oci.mkVolumes stateDir;
         };

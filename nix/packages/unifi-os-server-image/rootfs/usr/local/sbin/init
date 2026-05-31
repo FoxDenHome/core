@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
+# The name of this is intended to hit podman's "systemd" detection, since UOS server uses systemd
 
 # The Java UniFi controller requires exactly UUID v5 (SHA-1 name-based).
 # Generate a stable v5 UUID derived from the machine-id.
