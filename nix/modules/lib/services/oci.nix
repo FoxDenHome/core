@@ -9,7 +9,6 @@ let
       pkgs,
       config,
       gpu ? false,
-      linger ? true,
       ...
     }:
     (
@@ -63,7 +62,7 @@ let
             autoSubUidGidRange = true;
             home = "/var/lib/foxden-oci/${ctName}";
             createHome = true;
-            inherit linger;
+            linger = true;
           };
           users.groups."${ctName}" = { };
 
