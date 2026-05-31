@@ -40,13 +40,8 @@ in
   config = {
     systemd.services.polkit = {
       restartTriggers = [ polkitRules ];
+      serviceConfig.PrivateUsers = "full";
     };
-    environment.etc = {
-      "polkit-1/rules.d/05-foxden.rules".source = polkitRules;
-      "systemd/system/polkit.service.d/private-users.conf".text = ''
-        [Service]
-        PrivateUsers=full
-      '';
-    };
+    environment.etc."polkit-1/rules.d/05-foxden.rules".source = polkitRules;
   };
 }
