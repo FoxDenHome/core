@@ -28,7 +28,6 @@
 
   services = {
     sshd.enable = true;
-    pcscd.enable = true;
     fwupd.enable = true;
     redis.vmOverCommit = false; # We set this sysctl manually
     timesyncd.servers = lib.mkDefault [ "ntp.foxden.network" ];
@@ -72,7 +71,6 @@
 
   security = {
     sudo.enable = false;
-    polkit.enable = true;
     pam.loginLimits = [
       {
         domain = "*";

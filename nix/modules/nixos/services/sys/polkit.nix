@@ -38,6 +38,7 @@ let
 in
 {
   config = {
+    security.polkit.enable = true;
     systemd.services.polkit = {
       restartTriggers = [ polkitRules ];
     };
