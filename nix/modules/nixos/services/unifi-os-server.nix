@@ -35,13 +35,10 @@ in
             image
             imageFile
             environment
+            pull
+            extraOptions
             ;
           volumes = imagePackage.oci.mkVolumes stateDir;
-
-          pull = "never";
-          extraOptions = [
-            "--systemd=always"
-          ];
         };
         systemd = {
           preStart = lib.mkAfter ''

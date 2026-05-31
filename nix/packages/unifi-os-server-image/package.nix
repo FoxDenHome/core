@@ -64,7 +64,16 @@ let
         PRODUCT_NAME = "uosserver";
         FIRMWARE_PLATFORM = if pkgs.stdenv.hostPlatform.isAarch64 then "linux-arm64" else "linux-x64";
       };
-
+      image =
+        let
+          imageManifest = lib.importJSON "${imagePkg}/manifest.json";
+        in
+        lib.replaceString "blobs/sha256/" "sha256:" (lib.lists.head imageManifest).Config;
+      imageFile = imagePkg;
+      pull = "never";
+      extraOptions = [
+        "--systemd=always"
+      ];
       mkVolumes =
         rootDir:
         let
@@ -86,14 +95,6 @@ let
         ++ (lib.naturalSort (
           lib.concatMap (app: mkAppVolumes app mountsJson.${app}) (lib.attrNames mountsJson)
         ));
-
-      image =
-        let
-          imageManifest = lib.importJSON "${imagePkg}/manifest.json";
-        in
-        lib.replaceString "blobs/sha256/" "sha256:" (lib.lists.head imageManifest).Config;
-
-      imageFile = imagePkg;
     };
 
     installPhase = ''
