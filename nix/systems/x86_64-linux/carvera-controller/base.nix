@@ -6,7 +6,7 @@
   foxDen.sops.available = true;
   foxDen.boot.secure = true;
 
-  system.stateVersion = "25.11";
+  system.stateVersion = "26.05";
 
   hardware.enableRedistributableFirmware = true;
   hardware.cpu.intel.updateMicrocode = true;

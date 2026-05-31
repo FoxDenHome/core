@@ -4,7 +4,7 @@
   foxDen.boot.secure = true;
   foxDen.boot.uki = true;
 
-  system.stateVersion = "25.11";
+  system.stateVersion = "26.05";
 
   documentation = {
     man.enable = false;
