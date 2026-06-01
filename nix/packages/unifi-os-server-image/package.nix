@@ -105,21 +105,17 @@ imagePkg
         portmapMerged = lib.mergeAttrsList (builtins.attrValues portmapJson);
       in
       lib.mapAttrsToList (hostPort: ctPort: "${hostPort}:${ctPort}") portmapMerged;
-    mkVolumes =
-      rootDir:
+    volumes =
       let
         mountsJson = lib.importJSON "${imagePkg}/mounts.json";
-        mkAppVolumes =
-          app: volumes: lib.mapAttrsToList (name: mount: "${rootDir}/${app}/${name}:${mount}") volumes;
+        mountsMerged = lib.mergeAttrsList (builtins.attrValues mountsJson);
       in
       [
-        "${rootDir}/persistent:/persistent"
-        "${rootDir}/log:/var/log"
-        "${rootDir}/data:/data"
-        "${rootDir}/srv:/srv"
+        "persistent:/persistent"
+        "log:/var/log"
+        "data:/data"
+        "srv:/srv"
       ]
-      ++ (lib.naturalSort (
-        lib.concatMap (app: mkAppVolumes app mountsJson.${app}) (lib.attrNames mountsJson)
-      ));
+      ++ lib.mapAttrsToList (hostSpec: containerSpec: "${hostSpec}:${containerSpec}") mountsMerged;
   };
 }

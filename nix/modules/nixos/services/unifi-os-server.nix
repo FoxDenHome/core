@@ -8,7 +8,6 @@
 let
   user = config.users.users.unifi-os-server;
   svcConfig = config.foxDen.services.unifi-os-server;
-  stateDir = user.home;
   name = "unifi-os-server";
   imagePackage = pkgs.unifi-os-server-image;
 in
@@ -32,8 +31,8 @@ in
             image
             imageFile
             pull
+            volumes
             ;
-          volumes = imagePackage.oci.mkVolumes stateDir;
         };
         systemd.serviceConfig.ExecStartPre = [
           "+${(pkgs.writeShellScript "setup-cgroup.sh" ''
