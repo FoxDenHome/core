@@ -13,9 +13,6 @@ let
   imagePackage = pkgs.unifi-os-server-image;
 in
 {
-  # Based on:
-  # - https://discourse.nixos.org/t/unifi-os-server-on-nixos/76039
-  # - https://www.unihosted.com/blog/running-unifi-os-server-in-docker
   options.foxDen.services.unifi-os-server = foxDenLib.services.oci.mkOptions {
     svcName = name;
     name = "UniFi OS Server";

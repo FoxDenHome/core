@@ -4,6 +4,10 @@
   ...
 }:
 let
+  # Based in parts on:
+  # - https://discourse.nixos.org/t/unifi-os-server-on-nixos/76039
+  # - https://www.unihosted.com/blog/running-unifi-os-server-in-docker
+
   # https://www.ui.com/download/releases/firmware
   version = "5.1.15";
   archConfig =
@@ -22,8 +26,6 @@ let
     .${pkgs.stdenv.system};
 
   imagePkg = pkgs.stdenvNoCC.mkDerivation {
-    # reverse engineered via
-    # https://www.unihosted.com/blog/running-unifi-os-server-in-docker
     pname = "unifi-os-server-image";
     inherit version;
 
