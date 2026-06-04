@@ -13,7 +13,6 @@ in
 {
   options.foxDen.services.circuitjs = (
     services.http.mkOptions {
-      svcName = "circuitjs";
       name = "CircuitJS";
     }
   );

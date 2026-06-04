@@ -23,7 +23,6 @@ let
 in
 {
   options.foxDen.services.grafana = services.http.mkOptions {
-    svcName = "grafana";
     name = "Grafana monitoring server";
   };
 

@@ -17,7 +17,6 @@ let
 in
 {
   options.foxDen.services.factorio = services.mkOptions {
-    svcName = "factorio";
     name = "Factorio server";
   };
 

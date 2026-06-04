@@ -25,7 +25,6 @@ in
       };
     }
     // (services.http.mkOptions {
-      svcName = "minecraft";
       name = "Minecraft server";
     });
 

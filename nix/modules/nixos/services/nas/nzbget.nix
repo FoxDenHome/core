@@ -29,7 +29,6 @@ in
     enableHttp = lib.mkEnableOption "HTTP reverse proxy for NZBGet Web UI";
   }
   // (services.http.mkOptions {
-    svcName = "nzbget";
     name = "NZBGet Usenet Client";
   });
 

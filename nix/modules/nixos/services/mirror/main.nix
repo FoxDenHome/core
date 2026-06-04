@@ -52,7 +52,6 @@ in
     };
   }
   // (services.http.mkOptions {
-    svcName = "mirror";
     name = "Mirror server";
   });
 

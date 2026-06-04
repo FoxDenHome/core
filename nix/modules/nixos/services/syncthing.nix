@@ -30,7 +30,6 @@ in
     };
   }
   // (services.http.mkOptions {
-    svcName = "syncthing";
     name = "Syncthing server";
   });
 

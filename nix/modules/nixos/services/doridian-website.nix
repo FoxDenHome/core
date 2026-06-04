@@ -13,7 +13,6 @@ in
 {
   options.foxDen.services.doridian-website = (
     services.http.mkOptions {
-      svcName = "doridian-website";
       name = "Doridian's website";
     }
   );

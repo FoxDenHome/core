@@ -14,7 +14,6 @@ in
 {
   options.foxDen.services.broadcast-box = (
     services.http.mkOptions {
-      svcName = "broadcast-box";
       name = "Broadcast Box";
     }
   );

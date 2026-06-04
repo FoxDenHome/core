@@ -26,7 +26,6 @@ in
     };
   }
   // (services.http.mkOptions {
-    svcName = "fadumper";
     name = "FADumper";
   });
 

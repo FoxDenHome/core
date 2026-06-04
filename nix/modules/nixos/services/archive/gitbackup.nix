@@ -23,7 +23,6 @@ in
     };
   }
   // (services.http.mkOptions {
-    svcName = "gitbackup";
     name = "Git backup";
   });
 

@@ -10,7 +10,6 @@ let
 in
 {
   options.foxDen.services.superfan = foxDenLib.services.mkOptions {
-    svcName = "superfan";
     name = "SuperFan";
   };
 

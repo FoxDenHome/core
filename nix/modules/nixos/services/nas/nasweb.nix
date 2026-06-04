@@ -17,7 +17,6 @@ in
     };
   }
   // (services.http.mkOptions {
-    svcName = "nasweb";
     name = "NAS web interface";
   });
 

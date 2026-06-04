@@ -28,7 +28,6 @@ in
     tls = lib.mkEnableOption "Enable TLS for the service";
   }
   // services.http.mkOptions {
-    svcName = "darksignsonline";
     name = "Dark Signs Online";
   };
 

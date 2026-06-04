@@ -13,12 +13,9 @@ let
   proto = if svcConfig.tls.enable then "https" else "http";
 in
 {
-  options.foxDen.services.rmfakecloud = {
-  }
-  // (services.http.mkOptions {
-    svcName = "rmfakecloud";
+  options.foxDen.services.rmfakecloud = services.http.mkOptions {
     name = "reMarkable cloud";
-  });
+  };
 
   config = lib.mkIf svcConfig.enable (
     lib.mkMerge [

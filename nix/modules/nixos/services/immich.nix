@@ -24,7 +24,6 @@ in
     };
   }
   // services.http.mkOptions {
-    svcName = "immich";
     name = "Immich image server";
   };
 

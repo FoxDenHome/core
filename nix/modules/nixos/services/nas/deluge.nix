@@ -29,7 +29,6 @@ in
     enableHttp = lib.mkEnableOption "HTTP reverse proxy for Deluge Web UI";
   }
   // (services.http.mkOptions {
-    svcName = "deluge";
     name = "Deluge BitTorrent Client";
   });
 

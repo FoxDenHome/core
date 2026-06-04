@@ -22,7 +22,6 @@ in
     };
   }
   // (services.http.mkOptions {
-    svcName = "kiwix";
     name = "Kiwix server";
   });
 

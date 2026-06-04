@@ -39,7 +39,6 @@ in
     };
   }
   // services.mkOptions {
-    svcName = "foxIngress";
     name = "foxIngress";
   };
 

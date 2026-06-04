@@ -18,7 +18,6 @@ in
     };
   }
   // services.mkOptions {
-    svcName = "foxcaves";
     name = "foxCaves";
   };
 

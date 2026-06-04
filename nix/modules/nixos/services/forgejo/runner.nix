@@ -135,7 +135,6 @@ in
     };
   }
   // services.mkOptions {
-    svcName = "forgejo-runner";
     name = "Forgejo runner server";
   };
 

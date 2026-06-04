@@ -35,7 +35,6 @@ let
 in
 {
   options.foxDen.services.prometheus = services.mkOptions {
-    svcName = "prometheus";
     name = "Prometheus monitoring server";
   };
 

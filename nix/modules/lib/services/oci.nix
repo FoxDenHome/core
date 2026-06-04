@@ -112,7 +112,7 @@ let
   );
 in
 {
-  mkOptions = inputs: foxDenLib.services.mkOptions inputs;
+  inherit (foxDenLib.services) mkOptions;
   mkNamed = mkNamed;
   make = inputs: mkNamed inputs.name inputs;
 

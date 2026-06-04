@@ -153,7 +153,7 @@ in
     ;
 
   mkOptions =
-    { name, ... }:
+    { name }:
     {
       enable = lib.mkEnableOption name;
       host = lib.mkOption {

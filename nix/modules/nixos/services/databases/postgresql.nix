@@ -31,7 +31,6 @@ in
   options.foxDen.services.postgresql =
     with lib.types;
     services.mkOptions {
-      svcName = "postgresql";
       name = "PostgreSQL";
     }
     // {

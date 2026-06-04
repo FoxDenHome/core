@@ -25,7 +25,6 @@ in
       enable = lib.mkEnableOption "kanidm server";
     }
     // (services.http.mkOptions {
-      svcName = "kanidm";
       name = "Kanidm server";
     });
   };

@@ -38,7 +38,6 @@ in
   options.foxDen.services.mysql =
     with lib.types;
     services.mkOptions {
-      svcName = "mysql";
       name = "MySQL";
     }
     // {

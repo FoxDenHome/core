@@ -11,12 +11,9 @@ let
   svcConfig = config.foxDen.services.spaceage-tts;
 in
 {
-  options.foxDen.services.spaceage-tts = (
-    services.http.mkOptions {
-      svcName = "spaceage-tts";
-      name = "SpaceAge TTS";
-    }
-  );
+  options.foxDen.services.spaceage-tts = services.http.mkOptions {
+    name = "SpaceAge TTS";
+  };
 
   config = lib.mkIf svcConfig.enable (
     lib.mkMerge [

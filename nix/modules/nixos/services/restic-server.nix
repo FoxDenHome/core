@@ -29,7 +29,6 @@ in
     };
   }
   // (services.http.mkOptions {
-    svcName = "restic-server";
     name = "Restic Backup Server";
   });
 

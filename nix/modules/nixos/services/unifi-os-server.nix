@@ -8,23 +8,21 @@
 let
   user = config.users.users.unifi-os-server;
   svcConfig = config.foxDen.services.unifi-os-server;
-  name = "unifi-os-server";
   imagePackage = pkgs.unifi-os-server-image;
 in
 {
   options.foxDen.services.unifi-os-server = foxDenLib.services.oci.mkOptions {
-    svcName = name;
     name = "UniFi OS Server";
   };
 
   config = lib.mkIf svcConfig.enable (
     lib.mkMerge [
       (foxDenLib.services.oci.make {
+        name = "unifi-os-server";
         inherit
           pkgs
           config
           svcConfig
-          name
           ;
         oci = {
           inherit (imagePackage.oci)

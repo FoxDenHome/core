@@ -71,7 +71,6 @@ in
     };
   }
   // (services.http.mkOptions {
-    svcName = "oauth-jit-radius";
     name = "OAuthJITRadius";
   });
 

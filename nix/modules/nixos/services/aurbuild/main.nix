@@ -10,7 +10,6 @@ let
 in
 {
   options.foxDen.services.aurbuild = foxDenLib.services.oci.mkOptions {
-    svcName = "aurbuild";
     name = "AUR build service";
   };
 

@@ -11,12 +11,9 @@ let
   svcConfig = config.foxDen.services.spaceage-website;
 in
 {
-  options.foxDen.services.spaceage-website = (
-    services.http.mkOptions {
-      svcName = "spaceage-website";
-      name = "SpaceAge website";
-    }
-  );
+  options.foxDen.services.spaceage-website = services.http.mkOptions {
+    name = "SpaceAge website";
+  };
 
   config = lib.mkIf svcConfig.enable (
     lib.mkMerge [

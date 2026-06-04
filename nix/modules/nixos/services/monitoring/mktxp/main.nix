@@ -11,7 +11,6 @@ let
 in
 {
   options.foxDen.services.mktxp = services.mkOptions {
-    svcName = "mktxp";
     name = "MKTXP monitoring server";
   };
 

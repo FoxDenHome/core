@@ -11,10 +11,7 @@ let
   svcConfig = config.foxDen.services.spaceage-api;
 in
 {
-  options.foxDen.services.spaceage-api = {
-  }
-  // services.http.mkOptions {
-    svcName = "spaceage-api";
+  options.foxDen.services.spaceage-api = services.http.mkOptions {
     name = "SpaceAge API";
   };
 

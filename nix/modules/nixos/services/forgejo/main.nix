@@ -55,7 +55,6 @@ in
     };
   }
   // services.http.mkOptions {
-    svcName = "forgejo";
     name = "Forgejo git server";
   };
 

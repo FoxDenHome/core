@@ -24,12 +24,9 @@ let
   tlsKey = "${tlsRoot}/${tlsCertName}.key";
 in
 {
-  options.foxDen.services.xmpp = {
-  }
-  // (services.http.mkOptions {
-    svcName = "xmpp";
+  options.foxDen.services.xmpp = services.http.mkOptions {
     name = "Prosody XMPP";
-  });
+  };
 
   config = lib.mkIf svcConfig.enable (
     lib.mkMerge [

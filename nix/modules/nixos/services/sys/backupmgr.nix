@@ -37,7 +37,6 @@ in
     };
   }
   // foxDenLib.services.mkOptions {
-    svcName = "backupmgr";
     name = "Backup Manager";
   };
 

@@ -129,7 +129,6 @@ in
   options.foxDen.services.opensearch =
     with lib.types;
     services.mkOptions {
-      # svcName = "opensearch"; # TODO: seems redundant?
       name = "OpenSearch";
     }
     // {

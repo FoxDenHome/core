@@ -24,7 +24,6 @@ in
     };
   }
   // (services.http.mkOptions {
-    svcName = "e621dumper";
     name = "e621Dumper";
   });
 

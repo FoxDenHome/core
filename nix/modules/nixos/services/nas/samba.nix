@@ -26,7 +26,6 @@ in
 {
   options.foxDen.services.samba = (
     (services.mkOptions {
-      svcName = "samba";
       name = "Samba, for SMB";
     })
     // {

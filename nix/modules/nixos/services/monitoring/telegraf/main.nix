@@ -13,7 +13,6 @@ let
 in
 {
   options.foxDen.services.telegraf = services.mkOptions {
-    svcName = "telegraf";
     name = "Telegraf monitoring agent";
   };
 

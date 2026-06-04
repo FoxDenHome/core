@@ -9,12 +9,9 @@ let
   svcConfig = config.foxDen.services.scrypted;
 in
 {
-  options.foxDen.services.scrypted = {
-  }
-  // (foxDenLib.services.oci.mkOptions {
-    svcName = "scrypted";
+  options.foxDen.services.scrypted = foxDenLib.services.oci.mkOptions {
     name = "Scrypted service";
-  });
+  };
 
   config = lib.mkIf svcConfig.enable (
     (foxDenLib.services.oci.make {

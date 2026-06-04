@@ -235,7 +235,7 @@ in
   inherit mkOauthConfig;
 
   mkOptions = (
-    inputs@{ ... }:
+    inputs:
     with nixpkgs.lib.types;
     {
       tls = {

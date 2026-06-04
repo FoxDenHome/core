@@ -27,7 +27,6 @@ in
     };
   }
   // services.http.mkOptions {
-    svcName = "jellyfin";
     name = "Jellyfin media server";
   };
 

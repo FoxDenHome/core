@@ -28,7 +28,6 @@ let
 in
 {
   options.foxDen.services.spaceage-gmod = services.mkOptions {
-    svcName = "spaceage-gmod";
     name = "SpaceAge GMod";
   };
 
