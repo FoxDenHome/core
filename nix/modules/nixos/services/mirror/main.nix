@@ -65,7 +65,7 @@ in
           pkgs.nginxModules.fancyindex
         ];
         rawConfig =
-          { baseWebConfig, proxyConfigNoHost, ... }:
+          { baseWebConfig, ... }:
           ''
             js_shared_dict_zone zone=state:1m;
             js_import files from files.js;
@@ -260,20 +260,17 @@ in
 
         systemd.timers = (
           lib.attrsets.listToAttrs (
-            map (
-              { name, value }:
-              {
-                name = mkSyncSvc name;
-                value = {
-                  wantedBy = [ "timers.target" ];
-                  timerConfig = {
-                    OnCalendar = "hourly";
-                    RandomizedDelaySec = "45m";
-                    Persistent = true;
-                  };
+            map (name: {
+              name = mkSyncSvc name;
+              value = {
+                wantedBy = [ "timers.target" ];
+                timerConfig = {
+                  OnCalendar = "hourly";
+                  RandomizedDelaySec = "45m";
+                  Persistent = true;
                 };
-              }
-            ) (lib.attrsets.attrsToList svcConfig.sources)
+              };
+            }) (lib.attrsets.attrNames svcConfig.sources)
           )
         );
 
