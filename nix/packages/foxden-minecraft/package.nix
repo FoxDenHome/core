@@ -28,7 +28,7 @@ let
   modpack = {
     url = "https://nas.foxden.network/guest/serverpack_foxden_create.zip";
     name = "server";
-    hash = "sha256:7306447a4a237f6945326501f8bfac29ed4d027bcd8bcdf117ef7bc9e0e8bfdb";
+    hash = "sha256:1ea688c258358aa19527ab4307e2c6c3ec8a120f6f1a9677b36364a7bd6c099a";
   };
 in
 pkgs.stdenvNoCC.mkDerivation {
@@ -44,7 +44,7 @@ pkgs.stdenvNoCC.mkDerivation {
     # - Remove autumnity overrides once the next version happens, they seem to use textures now
     (pkgs.fetchurl {
       url = "https://github.com/Doridian/BlueMap/releases/download/v5.16/bluemap-5.16-mc1.20-forge.jar";
-      hash = "sha256:1ea688c258358aa19527ab4307e2c6c3ec8a120f6f1a9677b36364a7bd6c099a";
+      hash = "sha256:f88a4b3ad86bfe482896e682b80e9916887b20d422fffea3d85be9ae7441f55b";
     })
   ];
   bluemapPacks = [
