@@ -22,117 +22,114 @@ let
       };
     };
 
-  secCfg."config.yml" = (
-    pkgs.writers.writeYAML "config.yml" {
-      _meta = {
-        type = "config";
-        config_version = 2;
-      };
-      config = {
-        dynamic = {
-          http = {
-            xff = {
-              enabled = true;
-              internalProxies = "127.0.0.1";
-            };
+  secCfg =
+    let
+      writeEmptyYaml = (
+        name: type:
+        pkgs.writers.writeYAML name {
+          _meta = {
+            inherit type;
+            config_version = 2;
           };
-          authc = {
-            proxy_auth_domain = {
-              http_enabled = true;
-              transport_enabled = true;
-              order = 0;
-              http_authenticator = {
-                type = "proxy";
-                challenge = false;
-                config = {
-                  user_header = "x-auth-user";
-                  roles_header = "x-auth-roles";
+        }
+      );
+    in
+    {
+      "config.yml" = (
+        pkgs.writers.writeYAML "config.yml" {
+          _meta = {
+            type = "config";
+            config_version = 2;
+          };
+          config = {
+            dynamic = {
+              http = {
+                xff = {
+                  enabled = true;
+                  internalProxies = "127.0.0.1";
                 };
               };
-              authentication_backend = {
-                type = "noop";
+              authc = {
+                proxy_auth_domain = {
+                  http_enabled = true;
+                  transport_enabled = true;
+                  order = 0;
+                  http_authenticator = {
+                    type = "proxy";
+                    challenge = false;
+                    config = {
+                      user_header = "x-auth-user";
+                      roles_header = "x-auth-roles";
+                    };
+                  };
+                  authentication_backend = {
+                    type = "noop";
+                  };
+                };
               };
             };
           };
-        };
-      };
-    }
-  );
+        }
+      );
 
-  secCfg."roles.yml" = (
-    pkgs.writers.writeYAML "roles.yml" (
-      {
-        _meta = {
-          type = "roles";
-          config_version = 2;
-        };
-      }
-      // (lib.attrsets.mapAttrs (name: user: {
-        reserved = false;
-        hidden = false;
-        index_permissions = [
+      "roles.yml" = (
+        pkgs.writers.writeYAML "roles.yml" (
           {
-            index_patterns = user.indexPatterns;
-            allowed_actions = [ "*" ];
+            _meta = {
+              type = "roles";
+              config_version = 2;
+            };
           }
-        ];
-        cluster_permissions = [
-          "indices:data/write/bulk"
-          "indices:data/read/scroll"
-        ];
-        tenant_permissions = [ ];
-      }) svcConfig.users)
-    )
-  );
+          // (lib.attrsets.mapAttrs (name: user: {
+            reserved = false;
+            hidden = false;
+            index_permissions = [
+              {
+                index_patterns = user.indexPatterns;
+                allowed_actions = [ "*" ];
+              }
+            ];
+            cluster_permissions = [
+              "indices:data/write/bulk"
+              "indices:data/read/scroll"
+            ];
+            tenant_permissions = [ ];
+          }) svcConfig.users)
+        )
+      );
 
-  secCfg."roles_mapping.yml" = (
-    pkgs.writers.writeYAML "roles_mapping.yml" (
-      {
-        _meta = {
-          type = "rolesmapping";
-          config_version = 2;
-        };
-        all_access = {
-          reserved = true;
-          hidden = false;
-          backend_roles = [ ];
-          hosts = [ ];
-          users = [ "root" ];
-          and_backend_roles = [ ];
-        };
-      }
-      // (lib.attrsets.mapAttrs (name: user: {
-        reserved = false;
-        hidden = false;
-        backend_roles = [ ];
-        hosts = [ ];
-        users = [ name ];
-        and_backend_roles = [ ];
-      }) svcConfig.users)
-    )
-  );
+      "roles_mapping.yml" = (
+        pkgs.writers.writeYAML "roles_mapping.yml" (
+          {
+            _meta = {
+              type = "rolesmapping";
+              config_version = 2;
+            };
+          }
+          // (lib.attrsets.mapAttrs (role: users: {
+            reserved = if builtins.elem role [ "all_access" ] then true else false;
+            hidden = false;
+            backend_roles = [ ];
+            hosts = [ ];
+            inherit users;
+            and_backend_roles = [ ];
+            # Assign users to their role
+          }) ({ all_access = [ "root" ]; } // (builtins.mapAttrs (n: _: [ n ]) svcConfig.users)))
+        )
+      );
 
-  writeEmptyYaml = (
-    name: type:
-    pkgs.writers.writeYAML name {
-      _meta = {
-        type = type;
-        config_version = 2;
-      };
-    }
-  );
-
-  secCfg."internal_users.yml" = writeEmptyYaml "internal_users.yml" "internalusers";
-  secCfg."nodes_dn.yml" = writeEmptyYaml "nodes_dn.yml" "nodesdn";
-  secCfg."action_groups.yml" = writeEmptyYaml "action_groups.yml" "actiongroups";
-  secCfg."tenants.yml" = writeEmptyYaml "tenants.yml" "tenants";
-  secCfg."whitelist.yml" = writeEmptyYaml "whitelist.yml" "whitelist";
+      "internal_users.yml" = writeEmptyYaml "internal_users.yml" "internalusers";
+      "nodes_dn.yml" = writeEmptyYaml "nodes_dn.yml" "nodesdn";
+      "action_groups.yml" = writeEmptyYaml "action_groups.yml" "actiongroups";
+      "tenants.yml" = writeEmptyYaml "tenants.yml" "tenants";
+      "whitelist.yml" = writeEmptyYaml "whitelist.yml" "whitelist";
+    };
 in
 {
   options.foxDen.services.opensearch =
     with lib.types;
     services.mkOptions {
-      svcName = "opensearch";
+      # svcName = "opensearch"; # TODO: seems redundant?
       name = "OpenSearch";
     }
     // {
