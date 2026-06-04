@@ -10,6 +10,9 @@ subenv() {
 
 . ./minecraft-env.sh
 
+subenv server.properties
+subenv config/ae2webintegration/ae2webintegration.toml
+
 export PATH="$(dirname "${JAVA}"):${PATH}"
 ############################################LICENSE#################################################
 # Copyright (C) 2024  Griefed

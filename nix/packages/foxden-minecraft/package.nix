@@ -89,8 +89,8 @@ pkgs.stdenvNoCC.mkDerivation {
     mkdir aux
     mkdir modpack
     unzip "$modpack" -d modpack/
-    cp -r "${./local}" local
-    bash ${./build.sh} local aux
+    cp -r '${./local}' local
+    bash '${./build.sh}' local aux
 
     copyaux() {
       local srcFile="$1"
@@ -114,11 +114,8 @@ pkgs.stdenvNoCC.mkDerivation {
     cp -r ./aux/* "$out/server/"
     cp -nr ./modpack/* "$out/server/"
 
-    echo 'set -e' > "$out/server/minecraft-env.sh"
+    echo '# Nix injected env vars' > "$out/server/minecraft-env.sh"
     echo 'export "JAVA=${jrePackage}/bin/java"' >> "$out/server/minecraft-env.sh"
-    echo 'subenv server.properties' >> "$out/server/minecraft-env.sh"
-    echo 'subenv config/ae2webintegration/ae2webintegration.toml' >> "$out/server/minecraft-env.sh"
-    echo 'set +e' >> "$out/server/minecraft-env.sh"
 
     echo '${modpack.url} ${modpack.hash}' > "$out/server/minecraft-modpack.id"
 
