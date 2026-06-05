@@ -54,6 +54,7 @@ RECORD_TYPE_HANDLERS["SSHFP"] = (
 )
 RECORD_TYPE_HANDLERS["TXT"] = quote_record
 RECORD_TYPE_HANDLERS["LUA"] = quote_record
+RECORD_TYPE_HANDLERS["CNAME"] = lambda record: f"{record['value'].removesuffix('.')}."
 RECORD_TYPE_HANDLERS["ALIAS"] = handle_alias
 RECORD_TYPE_HANDLERS["SOA"] = disallow_apex_record
 RECORD_TYPE_HANDLERS["NS"] = disallow_apex_record
