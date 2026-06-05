@@ -5,6 +5,7 @@
   # then, once stuff is done, set them to true
   foxDen.sops.available = true;
   foxDen.boot.secure = true;
+  foxDen.boot.espMounts = [ "/boot2" ];
 
   system.stateVersion = "26.05";
 
@@ -89,8 +90,6 @@
       "nofail"
     ];
   };
-
-  foxDen.boot.espMounts = [ "/boot2" ];
 
   foxDen.services = {
     watchdog.enable = true;

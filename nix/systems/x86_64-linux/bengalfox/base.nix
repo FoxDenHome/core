@@ -6,6 +6,7 @@
   foxDen.sops.available = true;
   foxDen.boot.secure = true;
   foxDen.boot.uki = true;
+  foxDen.boot.espMounts = [ "/boot2" ];
 
   system.stateVersion = "26.05";
 
@@ -85,8 +86,6 @@
       "nofail"
     ];
   };
-
-  foxDen.boot.espMounts = [ "/boot2" ];
 
   fileSystems."/mnt/zssd" = {
     device = "/dev/mapper/zssd";
