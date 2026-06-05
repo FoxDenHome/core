@@ -19,7 +19,7 @@ let
       Stub = "${pkgs.systemd}/lib/systemd/boot/efi/linux${efiArch}.efi.stub";
       OSRelease = "@${config.system.build.etc}/etc/os-release";
     };
-  }; # boot${efiArch}.efi
+  };
 in
 {
   options.foxDen.boot.uki = lib.mkEnableOption "Enable direct UKI boot";
