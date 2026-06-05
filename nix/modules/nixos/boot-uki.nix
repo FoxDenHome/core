@@ -94,8 +94,10 @@ in
               fi
               copyuki "$name" "$profile"
             done
-            rm -f "bootold.efi"
-            mv "boot${efiArch}.efi" "bootold.efi" || true
+            if [ -f "boot${efiArch}.efi" ]; then
+              rm -f "bootold.efi"
+              mv "boot${efiArch}.efi" "bootold.efi"
+            fi
             copyuki "boot${efiArch}" "$MAIN_PROFILE"
             espkeep "boot${efiArch}.efi"
             espkeep bootold.efi
