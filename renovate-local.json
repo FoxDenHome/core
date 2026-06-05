@@ -2,9 +2,9 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "customDatasources": {
     "unifi-os-server": {
-      "defaultRegistryUrlTemplate": "https://fw-update.ubnt.com/api/firmware-latest?filter=eq~~product~~unifi-os-server&filter=eq~~channel~~release&filter=eq~~platform~~linux-x64",
+      "defaultRegistryUrlTemplate": "https://fw-update.ubnt.com/api/firmware-latest?filter=eq~~product~~unifi-os-server&filter=eq~~channel~~release",
       "transformTemplates": [
-        "{\"releases\": [$._embedded.firmware[platform = \"linux-x64\"].{\"version\": $replace(version, /^v/, \"\"), \"digest\": \"url = \\\"\" & _links.data.href & \"\\\";\\n  sha256 = \\\"\" & sha256_checksum & \"\\\";\"}]}"
+        "($arm64 := $._embedded.firmware[platform = \"linux-arm64\"]; $x64 := $._embedded.firmware[platform = \"linux-x64\"]; {\"releases\": [{\"version\": $replace($x64.version, /^v/, \"\"), \"digest\": \"archConfig =\\n    {\\n      \\\"aarch64-linux\\\" = {\\n        src.url = \\\"\" & $arm64._links.data.href & \"\\\";\\n        src.hash = \\\"sha256:\" & $arm64.sha256_checksum & \"\\\";\\n        firmwarePlatform = \\\"linux-arm64\\\";\\n      };\\n      \\\"x86_64-linux\\\" = {\\n        src.url = \\\"\" & $x64._links.data.href & \"\\\";\\n        src.hash = \\\"sha256:\" & $x64.sha256_checksum & \"\\\";\\n        firmwarePlatform = \\\"linux-x64\\\";\\n      };\\n    }\"}]})"
       ]
     }
   },
@@ -13,7 +13,7 @@
       "customType": "regex",
       "fileMatch": ["^nix/packages/unifi-os-server-image/package\\.nix$"],
       "matchStrings": [
-        "version = \"(?<currentValue>[^\"]+)\";\\n  (?<currentDigest>url = \"https://fw-download\\.ubnt\\.com/data/unifi-os-server/[^\"]+\";\\n  sha256 = \"[^\"]+\";)"
+        "version = \"(?<currentValue>[^\"]+)\";\\n  (?<currentDigest>archConfig =\\n    \\{\\n      \"aarch64-linux\" = \\{\\n        src\\.url = \"[^\"]+\";\\n        src\\.hash = \"sha256:[^\"]+\";\\n        firmwarePlatform = \"linux-arm64\";\\n      \\};\\n      \"x86_64-linux\" = \\{\\n        src\\.url = \"[^\"]+\";\\n        src\\.hash = \"sha256:[^\"]+\";\\n        firmwarePlatform = \"linux-x64\";\\n      \\};\\n    \\})"
       ],
       "datasourceTemplate": "custom.unifi-os-server",
       "depNameTemplate": "unifi-os-server",
