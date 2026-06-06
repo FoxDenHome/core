@@ -3,8 +3,27 @@ resource "aws_s3_bucket" "ping" {
   bucket = "ping-foxden"
 }
 
+resource "aws_s3_object" "ping-nm-check" {
+  region = aws_s3_bucket.ping.region
+  bucket = aws_s3_bucket.ping.id
+
+  key    = "nm-check.txt"
+  source = "foxden-ping/nm-check.txt"
+  etag   = filemd5("foxden-ping/nm-check.txt")
+}
+
+resource "aws_s3_bucket_public_access_block" "ping" {
+  region = aws_s3_bucket.ping.region
+  bucket = aws_s3_bucket.ping.id
+
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}
+
 resource "aws_s3_bucket_ownership_controls" "ping" {
-  region = "eu-north-1"
+  region = aws_s3_bucket.ping.region
   bucket = aws_s3_bucket.ping.id
 
   rule {
@@ -31,7 +50,7 @@ data "aws_iam_policy_document" "ping" {
 }
 
 resource "aws_s3_bucket_policy" "ping" {
-  region = "eu-north-1"
+  region = aws_s3_bucket.ping.region
   bucket = aws_s3_bucket.ping.id
 
   policy = data.aws_iam_policy_document.ping.json
@@ -45,23 +64,6 @@ resource "aws_acm_certificate" "ping" {
   lifecycle {
     create_before_destroy = true
   }
-}
-
-resource "cloudns_dns_record" "ping_validation" {
-  for_each = {
-    for dvo in aws_acm_certificate.ping.domain_validation_options : "${dvo.resource_record_name}@${dvo.resource_record_type}" => {
-      name  = dvo.resource_record_name
-      value = dvo.resource_record_value
-      type  = dvo.resource_record_type
-    }
-  }
-
-  zone = "foxden.network"
-
-  type  = each.value.type
-  name  = trimsuffix(each.value.name, ".foxden.network.")
-  ttl   = 3600
-  value = trimsuffix(each.value.value, ".")
 }
 
 resource "aws_wafv2_web_acl" "ping" {
@@ -120,6 +122,23 @@ resource "aws_cloudfront_distribution" "ping" {
     acm_certificate_arn      = aws_acm_certificate.ping.arn
     minimum_protocol_version = "TLSv1"
   }
+}
+
+resource "cloudns_dns_record" "ping_validation" {
+  for_each = {
+    for dvo in aws_acm_certificate.ping.domain_validation_options : "${dvo.resource_record_name}@${dvo.resource_record_type}" => {
+      name  = dvo.resource_record_name
+      value = dvo.resource_record_value
+      type  = dvo.resource_record_type
+    }
+  }
+
+  zone = "foxden.network"
+
+  type  = each.value.type
+  name  = trimsuffix(each.value.name, ".foxden.network.")
+  ttl   = 3600
+  value = trimsuffix(each.value.value, ".")
 }
 
 resource "cloudns_dns_record" "ping_cname" {
