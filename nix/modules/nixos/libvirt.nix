@@ -149,6 +149,7 @@ in
         // iface
       ) vms.${name}.config.interfaces;
       webservice = vms.${name}.config.webservice or { };
+      ssh = vms.${name}.config.ssh or false;
     });
 
     foxDen.dns.records = lib.mkMerge (map (vm: vm.config.records or [ ]) vmList);

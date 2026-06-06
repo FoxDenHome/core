@@ -1,6 +1,7 @@
 {
   rootDiskSize = "128G";
   autostart = true;
+  ssh = true;
   interfaces.default = {
     dns = {
       fqdns = [

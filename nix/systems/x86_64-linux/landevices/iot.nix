@@ -126,10 +126,7 @@
           "10.2.10.5/16"
         ];
       };
-      ups-dori-office = {
-        ssh = true;
-      }
-      // (mkIntf {
+      ups-dori-office = mkIntf {
         dns = {
           fqdns = [ "ups-dori-office.foxden.network" ];
         };
@@ -142,6 +139,6 @@
           "10.1.11.3/16"
           "fd2c:f4cb:63be:1::b03/64"
         ];
-      });
+      };
     };
 }

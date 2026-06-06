@@ -3,15 +3,23 @@ set -euo pipefail
 
 cd "$(dirname "$0")"
 
-rm -f result
-nix build "../../../..#sshHostDnsNames.json"
-RECORDS="$(jq -r '.[]' result)"
-rm -f result
-for record in $RECORDS; do
-    if [ -f "records/$record" ]; then
-        echo "records/$record exists, skipping"    
-    else
-        echo "records/$record missing, updating"
-        ./update.sh "$record"
+result="$(nix build "../../../..#sshHostDnsNames.json" --no-link --print-out-paths)"
+HOSTS="$(jq -r '.[]' "$result")"
+
+for hostspec in $HOSTS; do
+    host="${hostspec%@*}"
+    primary="${hostspec#*@}"
+    if [ "$host" != "$primary" ]; then
+        echo "Host records/$host is an alias for $primary, symlinking"
+        ln -sf "$primary" "records/$host"
+        continue
     fi
+
+    if [ -f "records/$host" ]; then
+        echo "records/$host exists, skipping"
+        continue
+    fi
+
+    echo "records/$host missing, updating"
+    ./update.sh "$host"
 done

@@ -415,6 +415,7 @@ in
       in
       {
         inherit (ifcfg) nameservers;
+        ssh = true;
         interfaces.default = mkIntf ifcfg;
         interfaces.foxden = mkIntf ifcfg-foxden;
         interfaces.routed = mkIntf ifcfg-routed;
