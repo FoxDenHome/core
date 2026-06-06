@@ -26,35 +26,36 @@ in
     { interfaces, ... }:
     {
       config.systemd.network.networks = nixpkgs.lib.attrsets.listToAttrs (
-        (map (
-          (
-            iface:
-            let
-              vlan = iface.driver.bridge.vlan;
-            in
-            {
-              name = "60-vebr-${iface.host.name}-${iface.name}";
-              value = {
-                name = mkIfaceName iface;
-                bridge = [ iface.driver.bridge.bridge ];
-                bridgeVLANs =
-                  if (vlan > 0) then
-                    [
-                      {
-                        PVID = vlan;
-                        EgressUntagged = vlan;
-                        VLAN = vlan;
-                      }
-                    ]
-                  else
-                    [ ];
-                linkConfig = {
-                  MTUBytes = iface.driver.bridge.mtu;
-                };
+        map (
+          iface:
+          let
+            inherit (iface.driver.bridge) vlan;
+          in
+          {
+            name = "60-vebr-${iface.host.name}-${iface.name}";
+            value = {
+              name = mkIfaceName iface;
+              bridge = [ iface.driver.bridge.bridge ];
+              bridgeVLANs =
+                if (vlan > 0) then
+                  [
+                    {
+                      PVID = vlan;
+                      EgressUntagged = vlan;
+                      VLAN = vlan;
+                    }
+                  ]
+                else
+                  [ ];
+              bridgeConfig = {
+                UseBPDU = false;
               };
-            }
-          )
-        ) interfaces)
+              linkConfig = {
+                MTUBytes = iface.driver.bridge.mtu;
+              };
+            };
+          }
+        ) interfaces
       );
     };
 
