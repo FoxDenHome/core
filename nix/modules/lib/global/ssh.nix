@@ -14,12 +14,19 @@ in
 {
   sshHostDnsNames =
     nixosConfigurations:
-    lib.lists.uniqueStrings (fixedSshHosts ++ (
-      lib.flatten (
-        map (host: map (intf: let
-          primary = lib.lists.head intf.dns.fqdns; in (map (fqdn: "${fqdn}@${primary}") intf.dns.fqdns)) (lib.attrsets.attrValues host.interfaces)) (
-          lib.attrsets.attrValues (sshHostsRaw nixosConfigurations)
-        )
-      )
-    ));
+    lib.lists.uniqueStrings (
+      fixedSshHosts
+      ++ (lib.flatten (
+        map (
+          host:
+          map (
+            intf:
+            let
+              primary = lib.lists.head intf.dns.fqdns;
+            in
+            (map (fqdn: "${fqdn}@${primary}") intf.dns.fqdns)
+          ) (lib.attrsets.attrValues host.interfaces)
+        ) (lib.attrsets.attrValues (sshHostsRaw nixosConfigurations))
+      ))
+    );
 }
