@@ -1,41 +1,43 @@
-resource "aws_cloudfront_origin_access_identity" "ping_oai" {
-
-}
-
-resource "aws_s3_bucket" "ping_bucket" {
+resource "aws_s3_bucket" "ping" {
   region = "eu-north-1"
   bucket = "ping-foxden"
 }
 
-resource "aws_s3_bucket_ownership_controls" "ping_bucket_ownwership_controls" {
+resource "aws_s3_bucket_ownership_controls" "ping" {
   region = "eu-north-1"
-  bucket = aws_s3_bucket.ping_bucket.id
+  bucket = aws_s3_bucket.ping.id
 
   rule {
     object_ownership = "BucketOwnerPreferred"
   }
 }
 
-data "aws_iam_policy_document" "ping_bucket_policy" {
+data "aws_iam_policy_document" "ping" {
   statement {
     actions   = ["s3:GetObject"]
-    resources = ["${aws_s3_bucket.ping_bucket.arn}/*"]
+    resources = ["${aws_s3_bucket.ping.arn}/*"]
 
     principals {
-      type        = "AWS"
-      identifiers = [aws_cloudfront_origin_access_identity.ping_oai.iam_arn]
+      type        = "Service"
+      identifiers = ["cloudfront.amazonaws.com"]
+    }
+
+    condition {
+      test     = "StringEquals"
+      variable = "AWS:SourceArn"
+      values   = [aws_cloudfront_distribution.ping.arn]
     }
   }
 }
 
-resource "aws_s3_bucket_policy" "ping_bucket_policy" {
+resource "aws_s3_bucket_policy" "ping" {
   region = "eu-north-1"
-  bucket = aws_s3_bucket.ping_bucket.id
+  bucket = aws_s3_bucket.ping.id
 
-  policy = data.aws_iam_policy_document.ping_bucket_policy.json
+  policy = data.aws_iam_policy_document.ping.json
 }
 
-resource "aws_acm_certificate" "ping_certificate" {
+resource "aws_acm_certificate" "ping" {
   region            = "us-east-1"
   domain_name       = "ping.foxden.network"
   validation_method = "DNS"
@@ -45,9 +47,9 @@ resource "aws_acm_certificate" "ping_certificate" {
   }
 }
 
-resource "cloudns_dns_record" "ping_validation_record" {
+resource "cloudns_dns_record" "ping_validation" {
   for_each = {
-    for dvo in aws_acm_certificate.ping_certificate.domain_validation_options : "${dvo.resource_record_name}@${dvo.resource_record_type}" => {
+    for dvo in aws_acm_certificate.ping.domain_validation_options : "${dvo.resource_record_name}@${dvo.resource_record_type}" => {
       name  = dvo.resource_record_name
       value = dvo.resource_record_value
       type  = dvo.resource_record_type
@@ -62,7 +64,7 @@ resource "cloudns_dns_record" "ping_validation_record" {
   value = trimsuffix(each.value.value, ".")
 }
 
-resource "aws_wafv2_web_acl" "ping_web_acl" {
+resource "aws_wafv2_web_acl" "ping" {
   region      = "us-east-1"
   name        = "foxden-ping-web-acl"
   description = "Web ACL for the FoxDen ping service"
@@ -79,38 +81,31 @@ resource "aws_wafv2_web_acl" "ping_web_acl" {
   }
 }
 
-resource "aws_cloudfront_distribution" "ping_distribution" {
-  origin {
-    domain_name = aws_s3_bucket.ping_bucket.bucket_regional_domain_name
-    origin_id   = "ping_s3_origin_id"
+resource "aws_cloudfront_origin_access_control" "ping" {
+  name                              = "ping-oac"
+  origin_access_control_origin_type = "s3"
+  signing_behavior                  = "always"
+  signing_protocol                  = "sigv4"
+}
 
-    s3_origin_config {
-      origin_access_identity = aws_cloudfront_origin_access_identity.ping_oai.cloudfront_access_identity_path
-    }
+resource "aws_cloudfront_distribution" "ping" {
+  origin {
+    domain_name              = aws_s3_bucket.ping.bucket_regional_domain_name
+    origin_access_control_id = aws_cloudfront_origin_access_control.ping.id
+    origin_id                = "ping_s3_origin_id"
   }
 
   enabled         = true
   is_ipv6_enabled = true
-  aliases         = [aws_acm_certificate.ping_certificate.domain_name]
-  web_acl_id      = aws_wafv2_web_acl.ping_web_acl.arn
+  aliases         = [aws_acm_certificate.ping.domain_name]
+  web_acl_id      = aws_wafv2_web_acl.ping.arn
 
   default_cache_behavior {
-    allowed_methods  = ["GET", "HEAD"]
-    cached_methods   = ["GET", "HEAD"]
-    target_origin_id = "ping_s3_origin_id"
-
-    forwarded_values {
-      query_string = false
-
-      cookies {
-        forward = "none"
-      }
-    }
-
+    allowed_methods        = ["GET", "HEAD"]
+    cached_methods         = ["GET", "HEAD"]
+    target_origin_id       = "ping_s3_origin_id"
+    cache_policy_id        = "658327ea-f89d-4fab-a63d-7e88639e58f6" # CachingOptimized
     viewer_protocol_policy = "allow-all"
-    min_ttl                = 0
-    default_ttl            = 3600
-    max_ttl                = 86400
   }
 
   restrictions {
@@ -121,15 +116,19 @@ resource "aws_cloudfront_distribution" "ping_distribution" {
 
   viewer_certificate {
     ssl_support_method  = "sni-only"
-    acm_certificate_arn = aws_acm_certificate.ping_certificate.arn
+    acm_certificate_arn = aws_acm_certificate.ping.arn
   }
 }
 
-resource "cloudns_dns_record" "ping_cdn" {
+resource "cloudns_dns_record" "ping_cname" {
   zone = "foxden.network"
 
   type  = "CNAME"
   name  = "ping"
   ttl   = 3600
-  value = aws_cloudfront_distribution.ping_distribution.domain_name
+  value = aws_cloudfront_distribution.ping.domain_name
+}
+
+output "generated_records" {
+  value = setunion(values(cloudns_dns_record.ping_validation), [cloudns_dns_record.ping_cname])
 }
