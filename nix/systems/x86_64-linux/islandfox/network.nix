@@ -12,7 +12,10 @@ let
     routes = foxDenLib.hosts.helpers.lan.mkRoutes 2;
     nameservers = foxDenLib.hosts.helpers.lan.mkNameservers 2;
     interface = "br-default";
-    phyIfaces = [ "ens1np0" ]; # "enp2s0" ];
+    phyIfaces = [
+      "ens1np0"
+      "enp2s0"
+    ];
     phyPvid = 2;
     mtu = 9000;
     mac = config.lib.foxDen.mkHashMac "000001";
