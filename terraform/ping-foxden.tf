@@ -130,5 +130,15 @@ resource "cloudns_dns_record" "ping_cname" {
 }
 
 output "generated_records" {
-  value = setunion(values(cloudns_dns_record.ping_validation), [cloudns_dns_record.ping_cname])
+  value = {
+    "foxden.network" = [for r in setunion(values(cloudns_dns_record.ping_validation), [cloudns_dns_record.ping_cname]) : {
+      type     = upper(r.type)
+      fqdn     = r.name == "@" ? r.zone : "${r.name}.${r.zone}"
+      name     = r.name
+      ttl      = r.ttl
+      value    = r.value
+      critical = false
+      horizon  = "*"
+    }]
+  }
 }

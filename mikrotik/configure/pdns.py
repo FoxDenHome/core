@@ -1,5 +1,5 @@
-from subprocess import check_call
-from json import load as json_load
+from subprocess import check_call, check_output
+from json import load as json_load, loads as json_loads
 from os.path import join as path_join
 from os import makedirs
 from configure.util import unlink_safe, NIX_DIR, mtik_path, ROUTERS, format_mtik_duration
@@ -83,8 +83,15 @@ def refresh_pdns():
     unlink_safe("result")
     check_call(["nix", "build", f"{NIX_DIR}#dns.json"])
     with open("result", "r") as file:
-        INTERNAL_RECORDS = cast(dict[str, Any], json_load(file)["records"]["internal"])
+        INTERNAL_RECORDS = cast(dict[str, list[Any]], json_load(file)["records"]["internal"])
     unlink_safe("result")
+
+    additional_records = json_loads(check_output(
+        ["tofu", "output", "-show-sensitive", "-json"], cwd="../terraform"
+    ).decode("utf-8"))["generated_records"]["value"]
+    for zone, records in additional_records.items():
+        # Assume zone exists, makes no sense otherwise
+        INTERNAL_RECORDS[zone] += records
 
     rmtree(OUT_PATH, ignore_errors=True)
     makedirs(OUT_PATH, exist_ok=True)
