@@ -11,7 +11,6 @@ let
   internalPackages = {
     "nixpkgs" = true;
     "impermanence" = true;
-    "lanzaboote" = true;
     "sops-nix" = true;
     "self" = true;
   };

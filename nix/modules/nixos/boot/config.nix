@@ -2,7 +2,6 @@
   lib,
   pkgs,
   config,
-  lanzaboote,
   systemArch,
   ...
 }:
@@ -10,10 +9,6 @@ let
   mainEspMount = config.boot.loader.efi.efiSysMountPoint;
 in
 {
-  imports = [
-    lanzaboote.nixosModules.lanzaboote
-  ];
-
   options.foxDen.boot = {
     secure = lib.mkEnableOption "Enable secure boot";
     espMounts = lib.mkOption {
