@@ -38,7 +38,7 @@
 
   foxDen.deploy.push.enable = true;
 
-  services.cockpit.enable = true;
+  services.cockpit.enable = false; # TODO: Currently mostly broken, at least the important bits (storage + libvirt)
 
   environment.persistence."/nix/persist/system" = {
     directories = [ "/var/lib/rasdaemon" ];
