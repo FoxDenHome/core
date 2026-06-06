@@ -85,7 +85,7 @@ in
     bridgeConfig = {
       VLANFiltering = true;
       STP = true;
-      ForwardDelaySec = 1;
+      ForwardDelaySec = 2;
     };
   };
 
