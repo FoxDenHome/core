@@ -6,15 +6,7 @@ cd "$(dirname "$0")"
 result="$(nix build "../../../..#sshHostDnsNames.json" --no-link --print-out-paths)"
 HOSTS="$(jq -r '.[]' "$result")"
 
-for hostspec in $HOSTS; do
-    host="${hostspec%@*}"
-    primary="${hostspec#*@}"
-    if [ "$host" != "$primary" ]; then
-        echo "Host records/$host is an alias for $primary, symlinking"
-        ln -sf "$primary" "records/$host"
-        continue
-    fi
-
+for host in $HOSTS; do
     if [ -f "records/$host" ]; then
         echo "records/$host exists, skipping"
         continue
