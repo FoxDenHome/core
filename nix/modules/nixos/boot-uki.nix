@@ -79,10 +79,10 @@ in
           }
 
           buildesp() {
-            local esp="$1/EFI/TEST"
+            local esp="$1/EFI/BOOT"
             echo "Building UKI for $esp with $1"
             mkdir -p "$esp"
-            read -r -a ESPFILES_REMOVE < <(ls "$esp")
+            read -r -a id  < <(ls "$esp")
             ls "$esp" > "$TEMPDIR/espfiles.remove"
             local olddir="$(pwd)"
             cd "$esp"
