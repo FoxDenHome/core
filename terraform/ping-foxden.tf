@@ -3,13 +3,19 @@ resource "aws_s3_bucket" "ping" {
   bucket = "ping-foxden"
 }
 
-resource "aws_s3_object" "ping-nm-check" {
+locals {
+  file_source = "${path.module}/foxden-ping"
+}
+
+resource "aws_s3_object" "ping" {
+  for_each = fileset(local.file_source, "**")
+
   region = aws_s3_bucket.ping.region
   bucket = aws_s3_bucket.ping.id
 
-  key    = "nm-check.txt"
-  source = "foxden-ping/nm-check.txt"
-  etag   = filemd5("foxden-ping/nm-check.txt")
+  key    = each.key
+  source = "${local.file_source}/${each.key}"
+  etag   = filemd5("${local.file_source}/${each.key}")
 }
 
 resource "aws_s3_bucket_public_access_block" "ping" {
