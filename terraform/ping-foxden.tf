@@ -97,6 +97,7 @@ resource "aws_cloudfront_distribution" "ping" {
 
   enabled         = true
   is_ipv6_enabled = true
+  http_version    = "http2and3"
   aliases         = [aws_acm_certificate.ping.domain_name]
   web_acl_id      = aws_wafv2_web_acl.ping.arn
 
@@ -115,8 +116,9 @@ resource "aws_cloudfront_distribution" "ping" {
   }
 
   viewer_certificate {
-    ssl_support_method  = "sni-only"
-    acm_certificate_arn = aws_acm_certificate.ping.arn
+    ssl_support_method       = "sni-only"
+    acm_certificate_arn      = aws_acm_certificate.ping.arn
+    minimum_protocol_version = "TLSv1"
   }
 }
 
