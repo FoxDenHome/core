@@ -18,6 +18,17 @@ resource "aws_s3_object" "ping" {
   etag   = filemd5("${local.file_source}/${each.key}")
 }
 
+resource "aws_s3_bucket_cors_configuration" "ping" {
+  region = aws_s3_bucket.ping.region
+  bucket = aws_s3_bucket.ping.id
+
+  cors_rule {
+    allowed_methods = ["GET"]
+    allowed_origins = ["*"]
+    expose_headers  = ["ETag", "X-Cache", "X-Amz-Cf-Pop", "X-Amz-Cf-Id"]
+  }
+}
+
 resource "aws_s3_bucket_public_access_block" "ping" {
   region = aws_s3_bucket.ping.region
   bucket = aws_s3_bucket.ping.id
@@ -110,8 +121,8 @@ resource "aws_cloudfront_distribution" "ping" {
   web_acl_id      = aws_wafv2_web_acl.ping.arn
 
   default_cache_behavior {
-    allowed_methods        = ["GET", "HEAD"]
-    cached_methods         = ["GET", "HEAD"]
+    allowed_methods        = ["GET", "HEAD", "OPTIONS"]
+    cached_methods         = ["GET", "HEAD", "OPTIONS"]
     target_origin_id       = "ping_s3_origin_id"
     cache_policy_id        = "658327ea-f89d-4fab-a63d-7e88639e58f6" # CachingOptimized
     viewer_protocol_policy = "allow-all"
