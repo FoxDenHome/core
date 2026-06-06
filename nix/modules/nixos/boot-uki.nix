@@ -66,6 +66,8 @@ in
         + ''
           }
 
+          ESPFILES_REMOVE=()
+
           copyuki() {
             local name="$1"
             makeuki "$@"
@@ -73,16 +75,14 @@ in
           }
 
           espkeep() {
-            local name="$1"
-            # TODO: Full line matches somehow
-            cat "$TEMPDIR/espfiles.remove" | ${pkgs.gnugrep}/bin/grep -vF "$name" > "$TEMPDIR/espfiles.remove.new" || return 0
-            mv "$TEMPDIR/espfiles.remove.new" "$TEMPDIR/espfiles.remove"
+            ESPFILES_REMOVE="''${ESPFILES_REMOVE[@]/$1}"
           }
 
           buildesp() {
             local esp="$1/EFI/TEST"
             echo "Building UKI for $esp with $1"
             mkdir -p "$esp"
+            read -r -a ESPFILES_REMOVE < <(ls "$esp")
             ls "$esp" > "$TEMPDIR/espfiles.remove"
             local olddir="$(pwd)"
             cd "$esp"
@@ -94,14 +94,14 @@ in
               fi
               copyuki "$name" "$profile"
             done
-            if [ -f "boot${efiArch}.efi" ]; then
-              rm -f "bootold.efi"
-              mv "boot${efiArch}.efi" "bootold.efi"
+            if [ -f boot${efiArch}.efi ]; then
+              rm -f bootold.efi
+              mv boot${efiArch}.efi bootold.efi
             fi
-            copyuki "boot${efiArch}" "$MAIN_PROFILE"
-            espkeep "boot${efiArch}.efi"
+            copyuki boot${efiArch} "$MAIN_PROFILE"
+            espkeep boot${efiArch}.efi
             espkeep bootold.efi
-            cat "$TEMPDIR/espfiles.remove" | ${pkgs.findutils}/bin/xargs -r rm -fv
+            echo "$ESPFILES_REMOVE" | ${pkgs.findutils}/bin/xargs -r rm -fv
             cd "$olddir"
           };
         ''
