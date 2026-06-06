@@ -5,7 +5,6 @@
   # then, once stuff is done, set them to true
   foxDen.sops.available = true;
   foxDen.boot.secure = true;
-  foxDen.boot.uki = true;
   foxDen.boot.espMounts = [ "/boot2" ];
 
   system.stateVersion = "26.05";
