@@ -25,27 +25,29 @@ in
   foxDen.hosts.gateway = "router";
   virtualisation.libvirtd.allowedBridges = [ ifcfg.interface ];
 
-  systemd.network.networks."30-${ifcfg.interface}" = {
-    name = ifcfg.interface;
-    routes = ifcfg.routes;
-    address = ifcfg.addresses;
-    dns = ifcfg.nameservers;
+  systemd.network.networks = {
+    "30-${ifcfg.interface}" = {
+      name = ifcfg.interface;
+      routes = ifcfg.routes;
+      address = ifcfg.addresses;
+      dns = ifcfg.nameservers;
 
-    networkConfig = {
-      DHCP = "no";
-      IPv6AcceptRA = true;
-    };
+      networkConfig = {
+        DHCP = "no";
+        IPv6AcceptRA = true;
+      };
 
-    bridgeVLANs = [
-      {
-        PVID = ifcfg.phyPvid;
-        EgressUntagged = ifcfg.phyPvid;
-        VLAN = builtins.toString ifcfg.phyPvid;
-      }
-    ];
+      bridgeVLANs = [
+        {
+          PVID = ifcfg.phyPvid;
+          EgressUntagged = ifcfg.phyPvid;
+          VLAN = builtins.toString ifcfg.phyPvid;
+        }
+      ];
 
-    linkConfig = {
-      MTUBytes = ifcfg.mtu;
+      linkConfig = {
+        MTUBytes = ifcfg.mtu;
+      };
     };
   }
   // builtins.listToAttrs (
@@ -84,26 +86,6 @@ in
       VLANFiltering = true;
       STP = true;
       ForwardDelaySec = 1;
-    };
-  };
-
-  systemd.network.networks."40-${ifcfg.interface}-root" = {
-    name = ifcfg.phyIface;
-    bridge = [ ifcfg.interface ];
-
-    bridgeVLANs = [
-      {
-        PVID = ifcfg.phyPvid;
-        EgressUntagged = ifcfg.phyPvid;
-        VLAN = "1-9";
-      }
-      {
-        VLAN = "2001";
-      }
-    ];
-
-    linkConfig = {
-      MTUBytes = ifcfg.mtu;
     };
   };
 
