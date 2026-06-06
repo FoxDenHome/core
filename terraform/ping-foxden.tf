@@ -2,28 +2,18 @@ resource "aws_cloudfront_origin_access_identity" "ping_oai" {
 
 }
 
-import {
-  to = aws_s3_bucket.ping_bucket
-  identity = {
-    bucket = "ping-foxden"
-    region = "eu-north-1"
-  }
-}
-
 resource "aws_s3_bucket" "ping_bucket" {
+  region = "eu-north-1"
   bucket = "ping-foxden"
 }
 
 resource "aws_s3_bucket_ownership_controls" "ping_bucket_ownwership_controls" {
+  region = "eu-north-1"
   bucket = aws_s3_bucket.ping_bucket.id
+
   rule {
     object_ownership = "BucketOwnerPreferred"
   }
-}
-
-resource "aws_s3_bucket_acl" "ping_bucket_acl" {
-  bucket = aws_s3_bucket.ping_bucket.id
-  acl    = "private"
 }
 
 data "aws_iam_policy_document" "ping_bucket_policy" {
@@ -39,36 +29,41 @@ data "aws_iam_policy_document" "ping_bucket_policy" {
 }
 
 resource "aws_s3_bucket_policy" "ping_bucket_policy" {
+  region = "eu-north-1"
   bucket = aws_s3_bucket.ping_bucket.id
+
   policy = data.aws_iam_policy_document.ping_bucket_policy.json
 }
 
 resource "aws_acm_certificate" "ping_certificate" {
+  region            = "us-east-1"
   domain_name       = "ping.foxden.network"
   validation_method = "DNS"
+
   lifecycle {
     create_before_destroy = true
   }
 }
 
-# resource "cloudns_dns_record" "ping_validation_record" {
-#   for_each = {
-#     for dvo in aws_acm_certificate.ping_certificate.domain_validation_options : "${dvo.resource_record_name}@${dvo.resource_record_type}" => {
-#       name  = dvo.resource_record_name
-#       value = dvo.resource_record_value
-#       type  = dvo.resource_record_type
-#     }
-#   }
+resource "cloudns_dns_record" "ping_validation_record" {
+  for_each = {
+    for dvo in aws_acm_certificate.ping_certificate.domain_validation_options : "${dvo.resource_record_name}@${dvo.resource_record_type}" => {
+      name  = dvo.resource_record_name
+      value = dvo.resource_record_value
+      type  = dvo.resource_record_type
+    }
+  }
 
-#   zone = "foxden.network"
+  zone = "foxden.network"
 
-#   type  = each.value.type
-#   name  = trimsuffix(each.value.name, ".foxden.network.")
-#   ttl   = 3600
-#   value = trimsuffix(each.value.value, ".")
-# }
+  type  = each.value.type
+  name  = trimsuffix(each.value.name, ".foxden.network.")
+  ttl   = 3600
+  value = trimsuffix(each.value.value, ".")
+}
 
 resource "aws_wafv2_web_acl" "ping_web_acl" {
+  region      = "us-east-1"
   name        = "foxden-ping-web-acl"
   description = "Web ACL for the FoxDen ping service"
   scope       = "CLOUDFRONT"
