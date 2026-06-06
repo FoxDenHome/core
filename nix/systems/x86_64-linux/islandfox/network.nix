@@ -12,7 +12,7 @@ let
     routes = foxDenLib.hosts.helpers.lan.mkRoutes 2;
     nameservers = foxDenLib.hosts.helpers.lan.mkNameservers 2;
     interface = "br-default";
-    phyIface = "ens1np0";
+    phyIfaces = [ "ens1np0" ]; # "enp2s0" ];
     phyPvid = 2;
     mtu = 9000;
     mac = config.lib.foxDen.mkHashMac "000001";
@@ -47,8 +47,31 @@ in
     linkConfig = {
       MTUBytes = ifcfg.mtu;
     };
-  };
-  #boot.initrd.systemd.network.networks."30-${ifcfg.phyIface}" = config.systemd.network.networks."30-${ifcfg.interface}" // { name = ifcfg.phyIface; };
+  }
+  // builtins.listToAttrs (
+    map (phyIface: {
+      name = "40-${ifcfg.interface}-root-${phyIface}";
+      value = {
+        name = phyIface;
+        bridge = [ ifcfg.interface ];
+
+        bridgeVLANs = [
+          {
+            PVID = ifcfg.phyPvid;
+            EgressUntagged = ifcfg.phyPvid;
+            VLAN = "1-9";
+          }
+          {
+            VLAN = "2001";
+          }
+        ];
+
+        linkConfig = {
+          MTUBytes = ifcfg.mtu;
+        };
+      };
+    }) ifcfg.phyIfaces
+  );
 
   systemd.network.netdevs."${ifcfg.interface}" = {
     netdevConfig = {
@@ -59,6 +82,8 @@ in
 
     bridgeConfig = {
       VLANFiltering = true;
+      STP = true;
+      ForwardDelaySec = 1;
     };
   };
 
