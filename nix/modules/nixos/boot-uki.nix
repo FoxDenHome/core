@@ -83,7 +83,6 @@ in
             echo "Building UKI for $esp with $1"
             mkdir -p "$esp"
             read -r -a id  < <(ls "$esp")
-            ls "$esp" > "$TEMPDIR/espfiles.remove"
             local olddir="$(pwd)"
             cd "$esp"
             for profile in $FIXED_PROFILES; do
