@@ -70,6 +70,9 @@ in
             VLAN = "2001";
           }
         ];
+        bridgeConfig = {
+          UseBPDU = true;
+        };
 
         linkConfig = {
           MTUBytes = ifcfg.mtu;
