@@ -65,7 +65,7 @@ in
 
           conflicts = [ "backupmgr-prune.service" ];
           serviceConfig = commonServiceConfig // {
-            ExecStart = [ "${pkgs.backupmgr}/bin/backupmgr --mode=backup" ];
+            ExecStart = [ "${pkgs.backupmgr}/bin/backupmgr --auto-unlock --mode=backup" ];
           };
         };
 
@@ -83,7 +83,7 @@ in
 
           conflicts = [ "backupmgr-backup.service" ];
           serviceConfig = commonServiceConfig // {
-            ExecStart = [ "${pkgs.backupmgr}/bin/backupmgr --mode=prune" ];
+            ExecStart = [ "${pkgs.backupmgr}/bin/backupmgr --auto-unlock --mode=prune" ];
           };
         };
 
