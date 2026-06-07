@@ -28,7 +28,7 @@ sub vcl_recv {
     "version": ""} + json.escape(tls.client.protocol) + {"",
     "cipher": ""} + json.escape(tls.client.cipher) + {""
   }"}, "%22") + {"
-}" + LF});
+}"} + LF);
     error 200;
   }
 
