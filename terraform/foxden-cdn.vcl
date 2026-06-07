@@ -60,10 +60,14 @@ sub vcl_error {
   if (req.url.path == "/info/ip") {
     synthetic client.ip;
     return(deliver);
-  } else if (req.url.path == "/info/proto") {
+  }
+
+  if (req.url.path == "/info/proto") {
     synthetic req.http.transport-type;
     return(deliver);
-  } else if (req.url.path == "/info/tls") {
+  }
+
+  if (req.url.path == "/info/tls") {
     set obj.http.content-type = "application/json";
     if (req.is_ssl) {
       synthetic {"{
