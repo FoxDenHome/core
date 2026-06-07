@@ -1,5 +1,9 @@
 sub vcl_recv { 
 #FASTLY recv
+
+  set req.http.transport-type = transport.type;
+  set req.http.tls-protocol = tls.client.protocol;
+  set req.http.tls-cipher = tls.client.cipher;
   error 989 "vcl_error redirect";
 }
 
@@ -31,36 +35,53 @@ sub vcl_fetch {
 }
 
 table static_responses {
-  "/nm-check.txt": {"NetworkManager is online
-"},
+  "/nm-check.txt": "NetworkManager is online",
 }
 
 sub vcl_error {
 #FASTLY error
 
-  if (obj.status == 989) {
-    set obj.status = 200;
-    set obj.response = "OK";
-    set obj.http.content-type = "text/plain";
-    set obj.http.cache-control = "no-store";
-    unset obj.http.Retry-After;
-
-    set req.http.foxden-static-response = table.lookup(static_responses, req.url.path);
-    if (req.http.foxden-static-response) {
-      synthetic req.http.foxden-static-response;
-      return(deliver);
-    }
-
-    if (req.url.path == "/ip") {
-      synthetic client.ip;
-      return(deliver);
-    }
-
-    set obj.status = 404;
-    set obj.response = "Not found";
-    synthetic "Not found";
+  if (obj.status != 989) {
+    return(deliver);
   }
 
+  set obj.status = 200;
+  set obj.response = "OK";
+  set obj.http.content-type = "text/plain";
+  set obj.http.cache-control = "no-store";
+  unset obj.http.Retry-After;
+
+  set req.http.foxden-static-response = table.lookup(static_responses, req.url.path);
+  if (req.http.foxden-static-response) {
+    synthetic req.http.foxden-static-response + LF;
+    return(deliver);
+  }
+
+  if (req.url.path == "/info/ip") {
+    synthetic client.ip;
+    return(deliver);
+  } else if (req.url.path == "/info/proto") {
+    synthetic req.http.transport-type;
+    return(deliver);
+  } else if (req.url.path == "/info/tls") {
+    set obj.http.content-type = "application/json";
+    if (req.is_ssl) {
+      synthetic {"{
+  "enabled": true,
+  "version": ""} + json.escape(req.http.tls-protocol) + {"",
+  "cipher": ""} + json.escape(req.http.tls-cipher) + {""
+}"};
+    } else {
+      synthetic {"{
+  "enabled": false
+}"};
+    }
+    return(deliver);
+  }
+
+  set obj.status = 404;
+  set obj.response = "Not found";
+  synthetic "Not found" + LF;
   return(deliver);
 }
 
