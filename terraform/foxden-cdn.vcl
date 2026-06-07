@@ -43,8 +43,8 @@ sub vcl_error {
 
   set obj.status = 200;
   set obj.response = "OK";
-  set obj.http.content-type = "text/plain";
-  set obj.http.cache-control = "no-store";
+  set obj.http.Content-Type = "text/plain";
+  set obj.http.Cache-Control = "no-store";
   unset obj.http.Retry-After;
 
   set req.http.static-response-body = table.lookup(static_root, req.url.path);
@@ -53,7 +53,7 @@ sub vcl_error {
     if (req.http.static-response-meta) {
       set req.http.static-response-tmp = req.http.static-response-meta:content-type;
       if (req.http.static-response-tmp) {
-        set obj.http.content-type = req.http.static-response-tmp;
+        set obj.http.Content-Type = req.http.static-response-tmp;
       }
       set req.http.static-response-tmp = req.http.static-response-meta:status;
       if (req.http.static-response-tmp) {
@@ -76,7 +76,7 @@ sub vcl_error {
   }
 
   if (req.url.path == "/info/tls") {
-    set obj.http.content-type = "application/json";
+    set obj.http.Content-Type = "application/json";
     if (req.is_ssl) {
       synthetic {"{
   "enabled": true,
