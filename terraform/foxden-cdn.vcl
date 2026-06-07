@@ -1,13 +1,12 @@
 sub vcl_recv { 
 #FASTLY recv
-
   error 989 "vcl_error redirect";
 }
 
 sub vcl_hash {
   set req.hash += req.url;
   set req.hash += req.http.host;
-  #FASTLY hash
+#FASTLY hash
   return(hash);
 }
 
@@ -28,8 +27,7 @@ sub vcl_pass {
 
 sub vcl_fetch {
 #FASTLY fetch
-
-  return(deliver);
+  return(pass);
 }
 
 table static_responses {
