@@ -27,7 +27,7 @@ resource "fastly_service_dictionary_items" "cdn_foxden_static_root" {
   dictionary_id = one(fastly_service_vcl.cdn_foxden.dictionary).dictionary_id
 
   manage_items = true
-  items        = { for file in fileset(local.static_response_path, "**") : "/${file}" => file("${local.static_response_path}/${file}") }
+  items        = { for file in fileset(local.static_response_path, "**") : "/${file}" => filebase64("${local.static_response_path}/${file}") }
 }
 
 

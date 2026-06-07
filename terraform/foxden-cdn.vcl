@@ -17,34 +17,34 @@ sub vcl_recv {
 
   unset req.http.static-response-meta;
   if (req.url.path == "/info/ip") {
-    set req.http.static-response-body = client.ip + LF;
+    set req.http.static-response-body = digest.base64(client.ip + LF);
     error 200;
   }
 
   if (req.url.path == "/info/proto") {
-    set req.http.static-response-body = req.http.transport-type + LF;
+    set req.http.static-response-body = digest.base64(req.http.transport-type + LF);
     error 200;
   }
 
   if (req.url.path == "/info/tls") {
     set req.http.static-response-meta:content-type = "application/json";
     if (req.is_ssl) {
-      set req.http.static-response-body = {"{
+      set req.http.static-response-body = digest.base64({"{
   "enabled": true,
   "version": ""} + json.escape(req.http.tls-protocol) + {"",
   "cipher": ""} + json.escape(req.http.tls-cipher) + {""
-}"};
+}"});
     } else {
-      set req.http.static-response-body = {"{
+      set req.http.static-response-body = digest.base64({"{
   "enabled": false
-}"};
+}"});
     }
     error 200;
   }
 
   # If we ever have a real backend, we need to swap these sections below
 
-  set req.http.static-response-body = "Not found" + LF;
+  set req.http.static-response-body = digest.base64("Not found" + LF);
   error 404;
 
   # if (req.method != "HEAD" && req.method != "GET" && req.method != "FASTLYPURGE") {
@@ -84,7 +84,7 @@ sub vcl_fetch {
 sub vcl_error {
 #FASTLY error
 
-  if (obj.status < 200 || obj.status > 499) {
+  if (!req.http.static-response-body) {
     return(deliver);
   }
 
@@ -99,7 +99,7 @@ sub vcl_error {
     }
   }
 
-  synthetic req.http.static-response-body;
+  synthetic.base64 req.http.static-response-body;
   return(deliver);
 }
 
