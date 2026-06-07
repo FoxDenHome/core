@@ -47,9 +47,21 @@ sub vcl_error {
   set obj.http.cache-control = "no-store";
   unset obj.http.Retry-After;
 
-  set req.http.static-response-text = table.lookup(static_response_text, req.url.path);
-  if (req.http.static-response-text) {
-    synthetic req.http.static-response-text;
+  set req.http.static-response-body = table.lookup(static_root, req.url.path);
+  if (req.http.static-response-body) {
+    set req.http.static-response-meta = table.lookup(static_root, std.dirname(req.url.path) + "/." + std.basename(req.url.path) + ".meta");
+    if (req.http.static-response-meta) {
+      set req.http.static-response-tmp = req.http.static-response-meta:content-type;
+      if (req.http.static-response-tmp) {
+        set obj.http.content-type = req.http.static-response-tmp;
+      }
+      set req.http.static-response-tmp = req.http.static-response-meta:status;
+      if (req.http.static-response-tmp) {
+        set obj.response = "";
+        set obj.status = std.atoi(req.http.static-response-tmp);
+      }
+    }
+    synthetic req.http.static-response-body;
     return(deliver);
   }
 
