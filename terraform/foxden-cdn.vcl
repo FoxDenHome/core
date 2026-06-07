@@ -58,12 +58,12 @@ sub vcl_error {
   }
 
   if (req.url.path == "/info/ip") {
-    synthetic client.ip;
+    synthetic client.ip + LF;
     return(deliver);
   }
 
   if (req.url.path == "/info/proto") {
-    synthetic req.http.transport-type;
+    synthetic req.http.transport-type + LF;
     return(deliver);
   }
 
