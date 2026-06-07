@@ -84,10 +84,10 @@ sub vcl_error {
     return(deliver);
   }
 
+  set obj.http.Content-Type = "text/plain";
   set obj.http.Cache-Control = "no-store";
   unset obj.http.Retry-After;
 
-  set obj.http.Content-Type = "text/plain";
   if (req.http.resp-meta) {
     set req.http.resp-tmp = req.http.resp-meta:content-type;
     if (req.http.resp-tmp) {
