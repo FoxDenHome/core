@@ -14,29 +14,21 @@ sub vcl_recv {
     error 200;
   }
 
-  if (req.url.path == "/info/ip") {
+  if (req.url.path == "/ip") {
     set req.http.resp-body = digest.base64(client.ip + LF);
     error 200;
   }
 
-  if (req.url.path == "/info/proto") {
-    set req.http.resp-body = digest.base64(transport.type + LF);
-    error 200;
-  }
-
-  if (req.url.path == "/info/tls") {
+  if (req.url.path == "/connection.json") {
     set req.http.resp-meta:content-type = "application/json";
-    if (req.is_ssl) {
-      set req.http.resp-body = digest.base64({"{
-  "enabled": true,
-  "version": ""} + json.escape(tls.client.protocol) + {"",
-  "cipher": ""} + json.escape(tls.client.cipher) + {""
+    set req.http.resp-body = digest.base64({"{
+  "ip": ""} + json.escape(client.ip) + {"",
+  "transport": ""} + json.escape(transport.type) + if(req.is_ssl, {"",
+  "tls": {
+    "version": ""} + json.escape(tls.client.protocol) + {"",
+    "cipher": ""} + json.escape(tls.client.cipher) + {""
+  }"}, "%22") + {"
 }"});
-    } else {
-      set req.http.resp-body = digest.base64({"{
-  "enabled": false
-}"});
-    }
     error 200;
   }
 
