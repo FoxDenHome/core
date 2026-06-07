@@ -3,6 +3,7 @@ sub vcl_recv {
 
   unset req.http.resp-meta;
   unset req.http.resp-body;
+  unset req.http.resp-tmp;
 
   set req.http.resp-body = table.lookup(static_root, req.url.path);
   if (req.http.resp-body) {
