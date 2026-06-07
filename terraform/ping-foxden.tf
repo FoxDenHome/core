@@ -2,7 +2,7 @@ resource "cloudns_dns_record" "ping_foxden" {
   zone = "foxden.network"
 
   type  = "CNAME"
-  ttl   = 300
+  ttl   = 3600
   name  = "ping"
   value = "x.sni.global.fastly.net"
 }
