@@ -65,6 +65,11 @@ sub vcl_fetch {
   return(deliver);
 }
 
+table static_responses {
+  "/nm-check.txt": {"NetworkManager is online
+"},
+}
+
 sub vcl_error {
 #FASTLY error
 
@@ -72,15 +77,23 @@ sub vcl_error {
     set obj.status = 200;
     set obj.response = "OK";
     set obj.http.content-type = "text/plain";
-    if(req.url.path == "/nm-check.txt") {
-      synthetic {"NetworkManager is online
-"};
-    } else {
-      set obj.status = 404;
-      set obj.response = "Not found";
-      synthetic "Not found";
+
+    set req.http.foxden-static-response = table.lookup(static_responses, req.url.path);
+    if (req.http.foxden-static-response) {
+      synthetic req.http.foxden-static-response;
+      return(deliver);
     }
+
+    if (req.url.path == "/ip") {
+      synthetic client.ip;
+      return(deliver);
+    }
+
+    set obj.status = 404;
+    set obj.response = "Not found";
+    synthetic "Not found";
   }
+
   return(deliver);
 }
 
