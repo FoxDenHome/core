@@ -1,7 +1,7 @@
 sub vcl_recv { 
 #FASTLY recv
 
-  error 989 req.url.path;
+  error 989 "vcl_error redirect";
 }
 
 sub vcl_hash {
@@ -70,13 +70,14 @@ sub vcl_error {
 
   if (obj.status == 989) {
     set obj.status = 200;
+    set obj.response = "OK";
     set obj.http.content-type = "text/plain";
-    # obj.response will contain req.url.path
-    if(obj.response == "/nm-check.txt") {
+    if(req.url.path == "/nm-check.txt") {
       synthetic {"NetworkManager is online
-  "};
+"};
     } else {
       set obj.status = 404;
+      set obj.response = "Not found";
       synthetic "Not found";
     }
   }
