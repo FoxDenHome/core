@@ -1,41 +1,37 @@
 sub vcl_recv { 
 #FASTLY recv
 
-  set req.http.transport-type = transport.type;
-  set req.http.tls-protocol = tls.client.protocol;
-  set req.http.tls-cipher = tls.client.cipher;
-
-  set req.http.static-response-body = table.lookup(static_root, req.url.path);
-  if (req.http.static-response-body) {
-    set req.http.static-response-meta = table.lookup(static_root, req.url.path + ".meta");
-    set req.http.static-response-tmp = req.http.static-response-meta:status;
-    if (req.http.static-response-tmp) {
-      error std.atoi(req.http.static-response-tmp);
+  set req.http.resp-body = table.lookup(static_root, req.url.path);
+  if (req.http.resp-body) {
+    set req.http.resp-meta = table.lookup(static_root, req.url.path + ".meta");
+    set req.http.resp-tmp = req.http.resp-meta:status;
+    if (req.http.resp-tmp) {
+      error std.atoi(req.http.resp-tmp);
     }
     error 200;
   }
 
-  unset req.http.static-response-meta;
+  unset req.http.resp-meta;
   if (req.url.path == "/info/ip") {
-    set req.http.static-response-body = digest.base64(client.ip + LF);
+    set req.http.resp-body = digest.base64(client.ip + LF);
     error 200;
   }
 
   if (req.url.path == "/info/proto") {
-    set req.http.static-response-body = digest.base64(req.http.transport-type + LF);
+    set req.http.resp-body = digest.base64(transport.type + LF);
     error 200;
   }
 
   if (req.url.path == "/info/tls") {
-    set req.http.static-response-meta:content-type = "application/json";
+    set req.http.resp-meta:content-type = "application/json";
     if (req.is_ssl) {
-      set req.http.static-response-body = digest.base64({"{
+      set req.http.resp-body = digest.base64({"{
   "enabled": true,
-  "version": ""} + json.escape(req.http.tls-protocol) + {"",
-  "cipher": ""} + json.escape(req.http.tls-cipher) + {""
+  "version": ""} + json.escape(tls.client.protocol) + {"",
+  "cipher": ""} + json.escape(tls.client.cipher) + {""
 }"});
     } else {
-      set req.http.static-response-body = digest.base64({"{
+      set req.http.resp-body = digest.base64({"{
   "enabled": false
 }"});
     }
@@ -44,7 +40,7 @@ sub vcl_recv {
 
   # If we ever have a real backend, we need to swap these sections below
 
-  set req.http.static-response-body = digest.base64("Not found" + LF);
+  set req.http.resp-body = digest.base64("Not found" + LF);
   error 404;
 
   # if (req.method != "HEAD" && req.method != "GET" && req.method != "FASTLYPURGE") {
@@ -84,7 +80,7 @@ sub vcl_fetch {
 sub vcl_error {
 #FASTLY error
 
-  if (!req.http.static-response-body) {
+  if (!req.http.resp-body) {
     return(deliver);
   }
 
@@ -92,14 +88,14 @@ sub vcl_error {
   unset obj.http.Retry-After;
 
   set obj.http.Content-Type = "text/plain";
-  if (req.http.static-response-meta) {
-    set req.http.static-response-tmp = req.http.static-response-meta:content-type;
-    if (req.http.static-response-tmp) {
-      set obj.http.Content-Type = req.http.static-response-tmp;
+  if (req.http.resp-meta) {
+    set req.http.resp-tmp = req.http.resp-meta:content-type;
+    if (req.http.resp-tmp) {
+      set obj.http.Content-Type = req.http.resp-tmp;
     }
   }
 
-  synthetic.base64 req.http.static-response-body;
+  synthetic.base64 req.http.resp-body;
   return(deliver);
 }
 
