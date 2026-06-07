@@ -26,6 +26,10 @@ terraform {
       source  = "ovh/ovh"
       version = "~> 2.12.0"
     }
+    fastly = {
+      source  = "fastly/fastly"
+      version = "~> 9.2.1"
+    }
   }
 
   backend "s3" {
