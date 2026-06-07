@@ -49,7 +49,7 @@ sub vcl_error {
 
   set req.http.static-response-body = table.lookup(static_root, req.url.path);
   if (req.http.static-response-body) {
-    set req.http.static-response-meta = table.lookup(static_root, std.dirname(req.url.path) + "/." + std.basename(req.url.path) + ".meta");
+    set req.http.static-response-meta = table.lookup(static_root, req.url.path + ".meta");
     if (req.http.static-response-meta) {
       set req.http.static-response-tmp = req.http.static-response-meta:content-type;
       if (req.http.static-response-tmp) {
