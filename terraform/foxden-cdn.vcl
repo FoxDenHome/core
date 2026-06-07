@@ -1,6 +1,9 @@
 sub vcl_recv { 
 #FASTLY recv
 
+  unset req.http.resp-meta;
+  unset req.http.resp-body;
+
   set req.http.resp-body = table.lookup(static_root, req.url.path);
   if (req.http.resp-body) {
     set req.http.resp-meta = table.lookup(static_root, req.url.path + ".meta");
@@ -11,7 +14,6 @@ sub vcl_recv {
     error 200;
   }
 
-  unset req.http.resp-meta;
   if (req.url.path == "/info/ip") {
     set req.http.resp-body = digest.base64(client.ip + LF);
     error 200;
@@ -89,10 +91,7 @@ sub vcl_error {
   unset obj.http.Retry-After;
 
   if (req.http.resp-meta) {
-    set req.http.resp-tmp = req.http.resp-meta:content-type;
-    if (req.http.resp-tmp) {
-      set obj.http.Content-Type = req.http.resp-tmp;
-    }
+    set obj.http.Content-Type = req.http.resp-meta:content-type;
   }
 
   synthetic.base64 req.http.resp-body;
