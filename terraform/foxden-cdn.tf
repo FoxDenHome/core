@@ -12,6 +12,23 @@ resource "fastly_service_vcl" "cdn_foxden" {
     content = file("${path.module}/foxden-cdn.vcl")
     main    = true
   }
+
+  dictionary {
+    name = "static_response_text"
+  }
+}
+
+locals {
+  static_response_text_dictionary = one([for d in fastly_service_vcl.cdn_foxden.dictionary : d if d.name == "static_response_text"])
+  static_response_path            = "${path.module}/foxden-cdn-static"
+}
+
+resource "fastly_service_dictionary_items" "cdn_foxden_static_response_text" {
+  service_id    = fastly_service_vcl.cdn_foxden.id
+  dictionary_id = local.static_response_text_dictionary.dictionary_id
+
+  manage_items = true
+  items        = { for file in fileset(local.static_response_path, "**") : "/${file}" => file("${local.static_response_path}/${file}") }
 }
 
 resource "fastly_domain" "cdn_foxden" {

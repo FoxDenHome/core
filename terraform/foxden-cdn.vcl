@@ -34,10 +34,6 @@ sub vcl_fetch {
   return(pass);
 }
 
-table static_responses {
-  "/nm-check.txt": "NetworkManager is online",
-}
-
 sub vcl_error {
 #FASTLY error
 
@@ -51,9 +47,9 @@ sub vcl_error {
   set obj.http.cache-control = "no-store";
   unset obj.http.Retry-After;
 
-  set req.http.foxden-static-response = table.lookup(static_responses, req.url.path);
-  if (req.http.foxden-static-response) {
-    synthetic req.http.foxden-static-response + LF;
+  set req.http.static-response-text = table.lookup(static_response_text, req.url.path);
+  if (req.http.static-response-text) {
+    synthetic req.http.static-response-text;
     return(deliver);
   }
 
