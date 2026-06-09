@@ -588,11 +588,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1780982106,
-        "narHash": "sha256-x9Fr40ezoMw/Uhy6g0jB3traDsDA2o4Epmo12PQUK5E=",
+        "lastModified": 1780983319,
+        "narHash": "sha256-dOP1CFelYlG3niXkvHq0y3aljIgv+Ms44gNf5/wM6BM=",
         "ref": "refs/heads/main",
-        "rev": "6db4ea246a99e72beee6fd6960f1d57c18e4665a",
-        "revCount": 551,
+        "rev": "30b020f66ce4e8135e6df72827825359e745a702",
+        "revCount": 552,
         "type": "git",
         "url": "https://git.foxden.network/FoxDen/tapemgr"
       },
@@ -611,11 +611,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1780980877,
-        "narHash": "sha256-ldbWuSkFQQxze7MNX8jsc7Y9hJSxhmA6IyrvtlXO7Wc=",
+        "lastModified": 1780983080,
+        "narHash": "sha256-xb4pI/ImKxPEb37PtgMmAJpiQcXkFZ4eciPtZY3TYvI=",
         "ref": "refs/heads/main",
-        "rev": "84cad560b7acc17c2624365cca5f955d0c1fc2e4",
-        "revCount": 95,
+        "rev": "6fdeaa0264f51638ecb57289613deecefa5d5ccf",
+        "revCount": 96,
         "type": "git",
         "url": "https://git.foxden.network/FoxDen/uds-proxy"
       },
