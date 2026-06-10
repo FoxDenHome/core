@@ -3,7 +3,6 @@ from json import load as json_load, loads as json_loads
 from os.path import join as path_join
 from os import makedirs
 from configure.util import unlink_safe, NIX_DIR, mtik_path, ROUTERS
-from yaml import safe_load as yaml_load, dump as yaml_dump
 from shutil import copytree, rmtree
 from typing import Any, cast
 from time import time
@@ -11,6 +10,16 @@ from time import time
 INTERNAL_RECORDS: dict[str, Any] | None = None
 ROOT_PATH = mtik_path("files/pdns")
 OUT_PATH = mtik_path("out/pdns")
+
+BLOCKED_ZONES = [
+    "lunapixel.gg",
+    "playstation.net",
+    "playstation.com",
+    "playstation.org",
+    "scea.com",
+    "sie-rd.com",
+    "sonyentertainmentnetwork.com",
+]
 
 
 def find_record(name: str, type: str) -> dict | None:
@@ -72,7 +81,7 @@ def resolve_record(record: dict[str, Any]) -> str:
         return record["zone"]
     return f"{record['name']}.{record['zone']}"
 
-def refresh_pdns():
+def refresh_dns():
     global INTERNAL_RECORDS
     unlink_safe("result")
     check_call(["nix", "build", f"{NIX_DIR}#dns.json"])
@@ -136,7 +145,14 @@ def refresh_pdns():
             "type": "FWD",
             "forward-to": "pdns",
             "name": zone,
-            "match-subdomain": "true"
+            "match-subdomain": "true",
+        })
+
+    for zone in BLOCKED_ZONES:
+        mikrotik_records.append({
+            "type": "NXDOMAIN",
+            "name": zone,
+            "match-subdomain": "true",
         })
 
     with open(path_join(ROOT_PATH, "base.db"), "r") as file:

@@ -1,7 +1,7 @@
 #!/usr/bin/env -S uv run
 
 from configure.dyndns import refresh_dyndns
-from configure.pdns import refresh_pdns
+from configure.dns import refresh_dns
 from configure.dhcp import refresh_dhcp
 from configure.firewall import refresh_firewall
 from configure.foxingress import refresh_foxingress
@@ -33,8 +33,8 @@ def main():
         refresh_dyndns()
         print("# foxIngress configuration")
         refresh_foxingress()
-        print("# PowerDNS configuration")
-        refresh_pdns()
+        print("# DNS configuration")
+        refresh_dns()
         print("# DHCP configuration")
         refresh_dhcp()
         print("# Firewall configuration")
