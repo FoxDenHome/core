@@ -44,10 +44,6 @@ let
           type = bool;
           default = false;
         };
-        critical = lib.mkOption {
-          type = bool;
-          default = false;
-        };
         horizon = lib.mkOption {
           type = enum [
             "internal"
@@ -100,7 +96,6 @@ let
 
   emptyRecord = {
     algorithm = null;
-    critical = false;
     dynDns = false;
     fptype = null;
     port = null;

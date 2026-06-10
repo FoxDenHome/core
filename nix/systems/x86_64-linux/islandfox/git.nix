@@ -30,7 +30,6 @@ in
       dns = {
         fqdns = [ "git.foxden.network" ];
         dynDns = true;
-        critical = true;
       };
       webservice.enable = true;
       firewall.portForwards = [

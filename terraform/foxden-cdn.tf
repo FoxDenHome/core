@@ -95,7 +95,6 @@ output "generated_records" {
       name     = r.name
       ttl      = r.ttl
       value    = r.value
-      critical = false
       horizon  = "*"
     }]
   }

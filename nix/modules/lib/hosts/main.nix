@@ -121,10 +121,6 @@ in
                 type = bool;
                 default = false;
               };
-              critical = lib.mkOption {
-                type = bool;
-                default = false;
-              };
               dynDnsTtl = lib.mkOption {
                 type = nullOr ints.positive;
                 default = 300;
@@ -387,7 +383,6 @@ in
                     inherit (iface.dns)
                       ttl
                       dynDns
-                      critical
                       ;
                     fqdn = primaryFQDN;
                     type = if (util.isIPv6 addr) then "AAAA" else "A";
@@ -402,14 +397,14 @@ in
                   in
                   lib.mkIf (ptrMode == "all" || ptrMode == horizon) {
                     inherit horizon;
-                    inherit (iface.dns) ttl critical;
+                    inherit (iface.dns) ttl;
                     fqdn = util.mkPtr addr;
                     type = "PTR";
                     value = "${primaryFQDN}.";
                   }
                 );
                 mkIfaceAuxFQDNs = map (fqdn: {
-                  inherit (iface.dns) ttl critical;
+                  inherit (iface.dns) ttl;
                   inherit fqdn;
                   type = "CNAME";
                   value = "${primaryFQDN}.";

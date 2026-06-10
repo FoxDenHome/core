@@ -2,7 +2,7 @@ from subprocess import check_call, check_output
 from json import load as json_load, loads as json_loads
 from os.path import join as path_join
 from os import makedirs
-from configure.util import unlink_safe, NIX_DIR, mtik_path, ROUTERS, format_mtik_duration
+from configure.util import unlink_safe, NIX_DIR, mtik_path, ROUTERS
 from yaml import safe_load as yaml_load, dump as yaml_dump
 from shutil import copytree, rmtree
 from typing import Any, cast
@@ -59,12 +59,6 @@ RECORD_TYPE_HANDLERS["ALIAS"] = handle_alias
 RECORD_TYPE_HANDLERS["SOA"] = disallow_apex_record
 RECORD_TYPE_HANDLERS["NS"] = disallow_apex_record
 
-MTIK_RECORD_TYPE_HANDLERS = {}
-MTIK_RECORD_TYPE_HANDLERS["A"] = lambda record: {"address": record["value"]}
-MTIK_RECORD_TYPE_HANDLERS["AAAA"] = MTIK_RECORD_TYPE_HANDLERS["A"]
-MTIK_RECORD_TYPE_HANDLERS["CNAME"] = lambda record: {"type": "CNAME", "cname": record["value"].removesuffix(".")}
-MTIK_RECORD_TYPE_HANDLERS["ALIAS"] = MTIK_RECORD_TYPE_HANDLERS["CNAME"]
-
 def remap_ipv6(private: str, public: str) -> str:
     public_spl = public.split(":")
     prefix = f"{public_spl[0]}:{public_spl[1]}:{public_spl[2]}:{public_spl[3][:-1]}"
@@ -99,14 +93,7 @@ def refresh_pdns():
 
     bind_conf = []
 
-    with open(path_join(ROOT_PATH, "recursor.conf"), "r") as file:
-        recursor_data = yaml_load(file)
-
-    if "recursor" not in recursor_data:
-        recursor_data["recursor"] = {}
-
-    if "forward_zones" not in recursor_data["recursor"]:
-        recursor_data["recursor"]["forward_zones"] = []
+    mikrotik_records = []
 
     for zone in sorted(INTERNAL_RECORDS.keys()):
         records = INTERNAL_RECORDS[zone]
@@ -145,9 +132,12 @@ def refresh_pdns():
         bind_conf.append('    file "/etc/pdns/gen-%s.db";' % zone)
         bind_conf.append("};")
 
-        recursor_data["recursor"]["forward_zones"].append(
-            {"zone": zone, "forwarders": ["127.0.0.1:530"]}
-        )
+        mikrotik_records.append({
+            "type": "FWD",
+            "forward-to": "pdns",
+            "name": zone,
+            "match-subdomain": "true"
+        })
 
     with open(path_join(ROOT_PATH, "base.db"), "r") as file:
         soa_db = file.read()
@@ -157,9 +147,6 @@ def refresh_pdns():
 
     with open(path_join(OUT_PATH, "bind.conf"), "w") as file:
         file.write("\n".join(bind_conf) + "\n")
-
-    with open(path_join(OUT_PATH, "recursor.conf"), "w") as file:
-        yaml_dump(recursor_data, file)
 
     for router in ROUTERS:
         if router.horizon != "internal":
@@ -191,38 +178,21 @@ def refresh_pdns():
 
         stray_static_dns = set(existing_static_dns_map.keys())
 
-        for zone in sorted(INTERNAL_RECORDS.keys()):
-            records = INTERNAL_RECORDS[zone]
-            for record in records:
-                if not record["critical"]:
-                    continue
-                if record["type"] == "PTR":
-                    # We skip PTR records, MTik creates those on its own anyway and they are not critical for us
-                    continue
+        for record in mikrotik_records:
+            key = f"{record['type']}|{record['name']}"
+            stray_static_dns.discard(key)
 
-                handler = MTIK_RECORD_TYPE_HANDLERS.get(record["type"])
-                if handler is None:
-                    raise ValueError(f"No MTik handler for record type {record['type']} for critical record {record['name']} in zone {zone}")
-
-                attribs = handler(record)
-                if "type" not in attribs:
-                    attribs["type"] = record["type"]
-                attribs["ttl"] = format_mtik_duration(record["ttl"])
-                attribs["name"] = resolve_record(record)
-
-                key = f"{attribs['type']}|{attribs['name']}"
-                stray_static_dns.discard(key)
-
-                if key in existing_static_dns_map:
-                    existing_entry = existing_static_dns_map[key]
-                    for attr, val in attribs.items():
-                        if existing_entry[attr] != val:
-                            print(f"Updating DNS entry {record} due to changed attribute {attr}: {existing_entry[attr]} -> {val}")
-                            api_dns.set(id=existing_entry["id"], **attribs)
-                            break
-                else:
-                    print(f"Adding DNS entry {record}")
-                    api_dns.add(**attribs)
+            if key in existing_static_dns_map:
+                existing_entry = existing_static_dns_map[key]
+                for attr, val in record.items():
+                    existing_val = existing_entry.get(attr)
+                    if existing_val != val:
+                        print(f"Updating DNS entry {record} due to changed attribute {attr}: {existing_val} -> {val}")
+                        api_dns.set(id=existing_entry["id"], **record)
+                        break
+            else:
+                print(f"Adding DNS entry {record}")
+                api_dns.add(**record)
 
         for key in stray_static_dns:
             print(f"Removing stale DNS entry {existing_static_dns_map[key]}")

@@ -341,8 +341,6 @@ in
     bridge = [ ifcfg-vrack.interface ];
   };
 
-  foxDen.networking.provisionCriticalHosts = true;
-
   foxDen.services = {
     wireguard.${ifcfg-foxden.phyIface} = config.lib.foxDen.sops.mkIfAvailable {
       host = "";

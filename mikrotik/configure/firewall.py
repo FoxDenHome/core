@@ -207,30 +207,6 @@ DEFAULT_RULES_HEAD: list[FirewallRule] = [
         attribs={
             "action": "dst-nat",
             "chain": "local-port-forward",
-            "comment": "DNS TCP (Priv)",
-            "dst-port": "53,530",
-            "protocol": "tcp",
-            "to-addresses": "172.17.2.2",
-        },
-    ),
-    FirewallRule(
-        families=["ip"],
-        table="nat",
-        attribs={
-            "action": "dst-nat",
-            "chain": "local-port-forward",
-            "comment": "DNS UDP (Priv)",
-            "dst-port": "53,530",
-            "protocol": "udp",
-            "to-addresses": "172.17.2.2",
-        },
-    ),
-    FirewallRule(
-        families=["ip"],
-        table="nat",
-        attribs={
-            "action": "dst-nat",
-            "chain": "local-port-forward",
             "comment": "foxIngress TCP (Priv)",
             "dst-port": "9001",
             "protocol": "tcp",
@@ -287,30 +263,6 @@ DEFAULT_RULES_HEAD: list[FirewallRule] = [
             "to-address": "fd2d::/60",
         },
         ignoreChanges={"to-address"},
-    ),
-    FirewallRule(
-        families=["ipv6"],
-        table="nat",
-        attribs={
-            "action": "dst-nat",
-            "chain": "local-port-forward",
-            "comment": "DNS TCP (Priv)",
-            "dst-port": "53,530",
-            "protocol": "tcp",
-            "to-address": "fd2c:f4cb:63be::ac11:202/128",
-        },
-    ),
-    FirewallRule(
-        families=["ipv6"],
-        table="nat",
-        attribs={
-            "action": "dst-nat",
-            "chain": "local-port-forward",
-            "comment": "DNS UDP (Priv)",
-            "dst-port": "53,530",
-            "protocol": "udp",
-            "to-address": "fd2c:f4cb:63be::ac11:202/128",
-        },
     ),
     FirewallRule(
         families=["ipv6"],

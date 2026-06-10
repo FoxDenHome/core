@@ -34,7 +34,6 @@ in
           "cachyos.foxden.network"
         ];
         dynDns = true;
-        critical = true;
       };
       firewall.ingressAcceptRules = [
         {
