@@ -1,15 +1,9 @@
 from subprocess import check_call, check_output
 from json import load as json_load, loads as json_loads
-from os.path import join as path_join
-from os import makedirs
-from configure.util import unlink_safe, NIX_DIR, mtik_path, ROUTERS
-from shutil import copytree, rmtree
+from configure.util import format_mtik_duration, unlink_safe, NIX_DIR, ROUTERS
 from typing import Any, cast
-from time import time
 
 INTERNAL_RECORDS: dict[str, Any] | None = None
-ROOT_PATH = mtik_path("files/pdns")
-OUT_PATH = mtik_path("out/pdns")
 
 BLOCKED_ZONES = [
     "lunapixel.gg",
@@ -21,52 +15,63 @@ BLOCKED_ZONES = [
     "sonyentertainmentnetwork.com",
 ]
 
+INTERNAL_ZONES = [
+    "foxden.network",
+]
 
-def find_record(name: str, type: str) -> dict | None:
+def mtik_key(record: dict[str, Any]) -> str:
+    additional_fields = MTIK_RECORD_TYPE_UNIQUE_FIELDS.get(record["type"], set())
+    key_parts = [record["type"], resolve_record_name(record)]
+    for field in additional_fields:
+        if field in record:
+            key_parts.append(f"{field}:{record[field]}")
+    return "|".join(key_parts)
+
+
+def find_record(name: str, rectype: str) -> dict | None:
     global INTERNAL_RECORDS
     assert INTERNAL_RECORDS is not None
     name = name.removesuffix(".")
     for zone, records in INTERNAL_RECORDS.items():
         for record in records:
             recname = record["name"] + "." + zone if record["name"] != "@" else zone
-            if recname == name and record["type"] == type:
+            if recname == name and record["type"] == rectype:
                 return record
     return None
 
 
-def quote_record(record: dict[str, Any]) -> str:
-    return f'"{record["value"]}"'
+def mtik_process(record_raw: dict[str, Any]) -> dict[str, Any]:
+    rec_type = record_raw["type"].upper()
+    records = MTIK_RECORD_TYPE_HANDLERS[rec_type](record_raw)
 
+    if not isinstance(records, list):
+        records = [records]
 
-def disallow_apex_record(record: dict[str, Any]) -> list[None] | dict[str, Any]:
-    if record["name"] == "@":
-        return []
-    return record
+    for record in records:
+        if "type" not in record:
+            record["type"] = rec_type
+        if "ttl" not in record:
+            record["ttl"] = format_mtik_duration(record_raw["ttl"])
+        record["name"] = resolve_record_name(record_raw)
 
+    return records
 
-def handle_alias(record: dict[str, Any]) -> list[dict[str, Any] | None]:
-    results = [find_record(record["value"], "A"), find_record(record["value"], "AAAA")]
-    for result in results:
-        if result is not None:
-            return results
-    record["type"] = "CNAME"
-    return [record]
+def handle_alias(raw_record: dict[str, Any]) -> list[dict[str, Any] | None]:
+    records = [find_record(raw_record["value"], "A"), find_record(raw_record["value"], "AAAA")]
+    results = []
 
+    for record in records:
+        if record is not None:
+            results += mtik_process(record)
 
-RECORD_TYPE_HANDLERS = {}
-RECORD_TYPE_HANDLERS["MX"] = lambda record: f"{record['priority']} {record['value']}"
-RECORD_TYPE_HANDLERS["SRV"] = (
-    lambda record: f"{record['priority']} {record['weight']} {record['port']} {record['value']}"
-)
-RECORD_TYPE_HANDLERS["SSHFP"] = (
-    lambda record: f"{record['algorithm']} {record['fptype']} {record['value']}"
-)
-RECORD_TYPE_HANDLERS["TXT"] = quote_record
-RECORD_TYPE_HANDLERS["LUA"] = quote_record
-RECORD_TYPE_HANDLERS["CNAME"] = lambda record: f"{record['value'].removesuffix('.')}."
-RECORD_TYPE_HANDLERS["ALIAS"] = handle_alias
-RECORD_TYPE_HANDLERS["SOA"] = disallow_apex_record
-RECORD_TYPE_HANDLERS["NS"] = disallow_apex_record
+    if results:
+        return results
+
+    return {
+        "type": "CNAME",
+        "cname": raw_record["value"].removesuffix(".")
+    }
+
 
 def remap_ipv6(private: str, public: str) -> str:
     public_spl = public.split(":")
@@ -74,12 +79,35 @@ def remap_ipv6(private: str, public: str) -> str:
     suffix = private.removeprefix("fd2c:f4cb:63be:")
     return f"{prefix}{suffix}"
 
-def resolve_record(record: dict[str, Any]) -> str:
+
+def resolve_record_name(record: dict[str, Any]) -> str:
     if 'zone' not in record:
         return record['name']
     if record["name"] == "@":
         return record["zone"]
     return f"{record['name']}.{record['zone']}"
+
+
+MTIK_IGNORED_RECORD_TYPES = {"PTR", "SSHFP", "SOA"}
+
+MTIK_RECORD_TYPE_HANDLERS = {}
+MTIK_RECORD_TYPE_HANDLERS["A"] = lambda record: {"address": record["value"]}
+MTIK_RECORD_TYPE_HANDLERS["AAAA"] = MTIK_RECORD_TYPE_HANDLERS["A"]
+MTIK_RECORD_TYPE_HANDLERS["CNAME"] = lambda record: {"type": "CNAME", "cname": record["value"].removesuffix(".")}
+MTIK_RECORD_TYPE_HANDLERS["ALIAS"] = handle_alias
+MTIK_RECORD_TYPE_HANDLERS["SRV"] =lambda record: {"srv-port": str(record["port"]), "srv-weight": str(record["weight"]), "srv-priority": str(record["priority"]), "srv-target": record["value"].removesuffix(".")}
+MTIK_RECORD_TYPE_HANDLERS["TXT"] = lambda record: {"type": "TXT", "text": record["value"]}
+MTIK_RECORD_TYPE_HANDLERS["MX"] = lambda record: {"type": "MX", "mx-preference": str(record["priority"]), "mx-exchange": record["value"].removesuffix(".")}
+MTIK_RECORD_TYPE_HANDLERS["NS"] = lambda record: {"type": "NS", "ns": record["value"].removesuffix(".")}
+
+MTIK_RECORD_TYPE_UNIQUE_FIELDS = {}
+MTIK_RECORD_TYPE_UNIQUE_FIELDS["A"] = {"address"}
+MTIK_RECORD_TYPE_UNIQUE_FIELDS["AAAA"] = {"address"}
+MTIK_RECORD_TYPE_UNIQUE_FIELDS["CNAME"] = {"cname"}
+MTIK_RECORD_TYPE_UNIQUE_FIELDS["SRV"] = {"srv-port", "srv-target"}
+MTIK_RECORD_TYPE_UNIQUE_FIELDS["TXT"] = {"text"}
+MTIK_RECORD_TYPE_UNIQUE_FIELDS["MX"] = {"mx-exchange"}
+MTIK_RECORD_TYPE_UNIQUE_FIELDS["NS"] = {"ns"}
 
 def refresh_dns():
     global INTERNAL_RECORDS
@@ -96,57 +124,17 @@ def refresh_dns():
         # Assume zone exists, makes no sense otherwise
         INTERNAL_RECORDS[zone] += records
 
-    rmtree(OUT_PATH, ignore_errors=True)
-    makedirs(OUT_PATH, exist_ok=True)
-    copytree(ROOT_PATH, OUT_PATH, dirs_exist_ok=True)
-
-    bind_conf = []
-
     mikrotik_records = []
 
-    for zone in sorted(INTERNAL_RECORDS.keys()):
-        records = INTERNAL_RECORDS[zone]
+    for zone in INTERNAL_ZONES:
+        for record_raw in INTERNAL_RECORDS[zone]:
+            rec_type = record_raw["type"].upper()
+            if rec_type in MTIK_IGNORED_RECORD_TYPES:
+                # MTik does not support those atm, also PTR is auto-created, so we got those
+                continue
 
-        lines = ["$INCLUDE /etc/pdns/base-rendered.db"]
-
-        for record in records:
-            value = record["value"]
-            rec_type_spl = record["type"].upper().split(" ")
-            rec_type = rec_type_spl[0]
-
-            if rec_type in RECORD_TYPE_HANDLERS:
-                value = RECORD_TYPE_HANDLERS[rec_type](record)
-
-            if not isinstance(value, list):
-                value = [value]
-
-            for val in value:
-                if val is None:
-                    continue
-                if isinstance(val, dict):
-                    lines.append(
-                        f"{record['name']} {record['ttl']} IN {val['type']} {val['value']}"
-                    )
-                else:
-                    lines.append(
-                        f"{record['name']} {record['ttl']} IN {record['type']} {val}"
-                    )
-
-        data = "\n".join(sorted(list(set(lines)))) + "\n"
-        with open(path_join(OUT_PATH, f"gen-{zone}.db"), "w") as file:
-            file.write(data)
-
-        bind_conf.append('zone "%s" IN {' % zone)
-        bind_conf.append("    type native;")
-        bind_conf.append('    file "/etc/pdns/gen-%s.db";' % zone)
-        bind_conf.append("};")
-
-        mikrotik_records.append({
-            "type": "FWD",
-            "forward-to": "pdns",
-            "name": zone,
-            "match-subdomain": "true",
-        })
+            for record in mtik_process(record_raw):
+                mikrotik_records.append(record)
 
     for zone in BLOCKED_ZONES:
         mikrotik_records.append({
@@ -155,29 +143,10 @@ def refresh_dns():
             "match-subdomain": "true",
         })
 
-    with open(path_join(ROOT_PATH, "base.db"), "r") as file:
-        soa_db = file.read()
-    soa_db = soa_db.replace("1111111111", str(int(time())))
-    with open(path_join(OUT_PATH, "base-rendered.db"), "w") as file:
-        file.write(soa_db)
-
-    with open(path_join(OUT_PATH, "bind.conf"), "w") as file:
-        file.write("\n".join(bind_conf) + "\n")
-
     for router in ROUTERS:
         if router.horizon != "internal":
             continue
-
         print(f"## {router.host}")
-        changes = router.sync(OUT_PATH, "/pdns")
-        try:
-            changes.remove("base-rendered.db")
-        except ValueError:
-            pass
-
-        if changes:
-            print("### Restarting PowerDNS container", changes)
-            router.restart_container("pdns")
 
         connection = router.connection()
         api = connection.get_api()
@@ -185,7 +154,7 @@ def refresh_dns():
         existing_static_dns = api_dns.get()
         existing_static_dns_map = {}
         for existing_record in existing_static_dns:
-            key = f"{existing_record['type']}|{resolve_record(existing_record)}"
+            key = mtik_key(existing_record)
             if key in existing_static_dns_map:
                 print("Removing duplicate DNS entry", existing_record)
                 api_dns.remove(id=existing_record["id"])
@@ -193,10 +162,15 @@ def refresh_dns():
                 existing_static_dns_map[key] = existing_record
 
         stray_static_dns = set(existing_static_dns_map.keys())
+        handled_records = set()
 
         for record in mikrotik_records:
-            key = f"{record['type']}|{record['name']}"
+            key = mtik_key(record)
+            if key in handled_records:
+                continue
+
             stray_static_dns.discard(key)
+            handled_records.add(key)
 
             if key in existing_static_dns_map:
                 existing_entry = existing_static_dns_map[key]

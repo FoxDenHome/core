@@ -19,11 +19,11 @@ let
 in
 {
   config.foxDen.dns.records = lib.flatten [
-    (mkDevice "gateway" "0.1" "0001")
-    (mkDevice "dns" "0.53" "0035")
-    (mkDevice "ntp" "0.123" "007b")
-    (mkDevice "router" "1.1" "0101")
-    (mkDevice "router-backup" "1.2" "0102")
-    (mkDevice "ntpi" "1.123" "017b")
+    (mkDevice "gateway" "0.1" "1")
+    (mkDevice "dns" "0.53" "35")
+    (mkDevice "ntp" "0.123" "7b")
+    (mkDevice "router" "1.1" "101")
+    (mkDevice "router-backup" "1.2" "102")
+    (mkDevice "ntpi" "1.123" "17b")
   ];
 }
