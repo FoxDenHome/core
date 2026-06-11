@@ -5,14 +5,47 @@ from typing import Any, cast
 
 INTERNAL_RECORDS: dict[str, Any] | None = None
 
-BLOCKED_ZONES = [
-    "lunapixel.gg",
-    "playstation.net",
-    "playstation.com",
-    "playstation.org",
-    "scea.com",
-    "sie-rd.com",
-    "sonyentertainmentnetwork.com",
+FIXED_RECORDS = [
+    {
+        "type": "NXDOMAIN",
+        "name": zone,
+        "match-subdomain": "true"
+    }
+    for zone in [
+        "lunapixel.gg",
+        "playstation.net",
+        "playstation.com",
+        "playstation.org",
+        "scea.com",
+        "sie-rd.com",
+        "sonyentertainmentnetwork.com",
+    ]
+] + [
+    {
+        "type": "FWD",
+        "name": cfg[0],
+        "match-subdomain": "true",
+        "forward-to": cfg[1],
+    }
+    for cfg in [
+        ("check.getflix.com.au", "getflix"),
+        ("check.getflix.com", "getflix"),
+        ("zattoo.com", "getflix"),
+        ("zahs.tv", "getflix"),
+        ("cghmn", "cghmn"),
+        ("retro", "cghmn"),
+    ]
+]
+
+FIXED_FORWARDERS = [
+    {
+        "name": "getflix",
+        "dns-servers": "54.187.61.200,169.55.51.86",
+    },
+    {
+        "name": "cghmn",
+        "dns-servers": "100.64.12.1",
+    }
 ]
 
 INTERNAL_ZONES = [
@@ -125,6 +158,7 @@ def refresh_dns():
         INTERNAL_RECORDS[zone] += records
 
     mikrotik_records = []
+    mikrotik_forwarders = []
 
     for zone in INTERNAL_ZONES:
         for record_raw in INTERNAL_RECORDS[zone]:
@@ -136,12 +170,8 @@ def refresh_dns():
             for record in mtik_process(record_raw):
                 mikrotik_records.append(record)
 
-    for zone in BLOCKED_ZONES:
-        mikrotik_records.append({
-            "type": "NXDOMAIN",
-            "name": zone,
-            "match-subdomain": "true",
-        })
+    mikrotik_records += FIXED_RECORDS
+    mikrotik_forwarders += FIXED_FORWARDERS
 
     for router in ROUTERS:
         if router.horizon != "internal":
@@ -151,6 +181,8 @@ def refresh_dns():
         connection = router.connection()
         api = connection.get_api()
         api_dns = api.get_resource("/ip/dns/static")
+        api_forwarders = api.get_resource("/ip/dns/forwarders")
+
         existing_static_dns = api_dns.get()
         existing_static_dns_map = {}
         for existing_record in existing_static_dns:
@@ -161,16 +193,40 @@ def refresh_dns():
             else:
                 existing_static_dns_map[key] = existing_record
 
+        existing_forwarders = api_forwarders.get()
+        existing_forwarders_map = {}
+        for existing_forwarder in existing_forwarders:
+            key = existing_forwarder["name"]
+            existing_forwarders_map[key] = existing_forwarder
+
+        stray_forwarders = set(existing_forwarders_map.keys())
         stray_static_dns = set(existing_static_dns_map.keys())
-        handled_records = set()
+        handled_static_records = set()
+
+        for forwarder in mikrotik_forwarders:
+            key = forwarder["name"]
+
+            stray_forwarders.discard(key)
+
+            if key in existing_forwarders_map:
+                existing_entry = existing_forwarders_map[key]
+                for attr, val in forwarder.items():
+                    existing_val = existing_entry.get(attr)
+                    if existing_val != val:
+                        print(f"Updating forwarder entry {forwarder} due to changed attribute {attr}: {existing_val} -> {val}")
+                        api_forwarders.set(id=existing_entry["id"], **forwarder)
+                        break
+            else:
+                print(f"Adding forwarder entry {forwarder}")
+                api_forwarders.add(**forwarder)
 
         for record in mikrotik_records:
             key = mtik_key(record)
-            if key in handled_records:
+            if key in handled_static_records:
                 continue
 
             stray_static_dns.discard(key)
-            handled_records.add(key)
+            handled_static_records.add(key)
 
             if key in existing_static_dns_map:
                 existing_entry = existing_static_dns_map[key]
@@ -187,3 +243,7 @@ def refresh_dns():
         for key in stray_static_dns:
             print(f"Removing stale DNS entry {existing_static_dns_map[key]}")
             api_dns.remove(id=existing_static_dns_map[key]["id"])
+
+        for key in stray_forwarders:
+            print(f"Removing stale forwarder entry {existing_forwarders_map[key]}")
+            api_forwarders.remove(id=existing_forwarders_map[key]["id"])
