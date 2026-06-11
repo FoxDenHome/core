@@ -332,32 +332,6 @@ DEFAULT_RULES_TAIL: list[FirewallRule] = [
         attribs={
             "action": "accept",
             "chain": "forward",
-            "comment": "DNS TCP (Priv)",
-            "dst-port": "53",
-            "in-interface-list": "zone-local",
-            "out-interface": "veth-dns",
-            "protocol": "tcp",
-        },
-    ),
-    FirewallRule(
-        families=["ip", "ipv6"],
-        table="filter",
-        attribs={
-            "action": "accept",
-            "chain": "forward",
-            "comment": "DNS UDP (Priv)",
-            "dst-port": "53",
-            "in-interface-list": "zone-local",
-            "out-interface": "veth-dns",
-            "protocol": "udp",
-        },
-    ),
-    FirewallRule(
-        families=["ip", "ipv6"],
-        table="filter",
-        attribs={
-            "action": "accept",
-            "chain": "forward",
             "comment": "foxIngress TCP (Pub)",
             "dst-port": "80,443",
             "out-interface": "veth-foxingress",
