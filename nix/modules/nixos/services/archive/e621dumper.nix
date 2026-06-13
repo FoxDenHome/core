@@ -103,15 +103,15 @@ in
 
             Type = "simple";
             Restart = "no";
+            RuntimeMaxSec = "12h";
 
             User = "e621dumper";
             Group = "e621dumper";
 
-            EnvironmentFile = config.lib.foxDen.sops.mkIfAvailable config.sops.secrets.e621dumper.path;
-
             ExecStart = [ "${pkgs.bash}/bin/bash ${pkgs.e621dumper}/lib/node_modules/e621dumper/looper.sh" ];
             StateDirectory = ifDefaultData "e621dumper";
 
+            EnvironmentFile = config.lib.foxDen.sops.mkIfAvailable config.sops.secrets.e621dumper.path;
             Environment = [
               "\"DOWNLOAD_PATH=${svcConfig.dataDir}\""
             ];

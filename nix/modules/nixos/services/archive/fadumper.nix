@@ -102,14 +102,20 @@ in
             BindPaths = [
               svcConfig.dataDir
             ];
+
             Type = "simple";
             Restart = "no";
+            RuntimeMaxSec = "12h";
+
             User = "fadumper";
             Group = "fadumper";
-            EnvironmentFile = config.lib.foxDen.sops.mkIfAvailable config.sops.secrets.fadumper.path;
+
             ExecStart = [ "${pkgs.bash}/bin/bash ${pkgs.fadumper}/lib/node_modules/fadumper/looper.sh" ];
             WorkingDirectory = faDumperDir;
+
             StateDirectory = ifDefaultData "fadumper";
+
+            EnvironmentFile = config.lib.foxDen.sops.mkIfAvailable config.sops.secrets.fadumper.path;
             Environment = [
               "\"DOWNLOAD_PATH=${svcConfig.dataDir}\""
             ];
