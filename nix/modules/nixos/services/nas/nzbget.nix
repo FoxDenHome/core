@@ -26,7 +26,6 @@ in
       default = "/var/lib/nzbget/downloads";
       description = "Directory to store completed NZBGet downloads";
     };
-    enableHttp = lib.mkEnableOption "HTTP reverse proxy for NZBGet Web UI";
   }
   // (services.http.mkOptions {
     name = "NZBGet Usenet Client";
@@ -38,13 +37,6 @@ in
         name = "nzbget";
         inherit svcConfig pkgs config;
       }).config
-      (lib.mkIf svcConfig.enableHttp
-        (services.http.make {
-          inherit svcConfig pkgs config;
-          name = "http-nzbget";
-          target = "proxy_pass http://127.0.0.1:6789;";
-        }).config
-      )
       {
         services.nzbget = {
           enable = true;

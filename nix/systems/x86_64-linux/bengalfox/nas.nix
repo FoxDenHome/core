@@ -46,7 +46,6 @@ in
     deluge = {
       enable = true;
       host = "deluge";
-      enableHttp = false;
       downloadsDir = "/mnt/zssd/nas/torrent";
     };
     jellyfin = {
@@ -85,7 +84,6 @@ in
     nzbget = {
       enable = true;
       host = "nzbget";
-      enableHttp = false;
       downloadsDir = "/mnt/zssd/nas/usenet";
     };
     samba = {

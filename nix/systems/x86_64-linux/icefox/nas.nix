@@ -29,7 +29,6 @@ in
     deluge = {
       enable = true;
       host = "deluge";
-      enableHttp = false;
       downloadsDir = "/mnt/ztank/local/nas/torrent";
     };
     kiwix = {
@@ -62,7 +61,6 @@ in
     nzbget = {
       enable = true;
       host = "nzbget";
-      enableHttp = false;
       downloadsDir = "/mnt/ztank/local/nas/usenet";
     };
     jellyfin = {
