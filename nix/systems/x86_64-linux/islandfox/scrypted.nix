@@ -5,7 +5,7 @@ in
 {
   foxDen.services = config.lib.foxDen.sops.mkIfAvailable {
     scrypted = {
-      enable = true;
+      enable = false;
       host = "scrypted";
     };
   };
