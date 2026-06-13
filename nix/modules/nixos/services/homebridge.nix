@@ -16,11 +16,6 @@ in
 
   config = lib.mkIf svcConfig.enable (
     lib.mkMerge [
-      (services.http.make {
-        inherit svcConfig pkgs config;
-        name = "http-homebridge";
-        target = "proxy_pass http://127.0.0.1:${toString config.services.homebridge.uiSettings.port};";
-      }).config
       (services.make {
         inherit svcConfig pkgs config;
         name = "homebridge";
@@ -28,6 +23,9 @@ in
       {
         services.homebridge = {
           enable = true;
+          uiSettings = {
+            port = 80;
+          };
           settings = {
             bridge.name = "FoxDen HomeBridge";
           };
