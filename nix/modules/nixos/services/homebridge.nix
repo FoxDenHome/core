@@ -19,7 +19,7 @@ in
       (services.http.make {
         inherit svcConfig pkgs config;
         name = "http-homebridge";
-        target = "proxy_pass http://127.0.0.1:${config.services.homebridge.uiSettings.port};";
+        target = "proxy_pass http://127.0.0.1:${toString config.services.homebridge.uiSettings.port};";
       }).config
       (services.make {
         inherit svcConfig pkgs config;
