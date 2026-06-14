@@ -53,6 +53,13 @@ in
       horizon = "internal";
     }
     {
+      fqdn = "vpn.foxden.network";
+      type = "AAAA";
+      ttl = 3600;
+      value = "fd2c:f4cb:63be:2::101";
+      horizon = "internal";
+    }
+    {
       fqdn = "v4-vpn.foxden.network";
       type = "CNAME";
       ttl = 3600;
