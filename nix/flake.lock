@@ -80,11 +80,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1781413823,
-        "narHash": "sha256-vf2+7ssrmoakXqX7joFTpIOOc8Slo2bbFHQvfgEijog=",
+        "lastModified": 1781413962,
+        "narHash": "sha256-haTj9HESoDBvUZ4xry744a67c0exKQX1o+geH47zjCk=",
         "ref": "refs/heads/main",
-        "rev": "2675aaae3b2dcab1392fbbd2265a41812352924c",
-        "revCount": 712,
+        "rev": "63edbb02218ec7ed2bbf40d6d69aec8963fea9c7",
+        "revCount": 713,
         "type": "git",
         "url": "https://git.foxden.network/FoxDen/e621dumper"
       },
@@ -103,11 +103,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1781413825,
-        "narHash": "sha256-2k/8BiXFqhkIZAsLzU7XNZcl3ValPd5d2QX00i72ScM=",
+        "lastModified": 1781413960,
+        "narHash": "sha256-Y6SReIlFF9/pm+W4RteanQnEcGiDGl+aXAlKct/z/aY=",
         "ref": "refs/heads/main",
-        "rev": "f226d43d06b6d34437daecbc429356f6346db1f2",
-        "revCount": 730,
+        "rev": "e985920dda5fcc44d8d789aefe0225fb7ca2cf1c",
+        "revCount": 731,
         "type": "git",
         "url": "https://git.foxden.network/FoxDen/fadumper"
       },
