@@ -1,10 +1,8 @@
 #!/usr/bin/env bash
 set -xeuo pipefail
+cd "$(dirname "$0")"
 
-scriptdir="$(dirname "$(realpath "$0")")"
-nixdir="${scriptdir}/../../../nix"
-cd "$scriptdir"
-
+nixdir=../../../nix
 ipxedir="$(nix build "$nixdir#nixosConfigurations.islandfox.pkgs.foxden-ipxe" --no-link --print-out-paths)"
 wimboot_dir="$(nix build "$nixdir#nixosConfigurations.islandfox.pkgs.wimboot" --no-link --print-out-paths)"
 

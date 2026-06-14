@@ -1,9 +1,8 @@
 #!/usr/bin/env bash
-set -euo pipefail
+set -xeuo pipefail
+cd "$(dirname "$0")"
 
 OUTDIR="$1"
-
-cd "$(dirname "$(realpath "$0")")"
 
 copy_out() {
     cp "$1" "${OUTDIR}/$2"
