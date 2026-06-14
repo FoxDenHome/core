@@ -62,20 +62,6 @@
           "10.2.13.21/16"
         ];
       };
-      nanoleaf-shapes-dori = mkIntf {
-        dns = {
-          fqdns = [ "nanoleaf-shapes-dori.foxden.network" ];
-        };
-        mac = "80:8A:F7:03:E2:1A";
-        dhcpv6 = {
-          duid = "0x00030001808af703e21a";
-          iaid = 1;
-        };
-        addresses = [
-          "10.2.12.28/16"
-          "fd2c:f4cb:63be:2::c1c/64"
-        ];
-      };
       nanoleaf-lines-wizzy = mkIntf {
         dns = {
           fqdns = [ "nanoleaf-lines-wizzy.foxden.network" ];
@@ -124,20 +110,6 @@
         mac = "c0:84:7d:20:57:c0";
         addresses = [
           "10.2.10.5/16"
-        ];
-      };
-      ups-dori-office = mkIntf {
-        dns = {
-          fqdns = [ "ups-dori-office.foxden.network" ];
-        };
-        mac = "00:0C:15:00:BC:7C";
-        dhcpv6 = {
-          duid = "0x00030001000c1500bc7c";
-          iaid = 167781915;
-        };
-        addresses = [
-          "10.1.11.3/16"
-          "fd2c:f4cb:63be:1::b03/64"
         ];
       };
     };
