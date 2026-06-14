@@ -1,22 +1,24 @@
 {
-  "kind": "Dashboard",
   "apiVersion": "dashboard.grafana.app/v2",
+  "kind": "Dashboard",
   "metadata": {
     "name": "dog6pdf",
     "namespace": "default",
-    "uid": "08fe40a0-963f-49b9-b200-d31f13164663",
-    "resourceVersion": "1781452166322572",
-    "generation": 10,
-    "creationTimestamp": "2026-06-14T15:39:38Z",
+    "uid": "9e875cff-9b7e-4cd0-91a6-6baa62258127",
+    "resourceVersion": "1781453183755481",
+    "generation": 1,
+    "creationTimestamp": "2026-06-14T16:06:23Z",
     "labels": {
-      "grafana.app/deprecatedInternalID": "3535163437477888"
+      "grafana.app/deprecatedInternalID": "3541895528357888"
     },
     "annotations": {
-      "grafana.app/createdBy": "user:bf2gelb7vysjkb",
-      "grafana.app/folder": "",
-      "grafana.app/saved-from-ui": "Grafana v13.0.2 (NA)",
-      "grafana.app/updatedBy": "user:bf2gelb7vysjkb",
-      "grafana.app/updatedTimestamp": "2026-06-14T15:49:26Z"
+      "grafana.app/createdBy": "access-policy:service",
+      "grafana.app/managedBy": "classic-file-provisioning",
+      "grafana.app/managerId": "default",
+      "grafana.app/sourceChecksum": "9f17eaa84115afad117f7062ae11f6bb",
+      "grafana.app/sourcePath": "/nix/store/9ids76am0sv23da3pmkaywdqs0n8pcwq-dashboards/foxingress.json",
+      "grafana.app/sourceTimestamp": "1000",
+      "grafana.app/folder": ""
     }
   },
   "spec": {
@@ -36,7 +38,7 @@
           "enable": true,
           "hide": true,
           "iconColor": "rgba(0, 211, 255, 1)",
-          "name": "Annotations \u0026 Alerts",
+          "name": "Annotations & Alerts",
           "builtIn": true
         }
       }
@@ -925,6 +927,5 @@
         }
       }
     }
-  },
-  "status": {}
+  }
 }
