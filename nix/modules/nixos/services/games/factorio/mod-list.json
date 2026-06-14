@@ -68,9 +68,9 @@
         {
             "name": "LtnManager",
             "enabled": true,
-            "sha1": "82c6fd0220b7c227e1694464058a6f3681b07f39",
-            "url": "https://mods.factorio.com/download/LtnManager/697f3922ef8682ca56526aa6",
-            "version": "0.5.1"
+            "sha1": "38c474e654d6a52051ce8ac3add1459a4d97abdc",
+            "url": "https://mods.factorio.com/download/LtnManager/6a2e87c505d8fcf5d1beb217",
+            "version": "0.5.2"
         },
         {
             "name": "LTN_Combinator_Modernized",
@@ -106,6 +106,13 @@
             "sha1": "d1d6962c72abd0580394cdbd3a75b679fb87ab26",
             "url": "https://mods.factorio.com/download/textplates/6796fc904636ff3e9ca2f3ae",
             "version": "0.7.2"
+        },
+        {
+            "name": "show-max-underground-distance",
+            "enabled": true,
+            "sha1": "c31e1e62274f0eb1eaa92fb0fe5fe7a4bf05dfbd",
+            "url": "https://mods.factorio.com/download/show-max-underground-distance/670e87dfcefed9dbb07fccc5",
+            "version": "0.1.0"
         }
     ]
 }
