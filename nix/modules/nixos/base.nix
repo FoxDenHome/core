@@ -135,6 +135,7 @@
       gptfdisk
       iperf
       ipmitool
+      jq
       lm_sensors
       mdadm
       mstflint
