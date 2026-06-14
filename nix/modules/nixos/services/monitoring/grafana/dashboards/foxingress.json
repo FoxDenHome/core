@@ -4,19 +4,19 @@
   "metadata": {
     "name": "dog6pdf",
     "namespace": "default",
-    "uid": "55ccb5be-5970-4bc9-a537-219fbe36c435",
-    "resourceVersion": "1781457717213249",
+    "uid": "75f2f5d5-43a7-4756-a746-1d844a3ad2f1",
+    "resourceVersion": "1781458037625610",
     "generation": 1,
-    "creationTimestamp": "2026-06-14T17:21:57Z",
+    "creationTimestamp": "2026-06-14T17:27:17Z",
     "labels": {
-      "grafana.app/deprecatedInternalID": "3560910211244032"
+      "grafana.app/deprecatedInternalID": "3562254161612800"
     },
     "annotations": {
       "grafana.app/createdBy": "access-policy:service",
       "grafana.app/managedBy": "classic-file-provisioning",
       "grafana.app/managerId": "default",
-      "grafana.app/sourceChecksum": "e6619d1a3d5783259da8e413c5f84528",
-      "grafana.app/sourcePath": "/nix/store/72ykqxj55aqmw34g6h2yhcj2yb5y0yl4-dashboards/foxingress.json",
+      "grafana.app/sourceChecksum": "33b0b0cd68be747b786446b7663258b1",
+      "grafana.app/sourcePath": "/nix/store/fp602vmy9d300dq60wvbw9gyyb04n5qi-dashboards/foxingress.json",
       "grafana.app/sourceTimestamp": "1000",
       "grafana.app/folder": ""
     }
@@ -777,6 +777,128 @@
             "version": "13.0.2"
           }
         }
+      },
+      "panel-8": {
+        "kind": "Panel",
+        "spec": {
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "prometheus"
+                      },
+                      "group": "prometheus",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "editorMode": "builder",
+                        "expr": "sum by(host, proto) (irate(foxingress_connection_errors_total{instance=\"$Instance\"}[$__interval])) > 0",
+                        "instant": false,
+                        "legendFormat": "{{host}}",
+                        "range": true
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "A"
+                  }
+                }
+              ],
+              "queryOptions": {
+                "interval": "5m"
+              },
+              "transformations": []
+            }
+          },
+          "description": "",
+          "id": 8,
+          "links": [],
+          "title": "Connection errors per second",
+          "vizConfig": {
+            "group": "timeseries",
+            "kind": "VizConfig",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {
+                  "color": {
+                    "mode": "palette-classic"
+                  },
+                  "custom": {
+                    "axisBorderShow": false,
+                    "axisCenteredZero": false,
+                    "axisColorMode": "text",
+                    "axisLabel": "",
+                    "axisPlacement": "auto",
+                    "barAlignment": 0,
+                    "barWidthFactor": 0.6,
+                    "drawStyle": "line",
+                    "fillOpacity": 0,
+                    "gradientMode": "none",
+                    "hideFrom": {
+                      "legend": false,
+                      "tooltip": false,
+                      "viz": false
+                    },
+                    "insertNulls": false,
+                    "lineInterpolation": "linear",
+                    "lineWidth": 1,
+                    "pointSize": 5,
+                    "scaleDistribution": {
+                      "type": "linear"
+                    },
+                    "showPoints": "auto",
+                    "showValues": false,
+                    "spanNulls": false,
+                    "stacking": {
+                      "group": "A",
+                      "mode": "none"
+                    },
+                    "thresholdsStyle": {
+                      "mode": "off"
+                    }
+                  },
+                  "noValue": "0",
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "green",
+                        "value": 0
+                      },
+                      {
+                        "color": "red",
+                        "value": 80
+                      }
+                    ]
+                  }
+                },
+                "overrides": []
+              },
+              "options": {
+                "annotations": {
+                  "clustering": -1,
+                  "multiLane": false
+                },
+                "legend": {
+                  "calcs": [],
+                  "displayMode": "list",
+                  "placement": "bottom",
+                  "showLegend": true
+                },
+                "tooltip": {
+                  "hideZeros": false,
+                  "mode": "single",
+                  "sort": "none"
+                }
+              }
+            },
+            "version": "13.0.2"
+          }
+        }
       }
     },
     "layout": {
@@ -859,6 +981,19 @@
               "width": 12,
               "x": 12,
               "y": 16
+            }
+          },
+          {
+            "kind": "GridLayoutItem",
+            "spec": {
+              "element": {
+                "kind": "ElementReference",
+                "name": "panel-8"
+              },
+              "height": 8,
+              "width": 24,
+              "x": 0,
+              "y": 24
             }
           }
         ]
