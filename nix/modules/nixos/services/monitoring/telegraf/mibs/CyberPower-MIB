@@ -1,14 +1,14 @@
---/********************* (c) 2010-2022 CyberPower System ***************************/
+--/********************* (c) 2010-2025 CyberPower System ***************************/
 --
 -- PROJECT: SNMP MIB FILE CONSTRUCTED
 --
--- Version : 2.11
+-- Version : 2.13
 --
--- File Name: CPSMIB2022.mib
+-- File Name: CPSMIB2025.mib
 --
--- CREATION DATE : 11/18/2022
+-- CREATION DATE : 12/03/2025
 --
--- AUTHOR : Ryuk
+-- AUTHOR : John
 --
 --//////////////////////////////////////////////////////////////////////////////
 --
@@ -163,8 +163,14 @@ bmFuncRes		  OBJECT IDENTIFIER ::=  { battmgr 6 }
 bmFuncEqual	  OBJECT IDENTIFIER ::=  { battmgr 7 }
 bmStrings			OBJECT IDENTIFIER ::=  { battmgr 10 }
 bmFuncShutdown	OBJECT IDENTIFIER ::=  { battmgr 20 }
+bmWireless		OBJECT IDENTIFIER ::=  { battmgr 50 }
 
 bmFuncResMeasure		  			  OBJECT IDENTIFIER ::=  { bmFuncRes 1 }
+
+bmWirelessProperty		OBJECT IDENTIFIER ::=  { bmWireless 1 }
+bmWirelessStatus			OBJECT IDENTIFIER ::=  { bmWireless 2 }
+bmWirelessConfig			OBJECT IDENTIFIER ::=  { bmWireless 3 }
+bmWirelessControl			OBJECT IDENTIFIER ::=  { bmWireless 4 }
 
 envir2Ident                     OBJECT IDENTIFIER ::=  { environmentSensor2 1 }
 envir2Temp                      OBJECT IDENTIFIER ::=  { environmentSensor2 2 }
@@ -377,6 +383,13 @@ mtrapinfoBmEventId OBJECT-TYPE
          10- Warning: Leave battery equalization active mode.
          11- Alarm: Battery equalizing has failed. 
          12- Info: Battery equalizing succeeds. 
+         13- Warning: Enter BMS software operation mode. 
+         14- Warning: Leave BMS software operatioin mode. 
+         15- Warning: Authentication to the BMS software has been failed. 
+         16- Alarm: Communication to the BMS software has been lost. 
+         17- Info: Communication to the BMS software has restored. 
+         18- Alarm: Communication with Wireless module has been lost. 
+         19- Info: Communication with Wireless module has been restored. 
          
        Known Specific Event ID: Battery Probes
          101 - Alarm: Low battery voltage. 
@@ -408,7 +421,17 @@ mtrapinfoBmEventId OBJECT-TYPE
          205 - Info: String voltage event has cleared.
          226 - Alarm: Low string soc. 
          207 - Warning: Low string soc. 
-         208 - Info: String soc event has cleared. "
+         208 - Info: String soc event has cleared. 
+         
+      Known Specific Event ID: BM Wireless
+         301 - Warning: Wireless sensors may incomplete, searching wireless sensors. 
+         302 - Info: Wireless sensor has left the network. 
+         303 - Info: Wireless sensor has joined the network. 
+         304 - Info: Wireless sensors complete and communication normally. 
+         305 - Warning: Communication with the wireless sensor has been losted. 
+         306 - Info: Communication with the wireless sensor has been restored. 
+         307 - Warning: Restart/Reset wireless neetwork. 
+         308 - Info: Wireless network configuration changed. "
    ::= { mtrapinfo 6 }
    
 mtrapinfoCpEventId OBJECT-TYPE
@@ -878,6 +901,14 @@ upsAdvanceOutputEnergyStartTime OBJECT-TYPE
    DESCRIPTION
      "Indicates the date and time of the last device energy	meter reset."
    ::= { upsAdvanceOutput 7 }
+
+upsAdvanceApparentOutputPower OBJECT-TYPE
+   SYNTAX Gauge
+   ACCESS read-only
+   STATUS mandatory
+   DESCRIPTION
+     "The total output apparent power of the UPS system in VA."
+   ::= { upsAdvanceOutput 8 }
 
 -- the upsBaseConfig group
 upsBaseConfigNumDevices OBJECT-TYPE
@@ -2022,6 +2053,14 @@ upsTemperature OBJECT-TYPE
    DESCRIPTION
       "The UPS NTC temperature expressed in Celsius."
    ::= { upsSystem 2 }
+   
+upsFaultCode OBJECT-TYPE
+   SYNTAX DisplayString
+   ACCESS read-only
+   STATUS mandatory
+   DESCRIPTION
+      "The UPS Hardware Fault code."
+   ::= { upsSystem 3 }   
 		
 -- the eswitch group
 -- the eSwitchIdent group
@@ -10263,6 +10302,88 @@ envir2ContactNormalState OBJECT-TYPE
       "Set the contact normal state."
    ::= { envir2ContactEntry 6 }
 
+bmWirelessPropertyMAC OBJECT-TYPE
+   SYNTAX DisplayString
+   ACCESS read-only
+   STATUS mandatory
+   DESCRIPTION
+      "The battery manager wireless module MAC address."
+   ::= { bmWirelessProperty 1 }
+   
+bmWirelessPropertyHwInfo OBJECT-TYPE
+   SYNTAX DisplayString
+   ACCESS read-only
+   STATUS mandatory
+   DESCRIPTION
+      "The battery manager wireless module hardware information."
+   ::= { bmWirelessProperty 2 }
+   
+bmWirelessPropertyFwInfo OBJECT-TYPE
+   SYNTAX DisplayString
+   ACCESS read-only
+   STATUS mandatory
+   DESCRIPTION
+      "The battery manager wireless module firmware information."
+   ::= { bmWirelessProperty 3 }
+
+bmWirelessStatusState OBJECT-TYPE
+   SYNTAX INTEGER {
+      bmWirelessOnline(1),
+      bmWirelessOffline(2)
+   }
+   ACCESS read-only
+   STATUS mandatory
+   DESCRIPTION
+      "The battery manager wireless module status."
+   ::= { bmWirelessStatus 1 }
+
+bmWirelessStatusChannel OBJECT-TYPE
+   SYNTAX INTEGER
+   ACCESS read-only
+   STATUS mandatory
+   DESCRIPTION
+      "The battery manager wireless network channel number."
+   ::= { bmWirelessStatus 2 }
+
+bmWirelessStatusPANID OBJECT-TYPE
+   SYNTAX INTEGER
+   ACCESS read-only
+   STATUS mandatory
+   DESCRIPTION
+      "The battery manager wireless network PAN ID number."
+   ::= { bmWirelessStatus 3 }
+
+bmWirelessStatusLinkedNodes OBJECT-TYPE
+   SYNTAX INTEGER
+   ACCESS read-only
+   STATUS mandatory
+   DESCRIPTION
+      "The battery manager wireless network linked node numbder."
+   ::= { bmWirelessStatus 4 }
+
+bmWirelessConfigJoin OBJECT-TYPE
+   SYNTAX INTEGER {
+      autoJoin(1),
+      manual(2)
+   }
+   ACCESS read-write
+   STATUS mandatory
+   DESCRIPTION
+      "The battery manager wireless network auto join configuration."
+   ::= { bmWirelessConfig 1 }
+   
+bmWirelessControlRestart OBJECT-TYPE
+   SYNTAX INTEGER {
+      none(1),
+      reboot(2), 
+      reset(3)
+   }
+   ACCESS read-write
+   STATUS mandatory
+   DESCRIPTION
+      "The battery manager wireless network auto join configuration."
+   ::= { bmWirelessControl 1 }
+
 currIdentSystemID OBJECT-TYPE
    SYNTAX INTEGER{
    		batteryManager(1)
@@ -14072,4 +14193,3 @@ currProbesInfo TRAP-TYPE
        The fourth argument is the trap information string."
    ::= 702
 END
-
