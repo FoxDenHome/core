@@ -2,7 +2,6 @@
 {
   config.foxDen.dns.zones = {
     "foxden.network" = {
-      registrar = "porkbun";
       generateNSRecords = true;
     };
     "doridian.de" = {
@@ -10,12 +9,9 @@
       generateNSRecords = true;
     };
     "doridian.net" = {
-      registrar = "porkbun";
       generateNSRecords = true;
     };
-    "darksignsonline.com" = {
-      registrar = "porkbun";
-    };
+    "darksignsonline.com" = { };
     "f0x.es" = {
       registrar = "inwx";
       generateNSRecords = true;

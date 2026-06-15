@@ -60,7 +60,7 @@ let
       options = {
         registrar = lib.mkOption {
           type = str;
-          default = "aws";
+          default = "porkbun";
         };
         authority = lib.mkOption {
           type = str;
