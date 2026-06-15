@@ -2,7 +2,6 @@
 let
   serverDomain = "arcticfox.doridian.net";
   familyZoneCfg = {
-    registrar = "inwx";
     fastmail = false;
     ses = true;
     authority = "upstream";
@@ -44,8 +43,12 @@ let
 in
 {
   config.foxDen.dns.zones = {
-    "zoofaeth.de" = familyZoneCfg;
-    "candy-girl.net" = familyZoneCfg;
+    "zoofaeth.de" = familyZoneCfg // {
+      registrar = "inwx";
+    };
+    "candy-girl.net" = familyZoneCfg // {
+      registrar = "porkbun";
+    };
   };
 
   config.foxDen.dns.records = (mkFamilyRecords "zoofaeth.de") ++ (mkFamilyRecords "candy-girl.net");
