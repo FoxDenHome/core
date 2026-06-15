@@ -2,6 +2,7 @@
 {
   config.foxDen.dns.zones = {
     "foxden.network" = {
+      registrar = "porkbun";
       generateNSRecords = true;
     };
     "doridian.de" = {
@@ -9,13 +10,19 @@
       generateNSRecords = true;
     };
     "doridian.net" = {
+      registrar = "porkbun";
       generateNSRecords = true;
     };
-    "darksignsonline.com" = { };
+    "darksignsonline.com" = {
+      registrar = "porkbun";
+    };
     "f0x.es" = {
+      registrar = "inwx";
       generateNSRecords = true;
     };
-    "foxcav.es" = { };
+    "foxcav.es" = {
+      registrar = "inwx";
+    };
 
     "e.b.3.6.b.c.4.f.c.2.d.f.ip6.arpa" = {
       registrar = "local";
