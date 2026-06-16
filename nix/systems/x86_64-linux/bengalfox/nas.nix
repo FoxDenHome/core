@@ -71,7 +71,10 @@ in
       host = "nas";
       enable = true;
       root = "/mnt/zhdd/nas";
-      tls.enable = true;
+      tls = {
+        enable = true;
+        preferPerformance = true;
+      };
       oAuth = {
         enable = true;
         displayName = "NAS WebUI Local (BengalFox)";
