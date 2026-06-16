@@ -502,7 +502,7 @@ in
         js_set $dynamic_ssl_key acme.js_key;
         ssl_certificate data:$dynamic_ssl_cert;
         ssl_certificate_key data:$dynamic_ssl_key;
-        ${if config.foxDen.services.ktls then "ssl_conf_command Options KTLS; error_log stderr debug;" else "# KTLS is disabled"}
+        ${if config.foxDen.services.ktls then "ssl_conf_command Options KTLS;" else "# KTLS is disabled"}
 
         ${headerConfig}
 
@@ -577,7 +577,7 @@ in
                 worker_cpu_affinity auto;
                 worker_rlimit_nofile 100000;
 
-                error_log stderr notice;
+                error_log stderr ${if config.foxDen.services.ktls then "debug" else "notice"};
                 pid /tmp/nginx.pid;
 
                 events {
