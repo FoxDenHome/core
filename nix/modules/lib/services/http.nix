@@ -219,6 +219,8 @@ in
           default = [ ];
         };
 
+      options.foxDen.services.ktls = nixpkgs.lib.mkEnableOption "Enable KTLS for all services by default";
+
       config.foxDen.services.trustedProxies = [
         "10.1.0.0/23"
         "10.2.0.0/23"
@@ -641,6 +643,8 @@ in
                         js_var $njs_acme_directory_uri "https://acme-v02.api.letsencrypt.org/directory";
                         js_shared_dict_zone zone=acme:1m;
                         js_import acme from acme.js;
+
+                        ${if config.foxDen.services.ktls then "ssl_conf_command Options KTLS;" else "# KTLS is disabled"}
 
                         server {
                           server_name _;
