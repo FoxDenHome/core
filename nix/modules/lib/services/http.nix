@@ -502,6 +502,7 @@ in
         js_set $dynamic_ssl_key acme.js_key;
         ssl_certificate data:$dynamic_ssl_cert;
         ssl_certificate_key data:$dynamic_ssl_key;
+        ${if config.foxDen.services.ktls then "ssl_conf_command Options KTLS; error_log stderr debug;" else "# KTLS is disabled"}
 
         ${headerConfig}
 
@@ -643,8 +644,6 @@ in
                         js_var $njs_acme_directory_uri "https://acme-v02.api.letsencrypt.org/directory";
                         js_shared_dict_zone zone=acme:1m;
                         js_import acme from acme.js;
-
-                        ${if config.foxDen.services.ktls then "ssl_conf_command Options KTLS;" else "# KTLS is disabled"}
 
                         server {
                           server_name _;
