@@ -357,7 +357,7 @@ in
           "";
 
       sslBaseConfig =
-        if svcConfig.tls.optimizePerformance then
+        if svcConfig.tls.preferPerformance then
           ''
             ssl_conf_command Options KTLS,KTLSTxZerocopySendfile;
             ${sslHwConfig}
