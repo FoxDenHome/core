@@ -132,6 +132,7 @@
       cryptsetup
       curl
       e2fsprogs
+      ethtool
       gptfdisk
       iperf
       ipmitool

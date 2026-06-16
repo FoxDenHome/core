@@ -2,7 +2,6 @@
 {
   lib,
   config,
-  pkgs,
   ...
 }:
 {
@@ -23,9 +22,6 @@
     allowedTCPPorts = [ config.services.iperf3.port ];
   };
   services.iperf3.enable = true;
-  environment.systemPackages = with pkgs; [
-    iperf
-  ];
 
   hardware.rasdaemon.enable = true;
 
