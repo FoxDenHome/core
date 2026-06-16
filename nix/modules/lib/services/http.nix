@@ -746,7 +746,7 @@ in
                     }
                   }:/njs/lib/acme.js"
                 ];
-                ExecStart = "${package}/bin/nginx -g 'daemon off;' -e stderr -c \"\${CREDENTIALS_DIRECTORY}/nginx.conf\"";
+                ExecStart = "${package}/bin/nginx -g 'daemon off;' -c \"\${CREDENTIALS_DIRECTORY}/nginx.conf\"";
               };
               wantedBy = [ "multi-user.target" ];
             };
