@@ -90,12 +90,12 @@ output "generated_records" {
       values(cloudns_dns_record.cdn_foxden),
       values(cloudns_dns_record.cdn_foxden_tls_validation),
       ) : {
-      type     = upper(r.type)
-      fqdn     = r.name == "@" ? r.zone : "${r.name}.${r.zone}"
-      name     = r.name
-      ttl      = r.ttl
-      value    = r.value
-      horizon  = "*"
+      type    = upper(r.type)
+      fqdn    = r.name == "@" ? r.zone : "${r.name}.${r.zone}"
+      name    = r.name
+      ttl     = r.ttl
+      value   = r.value
+      horizon = "*"
     }]
   }
 }
