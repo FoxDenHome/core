@@ -219,6 +219,8 @@ in
           default = [ ];
         };
 
+      options.foxDen.services.tlsHardwareAcceleration = nixpkgs.lib.mkEnableOption "Enable TLS hardware acceleration";
+
       config.foxDen.services.trustedProxies = [
         "10.1.0.0/23"
         "10.2.0.0/23"
@@ -249,12 +251,7 @@ in
           default = "limited";
           description = "Enable HSTS header for TLS connections";
         };
-        confOptions =
-          with nixpkgs.lib.types;
-          nixpkgs.lib.mkOption {
-            type = uniq (listOf str);
-            default = [ "KTLS" ];
-          };
+        preferPerformance = nixpkgs.lib.mkEnableOption "Prefer TLS performance over the highest possible security";
       };
       customReadyz = nixpkgs.lib.mkEnableOption "Don't handle /readyz endpoint for custom health checks";
       quic = nixpkgs.lib.mkEnableOption "Enable QUIC (HTTP/3) support";
@@ -348,6 +345,27 @@ in
     }:
     let
       name = inputs.name;
+
+      sslHwConfig =
+        if config.foxDen.services.tlsHardwareAcceleration then
+          ''
+            ssl_protocols TLSv1.2;
+            ssl_ciphers ECDHE-RSA-AES128-GCM-SHA256:AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:AES256-GCM-SHA384;
+            ssl_prefer_server_ciphers on;
+          ''
+        else
+          "";
+
+      sslBaseConfig =
+        if svcConfig.tls.optimizePerformance then
+          ''
+            ssl_conf_command Options KTLS,KTLSTxZerocopySendfile;
+            ${sslHwConfig}
+          ''
+        else
+          ''
+            ssl_conf_command Options KTLS;
+          '';
 
       package = pkgs.nginx.override {
         modules = nixpkgs.lib.lists.unique (
@@ -506,12 +524,7 @@ in
         js_set $dynamic_ssl_key acme.js_key;
         ssl_certificate data:$dynamic_ssl_cert;
         ssl_certificate_key data:$dynamic_ssl_key;
-        ${
-          if svcConfig.tls.confOptions != [ ] then
-            "ssl_conf_command Options ${builtins.concatStringsSep "," svcConfig.tls.confOptions};"
-          else
-            "# SSL options are empty"
-        }
+        ${sslBaseConfig}
 
         ${headerConfig}
 

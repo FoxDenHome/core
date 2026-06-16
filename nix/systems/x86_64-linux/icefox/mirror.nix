@@ -10,10 +10,6 @@ in
       tls = {
         enable = true;
         hsts = "preload";
-        confOptions = [
-          "KTLS"
-          "KTLSTxZerocopySendfile"
-        ];
       };
       dataDir = "/mnt/ztank/local/mirror";
       archMirrorId = "csclub.uwaterloo.ca";

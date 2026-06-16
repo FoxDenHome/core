@@ -9,10 +9,7 @@ in
       host = "mirror";
       tls = {
         enable = true;
-        confOptions = [
-          "KTLS"
-          "KTLSTxZerocopySendfile"
-        ];
+        preferPerformance = true;
       };
       dataDir = "/mnt/zhdd/mirror";
       archMirrorId = "archlinux.doridian.net";
