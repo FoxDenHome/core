@@ -448,11 +448,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1781591858,
-        "narHash": "sha256-zBQHBUzZauNUb0E7A2U8+FMQWqyFgesI0X9TYFNRCEI=",
+        "lastModified": 1781602026,
+        "narHash": "sha256-2UyrT/hTLfTOQEdy+UrR3sBxnApHeWKV1Z+ei7/qoJg=",
         "ref": "refs/heads/main",
-        "rev": "ee2adcb20041c88714d3d2a3947f94f84509e7f4",
-        "revCount": 427,
+        "rev": "7789d8e5bd2fafafce4c1e9a254759ff001c249e",
+        "revCount": 428,
         "type": "git",
         "url": "https://git.foxden.network/SpaceAge/space_age_api"
       },
@@ -634,11 +634,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1781536088,
-        "narHash": "sha256-4Dle8s4UNHItdr9hMOP5BgU9BXlExjFUeM3WbC2jzhs=",
+        "lastModified": 1781596548,
+        "narHash": "sha256-dhc1zBhYJbafsflK31g5+P+iot/saZPa/nUpcRkZui0=",
         "owner": "pyproject-nix",
         "repo": "uv2nix",
-        "rev": "3b45df1985bbcf7dddff589020c2f790ac0625df",
+        "rev": "ec7b3fd86a8add8c546192ad5d66dade40d21e48",
         "type": "github"
       },
       "original": {
