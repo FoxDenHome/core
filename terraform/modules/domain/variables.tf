@@ -6,11 +6,6 @@ variable "ses" {
   type = bool
 }
 
-variable "nameservers" {
-  type    = set(string)
-  default = null
-}
-
 variable "records" {
   type = list(object({
     dynDns    = optional(bool, false)
