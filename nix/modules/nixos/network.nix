@@ -1,4 +1,4 @@
-{ ... }:
+{ lib, ... }:
 {
   config.boot = {
     kernel.sysctl = {
@@ -23,6 +23,15 @@
       "tcp_bbr"
       "tun"
       "tap"
+    ];
+    kernelPatches = [
+      {
+        name = "mlx5-en-tls";
+        patch = null;
+        structuredExtraConfig = with lib.kernel; {
+          MLX5_EN_TLS = yes;
+        };
+      }
     ];
   };
 }
