@@ -29,7 +29,7 @@
         name = "mlx5-en-tls";
         patch = null;
         structuredExtraConfig = with lib.kernel; {
-          TLS = yes;
+          TLS = lib.mkForce yes;
           MLX5_CORE = yes;
           MLX5_FPGA = yes;
           MLX5_EN_TLS = yes;
