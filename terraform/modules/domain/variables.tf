@@ -11,11 +11,6 @@ variable "nameservers" {
   default = null
 }
 
-variable "registrar" {
-  type    = string
-  default = ""
-}
-
 variable "records" {
   type = list(object({
     dynDns    = optional(bool, false)

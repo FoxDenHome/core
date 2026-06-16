@@ -18,7 +18,6 @@ module "domain" {
 
   domain      = each.key
   ses         = each.value["ses"]
-  registrar   = each.value["registrar"]
   nameservers = toset(each.value["nameserverList"])
   records     = local.records_json[each.key]
 }
