@@ -20,7 +20,6 @@ in
 
   foxDen.hosts.index = 1;
   foxDen.hosts.gateway = "router";
-  foxDen.services.ktls = true;
   virtualisation.libvirtd.allowedBridges = [ ifcfg.interface ];
 
   systemd.network.networks."30-${ifcfg.interface}" = {

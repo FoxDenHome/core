@@ -219,8 +219,6 @@ in
           default = [ ];
         };
 
-      options.foxDen.services.ktls = nixpkgs.lib.mkEnableOption "Enable KTLS for all services by default";
-
       config.foxDen.services.trustedProxies = [
         "10.1.0.0/23"
         "10.2.0.0/23"
@@ -251,6 +249,12 @@ in
           default = "limited";
           description = "Enable HSTS header for TLS connections";
         };
+        confOptions =
+          with nixpkgs.lib.types;
+          nixpkgs.lib.mkOption {
+            type = uniq (listOf str);
+            default = [ "KTLS" ];
+          };
       };
       customReadyz = nixpkgs.lib.mkEnableOption "Don't handle /readyz endpoint for custom health checks";
       quic = nixpkgs.lib.mkEnableOption "Enable QUIC (HTTP/3) support";
@@ -502,7 +506,12 @@ in
         js_set $dynamic_ssl_key acme.js_key;
         ssl_certificate data:$dynamic_ssl_cert;
         ssl_certificate_key data:$dynamic_ssl_key;
-        ${if config.foxDen.services.ktls then "ssl_conf_command Options KTLS;" else "# KTLS is disabled"}
+        ${
+          if svcConfig.tls.confOptions != [ ] then
+            "ssl_conf_command Options ${builtins.concatStringsSep " " svcConfig.tls.confOptions};"
+          else
+            "# SSL options are empty"
+        }
 
         ${headerConfig}
 
