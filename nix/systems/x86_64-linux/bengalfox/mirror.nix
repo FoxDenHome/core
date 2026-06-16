@@ -7,7 +7,13 @@ in
     mirror = {
       enable = true;
       host = "mirror";
-      tls.enable = true;
+      tls = {
+        enable = true;
+        confOptions = [
+          "KTLS"
+          "KTLSTxZerocopySendfile"
+        ];
+      };
       dataDir = "/mnt/zhdd/mirror";
       archMirrorId = "archlinux.doridian.net";
       sources.archlinux = {
