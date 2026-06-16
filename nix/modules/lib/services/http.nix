@@ -508,7 +508,7 @@ in
         ssl_certificate_key data:$dynamic_ssl_key;
         ${
           if svcConfig.tls.confOptions != [ ] then
-            "ssl_conf_command Options ${builtins.concatStringsSep " " svcConfig.tls.confOptions};"
+            "ssl_conf_command Options ${builtins.concatStringsSep "," svcConfig.tls.confOptions};"
           else
             "# SSL options are empty"
         }
