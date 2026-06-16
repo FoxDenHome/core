@@ -577,7 +577,7 @@ in
                 worker_cpu_affinity auto;
                 worker_rlimit_nofile 100000;
 
-                error_log stderr ${if config.foxDen.services.ktls then "debug" else "notice"};
+                error_log stderr notice;
                 pid /tmp/nginx.pid;
 
                 events {
@@ -746,7 +746,7 @@ in
                     }
                   }:/njs/lib/acme.js"
                 ];
-                ExecStart = "${package}/bin/nginx -g 'daemon off;' -c \"\${CREDENTIALS_DIRECTORY}/nginx.conf\"";
+                ExecStart = "${package}/bin/nginx -g 'daemon off;' -e stderr -c \"\${CREDENTIALS_DIRECTORY}/nginx.conf\"";
               };
               wantedBy = [ "multi-user.target" ];
             };

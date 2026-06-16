@@ -47,6 +47,8 @@ in
         else
           interface.driver.sriov.vlan;
 
+      ethtoolCmd = "${pkgs.ethtool}/bin/ethtool";
+
       allocSriovScript = pkgs.writeShellScript "allocate-sriov.sh" ''
         #!${pkgs.bash}/bin/bash
         set -euox pipefail
@@ -84,6 +86,8 @@ in
             ${pkgs.iproute2}/bin/rdma dev set "${uniqueServiceInterface}" netns "${host.namespace}"
           fi
           ${ipCmd} link set dev "$ifname" name "${uniqueServiceInterface}"
+          ${ethtoolCmd} -K "${uniqueServiceInterface}" tls-hw-tx-offload on || true
+          ${ethtoolCmd} -K "${uniqueServiceInterface}" tls-hw-rx-offload on || true
         }
 
         assign_vf_by_mac() {
