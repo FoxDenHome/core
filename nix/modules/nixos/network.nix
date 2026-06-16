@@ -23,6 +23,7 @@
       "tcp_bbr"
       "tun"
       "tap"
+      "tls"
     ];
     kernelPatches = [
       {
