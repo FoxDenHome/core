@@ -120,7 +120,7 @@ let
       horizon = "*";
     }) authorities.${zone.authority}.nameservers)
     ++ (
-      if zone.fastmail or zone.ses then
+      if zone.fastmail || zone.ses then
         [
           {
             inherit fqdn;
