@@ -24,7 +24,7 @@ terraform {
     }
     ovh = {
       source  = "ovh/ovh"
-      version = "~> 2.12.0"
+      version = "~> 2.14.0"
     }
     fastly = {
       source  = "fastly/fastly"
