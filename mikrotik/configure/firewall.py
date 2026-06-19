@@ -1,7 +1,6 @@
-from subprocess import check_call
+from subprocess import check_output
 from json import load as json_load
 from configure.util import (
-    unlink_safe,
     NIX_DIR,
     ROUTERS,
     format_mtik_bool,
@@ -529,11 +528,21 @@ def refresh_firewall_router(
 
 
 def refresh_firewall() -> None:
-    unlink_safe("result")
-    check_call(["nix", "build", f"{NIX_DIR}#firewall.json.router"])
-    with open("result", "r") as file:
+    result = (
+        check_output(
+            [
+                "nix",
+                "build",
+                f"{NIX_DIR}#firewall.json.router",
+                "--no-link",
+                "--print-out-paths",
+            ]
+        )
+        .strip()
+        .decode("utf-8")
+    )
+    with open(result, "r") as file:
         raw_firewall_rules = json_load(file)
-    unlink_safe("result")
 
     firewall_rules = []
 

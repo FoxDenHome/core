@@ -1,6 +1,6 @@
-from subprocess import check_call, check_output
-from json import load as json_load, loads as json_loads
-from configure.util import format_mtik_duration, unlink_safe, NIX_DIR, ROUTERS
+from subprocess import check_output
+from json import load as json_load
+from configure.util import format_mtik_duration, NIX_DIR, ROUTERS
 from typing import Any, cast
 
 INTERNAL_RECORDS: dict[str, Any] | None = None
@@ -161,13 +161,17 @@ MTIK_RECORD_TYPE_UNIQUE_FIELDS["NS"] = {"ns"}
 
 def refresh_dns():
     global INTERNAL_RECORDS
-    unlink_safe("result")
-    check_call(["nix", "build", f"{NIX_DIR}#dns.json"])
-    with open("result", "r") as file:
+    result = (
+        check_output(
+            ["nix", "build", f"{NIX_DIR}#dns.json", "--no-link", "--print-out-paths"]
+        )
+        .strip()
+        .decode("utf-8")
+    )
+    with open(result, "r") as file:
         INTERNAL_RECORDS = cast(
             dict[str, list[Any]], json_load(file)["records"]["internal"]
         )
-    unlink_safe("result")
 
     mikrotik_records = []
     mikrotik_forwarders = []

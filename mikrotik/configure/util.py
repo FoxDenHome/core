@@ -1,5 +1,4 @@
 from os.path import dirname, realpath, join
-from os import unlink
 from dataclasses import dataclass, field
 from subprocess import check_call, check_output
 from uuid import uuid4
@@ -10,13 +9,6 @@ from routeros_api.exceptions import RouterOsApiCommunicationError
 MTIK_DIR = realpath(dirname(__file__) + "/../")
 NIX_DIR = realpath(dirname(__file__) + "/../../nix/")
 VLAN_NAMES = ["", "mgmt", "lan", "dmz", "labnet", "security", "hypervisor", "retro"]
-
-
-def unlink_safe(path: str):
-    try:
-        unlink(path)
-    except FileNotFoundError:
-        pass
 
 
 def mtik_path(path: str) -> str:

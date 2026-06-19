@@ -1,5 +1,5 @@
-from subprocess import check_call
-from configure.util import unlink_safe, NIX_DIR, mtik_path, ROUTERS
+from subprocess import check_output
+from configure.util import NIX_DIR, mtik_path, ROUTERS
 from os.path import join as path_join
 from os import makedirs
 from shutil import rmtree
@@ -8,9 +8,20 @@ OUT_PATH = mtik_path("out/foxingress")
 
 
 def refresh_foxingress():
-    unlink_safe("result")
-    check_call(["nix", "build", f"{NIX_DIR}#foxIngress.json.router"])
-    with open("result", "r") as file:
+    result = (
+        check_output(
+            [
+                "nix",
+                "build",
+                f"{NIX_DIR}#foxIngress.json.router",
+                "--no-link",
+                "--print-out-paths",
+            ]
+        )
+        .strip()
+        .decode("utf-8")
+    )
+    with open(result, "r") as file:
         config = file.read()
 
     rmtree(OUT_PATH, ignore_errors=True)

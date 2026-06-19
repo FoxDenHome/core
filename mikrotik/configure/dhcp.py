@@ -1,7 +1,6 @@
-from subprocess import check_call
+from subprocess import check_output
 from json import load as json_load
 from configure.util import (
-    unlink_safe,
     NIX_DIR,
     get_ipv4_netname,
     MTikRouter,
@@ -181,11 +180,21 @@ def refresh_dhcp_router(dhcp_leases: list[dict[str, Any]], router: MTikRouter) -
 
 
 def refresh_dhcp() -> None:
-    unlink_safe("result")
-    check_call(["nix", "build", f"{NIX_DIR}#dhcp.json.router"])
-    with open("result", "r") as file:
+    result = (
+        check_output(
+            [
+                "nix",
+                "build",
+                f"{NIX_DIR}#dhcp.json.router",
+                "--no-link",
+                "--print-out-paths",
+            ]
+        )
+        .strip()
+        .decode("utf-8")
+    )
+    with open(result, "r") as file:
         dhcp_leases = json_load(file)
-    unlink_safe("result")
 
     for router in ROUTERS:
         if router.horizon != "internal":
