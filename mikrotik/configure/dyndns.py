@@ -11,10 +11,6 @@ SPECIAL_HOSTS = router_hosts + [f"v4-{router}" for router in router_hosts]
 
 _dyndns_hosts_value = None
 
-# TODO: Auto-generate this somehow
-with open(mtik_path("files/dyndns/secrets.json"), "r") as file:
-    SECRETS = json_loads(file.read())
-
 
 def load_dyndns_hosts():
     global _dyndns_hosts_value
@@ -89,9 +85,6 @@ def make_local_onboot(router: MTikRouter) -> None:
     result.append(f':global DynDNSKey "{hosts[host]["key"]}"')
     result.append(f':global DynDNSHost4 "{host_v4}"')
     result.append(f':global DynDNSKey4 "{hosts[host_v4]["key"]}"')
-
-    result.append(f':global IPv6Host "{router.ipv6_tunnel_id}"')
-    result.append(f':global IPv6Key "{SECRETS[host]["ipv6Key"]}"')
 
     script = MTikScript(
         name="onboot-dyndns-config",
