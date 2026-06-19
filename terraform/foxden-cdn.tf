@@ -42,60 +42,15 @@ resource "fastly_tls_subscription" "cdn_foxden" {
   certificate_authority = "certainly"
 }
 
-resource "cloudns_dns_record" "cdn_foxden_tls_validation" {
-  depends_on = [fastly_tls_subscription.cdn_foxden]
-
-  for_each = {
-    # The following `for` expression (due to the outer {}) will produce an object with key/value pairs.
-    # The 'key' is the domain name we've configured (e.g. a.example.com, b.example.com)
-    # The 'value' is a specific 'challenge' object whose record_name matches the domain (e.g. record_name is _acme-challenge.a.example.com).
-    for domain in fastly_tls_subscription.cdn_foxden.domains :
-    domain => element([
-      for obj in fastly_tls_subscription.cdn_foxden.managed_dns_challenges :
-      obj if obj.record_name == "_acme-challenge.${domain}" # We use an `if` conditional to filter the list to a single element
-    ], 0)                                                   # `element()` returns the first object in the list which should be the relevant 'challenge' object we need
-  }
-
-  zone = "foxden.network"
-
-  name  = each.value.record_name
-  type  = each.value.record_type
-  value = each.value.record_value
-  ttl   = 60
-}
-
-resource "fastly_tls_subscription_validation" "cdn_foxden" {
-  subscription_id = fastly_tls_subscription.cdn_foxden.id
-  depends_on      = [cloudns_dns_record.cdn_foxden_tls_validation]
-}
-
 data "fastly_tls_configuration" "cdn_foxden" {
-  default    = true
-  depends_on = [fastly_tls_subscription_validation.cdn_foxden]
+  default = true
 }
 
-resource "cloudns_dns_record" "cdn_foxden" {
-  zone     = "foxden.network"
+resource "dns-he-net_cname" "cdn_foxden" {
+  zone_id  = local.he_zone_ids["foxden.network"]
   for_each = toset([for record in data.fastly_tls_configuration.cdn_foxden.dns_records : record.record_value if record.record_type == "CNAME"])
 
-  name  = "cdn"
-  ttl   = 300
-  type  = "CNAME"
-  value = each.value
-}
-
-output "generated_records" {
-  value = {
-    "foxden.network" = [for r in setunion(
-      values(cloudns_dns_record.cdn_foxden),
-      values(cloudns_dns_record.cdn_foxden_tls_validation),
-      ) : {
-      type    = upper(r.type)
-      fqdn    = r.name == "@" ? r.zone : "${r.name}.${r.zone}"
-      name    = r.name
-      ttl     = r.ttl
-      value   = r.value
-      horizon = "*"
-    }]
-  }
+  domain = "cdn.foxden.network"
+  ttl    = 300
+  data   = trimsuffix(each.value, ".")
 }

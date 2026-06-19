@@ -21,21 +21,6 @@ locals {
   dyndns_hosts_fqdns = toset([for _, v in local.dyndns_hosts : v.fqdn])
 }
 
-resource "cloudns_dns_record" "static" {
-  zone     = cloudns_dns_zone.domain.id
-  for_each = local.static_hosts
-
-  type      = each.value.type
-  name      = each.value.host
-  ttl       = each.value.ttl
-  priority  = each.value.priority
-  port      = each.value.port
-  weight    = each.value.weight
-  value     = each.value.value
-  algorithm = each.value.algorithm
-  fptype    = each.value.fptype
-}
-
 resource "dns-he-net_a" "static" {
   zone_id  = var.he_zone_id
   for_each = { for k, v in local.static_hosts : k => v if v.type == "A" }
@@ -119,20 +104,6 @@ resource "dns-he-net_txt" "static" {
   domain = each.value.fqdn
   ttl    = each.value.ttl
   data   = "\"${each.value.value}\""
-}
-
-resource "cloudns_dns_record" "dynamic" {
-  zone     = cloudns_dns_zone.domain.id
-  for_each = local.dyndns_hosts
-
-  type  = each.value.type
-  name  = each.value.host
-  ttl   = each.value.ttl
-  value = local.dyndns_value_map[each.value.type]
-
-  lifecycle {
-    ignore_changes = [value]
-  }
 }
 
 resource "dns-he-net_a" "dynamic" {

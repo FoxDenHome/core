@@ -6,11 +6,6 @@ terraform {
       source  = "hashicorp/external"
       version = "~> 2.4.0"
     }
-
-    cloudns = {
-      source  = "ClouDNS/cloudns"
-      version = "~> 1.0"
-    }
     aws = {
       source  = "hashicorp/aws"
       version = "~> 6.0"

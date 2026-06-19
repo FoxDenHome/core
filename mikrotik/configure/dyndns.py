@@ -37,7 +37,7 @@ def write_all_hosts(indent: str) -> list[str]:
         if host in SPECIAL_HOSTS:
             continue
         hostCfg = val[host]
-        if "ipv6" in hostCfg:
+        if hostCfg.get("ipv6") is not None:
             lines.append(
                 f'{indent}$dyndnsUpdate host="{host}" key="{hostCfg["key"]}" priv6addr="{hostCfg["ipv6"]}" ip6addr=$ip6addr ipaddr=$ipaddr\n'
             )
@@ -73,7 +73,7 @@ def make_dyndns_script() -> MTikScript:
     return MTikScript(
         name=MAIN_SCRIPT,
         source="".join(outlines),
-        # schedule="5m",
+        schedule="5m",
     )
 
 
