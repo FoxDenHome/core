@@ -39,7 +39,7 @@ resource "dns-he-net_mx" "ses_mailfrom" {
 
   domain   = "ses-bounce.${var.domain}"
   ttl      = 3600
-  data     = "feedback-smtp.${data.aws_region.current.region}.amazonses.com"
+  data     = "feedback-smtp.eu-west-1.amazonses.com"
   priority = 10
 }
 
