@@ -80,6 +80,14 @@ in
           });
         '';
 
+        systemd.timers.podman-aurbuild = {
+          wantedBy = [ "timers.target" ];
+          timerConfig = {
+            OnCalendar = "*-*-* 14:14:00";
+            RandomizedDelaySec = "10min";
+          };
+        };
+
         environment.etc."foxden/aurbuild/rsyncd.conf" = {
           text = ''
             use chroot = no
@@ -97,8 +105,6 @@ in
         };
 
         systemd.services.aurbuild-rsyncd = {
-          after = [ "podman-aurbuild.service" ];
-          wants = [ "podman-aurbuild.service" ];
           restartTriggers = [ config.environment.etc."foxden/aurbuild/rsyncd.conf".text ];
 
           serviceConfig = {
