@@ -100,22 +100,13 @@ let
     weight = null;
   };
 
-  mkAuxRecords =
-    fqdn: zone: authorities:
-    map (record: emptyRecord // record) (mkAuxRecordsInt fqdn zone authorities);
+  mkAuxRecords = fqdn: zone: map (record: emptyRecord // record) (mkAuxRecordsInt fqdn zone);
 
   # These records are currently not validated or post-processed
   # so be careful changing anything here. In particular, none of the core fields have defaults.
   mkAuxRecordsInt =
-    fqdn: zone: authorities:
-    (map (ns: {
-      inherit fqdn;
-      type = "NS";
-      ttl = 86400;
-      value = ns;
-      horizon = "*";
-    }) authorities.${zone.authority}.nameservers)
-    ++ (
+    fqdn: zone:
+    (
       if zone.fastmail || zone.ses then
         [
           {
@@ -207,29 +198,18 @@ in
           type = attrsOf zoneType;
           default = { };
         };
-      options.foxDen.dns.authorities =
-        with lib.types;
-        lib.mkOption {
-          type = attrsOf authorityType;
-          default = { };
-        };
     };
 
   mkConfig = (
     nixosConfigurations:
     let
-      authorities = globalConfig.getAttrSet [ "foxDen" "dns" "authorities" ] nixosConfigurations;
-      zones = nixpkgs.lib.mapAttrs (
-        name: zone:
-        zone
-        // {
-          nameserverList = authorities.${zone.authority}.nameservers;
-        }
-      ) (globalConfig.getAttrSet [ "foxDen" "dns" "zones" ] nixosConfigurations);
+      zones = nixpkgs.lib.mapAttrs (name: zone: zone) (
+        globalConfig.getAttrSet [ "foxDen" "dns" "zones" ] nixosConfigurations
+      );
       records =
         (globalConfig.getList [ "foxDen" "dns" "records" ] nixosConfigurations)
         ++ nixpkgs.lib.flatten (
-          map ({ name, value }: mkAuxRecords name value authorities) (lib.attrsets.attrsToList zones)
+          map ({ name, value }: mkAuxRecords name value) (lib.attrsets.attrsToList zones)
         );
       horizons = lib.filter (h: h != "*") (
         lib.lists.uniqueStrings (map (record: record.horizon) records)

@@ -24,17 +24,4 @@
       registrar = "local";
     };
   };
-
-  config.foxDen.dns.authorities = {
-    default = {
-      admin = "hostmaster@he.net";
-      nameservers = [
-        "ns1.he.net"
-        "ns2.he.net"
-        "ns3.he.net"
-        "ns4.he.net"
-        "ns5.he.net"
-      ];
-    };
-  };
 }
