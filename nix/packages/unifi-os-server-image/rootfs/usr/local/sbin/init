@@ -13,6 +13,6 @@ if [ ! -f /var/lib/unifi/system.properties ]; then
     touch /var/lib/unifi/system.properties
 fi
 sed -i '/^system_ip=/d' /var/lib/unifi/system.properties
-echo "system_ip=$UOS_SYSTEM_IP" >> /var/lib/unifi/system.properties
+echo "system_ip=$(ip -o -4 addr show dev eth0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}')" >> /var/lib/unifi/system.properties
 
 exec "$CMD_ORIG" "$@"

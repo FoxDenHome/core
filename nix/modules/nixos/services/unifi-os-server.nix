@@ -8,7 +8,6 @@
 let
   user = config.users.users.unifi-os-server;
   svcConfig = config.foxDen.services.unifi-os-server;
-  primaryInterface = foxDenLib.services.getPrimaryInterface config svcConfig;
   imagePackage = pkgs.unifi-os-server-image;
 in
 {
@@ -25,11 +24,7 @@ in
           config
           svcConfig
           ;
-        oci = imagePackage.oci // {
-          environment = {
-            UOS_SYSTEM_IP = foxDenLib.util.removeIPCidr (lib.findFirst foxDenLib.util.isIPv4 "127.0.0.1" primaryInterface.addresses);
-          };
-        };
+        inherit (imagePackage) oci;
         systemd.serviceConfig.ExecStartPre = [
           "+${pkgs.writeShellScript "setup-cgroup.sh" ''
             cgroup="$(cat /proc/self/cgroup | ${pkgs.coreutils}/bin/cut -d: -f3 | head -1)"
