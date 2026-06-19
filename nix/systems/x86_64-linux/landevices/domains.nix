@@ -1,12 +1,18 @@
 { ... }:
 {
   config.foxDen.dns.zones = {
-    "foxden.network" = { };
+    "foxden.network" = {
+      registrar = "porkbun";
+    };
     "doridian.de" = {
       registrar = "inwx";
     };
-    "doridian.net" = { };
-    "darksignsonline.com" = { };
+    "doridian.net" = {
+      registrar = "porkbun";
+    };
+    "darksignsonline.com" = {
+      registrar = "porkbun";
+    };
     "f0x.es" = {
       registrar = "inwx";
     };

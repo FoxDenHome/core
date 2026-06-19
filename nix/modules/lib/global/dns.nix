@@ -60,11 +60,6 @@ let
       options = {
         registrar = lib.mkOption {
           type = str;
-          default = "porkbun";
-        };
-        authority = lib.mkOption {
-          type = str;
-          default = "default";
         };
         fastmail = lib.mkOption {
           type = bool;
