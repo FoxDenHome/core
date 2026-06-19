@@ -1,10 +1,9 @@
 locals {
   records_ext = [for r in var.records : merge(r, {
-    type       = upper(r.type)
-    host       = r.name == "@" ? "" : r.name
-    fqdn       = r.name == "@" ? var.domain : "${r.name}.${var.domain}"
-    dotlessval = contains(local.dotname_refer_types, upper(r.type)) ? trimsuffix(r.value, ".") : r.value
-    strval     = upper(r.type) == "SRV" ? "${r.priority} ${r.weight} ${r.port} ${r.value}" : upper(r.type) == "SSHFP" ? "${r.algorithm} ${r.fptype} ${r.value}" : r.value
+    type  = upper(r.type)
+    host  = r.name == "@" ? "" : r.name
+    fqdn  = r.name == "@" ? var.domain : "${r.name}.${var.domain}"
+    value = contains(local.dotname_refer_types, upper(r.type)) ? trimsuffix(r.value, ".") : r.value
   })]
 
   record_map = zipmap([for r in local.records_ext : "${r.type};${r.name};${r.value}"], local.records_ext)
@@ -30,20 +29,9 @@ resource "cloudns_dns_record" "static" {
   priority  = each.value.priority
   port      = each.value.port
   weight    = each.value.weight
-  value     = each.value.dotlessval
+  value     = each.value.value
   algorithm = each.value.algorithm
   fptype    = each.value.fptype
-}
-
-resource "inwx_nameserver_record" "static" {
-  domain   = inwx_nameserver.domain[0].domain
-  for_each = local.use_inwx ? { for k, v in local.static_hosts : k => v if v.type != "SSHFP" && !(v.type == "NS" && v.name == "@") } : {}
-
-  type    = each.value.type
-  name    = each.value.name
-  prio    = each.value.priority
-  ttl     = each.value.ttl
-  content = each.value.strval
 }
 
 resource "cloudns_dns_record" "dynamic" {

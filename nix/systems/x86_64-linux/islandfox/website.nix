@@ -23,13 +23,11 @@ in
     doridian-website = mkVlanHost 2 {
       dns = {
         fqdns = [
-          "doridian-website.foxden.network"
           "doridian.net"
           "www.doridian.net"
           "doridian.de"
           "www.doridian.de"
         ];
-        cnameType = null;
         dynDns = true;
       };
       webservice.enable = true;

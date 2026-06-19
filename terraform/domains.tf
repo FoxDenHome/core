@@ -16,12 +16,9 @@ module "domain" {
   source   = "./modules/domain"
   for_each = { for k, v in local.zones_json : k => v if v.registrar != "local" }
 
-  domain      = each.key
-  ses         = each.value["ses"]
-  records     = local.records_json[each.key]
-  nameservers = toset(each.value["nameserverList"])
-  authority   = each.value["authority"]
-  admin       = each.value["admin"]
+  domain  = each.key
+  ses     = each.value["ses"]
+  records = local.records_json[each.key]
 }
 
 output "dynamic_urls" {

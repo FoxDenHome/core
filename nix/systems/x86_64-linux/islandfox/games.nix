@@ -56,11 +56,9 @@ in
     darksignsonline = mkVlanHost 3 {
       dns = {
         fqdns = [
-          "darksignsonline.foxden.network"
           "darksignsonline.com"
           "www.darksignsonline.com"
         ];
-        cnameType = null;
         dynDns = true;
       };
       webservice.enable = true;
@@ -110,10 +108,8 @@ in
     spaceage-gmod = mkVlanHost 3 {
       dns = {
         fqdns = [
-          "spaceage-gmod.foxden.network"
           "spaceage-gmod.doridian.net"
         ];
-        cnameType = "ALIAS";
         dynDns = true;
       };
       firewall.portForwards = [
@@ -130,10 +126,8 @@ in
     spaceage-api = mkVlanHost 3 {
       dns = {
         fqdns = [
-          "spaceage-api.foxden.network"
           "spaceage-api.doridian.net"
         ];
-        cnameType = "ALIAS";
         dynDns = true;
       };
       webservice.enable = true;
@@ -145,10 +139,8 @@ in
     spaceage-tts = mkVlanHost 3 {
       dns = {
         fqdns = [
-          "spaceage-tts.foxden.network"
           "spaceage-tts.doridian.net"
         ];
-        cnameType = "ALIAS";
         dynDns = true;
       };
       webservice.enable = true;
@@ -160,10 +152,8 @@ in
     spaceage-website = mkVlanHost 3 {
       dns = {
         fqdns = [
-          "spaceage-website.foxden.network"
           "spaceage.doridian.net"
         ];
-        cnameType = "ALIAS";
         dynDns = true;
       };
       webservice.enable = true;

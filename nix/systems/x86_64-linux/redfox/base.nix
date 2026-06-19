@@ -23,6 +23,7 @@
         dns = {
           fqdns = [
             "redfox.foxden.network"
+            "redfox.doridian.net"
           ];
         };
         addresses = [
@@ -33,4 +34,21 @@
         ];
       });
     };
+
+  foxDen.dns.records = [
+    {
+      fqdn = "v4-redfox.doridian.net";
+      type = "A";
+      ttl = 3600;
+      value = "45.76.246.55";
+      horizon = "external";
+    }
+    {
+      fqdn = "v4-redfox.doridian.net";
+      type = "CNAME";
+      ttl = 3600;
+      value = "redfox.foxden.network.";
+      horizon = "internal";
+    }
+  ];
 }

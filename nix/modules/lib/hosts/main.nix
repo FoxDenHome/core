@@ -121,14 +121,6 @@ in
                 type = bool;
                 default = false;
               };
-              cnameType = lib.mkOption {
-                type = enum [
-                  "ALIAS"
-                  "CNAME"
-                  null
-                ];
-                default = "CNAME";
-              };
               dynDnsTtl = lib.mkOption {
                 type = nullOr ints.positive;
                 default = 300;
@@ -411,23 +403,19 @@ in
                     value = "${primaryFQDN}.";
                   }
                 );
-                ifaceAuxFQDNs =
-                  if iface.dns.cnameType != null then
-                    map (fqdn: {
-                      inherit (iface.dns) ttl;
-                      inherit fqdn;
-                      type = iface.dns.cnameType;
-                      value = "${primaryFQDN}.";
-                      horizon = "*";
-                    }) (lib.lists.tail iface.dns.fqdns)
-                  else
-                    [ ];
+                mkIfaceAuxFQDNs = map (fqdn: {
+                  inherit (iface.dns) ttl;
+                  inherit fqdn;
+                  type = "CNAME";
+                  value = "${primaryFQDN}.";
+                  horizon = "*";
+                }) (lib.lists.tail iface.dns.fqdns);
               in
               (
                 (map mkRecord (iface.addresses ++ iface.dns.auxAddresses))
                 ++ (map mkPtr iface.addresses)
                 ++ (mkIfaceDynDns iface primaryFQDN)
-                ++ ifaceAuxFQDNs
+                ++ mkIfaceAuxFQDNs
               )
             ) (lib.lists.filter (iface: (lib.lists.length iface.dns.fqdns) > 0) interfaces)
           )
@@ -496,7 +484,7 @@ in
                             config.foxDen.hosts.defaultSysctls // interface.sysctls
                           );
 
-                          settingToStr = setting: if setting == false then "0" else toString setting;
+                          settingToStr = setting: if setting == false then "0" else builtins.toString setting;
 
                           sysctls = lib.concatStringsSep "\n" (
                             map (

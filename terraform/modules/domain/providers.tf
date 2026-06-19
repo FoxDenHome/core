@@ -11,10 +11,6 @@ terraform {
       source  = "ClouDNS/cloudns"
       version = "~> 1.0"
     }
-    inwx = {
-      source  = "inwx/inwx"
-      version = ">= 1.0.0"
-    }
     aws = {
       source  = "hashicorp/aws"
       version = "~> 6.0"

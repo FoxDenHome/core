@@ -15,10 +15,8 @@ in
     broadcast-box = mkVlanHost 3 {
       dns = {
         fqdns = [
-          "broadcast-box.foxden.network"
           "watch.f0x.es"
         ];
-        cnameType = "ALIAS";
         dynDns = true;
       };
       webservice.enable = true;

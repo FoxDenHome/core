@@ -14,13 +14,11 @@ in
     foxcaves = mkVlanHost 3 {
       dns = {
         fqdns = [
-          "foxcaves.foxden.network"
           "foxcav.es"
           "www.foxcav.es"
           "f0x.es"
           "www.f0x.es"
         ];
-        cnameType = null;
         dynDns = true;
       };
       webservice.enable = true;
