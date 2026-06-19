@@ -1,7 +1,6 @@
 import re
 from subprocess import check_output
 from json import loads as json_loads
-from urllib.parse import ParseResult, parse_qs, urlparse
 from configure.util import mtik_path, ROUTERS, MTikRouter, MTikScript
 
 MAIN_SCRIPT = "dynamic-ip-update"
