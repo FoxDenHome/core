@@ -138,9 +138,9 @@ def format_mtik_bool(val: bool) -> str:
 
 
 def parse_mtik_bool(val: str | bool) -> bool:
-    if val == "true" or val == True: # noqa: E712
+    if val == "true" or val == True:  # noqa: E712
         return True
-    if val == "false" or val == False: # noqa: E712
+    if val == "false" or val == False:  # noqa: E712
         return False
     raise ValueError(f"Invalid MTik boolean value: {val}")
 

@@ -16,6 +16,7 @@ _dyndns_hosts_value = None
 with open(mtik_path("files/dyndns/secrets.json"), "r") as file:
     SECRETS = json_loads(file.read())
 
+
 def load_dyndns_hosts():
     global _dyndns_hosts_value
     if _dyndns_hosts_value is not None:
@@ -27,6 +28,7 @@ def load_dyndns_hosts():
     raw_output = json_loads(output)
     _dyndns_hosts_value = raw_output["he_dynamic_keys"]["value"]
     return _dyndns_hosts_value
+
 
 def write_all_hosts(indent: str) -> list[str]:
     val = load_dyndns_hosts()
@@ -71,7 +73,7 @@ def make_dyndns_script() -> MTikScript:
     return MTikScript(
         name=MAIN_SCRIPT,
         source="".join(outlines),
-        #schedule="5m",
+        # schedule="5m",
     )
 
 
@@ -80,7 +82,6 @@ def make_local_onboot(router: MTikRouter) -> None:
     host_v4 = f"v4-{router.host}"
 
     result: list[str] = []
-
 
     hosts = load_dyndns_hosts()
 

@@ -6,11 +6,7 @@ from typing import Any, cast
 INTERNAL_RECORDS: dict[str, Any] | None = None
 
 FIXED_RECORDS = [
-    {
-        "type": "NXDOMAIN",
-        "name": zone,
-        "match-subdomain": "true"
-    }
+    {"type": "NXDOMAIN", "name": zone, "match-subdomain": "true"}
     for zone in [
         "lunapixel.gg",
         "playstation.net",
@@ -45,12 +41,13 @@ FIXED_FORWARDERS = [
     {
         "name": "cghmn",
         "dns-servers": "100.64.12.1",
-    }
+    },
 ]
 
 INTERNAL_ZONES = [
     "foxden.network",
 ]
+
 
 def mtik_key(record: dict[str, Any]) -> str:
     additional_fields = MTIK_RECORD_TYPE_UNIQUE_FIELDS.get(record["type"], set())
@@ -89,8 +86,12 @@ def mtik_process(record_raw: dict[str, Any]) -> dict[str, Any]:
 
     return records
 
+
 def handle_alias(raw_record: dict[str, Any]) -> list[dict[str, Any] | None]:
-    records = [find_record(raw_record["value"], "A"), find_record(raw_record["value"], "AAAA")]
+    records = [
+        find_record(raw_record["value"], "A"),
+        find_record(raw_record["value"], "AAAA"),
+    ]
     results = []
 
     for record in records:
@@ -100,10 +101,7 @@ def handle_alias(raw_record: dict[str, Any]) -> list[dict[str, Any] | None]:
     if results:
         return results
 
-    return {
-        "type": "CNAME",
-        "cname": raw_record["value"].removesuffix(".")
-    }
+    return {"type": "CNAME", "cname": raw_record["value"].removesuffix(".")}
 
 
 def remap_ipv6(private: str, public: str) -> str:
@@ -114,8 +112,8 @@ def remap_ipv6(private: str, public: str) -> str:
 
 
 def resolve_record_name(record: dict[str, Any]) -> str:
-    if 'zone' not in record:
-        return record['name']
+    if "zone" not in record:
+        return record["name"]
     if record["name"] == "@":
         return record["zone"]
     return f"{record['name']}.{record['zone']}"
@@ -126,12 +124,30 @@ MTIK_IGNORED_RECORD_TYPES = {"PTR", "SSHFP", "SOA"}
 MTIK_RECORD_TYPE_HANDLERS = {}
 MTIK_RECORD_TYPE_HANDLERS["A"] = lambda record: {"address": record["value"]}
 MTIK_RECORD_TYPE_HANDLERS["AAAA"] = MTIK_RECORD_TYPE_HANDLERS["A"]
-MTIK_RECORD_TYPE_HANDLERS["CNAME"] = lambda record: {"type": "CNAME", "cname": record["value"].removesuffix(".")}
+MTIK_RECORD_TYPE_HANDLERS["CNAME"] = lambda record: {
+    "type": "CNAME",
+    "cname": record["value"].removesuffix("."),
+}
 MTIK_RECORD_TYPE_HANDLERS["ALIAS"] = handle_alias
-MTIK_RECORD_TYPE_HANDLERS["SRV"] =lambda record: {"srv-port": str(record["port"]), "srv-weight": str(record["weight"]), "srv-priority": str(record["priority"]), "srv-target": record["value"].removesuffix(".")}
-MTIK_RECORD_TYPE_HANDLERS["TXT"] = lambda record: {"type": "TXT", "text": record["value"]}
-MTIK_RECORD_TYPE_HANDLERS["MX"] = lambda record: {"type": "MX", "mx-preference": str(record["priority"]), "mx-exchange": record["value"].removesuffix(".")}
-MTIK_RECORD_TYPE_HANDLERS["NS"] = lambda record: {"type": "NS", "ns": record["value"].removesuffix(".")}
+MTIK_RECORD_TYPE_HANDLERS["SRV"] = lambda record: {
+    "srv-port": str(record["port"]),
+    "srv-weight": str(record["weight"]),
+    "srv-priority": str(record["priority"]),
+    "srv-target": record["value"].removesuffix("."),
+}
+MTIK_RECORD_TYPE_HANDLERS["TXT"] = lambda record: {
+    "type": "TXT",
+    "text": record["value"],
+}
+MTIK_RECORD_TYPE_HANDLERS["MX"] = lambda record: {
+    "type": "MX",
+    "mx-preference": str(record["priority"]),
+    "mx-exchange": record["value"].removesuffix("."),
+}
+MTIK_RECORD_TYPE_HANDLERS["NS"] = lambda record: {
+    "type": "NS",
+    "ns": record["value"].removesuffix("."),
+}
 
 MTIK_RECORD_TYPE_UNIQUE_FIELDS = {}
 MTIK_RECORD_TYPE_UNIQUE_FIELDS["A"] = {"address"}
@@ -142,17 +158,22 @@ MTIK_RECORD_TYPE_UNIQUE_FIELDS["TXT"] = {"text"}
 MTIK_RECORD_TYPE_UNIQUE_FIELDS["MX"] = {"mx-exchange"}
 MTIK_RECORD_TYPE_UNIQUE_FIELDS["NS"] = {"ns"}
 
+
 def refresh_dns():
     global INTERNAL_RECORDS
     unlink_safe("result")
     check_call(["nix", "build", f"{NIX_DIR}#dns.json"])
     with open("result", "r") as file:
-        INTERNAL_RECORDS = cast(dict[str, list[Any]], json_load(file)["records"]["internal"])
+        INTERNAL_RECORDS = cast(
+            dict[str, list[Any]], json_load(file)["records"]["internal"]
+        )
     unlink_safe("result")
 
-    additional_records = json_loads(check_output(
-        ["tofu", "output", "-show-sensitive", "-json"], cwd="../terraform"
-    ).decode("utf-8"))["generated_records"]["value"]
+    additional_records = json_loads(
+        check_output(
+            ["tofu", "output", "-show-sensitive", "-json"], cwd="../terraform"
+        ).decode("utf-8")
+    )["generated_records"]["value"]
     for zone, records in additional_records.items():
         # Assume zone exists, makes no sense otherwise
         INTERNAL_RECORDS[zone] += records
@@ -213,7 +234,9 @@ def refresh_dns():
                 for attr, val in forwarder.items():
                     existing_val = existing_entry.get(attr)
                     if existing_val != val:
-                        print(f"Updating forwarder entry {forwarder} due to changed attribute {attr}: {existing_val} -> {val}")
+                        print(
+                            f"Updating forwarder entry {forwarder} due to changed attribute {attr}: {existing_val} -> {val}"
+                        )
                         api_forwarders.set(id=existing_entry["id"], **forwarder)
                         break
             else:
@@ -233,7 +256,9 @@ def refresh_dns():
                 for attr, val in record.items():
                     existing_val = existing_entry.get(attr)
                     if existing_val != val:
-                        print(f"Updating DNS entry {record} due to changed attribute {attr}: {existing_val} -> {val}")
+                        print(
+                            f"Updating DNS entry {record} due to changed attribute {attr}: {existing_val} -> {val}"
+                        )
                         api_dns.set(id=existing_entry["id"], **record)
                         break
             else:

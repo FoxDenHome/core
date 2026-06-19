@@ -12,7 +12,6 @@ from configure.util import ROUTERS
 from contextlib import contextmanager
 
 
-
 @contextmanager
 def mtik_router_admin():
     try:
