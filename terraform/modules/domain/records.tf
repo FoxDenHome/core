@@ -14,6 +14,8 @@ locals {
   dotname_refer_types = toset(["CNAME", "ALIAS", "NS", "SRV", "MX"])
 
   dyndns_hosts_fqdns = toset([for _, v in local.dyndns_hosts : v.fqdn])
+  dyndns_ipv4_by_fqdn = { for _, v in local.dyndns_hosts : v.fqdn => v.value if v.type == "A" }
+  dyndns_ipv6_by_fqdn = { for _, v in local.dyndns_hosts : v.fqdn => v.value if v.type == "AAAA" }
 }
 
 resource "dns-he-net_a" "static" {
@@ -107,7 +109,7 @@ resource "dns-he-net_a" "dynamic" {
 
   domain  = each.value.fqdn
   ttl     = each.value.ttl
-  data    = each.value.value
+  data    = "127.0.0.1"
   dynamic = true
 
   lifecycle {
@@ -121,7 +123,7 @@ resource "dns-he-net_aaaa" "dynamic" {
 
   domain  = each.value.fqdn
   ttl     = each.value.ttl
-  data    = each.value.value
+  data    = "::1"
   dynamic = true
 
   lifecycle {
@@ -147,8 +149,8 @@ resource "dns-he-net_ddnskey" "dynamic" {
 output "he_dynamic_keys" {
   value = { for fqdn, record in dns-he-net_ddnskey.dynamic : fqdn => {
     key  = random_password.he_dynamic_key[fqdn].result
-    ipv4 = try(dns-he-net_a.dynamic[fqdn].data, null)
-    ipv6 = try(dns-he-net_aaaa.dynamic[fqdn].data, null)
+    ipv4 = try(local.dyndns_ipv4_by_fqdn[fqdn], null)
+    ipv6 = try(local.dyndns_ipv6_by_fqdn[fqdn], null)
   } }
   sensitive = true
 }
