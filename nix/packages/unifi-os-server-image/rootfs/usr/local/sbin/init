@@ -9,4 +9,11 @@ if [ ! -f /data/uos_uuid ]; then
     cat /proc/sys/kernel/random/uuid | sed 's/./5/15' > /data/uos_uuid
 fi
 
+if [ ! -f /data/unifi/system.properties ]; then
+    mkdir -p /data/unifi
+    touch /data/unifi/system.properties
+fi
+sed -i '/^system_ip=/d' /data/unifi/system.properties
+echo "system_ip=$UOS_SYSTEM_IP" >> /data/unifi/system.properties
+
 exec "$CMD_ORIG" "$@"
