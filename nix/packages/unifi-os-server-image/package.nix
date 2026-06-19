@@ -99,12 +99,12 @@ imagePkg
       lib.replaceString "blobs/sha256/" "sha256:" (lib.lists.head imageManifest).Config;
     imageFile = imagePkg;
     pull = "never";
-    ports =
-      let
-        portmapJson = lib.importJSON "${imagePkg}/portmap.json";
-        portmapMerged = lib.mergeAttrsList (builtins.attrValues portmapJson);
-      in
-      lib.mapAttrsToList (hostPort: ctPort: "${hostPort}:${ctPort}") portmapMerged;
+    # ports =
+    #   let
+    #     portmapJson = lib.importJSON "${imagePkg}/portmap.json";
+    #     portmapMerged = lib.mergeAttrsList (builtins.attrValues portmapJson);
+    #   in
+    #   lib.mapAttrsToList (hostPort: ctPort: "${hostPort}:${ctPort}") portmapMerged;
     volumes =
       let
         mountsJson = lib.importJSON "${imagePkg}/mounts.json";

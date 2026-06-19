@@ -24,14 +24,7 @@ in
           config
           svcConfig
           ;
-        oci = {
-          inherit (imagePackage.oci)
-            image
-            imageFile
-            pull
-            volumes
-            ;
-        };
+        inherit (imagePackage) oci;
         systemd.serviceConfig.ExecStartPre = [
           "+${(pkgs.writeShellScript "setup-cgroup.sh" ''
             cgroup="$(cat /proc/self/cgroup | ${pkgs.coreutils}/bin/cut -d: -f3 | head -1)"
