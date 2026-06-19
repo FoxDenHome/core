@@ -66,10 +66,6 @@ let
           type = str;
           default = "default";
         };
-        generateNSRecords = lib.mkOption {
-          type = bool;
-          default = false;
-        };
         fastmail = lib.mkOption {
           type = bool;
           default = true;
@@ -191,21 +187,7 @@ let
         ]
       else
         [ ]
-    )
-    ++ (nixpkgs.lib.flatten (
-      if zone.generateNSRecords then
-        (builtins.genList (idx: [
-          {
-            fqdn = "ns${toString (idx + 1)}.${fqdn}";
-            type = "ALIAS";
-            ttl = 86400;
-            value = builtins.elemAt authorities.upstream.nameservers idx;
-            horizon = "*";
-          }
-        ]) (nixpkgs.lib.lists.length authorities.upstream.nameservers))
-      else
-        [ ]
-    ));
+    );
 in
 {
   nixosModule =

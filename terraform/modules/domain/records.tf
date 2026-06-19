@@ -34,6 +34,91 @@ resource "cloudns_dns_record" "static" {
   fptype    = each.value.fptype
 }
 
+resource "dns-he-net_a" "static" {
+  zone_id  = var.he_zone_id
+  for_each = { for k, v in local.static_hosts : k => v if v.type == "A" }
+
+  domain = each.value.fqdn
+  ttl    = each.value.ttl
+  data   = each.value.value
+}
+
+resource "dns-he-net_aaaa" "static" {
+  zone_id  = var.he_zone_id
+  for_each = { for k, v in local.static_hosts : k => v if v.type == "AAAA" }
+
+  domain = each.value.fqdn
+  ttl    = each.value.ttl
+  data   = each.value.value
+}
+
+resource "dns-he-net_alias" "static" {
+  zone_id  = var.he_zone_id
+  for_each = { for k, v in local.static_hosts : k => v if v.type == "ALIAS" }
+
+  domain = each.value.fqdn
+  ttl    = each.value.ttl
+  data   = each.value.value
+}
+
+resource "dns-he-net_cname" "static" {
+  zone_id  = var.he_zone_id
+  for_each = { for k, v in local.static_hosts : k => v if v.type == "CNAME" }
+
+  domain = each.value.fqdn
+  ttl    = each.value.ttl
+  data   = each.value.value
+}
+
+resource "dns-he-net_mx" "static" {
+  zone_id  = var.he_zone_id
+  for_each = { for k, v in local.static_hosts : k => v if v.type == "MX" }
+
+  domain   = each.value.fqdn
+  ttl      = each.value.ttl
+  data     = each.value.value
+  priority = each.value.priority
+}
+
+resource "dns-he-net_ns" "static" {
+  zone_id  = var.he_zone_id
+  for_each = { for k, v in local.static_hosts : k => v if v.type == "NS" }
+
+  domain = each.value.fqdn
+  ttl    = each.value.ttl
+  data   = each.value.value
+}
+
+resource "dns-he-net_srv" "static" {
+  zone_id  = var.he_zone_id
+  for_each = { for k, v in local.static_hosts : k => v if v.type == "SRV" }
+
+  domain   = each.value.fqdn
+  ttl      = each.value.ttl
+  port     = each.value.port
+  priority = each.value.priority
+  weight   = each.value.weight
+  target   = each.value.value
+}
+
+resource "dns-he-net_sshfp" "static" {
+  zone_id  = var.he_zone_id
+  for_each = { for k, v in local.static_hosts : k => v if v.type == "SSHFP" }
+
+  domain = each.value.fqdn
+  ttl    = each.value.ttl
+  data   = "${each.value.algorithm} ${each.value.fptype} ${each.value.value}"
+}
+
+resource "dns-he-net_txt" "static" {
+  zone_id  = var.he_zone_id
+  for_each = { for k, v in local.static_hosts : k => v if v.type == "TXT" }
+
+  domain = each.value.fqdn
+  ttl    = each.value.ttl
+  data   = "\"${each.value.value}\""
+}
+
 resource "cloudns_dns_record" "dynamic" {
   zone     = cloudns_dns_zone.domain.id
   for_each = local.dyndns_hosts

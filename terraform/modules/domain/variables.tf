@@ -6,6 +6,10 @@ variable "ses" {
   type = bool
 }
 
+variable "he_zone_id" {
+  type = string
+}
+
 variable "records" {
   type = list(object({
     dynDns    = optional(bool, false)

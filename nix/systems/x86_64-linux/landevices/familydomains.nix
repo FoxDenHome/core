@@ -4,7 +4,6 @@ let
   familyZoneCfg = {
     fastmail = false;
     ses = true;
-    authority = "upstream";
   };
   subCnamesRaw = [
     "ftp"

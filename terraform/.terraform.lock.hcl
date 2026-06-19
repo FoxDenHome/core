@@ -223,3 +223,37 @@ provider "registry.opentofu.org/ovh/ovh" {
     "zh:dbbef1eb4fb751995f8f4062e5299502ffca59b3fbd54fb49799046279f23317",
   ]
 }
+
+provider "registry.opentofu.org/superbuker/dns-he-net" {
+  version     = "0.1.1"
+  constraints = "~> 0.1.1"
+  hashes = [
+    "h1:4rhglGoyyHYM+nvLbHN3Du2/9JnejZJTLJT8/aUeITU=",
+    "h1:9lg75V10/Zb4Hx3FDnFh9SVQwUR2Sx1B9CizY6Op55U=",
+    "h1:FQeSACH3mg9v/oP+X+vApOw5vx0d1ur3hg2wEJqJssI=",
+    "h1:Gp9zpHQjorAFY1PQCwzeH2npw3ZZ8WdAKkP+4nlciBk=",
+    "h1:HgsCeMNM0D/LpQbBMw9qFL6VgciET+ZH6xcgxaqn1tU=",
+    "h1:LaQr+/6wNcVZBIEisNFUGPStT5nRy1YCiOI5apIW8ug=",
+    "h1:Ns5EvRQnfeIl8vVaGlsMi4PE5nM1BJTWyH5SrXGhI9s=",
+    "h1:Prs+ejFMcHsAU6WmouGWd+kBM9FrIzfnBxeyxNlFGwY=",
+    "h1:SktLn5u6EA5IrG8os5Jx1Hqi4VAOVQBa27ZJ5ZgRMpk=",
+    "h1:XHMBHFu0kDdAJk3DfiVn4719n/CUXiKVTV99i0igA/8=",
+    "h1:eqs0nvBqmz9KcOLaRprtZ/DbNoCbMlPiHZHnKjBXLk4=",
+    "h1:f31e1wNnYe8JXwUFgNkXW6r9HJuh6BvyYyC/68PrjNM=",
+    "h1:hgMGtvkHf9ZmyYhUn6lLr7I7xOM3sTOu4dnEowIJTBo=",
+    "zh:21a5c521cd45a01f1966716f916c27e53721d62bf29334cda8f089a04a7edac5",
+    "zh:28b356936c5d94928e0268bf8d252ae8fde9fc395fc008ccf1dd31b825bbb99f",
+    "zh:3706cf14d34ac099a118422955cbcd456bc075a2445ab0b681c8fc0c8a3e68e8",
+    "zh:55b4171590b993d375ff4349f33149743335ae4467bbff1326b496c3645241c6",
+    "zh:578623b583aa4341f1df96a3b21d1e99583f96c77ac2012385fb31b6b027f850",
+    "zh:692a26c69447962bb2981760ba38c1a0980c5dd1e8bfa64c3dd52718f61920fa",
+    "zh:775bd9cb0411c11bcb40646a60354e8346678c00e297bd0e1305c6dec834815f",
+    "zh:90a943f88333eb749be8f973990efd1c2def9fc84fbc280e9c9c9929c1c47726",
+    "zh:96f0851839b6c120704c9c2fe3d83bbf072957196a72a0a87af3944d8840f45f",
+    "zh:983a27013d781a07414d112547a5b8712f0313fbe0d594dce724304ec97cbf63",
+    "zh:ad73ca1af496a2084f4982e8ec50f0968bf16378cc52e52301063ae885bd1a55",
+    "zh:b71927ad7518a61b82ad00764e9d5aca8d25577d5cc84a509bda82ce8561726f",
+    "zh:bd19854a81ef2d3c5fc1ebddbbbb0626930fd9b95a4989e79559e653c41f52b3",
+    "zh:beadc342097074133c2ea9dc328bb2facc5ed75dee719fc49fc4f53b601bd56a",
+  ]
+}

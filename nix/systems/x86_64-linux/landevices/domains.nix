@@ -1,20 +1,14 @@
 { ... }:
 {
   config.foxDen.dns.zones = {
-    "foxden.network" = {
-      generateNSRecords = true;
-    };
+    "foxden.network" = { };
     "doridian.de" = {
       registrar = "inwx";
-      generateNSRecords = true;
     };
-    "doridian.net" = {
-      generateNSRecords = true;
-    };
+    "doridian.net" = { };
     "darksignsonline.com" = { };
     "f0x.es" = {
       registrar = "inwx";
-      generateNSRecords = true;
     };
     "foxcav.es" = {
       registrar = "inwx";
@@ -33,21 +27,13 @@
 
   config.foxDen.dns.authorities = {
     default = {
-      admin = "hostmaster@doridian.net";
+      admin = "hostmaster@he.net";
       nameservers = [
-        "ns1.doridian.net."
-        "ns2.doridian.de."
-        "ns3.foxden.network."
-        "ns4.f0x.es."
-      ];
-    };
-    upstream = {
-      admin = "support@cloudns.net";
-      nameservers = [
-        "pns41.cloudns.net."
-        "pns42.cloudns.net."
-        "pns43.cloudns.net."
-        "pns44.cloudns.net."
+        "ns1.he.net"
+        "ns2.he.net"
+        "ns3.he.net"
+        "ns4.he.net"
+        "ns5.he.net"
       ];
     };
   };
