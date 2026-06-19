@@ -4,7 +4,7 @@ set -euo pipefail
 # See: https://docs.podman.io/en/v4.3/markdown/options/systemd.html
 
 # The Java UniFi controller requires exactly UUID v5 (SHA-1 name-based).
-# Generate a stable v5 UUID derived from the machine-id.
+# Generate a random UUID v5 if it doesn't exist to make it happy.
 if [ ! -f /data/uos_uuid ]; then
     cat /proc/sys/kernel/random/uuid | sed 's/./5/15' > /data/uos_uuid
 fi
