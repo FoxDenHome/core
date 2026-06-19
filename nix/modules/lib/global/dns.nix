@@ -171,21 +171,21 @@ let
             fqdn = "fm1._domainkey.${fqdn}";
             type = "CNAME";
             ttl = 3600;
-            value = "fm1.${fqdn}.dkim.fmhosted.com";
+            value = "fm1.${fqdn}.dkim.fmhosted.com.";
             horizon = "*";
           }
           {
             fqdn = "fm2._domainkey.${fqdn}";
             type = "CNAME";
             ttl = 3600;
-            value = "fm2.${fqdn}.dkim.fmhosted.com";
+            value = "fm2.${fqdn}.dkim.fmhosted.com.";
             horizon = "*";
           }
           {
             fqdn = "fm3._domainkey.${fqdn}";
             type = "CNAME";
             ttl = 3600;
-            value = "fm3.${fqdn}.dkim.fmhosted.com";
+            value = "fm3.${fqdn}.dkim.fmhosted.com.";
             horizon = "*";
           }
         ]
