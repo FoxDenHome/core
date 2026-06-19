@@ -77,19 +77,6 @@ let
       };
     };
 
-  authorityType =
-    with lib.types;
-    submodule {
-      options = {
-        nameservers = lib.mkOption {
-          type = uniq (listOf str);
-        };
-        admin = lib.mkOption {
-          type = str;
-        };
-      };
-    };
-
   emptyRecord = {
     algorithm = null;
     dynDns = false;
