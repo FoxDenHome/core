@@ -68,8 +68,8 @@
         {
             "name": "LtnManager",
             "enabled": true,
-            "sha1": "38c474e654d6a52051ce8ac3add1459a4d97abdc",
-            "url": "https://mods.factorio.com/download/LtnManager/6a2e87c505d8fcf5d1beb217",
+            "sha1": "92f7c133666951214e52940c9ebf050d8fc5a050",
+            "url": "https://mods.factorio.com/download/LtnManager/6a2f58f65e445cabda70d9c3",
             "version": "0.5.2"
         },
         {
