@@ -169,15 +169,6 @@ def refresh_dns():
         )
     unlink_safe("result")
 
-    additional_records = json_loads(
-        check_output(
-            ["tofu", "output", "-show-sensitive", "-json"], cwd="../terraform"
-        ).decode("utf-8")
-    )["generated_records"]["value"]
-    for zone, records in additional_records.items():
-        # Assume zone exists, makes no sense otherwise
-        INTERNAL_RECORDS[zone] += records
-
     mikrotik_records = []
     mikrotik_forwarders = []
 
