@@ -25,32 +25,8 @@ def load_dyndns_hosts():
         ["tofu", "output", "-show-sensitive", "-json"], cwd="../terraform"
     ).decode("utf-8")
     raw_output = json_loads(output)
-    raw_value = raw_output["dynamic_urls"]["value"]
-    value = {}
-    for zone, records in raw_value.items():
-        for rec in records:
-            rec_host = rec["name"] + "." + zone
-            if rec["name"] == "@":
-                rec_host = zone
-
-            if rec_host not in value:
-                value[rec_host] = {}
-            value[rec_host][rec["type"]] = rec
-    _dyndns_hosts_value = value
-
+    _dyndns_hosts_value = raw_output["he_dynamic_keys"]["value"]
     return _dyndns_hosts_value
-
-
-def get_dyndns_url(host: str, record_type: str) -> ParseResult:
-    val = load_dyndns_hosts()
-    return urlparse(val[host][record_type]["url"])
-
-
-def get_dyndns_key(host: str, record_type: str) -> str:
-    url = get_dyndns_url(host, record_type)
-    qs = parse_qs(url.query)
-    return qs["q"][0]
-
 
 def write_all_hosts(indent: str) -> list[str]:
     val = load_dyndns_hosts()
@@ -59,16 +35,13 @@ def write_all_hosts(indent: str) -> list[str]:
         if host in SPECIAL_HOSTS:
             continue
         hostCfg = val[host]
-        key4 = get_dyndns_key(host, "A")
-        if "AAAA" in hostCfg:
-            key6 = get_dyndns_key(host, "AAAA")
-            ipv6 = hostCfg["AAAA"]["value"]
+        if "ipv6" in hostCfg:
             lines.append(
-                f'{indent}$dyndnsUpdate host="{host}" priv6addr={ipv6} key6="{key6}" key="{key4}" ip6addr=$ip6addr ipaddr=$ipaddr\n'
+                f'{indent}$dyndnsUpdate host="{host}" key="{hostCfg["key"]}" priv6addr="{hostCfg["ipv6"]}" ip6addr=$ip6addr ipaddr=$ipaddr\n'
             )
         else:
             lines.append(
-                f'{indent}$dyndnsUpdate host="{host}" key="{key4}" ip6addr=$ip6addr ipaddr=$ipaddr\n'
+                f'{indent}$dyndnsUpdate host="{host}" key="{hostCfg["key"]}" ip6addr=$ip6addr ipaddr=$ipaddr\n'
             )
     return lines
 
@@ -98,7 +71,7 @@ def make_dyndns_script() -> MTikScript:
     return MTikScript(
         name=MAIN_SCRIPT,
         source="".join(outlines),
-        schedule="5m",
+        #schedule="5m",
     )
 
 
@@ -108,12 +81,14 @@ def make_local_onboot(router: MTikRouter) -> None:
 
     result: list[str] = []
 
+
+    hosts = load_dyndns_hosts()
+
     result.append(f':global DynDNSSuffix6 "{router.dyndns_suffix_ipv6}"')
     result.append(f':global DynDNSHost "{host}"')
-    result.append(f':global DynDNSKey "{get_dyndns_key(host, "A")}"')
-    result.append(f':global DynDNSKey6 "{get_dyndns_key(host, "AAAA")}"')
+    result.append(f':global DynDNSKey "{hosts[host]["key"]}"')
     result.append(f':global DynDNSHost4 "{host_v4}"')
-    result.append(f':global DynDNSKey4 "{get_dyndns_key(host_v4, "A")}"')
+    result.append(f':global DynDNSKey4 "{hosts[host_v4]["key"]}"')
 
     result.append(f':global IPv6Host "{router.ipv6_tunnel_id}"')
     result.append(f':global IPv6Key "{SECRETS[host]["ipv6Key"]}"')

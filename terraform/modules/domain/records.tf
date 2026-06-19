@@ -17,6 +17,8 @@ locals {
     A    = "127.0.0.1"
     AAAA = "::1"
   }
+
+  dyndns_hosts_fqdns = toset([for _, v in local.dyndns_hosts : v.fqdn])
 }
 
 resource "cloudns_dns_record" "static" {
@@ -133,16 +135,54 @@ resource "cloudns_dns_record" "dynamic" {
   }
 }
 
-resource "cloudns_dynamic_url" "dynamic" {
-  domain   = var.domain
-  for_each = local.dyndns_hosts
+resource "dns-he-net_a" "dynamic" {
+  zone_id  = var.he_zone_id
+  for_each = { for _, v in local.dyndns_hosts : v.fqdn => v if v.type == "A" }
 
-  recordid = cloudns_dns_record.dynamic[each.key].id
+  domain  = each.value.fqdn
+  ttl     = each.value.ttl
+  data    = each.value.value
+  dynamic = true
+
+  lifecycle {
+    ignore_changes = [data]
+  }
 }
 
-output "dynamic_urls" {
-  value = [for id, value in local.dyndns_hosts : (merge({
-    url = cloudns_dynamic_url.dynamic[id].url,
-  }, value))]
+resource "dns-he-net_aaaa" "dynamic" {
+  zone_id  = var.he_zone_id
+  for_each = { for _, v in local.dyndns_hosts : v.fqdn => v if v.type == "AAAA" }
+
+  domain  = each.value.fqdn
+  ttl     = each.value.ttl
+  data    = each.value.value
+  dynamic = true
+
+  lifecycle {
+    ignore_changes = [data]
+  }
+}
+
+resource "random_password" "he_dynamic_key" {
+  for_each = local.dyndns_hosts_fqdns
+
+  length  = 24
+  special = false
+}
+
+resource "dns-he-net_ddnskey" "dynamic" {
+  zone_id  = var.he_zone_id
+  for_each = local.dyndns_hosts_fqdns
+
+  domain = each.key
+  key    = random_password.he_dynamic_key[each.key].result
+}
+
+output "he_dynamic_keys" {
+  value = { for fqdn, record in dns-he-net_ddnskey.dynamic : fqdn => {
+    key  = random_password.he_dynamic_key[fqdn].result
+    ipv4 = try(dns-he-net_a.dynamic[fqdn].data, null)
+    ipv6 = try(dns-he-net_aaaa.dynamic[fqdn].data, null)
+  } }
   sensitive = true
 }

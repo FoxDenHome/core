@@ -26,7 +26,7 @@ module "domain" {
   he_zone_id = local.he_zone_ids[each.key]
 }
 
-output "dynamic_urls" {
-  value     = { for zone, domain in module.domain : zone => domain.dynamic_urls }
+output "he_dynamic_keys" {
+  value     = merge([for m in module.domain : m.he_dynamic_keys]...)
   sensitive = true
 }

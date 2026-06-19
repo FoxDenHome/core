@@ -60,42 +60,40 @@
     :global logputinfo
     :global logputerror
 
-    $logputdebug ("[DynDNS] Beginning update of $updatehost $host")
-    :if ($dns!="") do={
-        :delay 1s
-        :do {
-            :local srvip [:resolve $dns type=$dnstype]
-            :local dnsip [:resolve $host type=$dnstype server=$srvip]
-            if ($dnsip=$ipaddr) do={
-                $logputdebug ("[DynDNS] No change in IP address for $updatehost $host is $ipaddr")
-                :return ""
-            }
-        } on-error={
-            $logputerror ("[DynDNS] Unable to resolve $host using $dns type $dnstype")
+    :delay 1s
+    $logputdebug ("[DynDNS] Beginning update of $host")
+    :do {
+        :local srvip [:resolve "ns1.he.net" type=$dnstype]
+        :local dnsip [:resolve $host type=$dnstype server=$srvip]
+        if ($dnsip=$ipaddr) do={
+            $logputdebug ("[DynDNS] No change in IP address for $host is $ipaddr")
             :return ""
         }
+    } on-error={
+        $logputerror ("[DynDNS] Unable to resolve $host $dnstype")
+        :return ""
     }
 
     :delay 5s
 
     :do {
-        :local result [/tool/fetch mode=$mode http-auth-scheme=basic url="$mode://$updatehost/api/dynamicURL/?q=$key&ip=$ipaddr" as-value output=user]
-        $logputdebug ("[DynDNS] Result of $updatehost update for $host to $ipaddr: " . ($result->"data"))
+        :local result [/tool/fetch mode=https user="$host" password="$key" url="https://dyn.dns.he.net/nic/update?hostname=$host&myip=$ipaddr" as-value output=user]
+        $logputdebug ("[DynDNS] Result of $host to $ipaddr: " . ($result->"data"))
     } on-error={
-        $logputerror ("[DynDNS] Unable to update $updatehost update for $host to $ipaddr")
+        $logputerror ("[DynDNS] Unable to update $host to $ipaddr")
     }
 }
 
 :local dyndnsUpdate do={
     :global dyndnsUpdateOne
-    $dyndnsUpdateOne host=$host key=$key dnstype=ipv4 updatehost="ipv4.cloudns.net" mode=https ipaddr=$ipaddr dns="pns41.cloudns.net"
-    if ([:len $key6] > 0) do={
+    $dyndnsUpdateOne host=$host key=$key dnstype=ipv4 ipaddr=$ipaddr dns="ns1.he.net"
+    if ([:len $priv6addr] > 0) do={
         :local masked6 ([:toip6 $priv6addr] & ::ffff:ffff:ffff:ffff:ffff)
-        $dyndnsUpdateOne host=$host key=$key6 dnstype=ipv6 updatehost="ipv6.cloudns.net" mode=https ipaddr=($ip6addr|$masked6) dns="pns41.cloudns.net"
+        $dyndnsUpdateOne host=$host key=$key dnstype=ipv6 ipaddr=($ip6addr|$masked6) dns="ns1.he.net"
     }
 }
 
-$dyndnsUpdate host=$DynDNSHost key=$DynDNSKey key6=$DynDNSKey6 priv6addr=$DynDNSSuffix6 ip6addr=$ip6addr ipaddr=$ipaddr
+$dyndnsUpdate host=$DynDNSHost key=$DynDNSKey priv6addr=$DynDNSSuffix6 ip6addr=$ip6addr ipaddr=$ipaddr
 $dyndnsUpdate host=$DynDNSHost4 key=$DynDNSKey4 ipaddr=$ipaddr
 
 if ($isprimary) do={
