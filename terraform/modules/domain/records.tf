@@ -13,11 +13,6 @@ locals {
 
   dotname_refer_types = toset(["CNAME", "ALIAS", "NS", "SRV", "MX"])
 
-  dyndns_value_map = {
-    A    = "127.0.0.1"
-    AAAA = "::1"
-  }
-
   dyndns_hosts_fqdns = toset([for _, v in local.dyndns_hosts : v.fqdn])
 }
 

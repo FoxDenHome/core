@@ -67,7 +67,7 @@ def make_dyndns_script() -> MTikScript:
         outlines.append(line)
 
     if not found_hosts:
-        raise RuntimeError("No # BEGIN HOSTS found in script")
+        raise RuntimeError("No # HOSTS # found in script")
 
     return MTikScript(
         name=MAIN_SCRIPT,
