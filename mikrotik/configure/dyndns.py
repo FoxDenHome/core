@@ -42,7 +42,7 @@ def write_all_hosts(indent: str) -> list[str]:
             )
         else:
             lines.append(
-                f'{indent}$dyndnsUpdate host="{host}" key="{hostCfg["key"]}" ip6addr=$ip6addr ipaddr=$ipaddr\n'
+                f'{indent}$dyndnsUpdate host="{host}" key="{hostCfg["key"]}" ipaddr=$ipaddr\n'
             )
     return lines
 
