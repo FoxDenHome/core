@@ -19,6 +19,7 @@ in
         inherit pkgs config svcConfig;
         name = "aurbuild";
         oci = {
+          autoStart = false; # We want to start this via a timer
           image = "git.foxden.network/foxdenaur/builder:latest";
           volumes = [
             "${./packages.txt}:/aur/packages.txt:ro"
@@ -35,7 +36,6 @@ in
           ];
           environment = {
             "GPG_KEY_ID" = "17D54F380F737CEE1E7223304BFC137ADE4F44D7";
-            "DISTCC_POTENTIAL_HOSTS" = "127.0.0.1,cpp,lzo";
             "PUID" = "1000";
             "PGID" = "1000";
           };
