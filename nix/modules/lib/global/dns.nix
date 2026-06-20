@@ -96,7 +96,7 @@ let
             type = "TXT";
             ttl = 3600;
             value = nixpkgs.lib.concatStringsSep " " (
-              [ "v=spf1" ]
+              [ "v=spf1" "+a:arcticfox.doridian.net" ]
               ++ (if zone.fastmail then [ "include:spf.messagingengine.com" ] else [ ])
               ++ (if zone.ses then [ "include:amazonses.com" ] else [ ])
               ++ [
