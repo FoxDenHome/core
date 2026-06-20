@@ -1,8 +1,8 @@
 locals {
   records_ext = [for r in var.records : merge(r, {
-    type  = upper(r.type)
-    host  = r.name == "@" ? "" : r.name
-    fqdn  = r.name == "@" ? var.domain : "${r.name}.${var.domain}"
+    type = upper(r.type)
+    host = r.name == "@" ? "" : r.name
+    fqdn = r.name == "@" ? var.domain : "${r.name}.${var.domain}"
   })]
 
   record_map = zipmap([for r in local.records_ext : "${r.type};${r.name};${r.value}"], local.records_ext)
@@ -10,7 +10,7 @@ locals {
   static_hosts = { for name, record in local.record_map : name => record if !record.dynDns }
   dyndns_hosts = { for name, record in local.record_map : name => record if record.dynDns }
 
-  dyndns_hosts_fqdns = toset([for _, v in local.dyndns_hosts : v.fqdn])
+  dyndns_hosts_fqdns  = toset([for _, v in local.dyndns_hosts : v.fqdn])
   dyndns_ipv4_by_fqdn = { for _, v in local.dyndns_hosts : v.fqdn => v.value if v.type == "A" }
   dyndns_ipv6_by_fqdn = { for _, v in local.dyndns_hosts : v.fqdn => v.value if v.type == "AAAA" }
 }
