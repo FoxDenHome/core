@@ -32,10 +32,8 @@ terraform {
     }
   }
 
-  backend "s3" {
-    bucket = "foxden-tfstate"
-    region = "eu-north-1"
-    key    = "default.tfstate"
+  backend "local" {
+    path = "default.tfstate"
   }
 }
 

@@ -1,0 +1,7 @@
+keys:
+  - &admin_doridian_keepassxc age1m27t2k0tyh23rt6925m8dacvkmz559deht2yelun9s7h3scsfa4q6hdjcl
+creation_rules:
+  - path_regex: '^terraform/'
+    key_groups:
+      - age:
+        - *admin_doridian_keepassxc
