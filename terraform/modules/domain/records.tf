@@ -3,15 +3,12 @@ locals {
     type  = upper(r.type)
     host  = r.name == "@" ? "" : r.name
     fqdn  = r.name == "@" ? var.domain : "${r.name}.${var.domain}"
-    value = contains(local.dotname_refer_types, upper(r.type)) ? trimsuffix(r.value, ".") : r.value
   })]
 
   record_map = zipmap([for r in local.records_ext : "${r.type};${r.name};${r.value}"], local.records_ext)
 
   static_hosts = { for name, record in local.record_map : name => record if !record.dynDns }
   dyndns_hosts = { for name, record in local.record_map : name => record if record.dynDns }
-
-  dotname_refer_types = toset(["CNAME", "ALIAS", "NS", "SRV", "MX"])
 
   dyndns_hosts_fqdns = toset([for _, v in local.dyndns_hosts : v.fqdn])
   dyndns_ipv4_by_fqdn = { for _, v in local.dyndns_hosts : v.fqdn => v.value if v.type == "A" }
@@ -24,7 +21,7 @@ resource "dns-he-net_a" "static" {
 
   domain = each.value.fqdn
   ttl    = each.value.ttl
-  data   = each.value.value
+  data   = trimsuffix(each.value.value, ".")
 }
 
 resource "dns-he-net_aaaa" "static" {
@@ -33,7 +30,7 @@ resource "dns-he-net_aaaa" "static" {
 
   domain = each.value.fqdn
   ttl    = each.value.ttl
-  data   = each.value.value
+  data   = trimsuffix(each.value.value, ".")
 }
 
 resource "dns-he-net_alias" "static" {
@@ -42,7 +39,7 @@ resource "dns-he-net_alias" "static" {
 
   domain = each.value.fqdn
   ttl    = each.value.ttl
-  data   = each.value.value
+  data   = trimsuffix(each.value.value, ".")
 }
 
 resource "dns-he-net_cname" "static" {
@@ -51,7 +48,7 @@ resource "dns-he-net_cname" "static" {
 
   domain = each.value.fqdn
   ttl    = each.value.ttl
-  data   = each.value.value
+  data   = trimsuffix(each.value.value, ".")
 }
 
 resource "dns-he-net_mx" "static" {
@@ -60,7 +57,7 @@ resource "dns-he-net_mx" "static" {
 
   domain   = each.value.fqdn
   ttl      = each.value.ttl
-  data     = each.value.value
+  data     = trimsuffix(each.value.value, ".")
   priority = each.value.priority
 }
 
@@ -70,7 +67,7 @@ resource "dns-he-net_ns" "static" {
 
   domain = each.value.fqdn
   ttl    = each.value.ttl
-  data   = each.value.value
+  data   = trimsuffix(each.value.value, ".")
 }
 
 resource "dns-he-net_srv" "static" {
@@ -82,7 +79,7 @@ resource "dns-he-net_srv" "static" {
   port     = each.value.port
   priority = each.value.priority
   weight   = each.value.weight
-  target   = each.value.value
+  target   = trimsuffix(each.value.value, ".")
 }
 
 resource "dns-he-net_sshfp" "static" {
@@ -100,7 +97,7 @@ resource "dns-he-net_txt" "static" {
 
   domain = each.value.fqdn
   ttl    = each.value.ttl
-  data   = "\"${each.value.value}\""
+  data   = join(" ", [for partList in chunklist(split("", each.value.value), 255) : "\"${join("", partList)}\""])
 }
 
 resource "dns-he-net_a" "dynamic" {
