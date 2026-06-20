@@ -103,7 +103,7 @@ in
 
             Type = "simple";
             Restart = "no";
-            RuntimeMaxSec = "12h";
+            RuntimeMaxSec = "20h";
 
             User = "e621dumper";
             Group = "e621dumper";
