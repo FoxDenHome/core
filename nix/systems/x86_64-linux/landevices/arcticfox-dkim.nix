@@ -19,6 +19,13 @@ in
       horizon = "*";
     }
     {
+      fqdn = "${dkimPrefix}.foxden.network";
+      type = "TXT";
+      ttl = 3600;
+      value = "v=DKIM1; h=sha256; k=rsa; p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA4jhmls7imVCd7OeDNf/SncHArKg+qiP+rb82Qgm6FRM6cBNCY0vDfISqjTv/kRU5jHrXz/UvTJJdG0DDxMHFwC5NhO+SR2AKtE/q+k0dql1QbOdfxHfgHqC+BNVJA5e37/fONSePgJT5YJpCoavMxGdURguYOlJ3EDbxEVbvMFoz0OA4dEl2WVlbMbi4k8rQDi9t5ccDhrezCMvirSsVmbANFrxfMGs/j4TB2HbkJZZ+xjsTLgcTn4/3h38F0YobERnBJOdOgrMpfzPm2N884Rh56HoGWrcHKMh/pyMhhK6eg+7/0wdycEEWCBnEi0LmL7S2UrFY1QZPm83f46MaLwIDAQAB";
+      horizon = "*";
+    }
+    {
       fqdn = "${dkimPrefix}.f0x.es";
       type = "TXT";
       ttl = 3600;
