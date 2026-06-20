@@ -26,12 +26,12 @@ def load_dyndns_hosts():
 
 
 def write_all_hosts(indent: str) -> list[str]:
-    val = load_dyndns_hosts()
+    hosts = load_dyndns_hosts()
     lines = []
-    for host in sorted(val.keys()):
+    for host in sorted(hosts.keys()):
         if host in SPECIAL_HOSTS:
             continue
-        hostCfg = val[host]
+        hostCfg = hosts[host]
         if hostCfg.get("ipv6") is not None:
             lines.append(
                 f'{indent}$dyndnsUpdate host="{host}" key="{hostCfg["key"]}" priv6addr="{hostCfg["ipv6"]}" ip6addr=$ip6addr ipaddr=$ipaddr\n'
@@ -43,12 +43,14 @@ def write_all_hosts(indent: str) -> list[str]:
     return lines
 
 
-def make_dyndns_script() -> MTikScript:
+def make_dyndns_script(router: MTikRouter) -> None:
     with open(TEMPLATE, "r") as file:
         lines = file.readlines()
 
+    hosts = load_dyndns_hosts()
     outlines: list[str] = []
     found_hosts = False
+    found_special_hosts = False
     for line in lines:
         line_strip = line.strip()
         if line_strip == "# HOSTS #":
@@ -60,46 +62,33 @@ def make_dyndns_script() -> MTikScript:
             found_hosts = True
             outlines += write_all_hosts(indent)
             continue
+        elif line_strip == "# SPECIAL HOSTS #":
+            if found_special_hosts:
+                raise RuntimeError("Multiple # SPECIAL HOSTS # found in script")
+            match = re.match(r"^(\s*)# SPECIAL HOSTS #", line)
+            assert match is not None
+            indent = match.group(1)
+            host = hosts[router.host]
+            outlines += [
+                f'{indent}$dyndnsUpdate host="{router.host}" key="{host["key"]}" priv6addr="{router.dyndns_suffix_ipv6}" ip6addr=$ip6addr ipaddr=$ipaddr\n',
+                f'{indent}$dyndnsUpdate host="v4-{router.host}" key="{hosts[f"v4-{router.host}"]["key"]}" ipaddr=$ipaddr\n',
+            ]
+            continue
         outlines.append(line)
 
     if not found_hosts:
         raise RuntimeError("No # HOSTS # found in script")
 
-    return MTikScript(
+    router.scripts.add(MTikScript(
         name=MAIN_SCRIPT,
         source="".join(outlines),
         schedule="5m",
-    )
-
-
-def make_local_onboot(router: MTikRouter) -> None:
-    host = router.host
-    host_v4 = f"v4-{router.host}"
-
-    result: list[str] = []
-
-    hosts = load_dyndns_hosts()
-
-    result.append(f':global DynDNSSuffix6 "{router.dyndns_suffix_ipv6}"')
-    result.append(f':global DynDNSHost "{host}"')
-    result.append(f':global DynDNSKey "{hosts[host]["key"]}"')
-    result.append(f':global DynDNSHost4 "{host_v4}"')
-    result.append(f':global DynDNSKey4 "{hosts[host_v4]["key"]}"')
-
-    script = MTikScript(
-        name="onboot-dyndns-config",
-        source="\n".join(result),
-        run_on_change=True,
-        schedule="startup",
-    )
-    router.scripts.add(script)
+    ))
 
 
 def refresh_dyndns():
-    main_script = make_dyndns_script()
     for router in ROUTERS:
         if router.horizon != "internal":
             continue
         print(f"## {router.host}")
-        router.scripts.add(main_script)
-        make_local_onboot(router)
+        make_dyndns_script(router)

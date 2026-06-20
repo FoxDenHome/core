@@ -93,8 +93,7 @@
     }
 }
 
-$dyndnsUpdate host=$DynDNSHost key=$DynDNSKey priv6addr=$DynDNSSuffix6 ip6addr=$ip6addr ipaddr=$ipaddr
-$dyndnsUpdate host=$DynDNSHost4 key=$DynDNSKey4 ipaddr=$ipaddr
+# SPECIAL HOSTS #
 
 if ($isprimary) do={
     # HOSTS #
