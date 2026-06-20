@@ -3,23 +3,6 @@
 # run-on-change=true
 # schedule=startup
 
-:global logputdebug do={
-    :log debug $1
-    :put $1
-}
-:global logputinfo do={
-    :log info $1
-    :put $1
-}
-:global logputwarning do={
-    :log warning $1
-    :put $1
-}
-:global logputerror do={
-    :log error $1
-    :put $1
-}
-
 :global wakehost do={
     :local host $1
     :local lease [/ip/dhcp-server/lease/find comment=$host]

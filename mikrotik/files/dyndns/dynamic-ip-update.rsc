@@ -42,50 +42,43 @@
 /ipv6/firewall/nat/set [ find comment="VPN Masq" to-address!=$ip6vpnnet ] to-address=$ip6vpnnet
 # END update hairpins
 
-:global DynDNSHost
-:global DynDNSHost4
-:global DynDNSKey
-:global DynDNSKey4
-:global DynDNSKey6
-:global DynDNSSuffix6
-
 :local isprimary 0
 #[ /interface/vrrp/get vrrp-mgmt-gateway master ]
-:if ($DynDNSHost = "router.foxden.network") do={
+:if ([/system/identity/get name] = "router") do={
     :set isprimary 1
 }
 
-:global dyndnsUpdateOne do={
-    :global logputdebug
-    :global logputinfo
-    :global logputerror
+:local dyndnsUpdate do={
+    :local dyndnsUpdateOne do={
+        :local logputerror do={
+            :log error $1
+            :put $1
+        }
 
-    :delay 1s
-    $logputdebug ("[DynDNS] Beginning update of $host $dnstype to $ipaddr")
-    :do {
-        :local srvip [:resolve "ns1.he.net" type=$dnstype]
-        :local dnsip [:resolve $host type=$dnstype server=$srvip]
-        if ($dnsip=$ipaddr) do={
-            $logputdebug ("[DynDNS] IP address already up to date for $host $dnstype")
+        :delay 1s
+        :put ("[DynDNS] Beginning update of $host $dnstype to $ipaddr")
+        :do {
+            :local srvip [:resolve "ns1.he.net" type=$dnstype]
+            :local dnsip [:resolve $host type=$dnstype server=$srvip]
+            if ($dnsip=$ipaddr) do={
+                :put ("[DynDNS] IP address already up to date for $host $dnstype")
+                :return ""
+            }
+        } on-error={
+            $logputerror ("[DynDNS] Unable to resolve current IP for $host $dnstype")
             :return ""
         }
-    } on-error={
-        $logputerror ("[DynDNS] Unable to resolve current IP for $host $dnstype")
-        :return ""
+
+        :delay 5s
+
+        :do {
+            :local result [/tool/fetch mode=https user="$host" password="$key" url="https://dyn.dns.he.net/nic/update?hostname=$host&myip=$ipaddr" as-value output=user]
+            :put ("[DynDNS] Result of $host $dnstype to $ipaddr: " . ($result->"data"))
+        } on-error={
+            $logputerror ("[DynDNS] Unable to update $host $dnstype to $ipaddr")
+        }
     }
 
-    :delay 5s
-
-    :do {
-        :local result [/tool/fetch mode=https user="$host" password="$key" url="https://dyn.dns.he.net/nic/update?hostname=$host&myip=$ipaddr" as-value output=user]
-        $logputdebug ("[DynDNS] Result of $host $dnstype to $ipaddr: " . ($result->"data"))
-    } on-error={
-        $logputerror ("[DynDNS] Unable to update $host $dnstype to $ipaddr")
-    }
-}
-
-:local dyndnsUpdate do={
-    :global dyndnsUpdateOne
     $dyndnsUpdateOne host=$host key=$key dnstype=ipv4 ipaddr=$ipaddr dns="ns1.he.net"
     if ([:len $priv6addr] > 0) do={
         :local masked6 ([:toip6 $priv6addr] & ::ffff:ffff:ffff:ffff:ffff)
