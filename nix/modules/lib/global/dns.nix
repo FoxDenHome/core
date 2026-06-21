@@ -101,10 +101,7 @@ let
                 "+a:arcticfox.doridian.net"
               ]
               ++ (if zone.fastmail then [ "include:spf.messagingengine.com" ] else [ ])
-              ++ [
-                "mx"
-                "~all"
-              ]
+              ++ [ "~all" ]
             );
             horizon = "*";
           }

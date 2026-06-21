@@ -23,13 +23,6 @@
   };
   records = [
     {
-      fqdn = "arcticfox.doridian.net";
-      type = "TXT";
-      ttl = 3600;
-      value = "v=spf1 +a:arcticfox.doridian.net include:amazonses.com mx ~all";
-      horizon = "*";
-    }
-    {
       fqdn = "_dmarc.arcticfox.doridian.net";
       type = "TXT";
       ttl = 3600;
