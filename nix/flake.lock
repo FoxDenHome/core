@@ -103,11 +103,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1782053701,
-        "narHash": "sha256-5DZYU48po542pRvu9ovzx/5PiSFV0H6ULcBMHYYT304=",
+        "lastModified": 1782053944,
+        "narHash": "sha256-baI9xpSfBrepv18lMnUSd83PLjkRboVXm7D9riln6ew=",
         "ref": "refs/heads/main",
-        "rev": "3b9e5696af549a9bf1969b4c6d438cb5d5c1aa23",
-        "revCount": 754,
+        "rev": "b2c32786a3ed02b357dbe5e687c674282f8acb00",
+        "revCount": 755,
         "type": "git",
         "url": "https://git.foxden.network/FoxDen/fadumper"
       },
