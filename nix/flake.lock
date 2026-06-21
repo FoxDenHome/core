@@ -103,11 +103,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1781978824,
-        "narHash": "sha256-jk4zHZhKHYVJexIJvoIh19F4BRAEXz7Lh1n64XyTc6A=",
+        "lastModified": 1781983073,
+        "narHash": "sha256-nN/UgZM8z7egNxb4LkaedK+NM1Tq9YOcSiYwHQhRaNg=",
         "ref": "refs/heads/main",
-        "rev": "02038be8296790c7c5a4fee7503167b41b00ab61",
-        "revCount": 747,
+        "rev": "4edb870bf19199e41f0cb170284fe19a78170076",
+        "revCount": 752,
         "type": "git",
         "url": "https://git.foxden.network/FoxDen/fadumper"
       },
@@ -242,11 +242,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1781319724,
-        "narHash": "sha256-ZGuxexEMo4Xv28KJ0dX/m/PHN4oZIOnxHZpNTyrvx4M=",
+        "lastModified": 1781981105,
+        "narHash": "sha256-/1nNBbA7PrSQpTc9Qazkhl4kIPg+TNl0CjxS3UQJKlw=",
         "owner": "nix-community",
         "repo": "home-manager",
-        "rev": "8355f0a16b2dbb06a97959a918af5b239bbe05ae",
+        "rev": "7bfff44b465909f69a442701293bc0badcf476dc",
         "type": "github"
       },
       "original": {
@@ -425,11 +425,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1780547341,
-        "narHash": "sha256-Gq8KNx5A7hBB3uGJaj6eQfLDIz5YdLu92gqBcvHvoUo=",
+        "lastModified": 1781943681,
+        "narHash": "sha256-NFHmA7H47adqiyp+0iEOyZOQhmigDqA/NBAlf4imB6U=",
         "owner": "Mic92",
         "repo": "sops-nix",
-        "rev": "9ed65852b6257fbeae4355bc24ecfea307ca759a",
+        "rev": "420f8d2e9882911f65cfac15cc706f639ba96cca",
         "type": "github"
       },
       "original": {
