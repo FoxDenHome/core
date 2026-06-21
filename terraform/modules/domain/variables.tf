@@ -2,10 +2,6 @@ variable "domain" {
   type = string
 }
 
-variable "ses" {
-  type = bool
-}
-
 variable "he_zone_id" {
   type = string
 }

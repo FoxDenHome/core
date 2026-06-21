@@ -65,7 +65,7 @@ let
           type = bool;
           default = true;
         };
-        ses = lib.mkOption {
+        email = lib.mkOption {
           type = bool;
           default = true;
         };
@@ -89,7 +89,7 @@ let
   mkAuxRecordsInt =
     fqdn: zone:
     (
-      if zone.fastmail || zone.ses then
+      if zone.fastmail || zone.email then
         [
           {
             inherit fqdn;
@@ -101,7 +101,6 @@ let
                 "+a:arcticfox.doridian.net"
               ]
               ++ (if zone.fastmail then [ "include:spf.messagingengine.com" ] else [ ])
-              ++ (if zone.ses then [ "include:amazonses.com" ] else [ ])
               ++ [
                 "mx"
                 "~all"

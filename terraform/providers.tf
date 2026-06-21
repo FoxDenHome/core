@@ -6,10 +6,6 @@ terraform {
       source  = "hashicorp/external"
       version = "~> 2.4.0"
     }
-    aws = {
-      source  = "hashicorp/aws"
-      version = "~> 6.0"
-    }
     random = {
       source  = "hashicorp/random"
       version = "3.9.0"
@@ -31,10 +27,6 @@ terraform {
   backend "local" {
     path = "default.tfstate"
   }
-}
-
-provider "aws" {
-  region = "eu-west-1"
 }
 
 variable "he_net_username" {

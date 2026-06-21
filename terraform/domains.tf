@@ -21,7 +21,6 @@ module "domain" {
   for_each = { for k, v in local.zones_json : k => v if v.registrar != "local" }
 
   domain     = each.key
-  ses        = each.value["ses"]
   records    = local.records_json[each.key]
   he_zone_id = local.he_zone_ids[each.key]
 }

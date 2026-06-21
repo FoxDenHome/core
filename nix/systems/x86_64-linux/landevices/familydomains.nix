@@ -3,7 +3,7 @@ let
   serverDomain = "arcticfox.doridian.net";
   familyZoneCfg = {
     fastmail = false;
-    ses = true;
+    email = true;
   };
   subCnamesRaw = [
     "ftp"
