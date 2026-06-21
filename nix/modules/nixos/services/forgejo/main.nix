@@ -29,6 +29,7 @@ let
     BindReadOnlyPaths = [
       "/usr/bin/env"
     ];
+    EnvironmentFile = config.lib.foxDen.sops.mkIfAvailable config.sops.secrets.forgejo.path;
     StateDirectory = ifDefaultData "forgejo";
   };
 
@@ -82,6 +83,8 @@ in
         target = "fastcgi_pass 127.0.0.1:3000;";
       }).config
       {
+        sops.secrets.forgejo = config.lib.foxDen.sops.mkIfAvailable { };
+
         foxDen.services.forgejo.oAuth.overrideService = true;
 
         foxDen.services.kanidm.oauth2 = lib.mkIf svcConfig.oAuth.enable {
