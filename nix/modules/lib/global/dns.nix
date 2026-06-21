@@ -98,7 +98,7 @@ let
             value = nixpkgs.lib.concatStringsSep " " (
               [
                 "v=spf1"
-                "+a:arcticfox.doridian.net"
+                "a:arcticfox.doridian.net"
               ]
               ++ (if zone.fastmail then [ "include:spf.messagingengine.com" ] else [ ])
               ++ [ "-all" ]
