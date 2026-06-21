@@ -1,2 +1,2 @@
-*.tfstate filter=crypt
-*.tfstate* filter=crypt
+*.tfstate binary filter=crypt
+*.tfstate* binary filter=crypt
