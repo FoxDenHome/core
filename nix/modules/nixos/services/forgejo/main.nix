@@ -123,6 +123,10 @@ in
             enable = true;
           };
           settings = {
+            DEFAULT = {
+              APP_NAME = "FoxDen Git";
+              APP_SLOGAN = "Foxes are best animal";
+            };
             server = {
               DOMAIN = hostName;
               HTTP_ADDR = "127.0.0.1";
