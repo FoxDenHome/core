@@ -184,21 +184,21 @@ let
             fqdn = "tm1._domainkey.${fqdn}";
             type = "CNAME";
             ttl = 3600;
-            value = "fm1.${fqdn}.dkim.thunderhosted.com.";
+            value = "tm1.${fqdn}.dkim.thunderhosted.com.";
             horizon = "*";
           }
           {
             fqdn = "tm2._domainkey.${fqdn}";
             type = "CNAME";
             ttl = 3600;
-            value = "fm2.${fqdn}.dkim.thunderhosted.com.";
+            value = "tm2.${fqdn}.dkim.thunderhosted.com.";
             horizon = "*";
           }
           {
             fqdn = "tm3._domainkey.${fqdn}";
             type = "CNAME";
             ttl = 3600;
-            value = "fm3.${fqdn}.dkim.thunderhosted.com.";
+            value = "tm3.${fqdn}.dkim.thunderhosted.com.";
             horizon = "*";
           }
           {
@@ -222,7 +222,7 @@ let
             priority = 0;
             weight = 1;
             port = 443;
-            target = "mail.thundermail.com.";
+            value = "mail.thundermail.com.";
             horizon = "*";
           }
           {
@@ -232,7 +232,7 @@ let
             priority = 0;
             weight = 1;
             port = 443;
-            target = "mail.thundermail.com.";
+            value = "mail.thundermail.com.";
             horizon = "*";
           }
           {
@@ -242,7 +242,7 @@ let
             priority = 0;
             weight = 1;
             port = 443;
-            target = "mail.thundermail.com.";
+            value = "mail.thundermail.com.";
             horizon = "*";
           }
           {
@@ -252,7 +252,7 @@ let
             priority = 0;
             weight = 1;
             port = 993;
-            target = "mail.thundermail.com.";
+            value = "mail.thundermail.com.";
             horizon = "*";
           }
           {
@@ -262,7 +262,7 @@ let
             priority = 0;
             weight = 1;
             port = 587;
-            target = "mail.thundermail.com.";
+            value = "mail.thundermail.com.";
             horizon = "*";
           }
         ]

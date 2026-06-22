@@ -6,6 +6,7 @@
     };
     "doridian.de" = {
       registrar = "inwx";
+      email = "thundermail";
     };
     "doridian.net" = {
       registrar = "porkbun";
