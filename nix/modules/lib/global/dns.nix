@@ -66,8 +66,14 @@ let
           default = true;
         };
         email = lib.mkOption {
-          type = bool;
-          default = true;
+          type = enum [
+            "arcticfox"
+            "fastmail"
+            "thundermail"
+            "custom"
+            null
+          ];
+          default = "fastmail";
         };
       };
     };
@@ -89,7 +95,7 @@ let
   mkAuxRecordsInt =
     fqdn: zone:
     (
-      if zone.fastmail || zone.email then
+      if zone.email != null then
         [
           {
             inherit fqdn;
@@ -100,7 +106,14 @@ let
                 "v=spf1"
                 "a:arcticfox.doridian.net"
               ]
-              ++ (if zone.fastmail then [ "include:spf.messagingengine.com" ] else [ ])
+              ++ (
+                if zone.email == "fastmail" then
+                  [ "include:spf.messagingengine.com" ]
+                else if zone.email == "thundermail" then
+                  [ "include:spf.thundermail.com" ]
+                else
+                  [ ]
+              )
               ++ [ "-all" ]
             );
             horizon = "*";
@@ -117,7 +130,7 @@ let
         [ ]
     )
     ++ (
-      if zone.fastmail then
+      if zone.email == "fastmail" then
         [
           {
             inherit fqdn;
@@ -154,6 +167,102 @@ let
             type = "CNAME";
             ttl = 3600;
             value = "fm3.${fqdn}.dkim.fmhosted.com.";
+            horizon = "*";
+          }
+        ]
+      else if zone.email == "thundermail" then
+        [
+          {
+            inherit fqdn;
+            type = "MX";
+            ttl = 3600;
+            value = "mail.thundermail.com.";
+            priority = 10;
+            horizon = "*";
+          }
+          {
+            fqdn = "tm1._domainkey.${fqdn}";
+            type = "CNAME";
+            ttl = 3600;
+            value = "fm1.${fqdn}.dkim.thunderhosted.com.";
+            horizon = "*";
+          }
+          {
+            fqdn = "tm2._domainkey.${fqdn}";
+            type = "CNAME";
+            ttl = 3600;
+            value = "fm2.${fqdn}.dkim.thunderhosted.com.";
+            horizon = "*";
+          }
+          {
+            fqdn = "tm3._domainkey.${fqdn}";
+            type = "CNAME";
+            ttl = 3600;
+            value = "fm3.${fqdn}.dkim.thunderhosted.com.";
+            horizon = "*";
+          }
+          {
+            fqdn = "_smtp._tls.${fqdn}";
+            type = "TXT";
+            ttl = 3600;
+            value = "v=TLSRPTv1; rua=mailto:postmaster@${fqdn}";
+            horizon = "*";
+          }
+          {
+            fqdn = "_mta-sts.${fqdn}";
+            type = "TXT";
+            ttl = 3600;
+            value = "v=STSv1; id=18139500144460329770";
+            horizon = "*";
+          }
+          {
+            fqdn = "_jmap._tcp.${fqdn}";
+            type = "SRV";
+            ttl = 3600;
+            priority = 0;
+            weight = 1;
+            port = 443;
+            target = "mail.thundermail.com.";
+            horizon = "*";
+          }
+          {
+            fqdn = "_caldavs._tcp.${fqdn}";
+            type = "SRV";
+            ttl = 3600;
+            priority = 0;
+            weight = 1;
+            port = 443;
+            target = "mail.thundermail.com.";
+            horizon = "*";
+          }
+          {
+            fqdn = "_carddavs._tcp.${fqdn}";
+            type = "SRV";
+            ttl = 3600;
+            priority = 0;
+            weight = 1;
+            port = 443;
+            target = "mail.thundermail.com.";
+            horizon = "*";
+          }
+          {
+            fqdn = "_imaps._tcp.${fqdn}";
+            type = "SRV";
+            ttl = 3600;
+            priority = 0;
+            weight = 1;
+            port = 993;
+            target = "mail.thundermail.com.";
+            horizon = "*";
+          }
+          {
+            fqdn = "_submission._tcp.${fqdn}";
+            type = "SRV";
+            ttl = 3600;
+            priority = 0;
+            weight = 1;
+            port = 587;
+            target = "mail.thundermail.com.";
             horizon = "*";
           }
         ]
