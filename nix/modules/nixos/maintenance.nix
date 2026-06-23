@@ -96,13 +96,5 @@ in
         LimitNOFILE = 524288;
       };
     };
-
-    systemd.timers.nixos-update = {
-      wantedBy = [ "timers.target" ];
-      timerConfig = {
-        OnCalendar = "*-*-* 4:00:00";
-        RandomizedDelaySec = "1h";
-      };
-    };
   };
 }
