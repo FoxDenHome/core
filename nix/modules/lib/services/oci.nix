@@ -119,6 +119,11 @@ in
   nixosModule =
     { ... }:
     {
+      # See above comment where linger is set to false
+      foxDen.hideWarnings = [
+        "^Podman container.*but lingering for this user is turned off.$"
+      ];
+
       environment.persistence."/nix/persist/oci" = {
         hideMounts = true;
         directories = [
