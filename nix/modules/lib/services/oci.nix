@@ -62,7 +62,7 @@ let
             autoSubUidGidRange = true;
             home = "/var/lib/foxden-oci/${ctName}";
             createHome = true;
-            linger = true;
+            linger = false; # This breaks container restarting in certain circumstances.
           };
           users.groups."${ctName}" = { };
 
