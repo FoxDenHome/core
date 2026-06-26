@@ -28,7 +28,7 @@ let
   modpack = {
     url = "https://nas.foxden.network/guest/serverpack_foxden_create.zip";
     name = "server";
-    hash = "sha256:8114a836c49695c0861c45ecb5b6750cba1dcef9a742838053ad48ae9b452427";
+    hash = "sha256:d5ae17e0a6bc7a8ac704fd017d363502552f049d5ec654c4293cbd3d64bcc87b";
   };
 in
 pkgs.stdenvNoCC.mkDerivation {
@@ -42,10 +42,10 @@ pkgs.stdenvNoCC.mkDerivation {
     # - Basic steam engine "armatures"
     # - Hanging laterns (ones on posts render ok)
     # - Remove autumnity overrides once the next version happens, they seem to use textures now
-    (pkgs.fetchurl {
-      url = "https://github.com/Doridian/BlueMap/releases/download/v5.16/bluemap-5.16-mc1.20-forge.jar";
-      hash = "sha256:f88a4b3ad86bfe482896e682b80e9916887b20d422fffea3d85be9ae7441f55b";
-    })
+    #   (pkgs.fetchurl {
+    #     url = "https://github.com/Doridian/BlueMap/releases/download/v5.16/bluemap-5.16-mc1.20-forge.jar";
+    #     hash = "sha256:f88a4b3ad86bfe482896e682b80e9916887b20d422fffea3d85be9ae7441f55b";
+    #   })
   ];
   bluemapPacks = [
     (pkgs.fetchurl {
