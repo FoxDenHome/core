@@ -55,7 +55,7 @@ QUILT_INSTALLER_VERSION=0.14.1
 RECOMMENDED_JAVA_VERSION=21
 WAIT_FOR_USER_INPUT=false
 JAVA="java"
-JAVA_ARGS="-Xms16384M -Xmx16384M -XX:+UnlockExperimentalVMOptions -XX:+UseZGC -XX:+DisableExplicitGC -XX:+AlwaysPreTouch -XX:+PerfDisableSharedMem -XX:-ZUncommit -XX:+ParallelRefProcEnabled"
+JAVA_ARGS="-Xms16384M -Xmx16384M -XX:+UnlockExperimentalVMOptions -XX:MaxJavaStackTraceDepth=1073741823 -XX:+UseZGC -XX:+DisableExplicitGC -XX:+AlwaysPreTouch -XX:+PerfDisableSharedMem -XX:-ZUncommit -XX:+ParallelRefProcEnabled"
 ADDITIONAL_ARGS="-Dlog4j2.formatMsgNoLookups=true"
 SSJ_FORGE_ARGS="-Djava.security.manager=allow"
 RESTART=false
