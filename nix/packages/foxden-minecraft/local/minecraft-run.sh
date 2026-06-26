@@ -537,25 +537,4 @@ echo "Java version:"
 "${JAVA}" -version
 echo ""
 
-# Depending on $RESTART the server runs in a loop, to make sure it comes right back up after crashing. Force exit can be
-# achieved by hitting CTRL+C multiple times. Variables are not reloaded between server runs. Quit the script and re-run
-# it if you wish to reload the variables.
-while true
-do
-  runJavaCommand "${ADDITIONAL_ARGS} ${SERVER_RUN_COMMAND}"
-  if [[ "${SKIP_JAVA_CHECK}" == "true" ]]; then
-    echo "Java version check was skipped. Did the server stop or crash because of a Java version mismatch?"
-    echo "Detected ${SEMANTICS[0]}.${SEMANTICS[1]}.${SEMANTICS[2]} - Java ${JAVA_VERSION}, recommended $RECOMMENDED_JAVA_VERSION."
-  fi
-  if [[ "${RESTART}" != "true" ]]; then
-    echo "Exiting..."
-      if [[ "${WAIT_FOR_USER_INPUT}" == "true" ]]; then
-        pause
-      fi
-    exit 0
-  fi
-  echo "Automatically restarting server in 5 seconds. Press CTRL + C to abort and exit."
-  sleep 5
-done
-
-echo ""
+exec "${JAVA}" ${ADDITIONAL_ARGS} ${SERVER_RUN_COMMAND}
