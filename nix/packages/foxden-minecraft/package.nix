@@ -39,8 +39,8 @@ pkgs.stdenvNoCC.mkDerivation {
 
   bluemapPacks = [
     (pkgs.fetchurl {
-      url = "https://github.com/Uiniel/BlueMapModelLoaders/releases/download/v0.5.0/BlueMapModelLoaders-0.5.0.jar";
-      hash = "sha256:0ce44bd69b9553c332c0cb7607a5f88c4bf0c24270f3899f6b88dff6aceb90b5";
+      url = "https://github.com/Uiniel/BlueMapModelLoaders/releases/download/v0.4.2/BlueMapModelLoaders-0.4.2.jar";
+      hash = "sha256:58214347e27181a591be74d40f8e1a750f36db8c4230be25c29a53847b266c5d";
     })
     (pkgs.fetchurl {
       url = "https://github.com/Doridian/BlueMapEveryCompatCompat/releases/download/0.0.3/BlueMapEveryCompatCompat-0.0.3.jar";
