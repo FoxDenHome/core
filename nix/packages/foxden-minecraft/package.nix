@@ -28,7 +28,7 @@ let
   modpack = {
     url = "https://nas.foxden.network/guest/serverpack_foxden_create.zip";
     name = "server";
-    hash = "sha256:64b90d05b5ba73f7ed3c52b7e3ba1054a3a7c718c9f7970d204c9dde58d37f4e";
+    hash = "sha256:9ace8ab1fa3f079bc5e8028873716554e0500cbf7491b98f9ba01b9cc7454283";
   };
 in
 pkgs.stdenvNoCC.mkDerivation {
@@ -37,20 +37,10 @@ pkgs.stdenvNoCC.mkDerivation {
 
   modpack = pkgs.fetchurl modpack;
 
-  mods = [
-    # TODO: Add/fix BlueMap rendering for:
-    # - Basic steam engine "armatures"
-    # - Hanging laterns (ones on posts render ok)
-    # - Remove autumnity overrides once the next version happens, they seem to use textures now
-    #   (pkgs.fetchurl {
-    #     url = "https://github.com/Doridian/BlueMap/releases/download/v5.16/bluemap-5.16-mc1.20-forge.jar";
-    #     hash = "sha256:f88a4b3ad86bfe482896e682b80e9916887b20d422fffea3d85be9ae7441f55b";
-    #   })
-  ];
   bluemapPacks = [
     (pkgs.fetchurl {
-      url = "https://github.com/Uiniel/BlueMapModelLoaders/releases/download/v0.4.2/BlueMapModelLoaders-0.4.2.jar";
-      hash = "sha256:58214347e27181a591be74d40f8e1a750f36db8c4230be25c29a53847b266c5d";
+      url = "https://github.com/Uiniel/BlueMapModelLoaders/releases/download/v0.5.0/BlueMapModelLoaders-0.5.0.jar";
+      hash = "sha256:0ce44bd69b9553c332c0cb7607a5f88c4bf0c24270f3899f6b88dff6aceb90b5";
     })
     (pkgs.fetchurl {
       url = "https://github.com/Doridian/BlueMapEveryCompatCompat/releases/download/0.0.3/BlueMapEveryCompatCompat-0.0.3.jar";
@@ -100,9 +90,6 @@ pkgs.stdenvNoCC.mkDerivation {
     }
     for pack in $bluemapPacks; do
       copyaux "$pack" config/bluemap/packs
-    done
-    for mod in $mods; do
-      copyaux "$mod" mods
     done
 
     find aux local -type d -exec chmod 700 {} +
