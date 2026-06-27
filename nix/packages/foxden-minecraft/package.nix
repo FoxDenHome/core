@@ -1,30 +1,9 @@
 {
-  lib,
   pkgs,
   ...
 }:
 let
-  # https://www.oracle.com/downloads/graalvm-downloads.html
-  graalSources = {
-    "aarch64-linux" = {
-      hash = "sha256:86fc5f391be31b9ddbe47370b705303c1a649bd78915ffeccf8c78a430eacb4c";
-      url = "https://download.oracle.com/graalvm/21/archive/graalvm-jdk-21.0.11_linux-aarch64_bin.tar.gz";
-    };
-    "x86_64-linux" = {
-      hash = "sha256:230e5376a9c320dc32f5d9ea48210de33b5fce16c759d46e7cfa2263c1732118";
-      url = "https://download.oracle.com/graalvm/21/archive/graalvm-jdk-21.0.11_linux-x64_bin.tar.gz";
-    };
-  };
-
-  jrePackage = pkgs.graalvmPackages.buildGraalvm {
-    useMusl = false;
-    version = "21";
-    src = pkgs.fetchurl graalSources.${pkgs.stdenv.system};
-    meta.platforms = builtins.attrNames graalSources;
-    meta.license = lib.licenses.unfree;
-    pname = "graalvm-oracle";
-  };
-
+  jrePackage = pkgs.graalvmPackages.graalvm-oracle_25;
   modpack = {
     url = "https://nas.foxden.network/guest/serverpack_foxden_create.zip";
     name = "server";
@@ -39,8 +18,8 @@ pkgs.stdenvNoCC.mkDerivation {
 
   bluemapPacks = [
     (pkgs.fetchurl {
-      url = "https://github.com/Uiniel/BlueMapModelLoaders/releases/download/v0.4.2/BlueMapModelLoaders-0.4.2.jar";
-      hash = "sha256:58214347e27181a591be74d40f8e1a750f36db8c4230be25c29a53847b266c5d";
+      url = "https://github.com/Uiniel/BlueMapModelLoaders/releases/download/v0.5.0/BlueMapModelLoaders-0.5.0.jar";
+      hash = "sha256:0ce44bd69b9553c332c0cb7607a5f88c4bf0c24270f3899f6b88dff6aceb90b5";
     })
     (pkgs.fetchurl {
       url = "https://github.com/Doridian/BlueMapEveryCompatCompat/releases/download/0.0.3/BlueMapEveryCompatCompat-0.0.3.jar";
