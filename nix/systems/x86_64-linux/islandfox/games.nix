@@ -99,6 +99,10 @@ in
           protocol = "tcp";
           port = 25565;
         }
+        {
+          protocol = "udp";
+          port = 25565;
+        }
       ];
       addresses = [
         "10.2.11.14/16"
