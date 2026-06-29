@@ -15,7 +15,7 @@ superdel() {
 run_update() {
   cd "${SERVER_DIR}"
 
-  superdel config/bluemap config/paxi/datapacks mods bluemap/web/index.html bluemap/web/assets bluemap/web/lang
+  superdel config/bluemap config/paxi/datapacks config/paxi/local_pack mods bluemap/web/index.html bluemap/web/assets bluemap/web/lang
 
   find -type d -not -path './bluemap/*' -not -path './world/*' -exec chmod 700 {} \; || true
   find -type f -not -path './bluemap/*' -not -path './world/*' -exec chmod 600 {} \; || true
