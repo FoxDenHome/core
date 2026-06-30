@@ -17,12 +17,6 @@
   ];
   boot.loader.grub.splashImage = null;
 
-  networking.firewall = {
-    allowedUDPPorts = [ config.services.iperf3.port ];
-    allowedTCPPorts = [ config.services.iperf3.port ];
-  };
-  services.iperf3.enable = true;
-
   hardware.rasdaemon.enable = true;
 
   documentation = {
@@ -43,4 +37,17 @@
   boot.extraModprobeConfig = ''
     options ib_core netns_mode=0
   '';
+
+  services.prometheus.exporters.node = {
+    enable = true;
+    enabledCollectors = [ "systemd" ];
+  };
+  networking.firewall = {
+    allowedUDPPorts = [ config.services.iperf3.port ];
+    allowedTCPPorts = [
+      config.services.iperf3.port
+      config.services.prometheus.exporters.node.port
+    ];
+  };
+  services.iperf3.enable = true;
 }
