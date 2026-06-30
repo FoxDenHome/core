@@ -27,7 +27,7 @@ in
           let
             cfgs = lib.attrsets.attrNames (builtins.readDir ./telegraf.conf.d);
 
-            cfgRead = map (name: builtins.fromTOML (builtins.readFile ./telegraf.conf.d/${name})) cfgs;
+            cfgRead = map (name: fromTOML (builtins.readFile ./telegraf.conf.d/${name})) cfgs;
           in
           {
             enable = true;

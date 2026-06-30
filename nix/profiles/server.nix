@@ -42,12 +42,8 @@
     enable = true;
     enabledCollectors = [ "systemd" ];
   };
-  networking.firewall = {
-    allowedUDPPorts = [ config.services.iperf3.port ];
-    allowedTCPPorts = [
-      config.services.iperf3.port
-      config.services.prometheus.exporters.node.port
-    ];
-  };
-  services.iperf3.enable = true;
+  networking.firewall.extraInputRules = ''
+    ip saddr 10.0.0.0/8 tcp dport ${config.services.prometheus.exporters.node.port} accept
+    ip6 saddr fc00::/7 tcp dport ${config.services.prometheus.exporters.node.port} accept
+  '';
 }
