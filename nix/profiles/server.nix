@@ -43,7 +43,7 @@
     enabledCollectors = [ "systemd" ];
   };
   networking.firewall.extraInputRules = ''
-    ip saddr 10.0.0.0/8 tcp dport ${config.services.prometheus.exporters.node.port} accept
-    ip6 saddr fc00::/7 tcp dport ${config.services.prometheus.exporters.node.port} accept
+    ip saddr 10.0.0.0/8 tcp dport ${toString config.services.prometheus.exporters.node.port} accept
+    ip6 saddr fc00::/7 tcp dport ${toString config.services.prometheus.exporters.node.port} accept
   '';
 }
