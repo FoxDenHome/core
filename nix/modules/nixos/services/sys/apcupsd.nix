@@ -1,3 +1,4 @@
+
 { lib, config, ... }:
 let
   svcConfig = config.foxDen.services.apcupsd;
@@ -34,6 +35,14 @@ in
     systemd.services.apcupsd = {
       after = [ "network-online.target" ];
       wants = [ "network-online.target" ];
+
+      startLimitIntervalSec = lib.mkForce 0;
+      serviceConfig = {
+        Restart = lib.mkDefault "always";
+        RestartSec = lib.mkForce "1s";
+        RestartMaxDelaySec = lib.mkForce "5m";
+        RestartSteps = lib.mkForce 10;
+      };
     };
   };
 }
