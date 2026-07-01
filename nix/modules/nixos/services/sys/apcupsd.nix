@@ -1,4 +1,3 @@
-
 { lib, config, ... }:
 let
   svcConfig = config.foxDen.services.apcupsd;
