@@ -21,6 +21,15 @@
       "item": "minecraft:coal_block"
     },
     {
+      "item": "minecraft:coal_block"
+    },
+    {
+      "item": "minecraft:coal_block"
+    },
+    {
+      "item": "minecraft:coal_block"
+    },
+    {
       "type": "fluid_tag",
       "amount": 1000,
       "fluid_tag": "minecraft:lava"
