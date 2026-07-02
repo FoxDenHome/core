@@ -7,7 +7,7 @@ let
   modpack = {
     url = "https://nas.foxden.network/guest/serverpack_foxden_create.zip";
     name = "server";
-    hash = "sha256:dbe478cbfc62dd04156b658ce2837b34059a97d66adf5d3a70aa71eb5a61f9b6";
+    hash = "sha256:9bb770c4b09feb8f2af9513a7bb22b1169b79511f58aa600f7a066e021f420d9";
   };
 in
 pkgs.stdenvNoCC.mkDerivation {
