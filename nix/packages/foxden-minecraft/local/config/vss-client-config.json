@@ -1,0 +1,6 @@
+{
+  "receiveServerLods": true,
+  "lodDistanceChunks": 0,
+  "desiredBandwidthKbps": 0,
+  "offThreadSectionProcessing": true
+}
