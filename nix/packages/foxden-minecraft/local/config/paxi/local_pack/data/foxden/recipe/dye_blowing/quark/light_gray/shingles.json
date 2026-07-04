@@ -1,0 +1,22 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "quark"
+    }
+  ],
+  "type": "garnished:light_gray_dye_blowing",
+  "ingredients": [
+    {
+      "tag": "quark:shingles"
+    }
+  ],
+  "results": [
+    {
+      "item": {
+        "id": "quark:light_gray_shingles"
+      },
+      "count": 1
+    }
+  ]
+}

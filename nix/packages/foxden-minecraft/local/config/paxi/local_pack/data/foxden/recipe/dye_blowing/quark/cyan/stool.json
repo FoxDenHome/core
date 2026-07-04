@@ -1,0 +1,22 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "quark"
+    }
+  ],
+  "type": "garnished:cyan_dye_blowing",
+  "ingredients": [
+    {
+      "tag": "quark:stools"
+    }
+  ],
+  "results": [
+    {
+      "item": {
+        "id": "quark:cyan_stool"
+      },
+      "count": 1
+    }
+  ]
+}

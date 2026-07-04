@@ -1,0 +1,22 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "quark"
+    }
+  ],
+  "type": "garnished:gray_dye_blowing",
+  "ingredients": [
+    {
+      "tag": "quark:framed_glass_panes"
+    }
+  ],
+  "results": [
+    {
+      "item": {
+        "id": "quark:gray_framed_glass_pane"
+      },
+      "count": 1
+    }
+  ]
+}

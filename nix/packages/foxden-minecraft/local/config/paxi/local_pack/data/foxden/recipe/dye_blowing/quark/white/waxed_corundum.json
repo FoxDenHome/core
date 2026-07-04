@@ -1,0 +1,22 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "quark"
+    }
+  ],
+  "type": "garnished:white_dye_blowing",
+  "ingredients": [
+    {
+      "tag": "quark:waxed_corundum"
+    }
+  ],
+  "results": [
+    {
+      "item": {
+        "id": "quark:waxed_white_corundum"
+      },
+      "count": 1
+    }
+  ]
+}
