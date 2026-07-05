@@ -1,9 +1,43 @@
 {
+  lib,
   pkgs,
   ...
 }:
 let
-  jrePackage = pkgs.graalvmPackages.graalvm-oracle_25;
+  # https://www.graalvm.org/downloads/
+  graalSources = {
+    "aarch64-linux" = {
+      hash = "sha256:cb9889df78cd7e186ab9dfb71e379ae35d89ebcd939e02b6931841c7158d620a";
+      url = "https://gds.oracle.com/download/graal/25i1/latest/graalvm-jdk-25i1-25_linux-aarch64_bin.tar.gz";
+    };
+    "x86_64-linux" = {
+      hash = "sha256:efcb8984be5f72ecf8615641bec720c825a6889957f0b98d95123f563ff77c86";
+      url = "https://gds.oracle.com/download/graal/25i1/latest/graalvm-jdk-25i1-25_linux-x64_bin.tar.gz";
+    };
+  };
+
+  jrePackage = pkgs.graalvmPackages.buildGraalvm {
+    pname = "graalvm-oracle";
+    version = "25";
+    src = pkgs.fetchurl graalSources.${pkgs.stdenv.system};
+
+    useMusl = false;
+    buildInputs = with pkgs; [
+      alsa-lib
+      fontconfig
+      onnxruntime # Added in 25.1 as a requirement for libonnxruntime4j_jni.so
+      (lib.getLib stdenv.cc.cc)
+      libx11
+      libxext
+      libxi
+      libxrender
+      libxtst
+    ];
+
+    meta.platforms = builtins.attrNames graalSources;
+    meta.license = lib.licenses.unfree;
+  };
+
   modpack = {
     url = "https://nas.foxden.network/guest/serverpack_foxden_create.zip";
     name = "server";
