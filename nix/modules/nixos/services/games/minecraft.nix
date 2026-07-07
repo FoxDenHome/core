@@ -34,6 +34,10 @@ in
         inherit svcConfig pkgs config;
         name = "minecraft";
       }).config
+      (services.make {
+        inherit svcConfig pkgs config;
+        name = "minecraft-ccsftp";
+      }).config
       (services.http.make {
         inherit svcConfig pkgs config;
         name = "http-minecraft";
@@ -80,56 +84,70 @@ in
           group = "minecraft";
         };
 
-        environment.systemPackages = [ pkgs.unzip ];
-
-        systemd.services.minecraft = {
-          confinement.packages = [
-            pkgs.coreutils
-            pkgs.envsubst
-            pkgs.findutils
-            pkgs.bash
-            pkgs.gawk
-            pkgs.gnugrep
-            pkgs.gnused
-            pkgs.wget
-            pkgs.curl
-            pkgs.unzip
-          ];
-          path = [
-            pkgs.coreutils
-            pkgs.envsubst
-            pkgs.findutils
-            pkgs.bash
-            pkgs.gawk
-            pkgs.gnugrep
-            pkgs.gnused
-            pkgs.wget
-            pkgs.curl
-            pkgs.unzip
-          ];
+        systemd.services.minecraft-ccftp = {
+          after = [ "minecraft.service" ];
+          wants = [ "minecraft.service" ];
 
           serviceConfig = {
             User = "minecraft";
             Group = "minecraft";
 
-            Environment = [ "SERVER_DIR=${svcConfig.dataDir}" ];
-            EnvironmentFile = config.lib.foxDen.sops.mkIfAvailable config.sops.secrets.minecraft.path;
-
+            Nice = -3;
             BindPaths = [ svcConfig.dataDir ];
-            BindReadOnlyPaths = [
-              "${serverPackage}/server:/server"
-              "/usr/bin/env"
-            ];
             WorkingDirectory = svcConfig.dataDir;
-            StateDirectory = ifDefaultData "minecraft";
 
-            Nice = -4;
-            ExecStartPre = [ "${serverPackage}/server/minecraft-install.sh" ];
-            ExecStart = [ "${svcConfig.dataDir}/minecraft-run.sh" ];
+            Type = "simple";
+            ExecStart = [
+              "${pkgs.CCSFTP}/bin/ccsftp"
+              "-root=./world/computercraft/computer/"
+              "-listen=:25522"
+            ];
           };
 
           wantedBy = [ "multi-user.target" ];
         };
+
+        systemd.services.minecraft =
+          let
+            depPkgs = [
+              pkgs.coreutils
+              pkgs.envsubst
+              pkgs.findutils
+              pkgs.bash
+              pkgs.gawk
+              pkgs.gnugrep
+              pkgs.gnused
+              pkgs.wget
+              pkgs.curl
+              pkgs.unzip
+            ];
+          in
+          {
+            path = depPkgs;
+            confinement.packages = depPkgs;
+
+            serviceConfig = {
+              User = "minecraft";
+              Group = "minecraft";
+
+              Environment = [ "SERVER_DIR=${svcConfig.dataDir}" ];
+              EnvironmentFile = config.lib.foxDen.sops.mkIfAvailable config.sops.secrets.minecraft.path;
+
+              BindPaths = [ svcConfig.dataDir ];
+              BindReadOnlyPaths = [
+                "${serverPackage}/server:/server"
+                "/usr/bin/env"
+              ];
+              WorkingDirectory = svcConfig.dataDir;
+              StateDirectory = ifDefaultData "minecraft";
+
+              Nice = -4;
+              ExecStartPre = [ "${serverPackage}/server/minecraft-install.sh" ];
+              ExecStart = [ "${svcConfig.dataDir}/minecraft-run.sh" ];
+            };
+
+            wantedBy = [ "multi-user.target" ];
+          };
 
         environment.persistence."/nix/persist/minecraft" = ifDefaultData {
           hideMounts = true;

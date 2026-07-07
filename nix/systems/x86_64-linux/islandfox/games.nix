@@ -97,6 +97,10 @@ in
       firewall.portForwards = [
         {
           protocol = "tcp";
+          port = 25522;
+        }
+        {
+          protocol = "tcp";
           port = 25565;
         }
         {
