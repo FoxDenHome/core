@@ -9,7 +9,7 @@ in
       host = "forgejo-runner";
       containerHost = "forgejo-runner-container";
       capacity = 20;
-      labels = [ "cpu-manycore" ];
+      labels = [ "ubuntu-24.04-manycore" ];
     };
   };
 
