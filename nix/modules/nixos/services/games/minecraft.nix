@@ -84,7 +84,7 @@ in
           group = "minecraft";
         };
 
-        systemd.services.minecraft-ccftp = {
+        systemd.services.minecraft-ccsftp = {
           after = [ "minecraft.service" ];
           wants = [ "minecraft.service" ];
 
@@ -97,11 +97,7 @@ in
             WorkingDirectory = svcConfig.dataDir;
 
             Type = "simple";
-            ExecStart = [
-              "${pkgs.CCSFTP}/bin/ccsftp"
-              "-root=./world/computercraft/computer/"
-              "-listen=:25522"
-            ];
+            ExecStart = [ "${pkgs.CCSFTP}/bin/ccsftp -root=./world/computercraft/computer/ -listen=:25522" ];
           };
 
           wantedBy = [ "multi-user.target" ];
