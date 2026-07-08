@@ -9,17 +9,17 @@ let
   # - https://www.unihosted.com/blog/running-unifi-os-server-in-docker
 
   # https://www.ui.com/download/releases/firmware
-  version = "5.1.19";
+  version = "5.1.21";
   archConfig =
     {
       "aarch64-linux" = {
-        src.url = "https://fw-download.ubnt.com/data/unifi-os-server/e027-linux-arm64-5.1.19-ebdd998e-306a-4880-af41-2bdc50e91e70.19-arm64";
-        src.hash = "sha256:4e18c1f143cea3b364619406c35cf9d2123732bcdc500e41196e41196faefacf";
+        src.url = "https://fw-download.ubnt.com/data/unifi-os-server/162a-linux-arm64-5.1.21-c2775845-975c-453d-88f4-f9061329b27e.21-arm64";
+        src.hash = "sha256:61ae22c1587789b296add724905227561cdfb367a8699a470612fadae451061f";
         firmwarePlatform = "linux-arm64";
       };
       "x86_64-linux" = {
-        src.url = "https://fw-download.ubnt.com/data/unifi-os-server/b828-linux-x64-5.1.19-e38d0b0e-b462-403d-9861-f57f25772106.19-x64";
-        src.hash = "sha256:014cc7da5c403ea4117f6d7fb4f3860036ad94f5bf58f5fcd029bec652416e66";
+        src.url = "https://fw-download.ubnt.com/data/unifi-os-server/f5e2-linux-x64-5.1.21-a400c9c6-8328-4634-b223-ebfcf742720a.21-x64";
+        src.hash = "sha256:77e3feac1595779402dd87ff8d20d66faa39c87b572646f86ff0006711262445";
         firmwarePlatform = "linux-x64";
       };
     }
