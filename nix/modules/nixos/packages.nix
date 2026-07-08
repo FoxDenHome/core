@@ -39,6 +39,9 @@ let
     permittedInsecurePackages = [
       "gradle-7.6.6" # TODO: What is pulling this in?
     ];
+    problems.handlers = {
+      zfs.broken = "warn"; # TODO: Remove this once ZFS officially supports 7.1
+    };
   };
 
   pkgsConfig = {
