@@ -10,11 +10,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1783545113,
-        "narHash": "sha256-N7EWIPbxE2IJbUrZb6pldqzwd6IF71ZAtIX6ITH7Ah0=",
+        "lastModified": 1783551228,
+        "narHash": "sha256-tf4FxFAjcJ4jEiBsK6zTudoctkgBPNPMw2gBtdl/kE0=",
         "ref": "refs/heads/main",
-        "rev": "8480f891447d79a3cc76b1d350164a790c5648ed",
-        "revCount": 14,
+        "rev": "1a3adb450c068223fb9e0a85d4d6b2f459eff86d",
+        "revCount": 15,
         "type": "git",
         "url": "https://git.foxden.network/FoxDen/CCSFTP"
       },
