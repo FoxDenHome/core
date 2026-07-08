@@ -84,7 +84,9 @@ let
     in
     import processedFlake pkgsConfig;
 
-  pkgs = mkPkgs nixpkgs [ ];
+  pkgs = mkPkgs nixpkgs [
+    ./nixpkgs-patches/zfs_2.4_on_7.1.patch
+  ];
 
   localPackages = lib.attrsets.genAttrs (lib.attrNames (builtins.readDir ../../packages)) (
     name: import ../../packages/${name}/package.nix (inputs // { inherit pkgs; })
