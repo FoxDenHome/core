@@ -9,11 +9,6 @@
 
   system.stateVersion = "26.05";
 
-  services.scx = {
-    enable = true;
-    scheduler = "scx_lavd";
-  };
-
   imports = [ ../../../profiles/server.nix ];
   hardware.enableRedistributableFirmware = true;
   hardware.cpu.amd.updateMicrocode = true;
