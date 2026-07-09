@@ -10,11 +10,11 @@
             "item": "createdeco:industrial_iron_ingot"
         },
         "B": {
-            "item": "minecraft:gold_block"
+            "item": "create:industrial_iron_block"
         }
     },
     "result": {
-        "id": "minecraft:nether_star",
+        "id": "malexscaves:nuclear_siren",
         "count": 1
     }
 }

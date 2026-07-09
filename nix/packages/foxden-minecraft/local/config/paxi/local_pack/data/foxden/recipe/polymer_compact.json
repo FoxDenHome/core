@@ -6,8 +6,7 @@
       "item": "alexscaves:radon_bottle"
     },
     {
-      "type": "item_tag",
-      "item_tag": "minecraft:log"
+      "tag": "minecraft:logs"
     },
     {
       "item": "minecraft:iron_ingot"
