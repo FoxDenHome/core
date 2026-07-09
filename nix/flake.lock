@@ -80,11 +80,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1781821588,
+        "lastModified": 1783575957,
         "narHash": "sha256-n8DdMYdFofQqqU7+SiMK3udlfbpFHG0FnWGRW4rVTvc=",
         "owner": "Doridian",
         "repo": "DarkSignsOnline",
-        "rev": "43593113301adc94d1cd4ccd6ee0e7c0d0527700",
+        "rev": "b596cb2f3c46dc483e2234ef75cbf11808034a64",
         "type": "github"
       },
       "original": {
@@ -213,11 +213,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1783227867,
-        "narHash": "sha256-h1LXfVSlApt510S3EYPmTbUVlgDVCgCQBKzmP378eYc=",
+        "lastModified": 1783610862,
+        "narHash": "sha256-Hl7kYfUsUL4lYn7PKAbTvgi3Y7y0zci2k3CTVQsvxm4=",
         "ref": "refs/heads/main",
-        "rev": "80e400595cc094ce1ddb2d5b1c68be3aa3b49182",
-        "revCount": 4053,
+        "rev": "2db904bd664a12af7fb04cbb8b658dd9de6bd6bc",
+        "revCount": 4058,
         "type": "git",
         "url": "https://git.foxden.network/foxCaves/foxCaves"
       },
@@ -353,11 +353,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1783545103,
-        "narHash": "sha256-JhmlrutN6rz9jWPgFuuLPWfNKvJqeHdqHYGyXyDFqAA=",
+        "lastModified": 1783610856,
+        "narHash": "sha256-oQYBHJMazgLDLOOp8xDmsVU8JckWLYH5f3WVKhiKavw=",
         "ref": "refs/heads/main",
-        "rev": "f4464a9fa82c3244be0f629dc1e3a3bc76b32154",
-        "revCount": 211,
+        "rev": "663df4ca89c5d9fbfc774b97ba269fe3981210d8",
+        "revCount": 212,
         "type": "git",
         "url": "https://git.foxden.network/FoxDen/oauth-jit-radius"
       },
@@ -574,11 +574,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1783534983,
-        "narHash": "sha256-P6DTmYfX5o0AKt6FGg9UDVjGVSWBpub3Wdc7Y2Qxbuw=",
+        "lastModified": 1783610851,
+        "narHash": "sha256-V4X1VFV3dE601GlDJyBiw9EnSOUfkqQ0wlQXrY8LDJ4=",
         "ref": "refs/heads/main",
-        "rev": "511b0b978c10c78492500e0d5bb8bf9ed0c7144c",
-        "revCount": 174,
+        "rev": "3fb539548575da08982bee789b9b16367ec6ca10",
+        "revCount": 175,
         "type": "git",
         "url": "https://git.foxden.network/FoxDen/superfan"
       },
