@@ -1,0 +1,22 @@
+{
+  "type": "create:compacting",
+  "heat_requirement": "heated",
+  "ingredients": [
+    {
+      "item": "alexscaves:radon_bottle"
+    },
+    {
+      "type": "item_tag",
+      "item_tag": "minecraft:log"
+    },
+    {
+      "item": "minecraft:iron_ingot"
+    }
+  ],
+  "results": [
+    {
+      "id": "alexscaves:polymer_plate",
+      "count": 1
+    }
+  ]
+}

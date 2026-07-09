@@ -1,0 +1,20 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        " I ",
+        "IBI",
+        " I "
+    ],
+    "key": {
+        "I": {
+            "item": "createdeco:industrial_iron_ingot"
+        },
+        "B": {
+            "item": "minecraft:gold_block"
+        }
+    },
+    "result": {
+        "id": "minecraft:nether_star",
+        "count": 1
+    }
+}
