@@ -55,7 +55,7 @@ pkgs.stdenvNoCC.mkDerivation {
   version = "1.0.0";
 
   modpack = pkgs.requireFile modpack;
-  passthrough.client = pkgs.requireFile clientModpack;
+  passthru.client = pkgs.requireFile clientModpack;
 
   bluemapPacks = [
     (pkgs.fetchurl {
