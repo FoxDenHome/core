@@ -40,8 +40,14 @@ let
 
   modpack = {
     name = "serverpack_foxden_create.zip";
-    message = "Locally built Minecraft modpack";
+    message = "Locally built Minecraft modpack (serverpack_foxden_create.zip)";
     hash = "sha256:16df323c7e1ad15582d57101020b5703dc58036b7b4600a00ec1a15d636c29a8";
+  };
+
+  clientModpack = {
+    name = "modpack_foxden_create.zip";
+    message = "Locally built Minecraft modpack (modpack_foxden_create.zip)";
+    hash = "sha256:34a8271025e21a135ce4d72d7dc3a48105f354ee6c386cb8428c7089bb999a6e";
   };
 in
 pkgs.stdenvNoCC.mkDerivation {
@@ -49,6 +55,7 @@ pkgs.stdenvNoCC.mkDerivation {
   version = "1.0.0";
 
   modpack = pkgs.requireFile modpack;
+  passthrough.client = pkgs.requireFile clientModpack;
 
   bluemapPacks = [
     (pkgs.fetchurl {

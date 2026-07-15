@@ -69,6 +69,9 @@ in
               add_header Content-Type $ae2_content_type always;
               ${proxyConfig}
             }
+            location = /modpack.zip {
+              alias ${serverPackage.client};
+            }
           '';
       }).config
       {
@@ -83,6 +86,10 @@ in
           owner = "minecraft";
           group = "minecraft";
         };
+
+        systemd.services.http-minecraft.serviceConfig.BindReadOnlyPaths = [
+          serverPackage.client
+        ];
 
         systemd.services.minecraft-ccsftp = {
           after = [ "minecraft.service" ];
