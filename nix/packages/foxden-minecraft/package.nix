@@ -39,16 +39,15 @@ let
   };
 
   modpack = {
-    url = "https://nas.foxden.network/guest/serverpack_foxden_create.zip";
     name = "server";
-    hash = "sha256:59d7f398dc711b79fb2eaff9316599775033fb95ab03e4b4a87d93adfd726ca7";
+    hash = "sha256:16df323c7e1ad15582d57101020b5703dc58036b7b4600a00ec1a15d636c29a8";
   };
 in
 pkgs.stdenvNoCC.mkDerivation {
   name = "foxden-minecraft";
   version = "1.0.0";
 
-  modpack = pkgs.fetchurl modpack;
+  modpack = pkgs.requireFile modpack;
 
   bluemapPacks = [
     (pkgs.fetchurl {
@@ -117,7 +116,7 @@ pkgs.stdenvNoCC.mkDerivation {
     echo '# Nix injected env vars' > "$out/server/minecraft-env.sh"
     echo 'export "JAVA=${jrePackage}/bin/java"' >> "$out/server/minecraft-env.sh"
 
-    echo '${modpack.url} ${modpack.hash}' > "$out/server/minecraft-modpack.id"
+    echo '${modpack.hash}' > "$out/server/minecraft-modpack.id"
 
     find "$out/server" -type d -exec chmod 500 {} +
   '';
