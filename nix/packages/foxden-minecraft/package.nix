@@ -39,7 +39,7 @@ let
   };
 
   modpack = {
-    name = "server";
+    name = "serverpack_foxden_create.zip";
     message = "Locally built Minecraft modpack";
     hash = "sha256:16df323c7e1ad15582d57101020b5703dc58036b7b4600a00ec1a15d636c29a8";
   };
