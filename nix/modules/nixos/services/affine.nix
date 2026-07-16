@@ -40,7 +40,7 @@ in
           ];
         };
 
-        users.users.foxcaves = {
+        users.users.affine = {
           isSystemUser = true;
           home = "/var/lib/affine";
           group = "affine";
