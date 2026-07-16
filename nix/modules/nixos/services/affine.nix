@@ -42,6 +42,8 @@ in
           serviceConfig = {
             DynamicUser = true;
             StateDirectory = "affine";
+            User = "affine";
+            Group = "affine";
             Environment = [
               "UPLOAD_LOCATION=/var/lib/affine/data"
               "CONFIG_LOCATION=/var/lib/affine/config"
