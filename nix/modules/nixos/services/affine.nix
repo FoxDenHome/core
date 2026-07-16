@@ -70,6 +70,8 @@ in
             AFFINE_INDEXER_ENABLED = "false";
             LISTEN_ADDR = "127.0.0.1";
             AFFINE_SERVER_EXTERNAL_URL = "${proto}://${hostName}";
+            NODE_ENV = "production";
+            AFFINE_ENV ="production";
           };
 
           serviceConfig = {
