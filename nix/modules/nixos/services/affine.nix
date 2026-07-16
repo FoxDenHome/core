@@ -40,12 +40,18 @@ in
           ];
         };
 
+        users.users.foxcaves = {
+          isSystemUser = true;
+          home = "/var/lib/affine";
+          group = "affine";
+        };
+        users.groups.affine = { };
+
         systemd.services.affine = {
           after = [ "redis-affine.service" ];
           requires = [ "redis-affine.service" ];
 
           serviceConfig = {
-            DynamicUser = true;
             StateDirectory = "affine";
             User = "affine";
             Group = "affine";
