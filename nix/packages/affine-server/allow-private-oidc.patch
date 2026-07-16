@@ -1,0 +1,12 @@
+diff --git a/packages/backend/server/src/plugins/oauth/providers/oidc.ts b/packages/backend/server/src/plugins/oauth/providers/oidc.ts
+index 455cb6e773..cff773ed22 100644
+--- a/packages/backend/server/src/plugins/oauth/providers/oidc.ts
++++ b/packages/backend/server/src/plugins/oauth/providers/oidc.ts
+@@ -70,6 +70,7 @@ const OIDC_FETCH_OPTIONS = {
+   maxRedirects: 3,
+   maxBytes: 1024 * 1024,
+   allowedHeaders: ['accept'],
++  allowPrivateTargetOrigin: true,
+ };
+ 
+ @Injectable()
