@@ -54,9 +54,7 @@ in
           environment = {
             UPLOAD_LOCATION = "/var/lib/affine/data";
             CONFIG_LOCATION = "/var/lib/affine/config";
-            DATABASE_URL = "postgresql://affine@${
-              lib.replaceString "/" "%2F" config.foxDen.services.postgresql.socketPath
-            }/affine";
+            DATABASE_URL = "postgresql://affine@127.0.0.1:5432/affine";
             AFFINE_INDEXER_ENABLED = "false";
           };
 
