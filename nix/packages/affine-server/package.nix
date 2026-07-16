@@ -144,17 +144,28 @@ pkgs.stdenv.mkDerivation (finalAttrs: {
   buildPhase = ''
     runHook preBuild
 
-    yarn install
+    echo '=== NODE_MODULES ==='
+    yarn install || exit 1
+  
     echo '=== WEB ==='
     yarn affine @affine/web build || exit 1
     echo '=== ADMIN ==='
     yarn affine @affine/admin build || exit 1
     echo '=== MOBILE ==='
     yarn affine @affine/mobile build || exit 1
+
     echo '=== SEVER-NATIVE ==='
     yarn workspace @affine/server-native build || exit 1
     echo '=== SERVER ==='
     yarn workspace @affine/server build || exit 1
+
+    echo '=== SERVER NODE_MODULES ==='
+    rm -rf node_modules
+    yarn workspaces focus @affine/server --production || exit 1
+    yarn workspace @affine/server prisma generate || exit 1
+    AFFINE_DOCKER_CLEAN=1 node ./packages/backend/server/scripts/docker-clean.mjs
+    rm -rf node_modules/.bin
+    rm -f node_modules/@affine/{server,server-native,s3-compat}
 
     runHook postBuild
   '';
@@ -165,12 +176,12 @@ pkgs.stdenv.mkDerivation (finalAttrs: {
     mkdir -p "$out/share/affine-server/"
     cp -r packages/backend/server/* node_modules "$out/share/affine-server/"
     cp -r packages/frontend/apps/web/dist "$out/share/affine-server/static"
-    cp -r packages/frontend/apps/admin/dist "$out/share/affine-server/static/admin"
-    cp -r packages/frontend/apps/apps/mobile/dist "$out/share/affine-server/static/mobile"
+    cp -r packages/frontend/admin/dist "$out/share/affine-server/static/admin"
+    cp -r packages/frontend/apps/mobile/dist "$out/share/affine-server/static/mobile"
     mkdir -p "$out/bin"
     cp ${pkgs.writeShellScript "start.sh" ''
-      #!/usr/bin/env bash
-      cd "$(dirname "$0")/../share/affine"
+      set -e
+      cd "$(dirname "$0")/../share/affine-server"
       export PATH="$PATH:${pkgs.yarn-berry}/bin:${pkgs.prisma_6}/bin"
       ${pkgs.coreutils}/bin/mkdir -p "$CONFIG_LOCATION" "$UPLOAD_LOCATION"
       ${nodejs}/bin/node ./scripts/self-host-predeploy.js
