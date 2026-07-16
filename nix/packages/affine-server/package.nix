@@ -1,14 +1,12 @@
 {
   lib,
   pkgs,
-  nixpkgs,
   ...
 }:
 let
   buildType = "stable";
 
   hostPlatform = pkgs.stdenvNoCC.hostPlatform;
-  nodeArch = hostPlatform.node.arch;
   nodejs = pkgs.nodejs_22;
   yarn-berry = pkgs.yarn-berry_4.override { inherit nodejs; };
   productName = if buildType != "stable" then "AFFiNE-${buildType}" else "AFFiNE";
@@ -17,29 +15,23 @@ in
 pkgs.stdenv.mkDerivation (finalAttrs: {
   pname = binName;
 
-  version = "0.26.6";
+  version = "0.27.1";
   src = pkgs.fetchFromGitHub {
     owner = "toeverything";
     repo = "AFFiNE";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-aJeW8I7hx9VN5AU6gVq18cKO0QuKtc7JGUDbVsSXXE4=";
+    hash = "sha256-QyqH2P2Z/AKz9P2hNGvdJK2YX3tvSFIjQZegHD6bHhI=";
   };
-
-  patches = [
-    # Remove after upstream updates to Yarn 4.14
-    # https://github.com/toeverything/AFFiNE/blob/canary/package.json#L96
-    "${nixpkgs}/pkgs/by-name/af/affine/yarn-4.14-support.patch"
-  ];
 
   cargoDeps = pkgs.rustPlatform.fetchCargoVendor {
     inherit (finalAttrs) pname version src;
-    hash = "sha256-vZkKFUaNe9iIAkdUfXnnuD2lM6kuzwqj1Dyt5GAgXsM=";
+    hash = "sha256-BPcSWpDOmOoZxx4x8RMAOuZO+AiOvgbn8f2jGy3yLPQ=";
   };
 
   # keep yarnOfflineCache same output style with offlineCache = yarn-berry.fetchYarnBerryDeps { inherit (finalAttrs) src missingHashes; hash = "" };
   yarnOfflineCache = pkgs.stdenvNoCC.mkDerivation {
     name = "yarn-offline-cache";
-    inherit (finalAttrs) src patches;
+    inherit (finalAttrs) src;
     nativeBuildInputs = [
       yarn-berry
       pkgs.cacert
@@ -83,7 +75,7 @@ pkgs.stdenv.mkDerivation (finalAttrs: {
       '';
     dontInstall = true;
     outputHashMode = "recursive";
-    outputHash = "sha256-mNvvKbj9mUioh5Jw4CcRt0CpX1IcQC8JOxUnyy0Lw9c=";
+    outputHash = "sha256-duG+rlX0yvVml9kj66AY+CzM0TCdhk0YcMXNUc2qkis=";
   };
 
   nativeBuildInputs =
@@ -122,6 +114,8 @@ pkgs.stdenv.mkDerivation (finalAttrs: {
     PRISMA_INTROSPECTION_ENGINE_BINARY = lib.getExe' pkgs.prisma-engines_6 "introspection-engine";
     PRISMA_FMT_BINARY = lib.getExe' pkgs.prisma-engines_6 "prisma-fmt";
 
+    BUILD_TYPE = buildType;
+    CARGO_NET_OFFLINE = "true";
     ELECTRON_SKIP_BINARY_DOWNLOAD = "1";
   };
 
@@ -138,6 +132,10 @@ pkgs.stdenv.mkDerivation (finalAttrs: {
     yarn config set enableTelemetry false
     yarn config set enableGlobalCache false
     yarn config set cacheFolder $yarnOfflineCache/cache
+    yarn config set nmMode classic
+
+    # overrides
+    cp ${./native-index.js} ./packages/backend/native/index.js
 
     runHook postConfigure
   '';
@@ -145,11 +143,17 @@ pkgs.stdenv.mkDerivation (finalAttrs: {
   buildPhase = ''
     runHook preBuild
 
-    cd packages/backend/server
     yarn install
-    CARGO_NET_OFFLINE=true yarn affine @affine/server-native build
-    BUILD_TYPE=${buildType} yarn affine @affine/server build
-    cd ../../..
+    echo '=== WEB ==='
+    yarn affine @affine/web build
+    echo '=== ADMIN ==='
+    yarn affine @affine/admin build
+    echo '=== MOBILE ==='
+    yarn affine @affine/mobile build
+    echo '=== SEVER-NATIVE ==='
+    yarn workspace @affine/server-native build
+    echo '=== SERVER ==='
+    yarn workspace @affine/server build
 
     runHook postBuild
   '';
@@ -157,7 +161,15 @@ pkgs.stdenv.mkDerivation (finalAttrs: {
   installPhase = ''
     runHook preInstall
 
-    ls -Rla packages/backend/server
+    cp -r packages/backend/server "$out"
+    mkdir -p "$out/bin"
+    cp ${pkgs.writeShellScript "start.sh" ''
+      #!/usr/bin/env bash
+      cd "$(dirname "$0")"
+      ${pkgs.coreutils}/bin/mkdir -p "$CONFIG_LOCATION" "$UPLOAD_LOCATION"
+      ${nodejs}/bin/node ./scripts/self-host-predeploy.js
+      exec ${nodejs}/bin/node ./dist/main.js
+    ''} "$out/bin/affine-server"
 
     runHook postInstall
   '';
