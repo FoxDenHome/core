@@ -186,8 +186,10 @@ pkgs.stdenv.mkDerivation (finalAttrs: {
       export PRISMA_INTROSPECTION_ENGINE_BINARY="${env.PRISMA_INTROSPECTION_ENGINE_BINARY}"
       export PRISMA_FMT_BINARY="${env.PRISMA_FMT_BINARY}"
 
+      echo '=== PREPARE SERVER ==='
       ${pkgs.coreutils}/bin/mkdir -p "$CONFIG_LOCATION" "$UPLOAD_LOCATION"
       ${nodejs}/bin/node ./scripts/self-host-predeploy.js
+      echo '=== RUN SERVER ==='
       exec ${nodejs}/bin/node ./dist/main.js
     ''} "$out/bin/affine-server"
 
