@@ -48,6 +48,7 @@ in
               "DATABASE_URL=postgresql://affine@${lib.replaceString "/" "%2F" config.foxDen.services.postgresql.socketPath}/affine"
               "AFFINE_INDEXER_ENABLED=false"
             ];
+            ExecStart = [ "${pkgs.affine}/bin/affine" ];
           };
           wantedBy = [ "multi-user.target" ];
         };
