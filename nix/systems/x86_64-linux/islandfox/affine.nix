@@ -5,7 +5,7 @@ in
 {
   foxDen.services = config.lib.foxDen.sops.mkIfAvailable {
     affine = {
-      enable = true;
+      enable = false;
       host = "affine";
     };
   };

@@ -45,10 +45,12 @@ in
             Environment = [
               "UPLOAD_LOCATION=/var/lib/affine/data"
               "CONFIG_LOCATION=/var/lib/affine/config"
-              "\"DATABASE_URL=postgresql://affine@${lib.replaceString "/" "%2F" config.foxDen.services.postgresql.socketPath}/affine\""
+              "\"DATABASE_URL=postgresql://affine@${
+                lib.replaceString "/" "%2F" config.foxDen.services.postgresql.socketPath
+              }/affine\""
               "AFFINE_INDEXER_ENABLED=false"
             ];
-            ExecStart = [ "${pkgs.affine}/bin/affine" ];
+            ExecStart = [ "${pkgs.affine-server}/bin/affine" ];
           };
           wantedBy = [ "multi-user.target" ];
         };
