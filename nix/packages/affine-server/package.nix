@@ -78,13 +78,6 @@ pkgs.stdenv.mkDerivation (finalAttrs: {
     outputHash = "sha256-duG+rlX0yvVml9kj66AY+CzM0TCdhk0YcMXNUc2qkis=";
   };
 
-  buildInputs =
-    with pkgs;
-    [
-      yarn-berry
-      prisma_6
-    ];
-
   nativeBuildInputs =
     with pkgs;
     [
@@ -172,7 +165,8 @@ pkgs.stdenv.mkDerivation (finalAttrs: {
     mkdir -p "$out/bin"
     cp ${pkgs.writeShellScript "start.sh" ''
       #!/usr/bin/env bash
-      cd "$(dirname "$0")"
+      cd "$(dirname "$0")/.."
+      export PATH="$PATH:${pkgs.yarn-berry}/bin:${pkgs.prisma_6}/bin"
       ${pkgs.coreutils}/bin/mkdir -p "$CONFIG_LOCATION" "$UPLOAD_LOCATION"
       ${nodejs}/bin/node ./scripts/self-host-predeploy.js
       exec ${nodejs}/bin/node ./dist/main.js
