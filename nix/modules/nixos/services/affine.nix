@@ -54,7 +54,7 @@ in
           environment = {
             UPLOAD_LOCATION = "/var/lib/affine/data";
             CONFIG_LOCATION = "/var/lib/affine/config";
-            DATABASE_URL = "postgres://affine@/affine?host=${config.foxDen.services.postgresql.socketPath}";
+            DATABASE_URL = "postgres://affine@localhost/affine?host=${config.foxDen.services.postgresql.socketPath}";
             AFFINE_INDEXER_ENABLED = "false";
           };
 
