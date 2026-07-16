@@ -6,8 +6,8 @@
 let
   buildType = "stable";
 
-  nodejs = pkgs.nodejs_22;
-  yarn-berry-custom = pkgs.yarn-berry_4.override { inherit nodejs; };
+  nodejs-custom = pkgs.nodejs_22;
+  yarn-berry-custom = pkgs.yarn-berry_4.override { nodejs = nodejs-custom; };
   productName = if buildType != "stable" then "AFFiNE-${buildType}" else "AFFiNE";
   binName = lib.toLower productName;
 
@@ -89,7 +89,7 @@ pkgs.stdenv.mkDerivation (finalAttrs: {
     cargo
     findutils
     jq
-    nodejs
+    nodejs-custom
     openssl
     pkg-config
     prisma_6
@@ -175,7 +175,7 @@ pkgs.stdenv.mkDerivation (finalAttrs: {
       set -e
       cd "$(dirname "$0")/../share/affine-server"
 
-      export PATH="$PATH:${yarn-berry-custom}/bin:${pkgs.prisma_6}/bin:${pkgs.pkg-config}/bin"
+      export PATH="$PATH:${nodejs-custom}/bin:${yarn-berry-custom}/bin:${pkgs.prisma_6}/bin:${pkgs.pkg-config}/bin"
       export PKG_CONFIG_PATH="${lib.getLib pkgs.openssl.dev}/lib/pkgconfig;"
 
       export PRISMA_SCHEMA_ENGINE_BINARY="${env.PRISMA_SCHEMA_ENGINE_BINARY}"
@@ -186,9 +186,9 @@ pkgs.stdenv.mkDerivation (finalAttrs: {
 
       echo '=== PREPARE SERVER ==='
       ${pkgs.coreutils}/bin/mkdir -p "$CONFIG_LOCATION" "$UPLOAD_LOCATION"
-      ${nodejs}/bin/node ./scripts/self-host-predeploy.js
+      ${nodejs-custom}/bin/node ./scripts/self-host-predeploy.js
       echo '=== RUN SERVER ==='
-      exec ${nodejs}/bin/node ./dist/main.js
+      exec ${nodejs-custom}/bin/node ./dist/main.js
     ''} "$out/bin/affine-server"
 
     runHook postInstall
