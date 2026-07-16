@@ -26,8 +26,6 @@ in
         name = "affine";
       }).config
       {
-        sops.secrets.affine = config.lib.foxDen.sops.mkIfAvailable { };
-
         foxDen.services.postgresql = {
           enable = true;
           services = [
