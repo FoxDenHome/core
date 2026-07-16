@@ -66,8 +66,6 @@ in
           requires = [ "redis-affine.service" ];
 
           environment = {
-            UPLOAD_LOCATION = "/var/lib/affine/data";
-            CONFIG_LOCATION = "/var/lib/affine/config";
             DATABASE_URL = "postgres://affine@localhost/affine?host=/run/postgresql/";
             AFFINE_INDEXER_ENABLED = "false";
             LISTEN_ADDR = "127.0.0.1";

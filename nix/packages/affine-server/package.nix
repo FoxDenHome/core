@@ -186,7 +186,6 @@ pkgs.stdenv.mkDerivation (finalAttrs: {
       export PRISMA_FMT_BINARY="${env.PRISMA_FMT_BINARY}"
 
       echo '=== PREPARE SERVER ==='
-      ${pkgs.coreutils}/bin/mkdir -p "$CONFIG_LOCATION" "$UPLOAD_LOCATION"
       ${nodejs-custom}/bin/node ./scripts/self-host-predeploy.js
       echo '=== RUN SERVER ==='
       exec ${nodejs-custom}/bin/node ./dist/main.js
