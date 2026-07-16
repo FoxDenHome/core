@@ -175,7 +175,7 @@ pkgs.stdenv.mkDerivation (finalAttrs: {
       set -e
       cd "$(dirname "$0")/../share/affine-server"
 
-      export PATH="$PATH:${yarn-berry-custom}/bin:${pkgs.prisma_6}/bin"
+      export PATH="$PATH:${yarn-berry-custom}/bin:${pkgs.prisma_6}/bin:${pkgs.pkg-config}/bin"
       export PKG_CONFIG_PATH="${lib.getLib pkgs.openssl.dev}/lib/pkgconfig;"
 
       export PRISMA_SCHEMA_ENGINE_BINARY="${env.PRISMA_SCHEMA_ENGINE_BINARY}"

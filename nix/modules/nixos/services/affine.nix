@@ -48,11 +48,6 @@ in
         users.groups.affine = { };
 
         systemd.services.affine = {
-          confinement.packages = with pkgs; [
-            openssl
-            pkg-config
-          ];
-
           after = [ "redis-affine.service" ];
           requires = [ "redis-affine.service" ];
 
