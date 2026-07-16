@@ -50,6 +50,7 @@ in
         systemd.services.affine = {
           confinement.packages = with pkgs; [
             openssl
+            pkg-config
           ];
 
           after = [ "redis-affine.service" ];
