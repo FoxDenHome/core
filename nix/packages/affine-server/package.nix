@@ -6,11 +6,18 @@
 let
   buildType = "stable";
 
-  hostPlatform = pkgs.stdenvNoCC.hostPlatform;
   nodejs = pkgs.nodejs_22;
   yarn-berry-custom = pkgs.yarn-berry_4.override { inherit nodejs; };
   productName = if buildType != "stable" then "AFFiNE-${buildType}" else "AFFiNE";
   binName = lib.toLower productName;
+
+  env = {
+    PRISMA_SCHEMA_ENGINE_BINARY = lib.getExe' pkgs.prisma-engines_6 "schema-engine";
+    PRISMA_QUERY_ENGINE_BINARY = lib.getExe' pkgs.prisma-engines_6 "query-engine";
+    PRISMA_QUERY_ENGINE_LIBRARY = "${pkgs.prisma-engines_6}/lib/libquery_engine.node";
+    PRISMA_INTROSPECTION_ENGINE_BINARY = lib.getExe' pkgs.prisma-engines_6 "introspection-engine";
+    PRISMA_FMT_BINARY = lib.getExe' pkgs.prisma-engines_6 "prisma-fmt";
+  };
 in
 pkgs.stdenv.mkDerivation (finalAttrs: {
   pname = binName;
@@ -81,31 +88,23 @@ pkgs.stdenv.mkDerivation (finalAttrs: {
   nativeBuildInputs =
     with pkgs;
     [
-      nodejs
-      yarn-berry-custom
       cargo
-      rustc
       findutils
-      zip
       jq
-      rsync
+      nodejs
+      openssl
+      pkg-config
       prisma_6
-      openssl_3
+      rsync
+      rustc
       writableTmpDirAsHomeHook
+      yarn-berry-custom
+      zip
     ];
 
-  env = {
+  env = env // {
     # force yarn install run in CI mode
     CI = "1";
-    # `LIBCLANG_PATH` is needed to build `coreaudio-sys` on darwin
-    LIBCLANG_PATH = lib.optionalString hostPlatform.isDarwin "${lib.getLib pkgs.llvmPackages.libclang}/lib";
-
-    PRISMA_SCHEMA_ENGINE_BINARY = lib.getExe' pkgs.prisma-engines_6 "schema-engine";
-    PRISMA_QUERY_ENGINE_BINARY = lib.getExe' pkgs.prisma-engines_6 "query-engine";
-    PRISMA_QUERY_ENGINE_LIBRARY = "${pkgs.prisma-engines_6}/lib/libquery_engine.node";
-    PRISMA_INTROSPECTION_ENGINE_BINARY = lib.getExe' pkgs.prisma-engines_6 "introspection-engine";
-    PRISMA_FMT_BINARY = lib.getExe' pkgs.prisma-engines_6 "prisma-fmt";
-
     BUILD_TYPE = buildType;
     CARGO_NET_OFFLINE = "true";
     ELECTRON_SKIP_BINARY_DOWNLOAD = "1";
@@ -157,9 +156,11 @@ pkgs.stdenv.mkDerivation (finalAttrs: {
     yarn workspace @affine/server build || exit 1
 
     echo '=== SERVER CLEANUP ==='
-    rm -rf node_modules packages/frontend
+    rm -rf node_modules
     yarn workspaces focus @affine/server --production || exit 1
     yarn workspace @affine/server prisma generate || exit 1
+    rm -rf node_modules/.bin
+    rm -f node_modules/@affine/{server,server-native,s3-compat}
 
     runHook postBuild
   '';
@@ -167,22 +168,31 @@ pkgs.stdenv.mkDerivation (finalAttrs: {
   installPhase = ''
     runHook preInstall
 
-    mkdir -p "$out/share/affine/"
-    mv yarn.lock package.json node_modules packages "$out/share/affine/"
+    mkdir -p "$out/share/affine-server/"
+    mv node_modules packages/backend/server/* "$out/share/affine-server/"
+    ln -sf /dev/null "$out/share/affine-server/src/schema.gql"
 
     mkdir -p "$out/bin"
     cp ${pkgs.writeShellScript "start.sh" ''
       set -e
-      cd "$(dirname "$0")/../share/affine"
+      cd "$(dirname "$0")/../share/affine-server"
+
       export PATH="$PATH:${yarn-berry-custom}/bin:${pkgs.prisma_6}/bin"
+      export PKG_CONFIG_PATH="${lib.getLib pkgs.openssl.dev}/lib/pkgconfig;"
+
+      export PRISMA_SCHEMA_ENGINE_BINARY="${env.PRISMA_SCHEMA_ENGINE_BINARY}"
+      export PRISMA_QUERY_ENGINE_BINARY="${env.PRISMA_QUERY_ENGINE_BINARY}"
+      export PRISMA_QUERY_ENGINE_LIBRARY="${env.PRISMA_QUERY_ENGINE_LIBRARY}"
+      export PRISMA_INTROSPECTION_ENGINE_BINARY="${env.PRISMA_INTROSPECTION_ENGINE_BINARY}"
+      export PRISMA_FMT_BINARY="${env.PRISMA_FMT_BINARY}"
+
       ${pkgs.coreutils}/bin/mkdir -p "$CONFIG_LOCATION" "$UPLOAD_LOCATION"
-      ${nodejs}/bin/node ./packages/backend/server/scripts/self-host-predeploy.js
-      exec ${nodejs}/bin/node ./packages/backend/server/dist/main.js
-    ''} "$out/bin/affine"
+      ${nodejs}/bin/node ./scripts/self-host-predeploy.js
+      exec ${nodejs}/bin/node ./dist/main.js
+    ''} "$out/bin/affine-server"
 
     runHook postInstall
   '';
-
   meta = {
     description = "Workspace with fully merged docs, whiteboards and databases";
     longDescription = ''
