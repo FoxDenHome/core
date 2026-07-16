@@ -19,7 +19,7 @@ in
       (services.http.make {
         inherit svcConfig pkgs config;
         name = "http-affine";
-        target = "proxy_pass http://127.0.0.1:3000;";
+        target = "proxy_pass http://127.0.0.1:3010;";
       }).config
       (services.make {
         inherit svcConfig pkgs config;
