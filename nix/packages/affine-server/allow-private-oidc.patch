@@ -1,3 +1,15 @@
+diff --git a/packages/backend/server/src/plugins/oauth/providers/def.ts b/packages/backend/server/src/plugins/oauth/providers/def.ts
+index ccfba7797f..174fb91037 100644
+--- a/packages/backend/server/src/plugins/oauth/providers/def.ts
++++ b/packages/backend/server/src/plugins/oauth/providers/def.ts
+@@ -92,6 +92,7 @@ export abstract class OAuthProvider {
+         maxRedirects: 3,
+         maxBytes: 1024 * 1024,
+         allowedHeaders: ['authorization', 'content-type', 'accept'],
++        allowPrivateTargetOrigin: true,
+       }
+     );
+ 
 diff --git a/packages/backend/server/src/plugins/oauth/providers/oidc.ts b/packages/backend/server/src/plugins/oauth/providers/oidc.ts
 index 455cb6e773..cff773ed22 100644
 --- a/packages/backend/server/src/plugins/oauth/providers/oidc.ts
