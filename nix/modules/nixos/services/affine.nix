@@ -50,7 +50,7 @@ in
               }/affine\""
               "AFFINE_INDEXER_ENABLED=false"
             ];
-            ExecStart = [ "${pkgs.affine-server}/bin/affine" ];
+            ExecStart = [ "${pkgs.affine-server}/bin/affine-server" ];
           };
           wantedBy = [ "multi-user.target" ];
         };
