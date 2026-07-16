@@ -8,6 +8,11 @@ in
       enable = true;
       tls.enable = true;
       host = "affine";
+      oAuth = {
+        enable = true;
+        clientId = "affine";
+        displayName = "docs (AFFiNE)";
+      };
     };
   };
 

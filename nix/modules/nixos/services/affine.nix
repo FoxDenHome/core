@@ -30,6 +30,17 @@ in
         name = "affine";
       }).config
       {
+        foxDen.services.affine.oAuth.overrideService = true;
+
+        foxDen.services.kanidm.oauth2 = lib.mkIf svcConfig.oAuth.enable {
+          ${svcConfig.oAuth.clientId} = (
+            services.http.mkOauthConfig {
+              inherit svcConfig config;
+              oAuthCallbackUrl = "/oauth/callback";
+            }
+          );
+        };
+
         foxDen.services.postgresql = {
           enable = true;
           services = [
