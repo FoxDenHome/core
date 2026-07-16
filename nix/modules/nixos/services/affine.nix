@@ -25,6 +25,10 @@ in
         inherit svcConfig pkgs config;
         name = "affine";
       }).config
+      (foxDenLib.services.redis.make {
+        inherit pkgs config svcConfig;
+        name = "affine";
+      }).config
       {
         foxDen.services.postgresql = {
           enable = true;
@@ -37,6 +41,9 @@ in
         };
 
         systemd.services.affine = {
+          after = [ "redis-affine.service" ];
+          requires = [ "redis-affine.service" ];
+
           serviceConfig = {
             DynamicUser = true;
             StateDirectory = "affine";
