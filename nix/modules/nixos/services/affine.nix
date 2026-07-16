@@ -55,18 +55,19 @@ in
           after = [ "redis-affine.service" ];
           requires = [ "redis-affine.service" ];
 
+          environment = {
+            UPLOAD_LOCATION = "/var/lib/affine/data";
+            CONFIG_LOCATION = "/var/lib/affine/config";
+            DATABASE_URL = "postgresql://affine@${
+              lib.replaceString "/" "%2F" config.foxDen.services.postgresql.socketPath
+            }/affine";
+            AFFINE_INDEXER_ENABLED = "false";
+          };
+
           serviceConfig = {
             StateDirectory = "affine";
             User = "affine";
             Group = "affine";
-            Environment = [
-              "UPLOAD_LOCATION=/var/lib/affine/data"
-              "CONFIG_LOCATION=/var/lib/affine/config"
-              "\"DATABASE_URL=postgresql://affine@${
-                lib.replaceString "/" "%2F" config.foxDen.services.postgresql.socketPath
-              }/affine\""
-              "AFFINE_INDEXER_ENABLED=false"
-            ];
             ExecStart = [ "${pkgs.affine-server}/bin/affine-server" ];
           };
           wantedBy = [ "multi-user.target" ];

@@ -85,22 +85,20 @@ pkgs.stdenv.mkDerivation (finalAttrs: {
     outputHash = "sha256-duG+rlX0yvVml9kj66AY+CzM0TCdhk0YcMXNUc2qkis=";
   };
 
-  nativeBuildInputs =
-    with pkgs;
-    [
-      cargo
-      findutils
-      jq
-      nodejs
-      openssl
-      pkg-config
-      prisma_6
-      rsync
-      rustc
-      writableTmpDirAsHomeHook
-      yarn-berry-custom
-      zip
-    ];
+  nativeBuildInputs = with pkgs; [
+    cargo
+    findutils
+    jq
+    nodejs
+    openssl
+    pkg-config
+    prisma_6
+    rsync
+    rustc
+    writableTmpDirAsHomeHook
+    yarn-berry-custom
+    zip
+  ];
 
   env = env // {
     # force yarn install run in CI mode
