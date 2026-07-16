@@ -78,6 +78,13 @@ pkgs.stdenv.mkDerivation (finalAttrs: {
     outputHash = "sha256-duG+rlX0yvVml9kj66AY+CzM0TCdhk0YcMXNUc2qkis=";
   };
 
+  buildInputs =
+    with pkgs;
+    [
+      yarn-berry
+      prisma_6
+    ];
+
   nativeBuildInputs =
     with pkgs;
     [
