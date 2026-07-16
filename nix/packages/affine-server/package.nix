@@ -117,6 +117,7 @@ pkgs.stdenv.mkDerivation (finalAttrs: {
     BUILD_TYPE = buildType;
     CARGO_NET_OFFLINE = "true";
     ELECTRON_SKIP_BINARY_DOWNLOAD = "1";
+    GITHUB_SHA = "ffffffffffffffffffffffffffffffffffffffff";
   };
 
   # FIXME: use `yarn config set cacheFolder $offlineCache/cache`
@@ -145,15 +146,15 @@ pkgs.stdenv.mkDerivation (finalAttrs: {
 
     yarn install
     echo '=== WEB ==='
-    yarn affine @affine/web build
+    yarn affine @affine/web build || exit 1
     echo '=== ADMIN ==='
-    yarn affine @affine/admin build
+    yarn affine @affine/admin build || exit 1
     echo '=== MOBILE ==='
-    yarn affine @affine/mobile build
+    yarn affine @affine/mobile build || exit 1
     echo '=== SEVER-NATIVE ==='
-    yarn workspace @affine/server-native build
+    yarn workspace @affine/server-native build || exit 1
     echo '=== SERVER ==='
-    yarn workspace @affine/server build
+    yarn workspace @affine/server build || exit 1
 
     runHook postBuild
   '';
@@ -161,11 +162,15 @@ pkgs.stdenv.mkDerivation (finalAttrs: {
   installPhase = ''
     runHook preInstall
 
-    cp -r packages/backend/server "$out"
+    mkdir -p "$out/share/affine-server/"
+    cp -r packages/backend/server/* node_modules "$out/share/affine-server/"
+    cp -r packages/frontend/apps/web/dist "$out/share/affine-server/static"
+    cp -r packages/frontend/apps/admin/dist "$out/share/affine-server/static/admin"
+    cp -r packages/frontend/apps/apps/mobile/dist "$out/share/affine-server/static/mobile"
     mkdir -p "$out/bin"
     cp ${pkgs.writeShellScript "start.sh" ''
       #!/usr/bin/env bash
-      cd "$(dirname "$0")/.."
+      cd "$(dirname "$0")/../share/affine"
       export PATH="$PATH:${pkgs.yarn-berry}/bin:${pkgs.prisma_6}/bin"
       ${pkgs.coreutils}/bin/mkdir -p "$CONFIG_LOCATION" "$UPLOAD_LOCATION"
       ${nodejs}/bin/node ./scripts/self-host-predeploy.js
