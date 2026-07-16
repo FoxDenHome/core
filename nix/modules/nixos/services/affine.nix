@@ -7,7 +7,10 @@
 }:
 let
   services = foxDenLib.services;
+
   svcConfig = config.foxDen.services.affine;
+  hostName = services.getFirstFQDN config svcConfig;
+  proto = if svcConfig.tls.enable then "https" else "http";
 in
 {
   options.foxDen.services.affine = services.http.mkOptions {
@@ -67,6 +70,7 @@ in
             CONFIG_LOCATION = "/var/lib/affine/config";
             DATABASE_URL = "postgres://affine@localhost/affine?host=/run/postgresql/";
             AFFINE_INDEXER_ENABLED = "false";
+            AFFINE_SERVER_EXTERNAL_URL = "${proto}://${hostName}";
           };
 
           serviceConfig = {
