@@ -1,0 +1,46 @@
+diff --git a/packages/backend/server/scripts/self-host-predeploy.js b/packages/backend/server/scripts/self-host-predeploy.js
+index 531dd00c10..f72f40400f 100644
+--- a/packages/backend/server/scripts/self-host-predeploy.js
++++ b/packages/backend/server/scripts/self-host-predeploy.js
+@@ -40,7 +40,7 @@ function prepare() {
+ 
+ function runPrismaMigrations() {
+   console.log('running prisma migrations.');
+-  execSync('yarn prisma migrate deploy', {
++  execSync('prisma migrate deploy', {
+     encoding: 'utf-8',
+     env: process.env,
+     stdio: 'inherit',
+@@ -53,7 +53,7 @@ function repairPgvectorEmbeddingTables() {
+     path.join(import.meta.dirname, 'repair-pgvector-embedding-tables.sql'),
+     'utf-8'
+   );
+-  execSync('yarn prisma db execute --stdin --schema schema.prisma', {
++  execSync('prisma db execute --stdin --schema schema.prisma', {
+     encoding: 'utf-8',
+     env: process.env,
+     input: sql,
+@@ -63,9 +63,12 @@ function repairPgvectorEmbeddingTables() {
+ 
+ function runDataMigrations() {
+   console.log('running data migrations.');
+-  execSync('yarn cli run', {
++  execSync('node ./dist/main.js run', {
+     encoding: 'utf-8',
+-    env: process.env,
++    env: {
++      ...process.env,
++      SERVER_FLAVOR: 'script'
++    },
+     stdio: 'inherit',
+   });
+ }
+@@ -77,7 +80,7 @@ function fixFailedMigrations() {
+   ];
+   for (const migration of maybeFailedMigrations) {
+     try {
+-      execSync(`yarn prisma migrate resolve --rolled-back ${migration}`, {
++      execSync(`prisma migrate resolve --rolled-back ${migration}`, {
+         encoding: 'utf-8',
+         env: process.env,
+         stdio: 'pipe',

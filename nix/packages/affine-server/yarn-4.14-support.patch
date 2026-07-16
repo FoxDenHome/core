@@ -1,0 +1,26 @@
+diff --git a/.yarnrc.yml b/.yarnrc.yml
+index 93e97ab31d..18f597d855 100644
+--- a/.yarnrc.yml
++++ b/.yarnrc.yml
+@@ -12,4 +12,7 @@ npmPublishAccess: public
+
+ npmRegistryServer: "https://registry.npmjs.org"
+
+-yarnPath: .yarn/releases/yarn-4.13.0.cjs
++approvedGitRepositories:
++  - "**"
++
++enableScripts: true
+diff --git a/yarn.lock b/yarn.lock
+index bf0c0053c7..2abcfb9ba1 100644
+--- a/yarn.lock
++++ b/yarn.lock
+@@ -2,7 +2,7 @@
+ # Manual changes might be lost - proceed with caution!
+
+ __metadata:
+-  version: 8
++  version: 9
+   cacheKey: 10
+
+ "7zip-bin@npm:~5.2.0":

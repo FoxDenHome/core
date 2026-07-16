@@ -8,7 +8,7 @@ let
 
   hostPlatform = pkgs.stdenvNoCC.hostPlatform;
   nodejs = pkgs.nodejs_22;
-  yarn-berry = pkgs.yarn-berry_4.override { inherit nodejs; };
+  yarn-berry-custom = pkgs.yarn-berry_4.override { inherit nodejs; };
   productName = if buildType != "stable" then "AFFiNE-${buildType}" else "AFFiNE";
   binName = lib.toLower productName;
 in
@@ -33,7 +33,7 @@ pkgs.stdenv.mkDerivation (finalAttrs: {
     name = "yarn-offline-cache";
     inherit (finalAttrs) src;
     nativeBuildInputs = [
-      yarn-berry
+      yarn-berry-custom
       pkgs.cacert
       pkgs.writableTmpDirAsHomeHook
     ];
@@ -82,7 +82,7 @@ pkgs.stdenv.mkDerivation (finalAttrs: {
     with pkgs;
     [
       nodejs
-      yarn-berry
+      yarn-berry-custom
       cargo
       rustc
       findutils
@@ -92,14 +92,6 @@ pkgs.stdenv.mkDerivation (finalAttrs: {
       prisma_6
       openssl_3
       writableTmpDirAsHomeHook
-    ]
-    ++ lib.optionals hostPlatform.isLinux [
-      copyDesktopItems
-      makeWrapper
-    ]
-    ++ lib.optionals hostPlatform.isDarwin [
-      # bindgenHook is needed to build `coreaudio-sys` on darwin
-      rustPlatform.bindgenHook
     ];
 
   env = {
@@ -136,6 +128,8 @@ pkgs.stdenv.mkDerivation (finalAttrs: {
     yarn config set nmMode classic
 
     # overrides
+    patch -p1 -i ${./yarn-4.14-support.patch}
+    patch -p1 -i ${./no-yarn-setup.patch}
     cp ${./native-index.js} ./packages/backend/native/index.js
 
     runHook postConfigure
@@ -146,26 +140,26 @@ pkgs.stdenv.mkDerivation (finalAttrs: {
 
     echo '=== NODE_MODULES ==='
     yarn install || exit 1
-  
+
     echo '=== WEB ==='
     yarn affine @affine/web build || exit 1
+    mv packages/frontend/apps/web/dist packages/backend/server/static || exit 1
     echo '=== ADMIN ==='
     yarn affine @affine/admin build || exit 1
+    mv packages/frontend/admin/dist packages/backend/server/static/admin || exit 1
     echo '=== MOBILE ==='
     yarn affine @affine/mobile build || exit 1
+    mv packages/frontend/apps/mobile/dist packages/backend/server/static/mobile || exit 1
 
     echo '=== SEVER-NATIVE ==='
     yarn workspace @affine/server-native build || exit 1
     echo '=== SERVER ==='
     yarn workspace @affine/server build || exit 1
 
-    echo '=== SERVER NODE_MODULES ==='
-    rm -rf node_modules
+    echo '=== SERVER CLEANUP ==='
+    rm -rf node_modules packages/frontend
     yarn workspaces focus @affine/server --production || exit 1
     yarn workspace @affine/server prisma generate || exit 1
-    AFFINE_DOCKER_CLEAN=1 node ./packages/backend/server/scripts/docker-clean.mjs
-    rm -rf node_modules/.bin
-    rm -f node_modules/@affine/{server,server-native,s3-compat}
 
     runHook postBuild
   '';
@@ -173,20 +167,18 @@ pkgs.stdenv.mkDerivation (finalAttrs: {
   installPhase = ''
     runHook preInstall
 
-    mkdir -p "$out/share/affine-server/"
-    cp -r packages/backend/server/* node_modules "$out/share/affine-server/"
-    cp -r packages/frontend/apps/web/dist "$out/share/affine-server/static"
-    cp -r packages/frontend/admin/dist "$out/share/affine-server/static/admin"
-    cp -r packages/frontend/apps/mobile/dist "$out/share/affine-server/static/mobile"
+    mkdir -p "$out/share/affine/"
+    mv yarn.lock package.json node_modules packages "$out/share/affine/"
+
     mkdir -p "$out/bin"
     cp ${pkgs.writeShellScript "start.sh" ''
       set -e
-      cd "$(dirname "$0")/../share/affine-server"
-      export PATH="$PATH:${pkgs.yarn-berry}/bin:${pkgs.prisma_6}/bin"
+      cd "$(dirname "$0")/../share/affine"
+      export PATH="$PATH:${yarn-berry-custom}/bin:${pkgs.prisma_6}/bin"
       ${pkgs.coreutils}/bin/mkdir -p "$CONFIG_LOCATION" "$UPLOAD_LOCATION"
-      ${nodejs}/bin/node ./scripts/self-host-predeploy.js
-      exec ${nodejs}/bin/node ./dist/main.js
-    ''} "$out/bin/affine-server"
+      ${nodejs}/bin/node ./packages/backend/server/scripts/self-host-predeploy.js
+      exec ${nodejs}/bin/node ./packages/backend/server/dist/main.js
+    ''} "$out/bin/affine"
 
     runHook postInstall
   '';
