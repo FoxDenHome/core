@@ -16,6 +16,7 @@ let
     "$schema" = "https://github.com/toeverything/affine/releases/latest/download/config.schema.json";
     server = {
       name = "FoxDen Docs";
+      host = hostName;
       externalUrl = "${proto}://${hostName}";
       listenAddr = "127.0.0.1";
     };
