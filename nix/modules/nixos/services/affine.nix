@@ -34,7 +34,7 @@ let
     indexer = {
       enabled = false;
     };
-    throttler = {
+    throttle = {
       enabled = false;
     };
     auth = {
