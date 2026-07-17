@@ -11,6 +11,39 @@ let
   svcConfig = config.foxDen.services.affine;
   hostName = services.getFirstFQDN config svcConfig;
   proto = if svcConfig.tls.enable then "https" else "http";
+
+  cfgJson = {
+    "$schema" = "https://github.com/toeverything/affine/releases/latest/download/config.schema.json";
+    server = {
+      name = "FoxDen Docs";
+      externalUrl = "${proto}://${hostName}";
+      listenAddr = "127.0.0.1";
+    };
+    indexer = {
+      enabled = false;
+    };
+    auth = {
+      allowSignup = false;
+      allowSignupForOauth = svcConfig.oAuth.enable;
+      newAccountShareActionDelay = 3;
+    };
+    websocket = {
+      transports = [ "websocket" ];
+    };
+    oauth = {
+      "providers.oidc" =
+        if svcConfig.oAuth.enable then
+          {
+            args = { };
+            issuer = "https://auth.foxden.network/oauth2/${svcConfig.oAuth.clientId}/affine";
+            clientId = svcConfig.oAuth.clientId;
+            # This must be non-blank for AFFiNE to be happy, so just provide the client ID...
+            clientSecret = svcConfig.oAuth.clientId;
+          }
+        else
+          { };
+    };
+  };
 in
 {
   options.foxDen.services.affine = services.http.mkOptions {
@@ -67,9 +100,6 @@ in
 
           environment = {
             DATABASE_URL = "postgres://affine@localhost/affine?host=/run/postgresql/";
-            AFFINE_INDEXER_ENABLED = "false";
-            LISTEN_ADDR = "127.0.0.1";
-            AFFINE_SERVER_EXTERNAL_URL = "${proto}://${hostName}";
           };
 
           serviceConfig = {
@@ -77,6 +107,9 @@ in
             User = "affine";
             Group = "affine";
             ExecStart = [ "${pkgs.affine-server}/bin/affine-server" ];
+            BindReadOnlyPaths = [
+              "${builtins.toFile "config.json" (builtins.toJSON cfgJson)}:/var/lib/affine/.affine/config/config.json"
+            ];
           };
           wantedBy = [ "multi-user.target" ];
         };
