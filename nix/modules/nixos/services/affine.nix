@@ -154,6 +154,8 @@ in
 
           environment = {
             DATABASE_URL = "postgres://affine@localhost/affine?host=/run/postgresql/";
+            AFFINE_INDEXER_SEARCH_SOCKET =
+              if svcConfig.indexer then config.foxDen.services.opensearch.socketPath else "";
             DEBUG_LOGGING = "false";
           };
 

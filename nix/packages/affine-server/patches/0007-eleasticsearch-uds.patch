@@ -1,0 +1,112 @@
+diff --git a/packages/backend/server/src/plugins/indexer/config.ts b/packages/backend/server/src/plugins/indexer/config.ts
+index b50b011f4f..a7671027aa 100644
+--- a/packages/backend/server/src/plugins/indexer/config.ts
++++ b/packages/backend/server/src/plugins/indexer/config.ts
+@@ -19,6 +19,7 @@ declare global {
+         apiKey: string;
+         username: string;
+         password: string;
++        socket: string;
+       };
+       autoIndex: {
+         batchSize: number;
+@@ -69,6 +70,12 @@ defineModuleConfig('indexer', {
+     default: '',
+     env: ['AFFINE_INDEXER_SEARCH_PASSWORD', 'string'],
+   },
++  'provider.socket': {
++    desc: 'Unix socket to connect with',
++    default: '',
++    env: ['AFFINE_INDEXER_SEARCH_SOCKET', 'string'],
++
++  },
+   'autoIndex.batchSize': {
+     desc: 'Number of workspaces automatically indexed per batch',
+     default: 10,
+diff --git a/packages/backend/server/src/plugins/indexer/providers/elasticsearch.ts b/packages/backend/server/src/plugins/indexer/providers/elasticsearch.ts
+index 18970b7d22..37aaacc991 100644
+--- a/packages/backend/server/src/plugins/indexer/providers/elasticsearch.ts
++++ b/packages/backend/server/src/plugins/indexer/providers/elasticsearch.ts
+@@ -15,6 +15,7 @@ import {
+   SearchQueryDSL,
+   SearchResult,
+ } from './def';
++import { request } from 'node:http';
+ 
+ interface ESSearchResponse {
+   took: number;
+@@ -287,14 +288,48 @@ export class ElasticsearchProvider extends SearchProvider {
+     } else if (this.config.provider.password) {
+       headers.Authorization = `Basic ${Buffer.from(`${this.config.provider.username}:${this.config.provider.password}`).toString('base64')}`;
+     }
+-    const response = await safeFetch(
+-      url,
+-      { method, body, headers },
+-      INDEXER_FETCH_OPTIONS
+-    );
+-    const data = await response.json();
++
++    let response: {
++      status: number;
++      data: unknown;
++    };
++    if (this.config.provider.socket) {
++      response = await new Promise((resolve, reject) => {
++        const req = request(url, {
++          method,
++          headers,
++          socketPath: this.config.provider.socket,
++        }, (res) => {
++          res.setEncoding('utf8');
++          let body = '';
++          res.on('data', (chunk: string) => {
++            body += chunk;
++          });
++          res.on('end', () => {
++            resolve({
++              status: res.statusCode,
++              data: JSON.parse(body),
++            });
++          });
++        });
++        req.on('error', reject);
++        req.write(body);
++        req.end();
++      });
++    } else {
++      const res = await safeFetch(
++          url,
++          { method, body, headers },
++          INDEXER_FETCH_OPTIONS
++        );
++      response = {
++        status: res.status,
++        data: await res.json(),
++      }
++    }
++
+     if (ignoreErrorStatus?.includes(response.status)) {
+-      return data;
++      return response.data;
+     }
+ 
+     // handle error, status >= 400
+@@ -313,15 +348,15 @@ export class ElasticsearchProvider extends SearchProvider {
+     // }
+     if (response.status >= 500) {
+       this.logger.error(
+-        `request error, url: ${url}, body: ${body}, response status: ${response.status}, response body: ${JSON.stringify(data, null, 2)}`
++        `request error, url: ${url}, body: ${body}, response status: ${response.status}, response body: ${JSON.stringify(response.data, null, 2)}`
+       );
+       throw new InternalServerError();
+     }
+     if (response.status >= 400) {
+       this.logger.warn(
+-        `request failed, url: ${url}, body: ${body}, response status: ${response.status}, response body: ${JSON.stringify(data, null, 2)}`
++        `request failed, url: ${url}, body: ${body}, response status: ${response.status}, response body: ${JSON.stringify(response.data, null, 2)}`
+       );
+-      const errorData = data as {
++      const errorData = response.data as {
+         error?: { type: string; reason: string } | string;
+       };
+       let reason = '';
