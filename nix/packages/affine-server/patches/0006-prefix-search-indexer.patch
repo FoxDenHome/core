@@ -1,0 +1,15 @@
+diff --git a/packages/backend/server/src/plugins/indexer/tables/index.ts b/packages/backend/server/src/plugins/indexer/tables/index.ts
+index 729d11a651..7605c7c51a 100644
+--- a/packages/backend/server/src/plugins/indexer/tables/index.ts
++++ b/packages/backend/server/src/plugins/indexer/tables/index.ts
+@@ -2,8 +2,8 @@ import { getBlockUniqueId } from './block';
+ import { getDocUniqueId } from './doc';
+ 
+ export enum SearchTable {
+-  block = 'block',
+-  doc = 'doc',
++  block = 'affine_block',
++  doc = 'affine_doc',
+ }
+ 
+ export const SearchTableUniqueId = {
