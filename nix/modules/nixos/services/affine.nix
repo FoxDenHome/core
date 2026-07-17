@@ -32,9 +32,17 @@ let
     worker = {
       allowedOrigin = [ externalUrl ];
     };
-    indexer = {
-      enabled = false;
-    };
+    indexer =
+      if svcConfig.indexer then
+        {
+          enabled = true;
+          "provider.type" = "elasticsearch";
+          "provider.endpoint" = "http://127.0.0.1:9200";
+        }
+      else
+        {
+          enabled = false;
+        };
     auth = {
       allowSignup = false;
       allowSignupForOauth = svcConfig.oAuth.enable;
@@ -58,7 +66,10 @@ let
   };
 in
 {
-  options.foxDen.services.affine = services.http.mkOptions {
+  options.foxDen.services.affine = {
+    indexer = lib.mkEnableOption "Enable opensearch dependency and indexer";
+  }
+  // services.http.mkOptions {
     name = "AFFiNE";
   };
 
@@ -69,6 +80,12 @@ in
         name = "http-affine";
         target = "proxy_pass http://127.0.0.1:3010;";
       }).config
+      (lib.mkIf svcConfig.indexer
+        (services.make {
+          inherit svcConfig pkgs config;
+          name = "affine-uds-proxy";
+        }).config
+      )
       (services.make {
         inherit svcConfig pkgs config;
         name = "affine";
@@ -90,6 +107,17 @@ in
           );
         };
 
+        foxDen.services.opensearch = lib.mkIf svcConfig.indexer {
+          enable = true;
+          users.fadumper = {
+            indexPatterns = [ "affine_*" ];
+          };
+          services = [
+            "affine"
+            "affine-uds-proxy"
+          ];
+        };
+
         foxDen.services.postgresql = {
           enable = true;
           services = [
@@ -106,6 +134,19 @@ in
           group = "affine";
         };
         users.groups.affine = { };
+
+        systemd.services.affine-uds-proxy = lib.mkIf svcConfig.indexer {
+          before = [ "affine.service" ];
+
+          serviceConfig = {
+            User = "affine";
+            Group = "affine";
+            ExecStart = [
+              "${pkgs.socat}/bin/socat TCP-LISTEN:9200,fork,bind=127.0.0.1,reuseaddr UNIX-CONNECT:${config.foxDen.services.opensearch.socketPath}"
+            ];
+          };
+          wantedBy = [ "multi-user.target" ];
+        };
 
         systemd.services.affine = {
           after = [ "redis-affine.service" ];
