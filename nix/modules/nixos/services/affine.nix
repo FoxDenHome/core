@@ -122,6 +122,7 @@ in
             EnvironmentFile = config.lib.foxDen.sops.mkIfAvailable config.sops.secrets.affine.path;
             ExecStartPre = [ "${pkgs.writeShellScript "affine-server-init.sh" ''
               ${pkgs.coreutils}/bin/mkdir -p /var/lib/affine/.affine/{config,storage}
+              ${pkgs.coreutils}/bin/chmod 700 /var/lib/affine /var/lib/affine/.affine{,/config,/storage}
               ${pkgs.coreutils}/bin/cp -fv ${builtins.toFile "config.json" (builtins.toJSON cfgJson)} /var/lib/affine/.affine/config/config.json
             ''}"];
             ExecStart = [ "${pkgs.affine-server}/bin/affine-server" ];
