@@ -106,6 +106,7 @@ in
 
           environment = {
             DATABASE_URL = "postgres://affine@localhost/affine?host=/run/postgresql/";
+            DEBUG_LOGGING = "true";
           };
 
           serviceConfig = {
