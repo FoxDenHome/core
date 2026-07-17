@@ -43,7 +43,7 @@ let
             args = { };
             issuer = "https://auth.foxden.network/oauth2/openid/${svcConfig.oAuth.clientId}";
             clientId = svcConfig.oAuth.clientId;
-            clientSecret = "";
+            clientSecret = svcConfig.oAuth.clientId;
           }
         else
           { };
