@@ -19,6 +19,7 @@ let
       inherit externalUrl;
       name = "FoxDen Docs";
       host = hostName;
+      https = svcConfig.tls.enable;
       listenAddr = "127.0.0.1";
     };
     mailer = {
