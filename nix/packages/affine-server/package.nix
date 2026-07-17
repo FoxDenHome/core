@@ -4,12 +4,8 @@
   ...
 }:
 let
-  buildType = "stable";
-
   nodejs-custom = pkgs.nodejs_22;
   yarn-berry-custom = pkgs.yarn-berry_4.override { nodejs = nodejs-custom; };
-  productName = if buildType != "stable" then "AFFiNE-${buildType}" else "AFFiNE";
-  binName = lib.toLower productName;
 
   env = {
     PRISMA_SCHEMA_ENGINE_BINARY = lib.getExe' pkgs.prisma-engines_6 "schema-engine";
@@ -20,9 +16,9 @@ let
   };
 in
 pkgs.stdenv.mkDerivation (finalAttrs: {
-  pname = binName;
-
+  pname = "affine-server";
   version = "0.27.1";
+
   src = pkgs.fetchFromGitHub {
     owner = "toeverything";
     repo = "AFFiNE";
@@ -39,6 +35,9 @@ pkgs.stdenv.mkDerivation (finalAttrs: {
   yarnOfflineCache = pkgs.stdenvNoCC.mkDerivation {
     name = "yarn-offline-cache";
     inherit (finalAttrs) src;
+    outputHash = "sha256-duG+rlX0yvVml9kj66AY+CzM0TCdhk0YcMXNUc2qkis=";
+    outputHashMode = "recursive";
+
     nativeBuildInputs = [
       yarn-berry-custom
       pkgs.cacert
@@ -81,8 +80,6 @@ pkgs.stdenv.mkDerivation (finalAttrs: {
         runHook postBuild
       '';
     dontInstall = true;
-    outputHashMode = "recursive";
-    outputHash = "sha256-duG+rlX0yvVml9kj66AY+CzM0TCdhk0YcMXNUc2qkis=";
   };
 
   nativeBuildInputs = with pkgs; [
@@ -103,7 +100,7 @@ pkgs.stdenv.mkDerivation (finalAttrs: {
   env = env // {
     # force yarn install run in CI mode
     CI = "1";
-    BUILD_TYPE = buildType;
+    BUILD_TYPE = "stable";
     CARGO_NET_OFFLINE = "true";
     ELECTRON_SKIP_BINARY_DOWNLOAD = "1";
     GITHUB_SHA = "ffffffffffffffffffffffffffffffffffffffff";
@@ -125,11 +122,10 @@ pkgs.stdenv.mkDerivation (finalAttrs: {
     yarn config set nmMode classic
 
     # overrides
-    patch -p1 -i ${./yarn-4.14-support.patch}
-    patch -p1 -i ${./no-yarn-setup.patch}
-    patch -p1 -i ${./allow-private-oidc.patch}
-    patch -p1 -i ${./change-log-level.patch}
-    cp ${./native-index.js} ./packages/backend/native/index.js
+    for pfile in ${./patches}/*.patch; do
+      echo "Applying patch $(basename "$pfile")"
+      patch -p1 -i $pfile
+    done
 
     runHook postConfigure
   '';
