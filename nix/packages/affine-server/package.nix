@@ -128,6 +128,7 @@ pkgs.stdenv.mkDerivation (finalAttrs: {
     patch -p1 -i ${./yarn-4.14-support.patch}
     patch -p1 -i ${./no-yarn-setup.patch}
     patch -p1 -i ${./allow-private-oidc.patch}
+    patch -p1 -i ${./change-log-level.patch}
     cp ${./native-index.js} ./packages/backend/native/index.js
 
     runHook postConfigure
