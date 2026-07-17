@@ -20,6 +20,12 @@ let
       externalUrl = "${proto}://${hostName}";
       listenAddr = "127.0.0.1";
     };
+    telemetry = {
+      allowedOrigin = [ hostName ];
+    };
+    worker = {
+      allowedOrigin = [ hostName ];
+    };
     indexer = {
       enabled = false;
     };
@@ -30,9 +36,6 @@ let
     };
     flags = {
       allowGuestDemoWorkspace = false;
-    };
-    websocket = {
-      transports = [ "websocket" "polling" ];
     };
     oauth = {
       "providers.oidc" =
