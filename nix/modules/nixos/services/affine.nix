@@ -113,10 +113,11 @@ in
             StateDirectory = "affine";
             User = "affine";
             Group = "affine";
+            ExecStartPre = [ "${pkgs.writeShellScript "affine-server-init.sh" ''
+              ${pkgs.coreutils}/bin/mkdir -p /var/lib/affine/.affine/{config,storage}
+              ${pkgs.coreutils}/bin/cp -fv ${builtins.toFile "config.json" (builtins.toJSON cfgJson)} /var/lib/affine/.affine/config/config.json
+            ''}"];
             ExecStart = [ "${pkgs.affine-server}/bin/affine-server" ];
-            BindReadOnlyPaths = [
-              "${builtins.toFile "config.json" (builtins.toJSON cfgJson)}:/var/lib/affine/.affine/config/config.json"
-            ];
           };
           wantedBy = [ "multi-user.target" ];
         };
