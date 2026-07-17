@@ -1,15 +1,19 @@
 diff --git a/packages/backend/server/src/base/logger/service.ts b/packages/backend/server/src/base/logger/service.ts
-index 34887d0535..894e5a578f 100644
+index b0b6962cc0..894e5a578f 100644
 --- a/packages/backend/server/src/base/logger/service.ts
 +++ b/packages/backend/server/src/base/logger/service.ts
-@@ -9,7 +9,9 @@ import { UserFriendlyError } from '../error';
+@@ -7,6 +7,14 @@ import { UserFriendlyError } from '../error';
+ // Use it via this way: `private readonly logger = new Logger(MyService.name)`
+ @Injectable()
  export class AFFiNELogger extends ConsoleLogger {
-   constructor(context?: string) {
-     super();
--    this.setLogLevels(['log', 'fatal', 'error', 'warn']);
++  constructor(context?: string) {
++    super();
 +    this.setLogLevels((process.env.DEBUG_LOGGING === 'true') ?
 +        ['log', 'fatal', 'error', 'warn', 'debug', 'verbose'] :
 +        ['log', 'fatal', 'error', 'warn']);
-     this.setContext(context);
-   }
- 
++    this.setContext(context);
++  }
++
+   override stringifyMessage(message: unknown, logLevel: LogLevel) {
+     const messageString = super.stringifyMessage(message, logLevel);
+     const requestId = AFFiNELogger.getRequestId();
