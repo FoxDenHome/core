@@ -21,6 +21,10 @@ let
       host = hostName;
       listenAddr = "127.0.0.1";
     };
+    mailer = {
+      "SMTP.name" = hostName;
+      "SMTP.sender" = "FoxDen Docs <docs@${hostName}>";
+    };
     telemetry = {
       allowedOrigin = [ externalUrl ];
     };
@@ -73,8 +77,9 @@ in
         name = "affine";
       }).config
       {
-        foxDen.services.affine.oAuth.overrideService = true;
+        sops.secrets.affine = config.lib.foxDen.sops.mkIfAvailable { };
 
+        foxDen.services.affine.oAuth.overrideService = true;
         foxDen.services.kanidm.oauth2 = lib.mkIf svcConfig.oAuth.enable {
           ${svcConfig.oAuth.clientId} = (
             services.http.mkOauthConfig {
@@ -114,6 +119,7 @@ in
             StateDirectory = "affine";
             User = "affine";
             Group = "affine";
+            EnvironmentFile = config.lib.foxDen.sops.mkIfAvailable config.sops.secrets.affine.path;
             ExecStartPre = [ "${pkgs.writeShellScript "affine-server-init.sh" ''
               ${pkgs.coreutils}/bin/mkdir -p /var/lib/affine/.affine/{config,storage}
               ${pkgs.coreutils}/bin/cp -fv ${builtins.toFile "config.json" (builtins.toJSON cfgJson)} /var/lib/affine/.affine/config/config.json
