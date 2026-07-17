@@ -34,9 +34,6 @@ let
     indexer = {
       enabled = false;
     };
-    throttle = {
-      enabled = false;
-    };
     auth = {
       allowSignup = false;
       allowSignupForOauth = svcConfig.oAuth.enable;
