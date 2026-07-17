@@ -109,7 +109,7 @@ in
 
         foxDen.services.opensearch = lib.mkIf svcConfig.indexer {
           enable = true;
-          users.fadumper = {
+          users.affine = {
             indexPatterns = [ "affine_*" ];
           };
           services = [
