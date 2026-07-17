@@ -11,20 +11,21 @@ let
   svcConfig = config.foxDen.services.affine;
   hostName = services.getFirstFQDN config svcConfig;
   proto = if svcConfig.tls.enable then "https" else "http";
+  externalUrl = "${proto}://${hostName}";
 
   cfgJson = {
     "$schema" = "https://github.com/toeverything/affine/releases/latest/download/config.schema.json";
     server = {
+      inherit externalUrl;
       name = "FoxDen Docs";
       host = hostName;
-      externalUrl = "${proto}://${hostName}";
       listenAddr = "127.0.0.1";
     };
     telemetry = {
-      allowedOrigin = [ hostName ];
+      allowedOrigin = [ externalUrl ];
     };
     worker = {
-      allowedOrigin = [ hostName ];
+      allowedOrigin = [ externalUrl ];
     };
     indexer = {
       enabled = false;
