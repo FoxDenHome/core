@@ -31,9 +31,6 @@ let
     flags = {
       allowGuestDemoWorkspace = false;
     };
-    websocket = {
-      transports = [ "websocket" ];
-    };
     oauth = {
       "providers.oidc" =
         if svcConfig.oAuth.enable then
