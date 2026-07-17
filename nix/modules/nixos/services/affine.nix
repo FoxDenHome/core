@@ -135,19 +135,6 @@ in
         };
         users.groups.affine = { };
 
-        systemd.services.affine-uds-proxy = lib.mkIf svcConfig.indexer {
-          before = [ "affine.service" ];
-
-          serviceConfig = {
-            User = "affine";
-            Group = "affine";
-            ExecStart = [
-              "${pkgs.socat}/bin/socat TCP-LISTEN:9200,fork,bind=127.0.0.1,reuseaddr UNIX-CONNECT:${config.foxDen.services.opensearch.socketPath}"
-            ];
-          };
-          wantedBy = [ "multi-user.target" ];
-        };
-
         systemd.services.affine = {
           after = [ "redis-affine.service" ];
           requires = [ "redis-affine.service" ];
