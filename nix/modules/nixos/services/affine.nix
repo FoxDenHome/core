@@ -35,7 +35,7 @@ let
         if svcConfig.oAuth.enable then
           {
             args = { };
-            issuer = "https://auth.foxden.network/oauth2/${svcConfig.oAuth.clientId}/affine";
+            issuer = "https://auth.foxden.network/oauth2/${svcConfig.oAuth.clientId}";
             clientId = svcConfig.oAuth.clientId;
             # This must be non-blank for AFFiNE to be happy, so just provide the client ID...
             clientSecret = svcConfig.oAuth.clientId;
