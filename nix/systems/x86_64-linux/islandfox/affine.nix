@@ -7,6 +7,7 @@ in
     affine = {
       enable = true;
       tls.enable = true;
+      indexer = true;
       host = "affine";
       oAuth = {
         enable = true;
