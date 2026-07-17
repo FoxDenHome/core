@@ -34,9 +34,6 @@ let
     websocket = {
       transports = [ "websocket" ];
     };
-    worker = {
-      allowedOrigin = [ hostName ];
-    };
     oauth = {
       "providers.oidc" =
         if svcConfig.oAuth.enable then
