@@ -23,7 +23,7 @@ let
     };
     mailer = {
       "SMTP.name" = hostName;
-      "SMTP.sender" = "FoxDen Docs <docs@$foxden.network>";
+      "SMTP.sender" = "FoxDen Docs <docs@foxden.network>";
     };
     telemetry = {
       allowedOrigin = [ externalUrl ];
