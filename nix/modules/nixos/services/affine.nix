@@ -33,6 +33,9 @@ let
     websocket = {
       transports = [ "websocket" ];
     };
+    worker = {
+      allowedOrigin = [ hostName ];
+    };
     oauth = {
       "providers.oidc" =
         if svcConfig.oAuth.enable then
@@ -40,8 +43,7 @@ let
             args = { };
             issuer = "https://auth.foxden.network/oauth2/openid/${svcConfig.oAuth.clientId}";
             clientId = svcConfig.oAuth.clientId;
-            # This must be non-blank for AFFiNE to be happy, so just provide the client ID...
-            clientSecret = svcConfig.oAuth.clientId;
+            clientSecret = "";
           }
         else
           { };
