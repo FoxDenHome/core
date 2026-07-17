@@ -32,7 +32,7 @@ let
       allowGuestDemoWorkspace = false;
     };
     websocket = {
-      transports = [ "websocket" ];
+      transports = [ "websocket" "polling" ];
     };
     oauth = {
       "providers.oidc" =
