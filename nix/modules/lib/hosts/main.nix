@@ -79,6 +79,7 @@ in
               default = null;
             };
             dhcpv6 = {
+              disable = lib.mkEnableOption "Device manually manages its IPv6";
               duid = lib.mkOption {
                 type = nullOr str;
                 default = null;

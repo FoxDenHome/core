@@ -105,7 +105,7 @@ def refresh_dhcp_router(dhcp_leases: list[dict[str, Any]], router: MTikRouter) -
                 api_dhcpv4.set(id=match["id"], **attribs)
                 break
 
-        if "ipv6" not in lease:
+        if "ipv6" not in lease or lease["dhcpv6"].get("disable", False):
             continue
 
         attribs = {

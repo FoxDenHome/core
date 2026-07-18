@@ -49,8 +49,10 @@
           fqdns = [ "crossfox.foxden.network" ];
         };
         mac = "B8:27:EB:ED:0F:4B";
+        dhcpv6.disable = true;
         addresses = [
           "10.5.10.3/16"
+          "fd2c:f4cb:63be:5::a03/64"
         ];
       });
       fennec = {
