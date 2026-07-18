@@ -17,12 +17,9 @@ run_update() {
 
   superdel config/bluemap config/paxi/datapacks config/paxi/local_pack bluemap/web/index.html bluemap/web/assets bluemap/web/lang configureddefaults coremods defaultconfigs mods resourcepacks server-resource-packs
 
-  find -type d -not -path './bluemap/*' -not -path './world/*' -exec chmod 700 {} \; || true
-  find -type f -not -path './bluemap/*' -not -path './world/*' -exec chmod 600 {} \; || true
+  find -mindepth 1 -maxdepth 1 -not -path './bluemap' -not -path './world' -exec chmod -R u+rwX,go-rwx {} + || true
   cp -r /server/* ./
-  find -type d -not -path './bluemap/*' -not -path './world/*' -exec chmod 700 {} \; || true
-  find -type f -not -path './bluemap/*' -not -path './world/*' -exec chmod 600 {} \; || true
-  chmod 700 ./*.sh
+  find -mindepth 1 -maxdepth 1 -not -path './bluemap' -not -path './world' -exec chmod -R u+rwX,go-rwx {} + || true
 
   echo "${LATEST_LOCK}" > "${INSTALLED_LOCK_FILE}"
 
