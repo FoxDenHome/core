@@ -24,7 +24,7 @@ index b50b011f4f..a7671027aa 100644
      desc: 'Number of workspaces automatically indexed per batch',
      default: 10,
 diff --git a/packages/backend/server/src/plugins/indexer/providers/elasticsearch.ts b/packages/backend/server/src/plugins/indexer/providers/elasticsearch.ts
-index 18970b7d22..37aaacc991 100644
+index 18970b7d22..34870d9102 100644
 --- a/packages/backend/server/src/plugins/indexer/providers/elasticsearch.ts
 +++ b/packages/backend/server/src/plugins/indexer/providers/elasticsearch.ts
 @@ -15,6 +15,7 @@ import {
@@ -35,7 +35,7 @@ index 18970b7d22..37aaacc991 100644
  
  interface ESSearchResponse {
    took: number;
-@@ -287,14 +288,48 @@ export class ElasticsearchProvider extends SearchProvider {
+@@ -287,14 +288,55 @@ export class ElasticsearchProvider extends SearchProvider {
      } else if (this.config.provider.password) {
        headers.Authorization = `Basic ${Buffer.from(`${this.config.provider.username}:${this.config.provider.password}`).toString('base64')}`;
      }
@@ -63,9 +63,16 @@ index 18970b7d22..37aaacc991 100644
 +            body += chunk;
 +          });
 +          res.on('end', () => {
++            let data;
++            try {
++              data = JSON.parse(body);
++            } catch (e) {
++              reject(e);
++              return;
++            }
 +            resolve({
 +              status: res.statusCode,
-+              data: JSON.parse(body),
++              data,
 +            });
 +          });
 +        });
@@ -91,7 +98,7 @@ index 18970b7d22..37aaacc991 100644
      }
  
      // handle error, status >= 400
-@@ -313,15 +348,15 @@ export class ElasticsearchProvider extends SearchProvider {
+@@ -313,15 +355,15 @@ export class ElasticsearchProvider extends SearchProvider {
      // }
      if (response.status >= 500) {
        this.logger.error(
