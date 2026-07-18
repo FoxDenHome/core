@@ -86,6 +86,7 @@ let
 
   pkgs = mkPkgs nixpkgs [
     ./nixpkgs-patches/zfs_2.4_on_7.1.patch
+    ./nixpkgs-patches/albumentations-disable-bad-test.patch
   ];
 
   localPackages = lib.attrsets.genAttrs (lib.attrNames (builtins.readDir ../../packages)) (
