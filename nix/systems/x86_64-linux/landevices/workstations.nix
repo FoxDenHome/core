@@ -49,13 +49,8 @@
           fqdns = [ "crossfox.foxden.network" ];
         };
         mac = "B8:27:EB:ED:0F:4B";
-        dhcpv6 = {
-          duid = "0x0004e6fce6a5d4ed3d40b052d913277bff9c";
-          iaid = 726689589;
-        };
         addresses = [
           "10.5.10.3/16"
-          "fd2c:f4cb:63be:5::a03/64"
         ];
       });
       fennec = {
