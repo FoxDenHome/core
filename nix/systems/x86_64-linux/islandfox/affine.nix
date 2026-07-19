@@ -13,6 +13,7 @@ in
         enable = true;
         clientId = "affine";
         displayName = "docs (AFFiNE)";
+        imageFile = ../../../files/icons/affine.svg;
       };
     };
   };
