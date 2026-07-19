@@ -74,7 +74,7 @@ in
         }
 
         espkeep() {
-          ESPFILES_REMOVE="''${ESPFILES_REMOVE[@]/$1}"
+          ESPFILES_REMOVE=("''${ESPFILES_REMOVE[@]/$1}")
         }
 
         buildesp() {
