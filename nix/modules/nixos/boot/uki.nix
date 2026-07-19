@@ -20,6 +20,8 @@ let
       OSRelease = "@${config.system.build.etc}/etc/os-release";
     };
   };
+
+  keepGenerations = 5;
 in
 {
   config.boot.loader.external = {
@@ -28,10 +30,10 @@ in
       ''
         #!/usr/bin/env bash
         set -euo pipefail
-        export PATH="$PATH:${pkgs.coreutils}/bin"
+        export PATH="$PATH:${pkgs.coreutils}/bin:${pkgs.findutils}/bin"
 
         TEMPDIR="$(mktemp -d)"
-        FIXED_PROFILES=/nix/var/nix/profiles/system-*-link
+        FIXED_PROFILES="$(echo /nix/var/nix/profiles/system-*-link | xargs -n1 | sort -g | tail -n ${toString keepGenerations} | xargs)"
         MAIN_PROFILE=/nix/var/nix/profiles/system
 
         makeuki() {
