@@ -99,7 +99,7 @@ in
           copyuki boot${efiArch} "$MAIN_PROFILE"
           espkeep boot${efiArch}.efi
           espkeep bootold.efi
-          echo "$ESPFILES_REMOVE" | xargs -r rm -fv
+          echo "''${ESPFILES_REMOVE[@]}" | xargs -r rm -fv
           cd "$olddir"
         }
       ''
