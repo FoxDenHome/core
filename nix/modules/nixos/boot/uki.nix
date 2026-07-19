@@ -81,9 +81,9 @@ in
           local esp="$1/EFI/BOOT"
           echo "Building UKI for $esp with $1"
           mkdir -p "$esp"
-          read -r -a id  < <(ls "$esp")
           local olddir="$(pwd)"
           cd "$esp"
+          ESPFILES_REMOVE=(*.efi)
           for profile in $FIXED_PROFILES; do
             local name="nixos-$(basename "$profile" | cut -d- -f2)"
             espkeep "$name.efi"
@@ -101,7 +101,7 @@ in
           espkeep bootold.efi
           echo "$ESPFILES_REMOVE" | xargs -r rm -fv
           cd "$olddir"
-        };
+        }
       ''
       + (lib.concatStringsSep "\n" (map (esp: "buildesp ${esp}") config.foxDen.boot.espMounts))
       + ''
