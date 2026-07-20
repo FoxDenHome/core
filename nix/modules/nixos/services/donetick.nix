@@ -21,8 +21,8 @@ let
     server = {
       port = 3010;
       cors_allow_origins = [ externalUrl ];
-      serve_frontend = true;
-      serve_swagger = true;
+      serve_frontend = false;
+      serve_swagger = false;
       public_host = externalUrl;
     };
 
@@ -69,7 +69,18 @@ in
       (services.http.make {
         inherit svcConfig pkgs config;
         name = "http-donetick";
-        target = "proxy_pass http://127.0.0.1:3010;";
+        target = "root ${pkgs.donetick-server.frontend}/share/donetick-frontend;";
+        extraConfig =
+          { proxyConfig, ... }:
+          ''
+            location = /api {
+              return 308 $scheme://$http_host/api/;
+            }
+            location /api/ {
+              proxy_pass http://127.0.0.1:3010/;
+              ${proxyConfig}
+            }
+          '';
       }).config
       (services.make {
         inherit svcConfig pkgs config;
