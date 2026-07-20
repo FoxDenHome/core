@@ -87,7 +87,7 @@ in
                 DT_OAUTH2_SCOPE = "openid profile email";
                 DT_OAUTH2_AUTH_URL = "https://auth.foxden.network/ui/oauth2";
                 DT_OAUTH2_TOKEN_URL = "https://auth.foxden.network/oauth2/token";
-                DT_OAUTH2_INFO_URL = "https://auth.foxden.network/oauth2/openid/${svcConfig.oAuth.clientId}/userinfo";
+                DT_OAUTH2_USER_INFO_URL = "https://auth.foxden.network/oauth2/openid/${svcConfig.oAuth.clientId}/userinfo";
                 DT_OAUTH2_REDIRECT_URL = "${externalUrl}/auth/oauth2";
               }
             else
