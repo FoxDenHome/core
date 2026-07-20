@@ -1,7 +1,7 @@
-{ pkgs, ... } :
+{ pkgs, ... }:
 let
   version = "0.1.75";
-in 
+in
 pkgs.buildGoModule {
   pname = "donetick-server";
   inherit version;
