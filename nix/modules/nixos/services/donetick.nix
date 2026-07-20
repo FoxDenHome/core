@@ -8,7 +8,7 @@
 let
   services = foxDenLib.services;
 
-  svcConfig = config.foxDen.services.affine;
+  svcConfig = config.foxDen.services.donetick;
   hostName = services.getFirstFQDN config svcConfig;
   proto = if svcConfig.tls.enable then "https" else "http";
   externalUrl = "${proto}://${hostName}";
