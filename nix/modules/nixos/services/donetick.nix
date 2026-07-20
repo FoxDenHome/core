@@ -66,6 +66,7 @@ in
           environment = {
             DT_SINGLE_CIRCLE_INSTANCE = "true";
             DT_OAUTH2_SINGLE_CIRCLE_INSTANCE = "true";
+            DONETICK_DISABLE_SIGNUP = "True";
 
             DT_SERVER_PORT = "3010";
             DT_SERVER_CORS_ALLOW_ORIGINS = externalUrl;
