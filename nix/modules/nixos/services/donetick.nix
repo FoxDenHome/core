@@ -35,9 +35,11 @@ in
         foxDen.services.donetick.oAuth.overrideService = true;
         foxDen.services.kanidm.oauth2 = lib.mkIf svcConfig.oAuth.enable {
           ${svcConfig.oAuth.clientId} = (
-            services.http.mkOauthConfig {
+            (services.http.mkOauthConfig {
               inherit svcConfig config;
               oAuthCallbackUrl = "/auth/oauth2";
+            }) // {
+             allowInsecureClientDisablePkce = true;
             }
           );
         };
@@ -81,7 +83,6 @@ in
                 DT_OAUTH2_ADMIN_GROUPS = "superadmins";
                 DT_OAUTH2_NAME = "FoxDen";
                 DT_OAUTH2_CLIENT_ID = svcConfig.oAuth.clientId;
-                DT_OAUTH2_CLIENT_SECRET = "";
                 DT_OAUTH2_SCOPE = "openid profile email";
                 DT_OAUTH2_AUTH_URL = "https://auth.foxden.network/oauth2/authorise";
                 DT_OAUTH2_TOKEN_URL = "https://auth.foxden.network/oauth2/token";
