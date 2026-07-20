@@ -20,7 +20,7 @@ let
 
     server = {
       port = 3010;
-      cors_allow_origins = [ externalUrl ];
+      cors_allow_origins = [ hostName ];
       serve_frontend = false;
       serve_swagger = false;
       public_host = externalUrl;
