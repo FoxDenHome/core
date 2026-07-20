@@ -65,6 +65,7 @@ in
             DT_SERVER_PORT = "3010";
             DT_SERVER_CORS_ALLOW_ORIGINS = externalUrl;
             DT_SERVER_SERVE_FRONTEND = "true"; # For now maybe?
+            DT_ENV = "selfhosted";
 
             DT_DATABASE_TYPE = "postgres";
             DT_DATABASE_HOST = "/run/postgresql/";
