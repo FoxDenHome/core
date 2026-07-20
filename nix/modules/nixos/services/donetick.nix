@@ -69,7 +69,10 @@ in
       (services.http.make {
         inherit svcConfig pkgs config;
         name = "http-donetick";
-        target = "root ${pkgs.donetick-frontend}/share/donetick-frontend;";
+        target = ''
+          root ${pkgs.donetick-frontend}/share/donetick-frontend;
+          try_files $uri $uri/ /index.html;
+        '';
         extraConfig =
           { proxyConfig, ... }:
           ''
