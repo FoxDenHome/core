@@ -27,6 +27,11 @@
       "enabled": false
     },
     {
+      "matchManagers": ["npm"],
+      "matchPaths": ["nix/packages/donetick-server/**"],
+      "enabled": false
+    },
+    {
       "matchDepTypes": ["requires-python"],
       "matchPaths": ["nix/packages/carvera-controller/**"],
       "enabled": false
