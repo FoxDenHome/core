@@ -12,6 +12,52 @@ let
   hostName = services.getFirstFQDN config svcConfig;
   proto = if svcConfig.tls.enable then "https" else "http";
   externalUrl = "${proto}://${hostName}";
+
+  cfgJYaml = {
+    single_circle_instance = true;
+    is_user_creation_disabled = true;
+    disable_password_auth = svcConfig.oAuth.clientId;
+
+    server = {
+      port = 3010;
+      cors_allow_origins = [ externalUrl ];
+      serve_frontend = true;
+      serve_swagger = true;
+      public_host = externalUrl;
+    };
+
+    database = {
+      type = "postgres";
+      host = "/run/postgresql/";
+      port = 5432;
+      user = "donetick";
+      name = "donetick";
+      migration = true;
+    };
+
+    oauth2 =
+      if svcConfig.oAuth.enable then
+        {
+          admin_groups = "superadmins";
+          name = "FoxDen";
+          client_id = svcConfig.oAuth.clientId;
+          scope = [
+            "openid"
+            "profile"
+            "email"
+          ];
+          auth_url = "https://auth.foxden.network/ui/oauth2";
+          token_url = "https://auth.foxden.network/oauth2/token";
+          user_info_url = "https://auth.foxden.network/oauth2/openid/${svcConfig.oAuth.clientId}/userinfo";
+          redirect_url = "${externalUrl}/auth/oauth2";
+        }
+      else
+        { };
+
+    realtime = {
+      sse_enabled = false;
+    };
+  };
 in
 {
   options.foxDen.services.donetick = services.http.mkOptions {
@@ -65,21 +111,9 @@ in
 
         systemd.services.donetick = {
           environment = {
-            DT_SINGLE_CIRCLE_INSTANCE = "true";
-            DT_OAUTH2_SINGLE_CIRCLE_INSTANCE = "true";
             DONETICK_DISABLE_SIGNUP = "True";
-
-            DT_SERVER_PORT = "3010";
-            DT_SERVER_CORS_ALLOW_ORIGINS = externalUrl;
-            DT_SERVER_SERVE_FRONTEND = "true";
             DT_ENV = "selfhosted";
 
-            DT_DATABASE_TYPE = "postgres";
-            DT_DATABASE_HOST = "/run/postgresql/";
-            DT_DATABASE_PORT = "5432";
-            DT_DATABASE_USER = "donetick";
-            DT_DATABASE_NAME = "donetick";
-            DT_DATABASE_MIGRATION = "true";
           }
           // (
             if svcConfig.oAuth.enable then
@@ -103,6 +137,14 @@ in
             User = "donetick";
             Group = "donetick";
             EnvironmentFile = config.lib.foxDen.sops.mkIfAvailable config.sops.secrets.donetick.path;
+            WorkingDirectory = "/var/lib/donetick";
+            ExecStartPre = [
+              "${pkgs.writeShellScript "donetick-server-init.sh" ''
+                ${pkgs.coreutils}/bin/mkdir -p /var/lib/donetick/config
+                ${pkgs.coreutils}/bin/chmod 700 /var/lib/donetick /var/lib/donetick/config
+                ${pkgs.coreutils}/bin/cp -fv ${builtins.toFile "config.json" (builtins.toJSON cfgJYaml)} /var/lib/donetick/config/selfhosted.yaml
+              ''}"
+            ];
             ExecStart = [ "${pkgs.donetick-server}/bin/donetick-server" ];
           };
           wantedBy = [ "multi-user.target" ];
