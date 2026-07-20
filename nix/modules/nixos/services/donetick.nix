@@ -127,7 +127,7 @@ in
         systemd.services.http-donetick = {
           serviceConfig = {
             BindReadOnlyPaths = [
-              "${pkgs.donetick-frontend}:/web"
+              "${pkgs.donetick-frontend}/share/donetick-frontend:/web"
             ];
           };
         };
