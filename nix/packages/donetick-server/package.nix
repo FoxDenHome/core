@@ -15,6 +15,19 @@ let
     # We keep a local package-lock.json because the upstream one doesn't have all the hashes...
     npmDeps = pkgs.importNpmLock { npmRoot = ./.; };
     npmConfigHook = pkgs.importNpmLock.npmConfigHook;
+
+    preBuild = ''
+      cp -fv ${./package.json} ./package.json
+      cp -fv ${./package-lock.json}  ./package-lock.json
+    '';
+
+    npmFlags = [ "--ignore-scripts" ];
+    npmBuildScript = "build-selfhosted";
+
+    installPhase = ''
+      mkdir -p $out/share
+      mv dist $out/share/donetick-frontend
+    '';
   };
 in
 (pkgs.buildGoModule {
@@ -31,9 +44,15 @@ in
   buildInputs = [ ];
   ldflags = [ "-s -w" ];
 
+  preBuild = ''
+    rm -rf frontend/dist
+    cp -r ${frontend}/share/donetick-frontend frontend/dist
+  '';
+
   postInstall = ''
     mv $out/bin/core $out/bin/donetick-server
   '';
-}) // {
+})
+// {
   inherit frontend;
 }
