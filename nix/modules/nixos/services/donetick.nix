@@ -16,7 +16,7 @@ let
   cfgJYaml = {
     single_circle_instance = true;
     is_user_creation_disabled = true;
-    disable_password_auth = svcConfig.oAuth.clientId;
+    disable_password_auth = svcConfig.oAuth.enable;
 
     server = {
       port = 3010;
