@@ -53,10 +53,6 @@ let
         }
       else
         { };
-
-    realtime = {
-      sse_enabled = false;
-    };
   };
 in
 {
