@@ -124,7 +124,7 @@ in
         };
 
 
-        systemd.services.doridian-donetick = {
+        systemd.services.http-donetick = {
           serviceConfig = {
             BindReadOnlyPaths = [
               "${pkgs.donetick-frontend}:/web"
