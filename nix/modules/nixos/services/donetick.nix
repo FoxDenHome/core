@@ -70,7 +70,7 @@ in
         inherit svcConfig pkgs config;
         name = "http-donetick";
         target = ''
-          root ${pkgs.donetick-frontend}/share/donetick-frontend;
+          root /web;
           try_files $uri $uri/ /index.html;
         '';
         extraConfig =
@@ -121,6 +121,15 @@ in
               service = "donetick";
             }
           ];
+        };
+
+
+        systemd.services.doridian-donetick = {
+          serviceConfig = {
+            BindReadOnlyPaths = [
+              "${pkgs.donetick-frontend}:/web"
+            ];
+          };
         };
 
         systemd.services.donetick = {
