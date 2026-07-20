@@ -81,7 +81,7 @@ in
                 DT_OAUTH2_ADMIN_GROUPS = "superadmins";
                 DT_OAUTH2_NAME = "FoxDen";
                 DT_OAUTH2_CLIENT_ID = svcConfig.oAuth.clientId;
-                DT_OAUTH2_CLIENT_SECRET = "insecure_secret";
+                DT_OAUTH2_CLIENT_SECRET = "";
                 DT_OAUTH2_SCOPE = "openid profile email";
                 DT_OAUTH2_AUTH_URL = "https://auth.foxden.network/oauth2/authorise";
                 DT_OAUTH2_TOKEN_URL = "https://auth.foxden.network/oauth2/token";
