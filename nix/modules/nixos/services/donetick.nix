@@ -29,10 +29,6 @@ in
         inherit svcConfig pkgs config;
         name = "donetick";
       }).config
-      (foxDenLib.services.redis.make {
-        inherit pkgs config svcConfig;
-        name = "donetick";
-      }).config
       {
         sops.secrets.donetick = config.lib.foxDen.sops.mkIfAvailable { };
 
