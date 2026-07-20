@@ -40,7 +40,7 @@ in
               oAuthCallbackUrl = "/auth/oauth2";
             }) // {
              allowInsecureClientDisablePkce = true;
-             enableLegacy = true;
+             enableLegacyCrypto = true;
              public = false;
             }
           );
