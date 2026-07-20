@@ -39,6 +39,7 @@ in
               inherit svcConfig config;
               oAuthCallbackUrl = "/auth/oauth2";
             }) // {
+             allowInsecureClientDisablePkce = true;
              public = false;
             }
           );
