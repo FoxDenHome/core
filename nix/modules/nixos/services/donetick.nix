@@ -38,9 +38,10 @@ in
             (services.http.mkOauthConfig {
               inherit svcConfig config;
               oAuthCallbackUrl = "/auth/oauth2";
-            }) // {
-             allowInsecureClientDisablePkce = true;
-             public = false;
+            })
+            // {
+              allowInsecureClientDisablePkce = true;
+              public = false;
             }
           );
         };
