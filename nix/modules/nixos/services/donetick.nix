@@ -64,7 +64,6 @@ in
 
         systemd.services.donetick = {
           environment = {
-            DONETICK_DISABLE_SIGNUP = "true";
             DT_SINGLE_CIRCLE_INSTANCE = "true";
             DT_SERVER_PORT = "3010";
             DT_SERVER_CORS_ALLOW_ORIGINS = externalUrl;
