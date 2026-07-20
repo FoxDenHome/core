@@ -40,6 +40,7 @@ in
               oAuthCallbackUrl = "/auth/oauth2";
             }) // {
              allowInsecureClientDisablePkce = true;
+             public = false;
             }
           );
         };
