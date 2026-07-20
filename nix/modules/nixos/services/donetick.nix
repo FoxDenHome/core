@@ -91,7 +91,9 @@ in
                 DT_OAUTH2_REDIRECT_URL = "${externalUrl}/auth/oauth2";
               }
             else
-              { }
+              {
+                DONETICK_DISABLE_SIGNUP = "true";
+              }
           );
 
           serviceConfig = {
