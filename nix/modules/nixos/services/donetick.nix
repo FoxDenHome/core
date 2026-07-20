@@ -77,7 +77,7 @@ in
               return 308 $scheme://$http_host/api/;
             }
             location /api/ {
-              proxy_pass http://127.0.0.1:3010/;
+              proxy_pass http://127.0.0.1:3010;
               ${proxyConfig}
             }
           '';
