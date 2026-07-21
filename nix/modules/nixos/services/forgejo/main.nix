@@ -92,17 +92,10 @@ in
             (services.http.mkOauthConfig {
               inherit svcConfig config;
               oAuthCallbackUrl = "/user/oauth2/FoxDen/callback";
-              oAuthExtraScopes = [ "ssh_publickeys" ];
+              oAuthExtraScopes = [ "ssh_publickeys" "group_names" ];
             })
             // {
               preferShortUsername = true;
-              claimMaps = {
-                "git_group" = {
-                  valuesByGroup = {
-                    "superadmins" = [ "admin" ];
-                  };
-                };
-              };
             };
         };
 
@@ -148,7 +141,7 @@ in
             };
             oauth2_client = {
               ENABLE_AUTO_REGISTRATION = true;
-              OPENID_CONNECT_SCOPES = "openid email profile ssh_publickeys";
+              OPENID_CONNECT_SCOPES = "openid email profile ssh_publickeys group_names";
               REGISTER_EMAIL_CONFIRM = false;
             };
             "repository.pull-request" = {
