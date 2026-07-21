@@ -26,7 +26,7 @@ let
         "http://localhost"
       ];
       serve_frontend = false;
-      serve_swagger = false;
+      serve_swagger = true;
       public_host = externalUrl;
     };
 
