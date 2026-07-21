@@ -92,7 +92,10 @@ in
             (services.http.mkOauthConfig {
               inherit svcConfig config;
               oAuthCallbackUrl = "/user/oauth2/FoxDen/callback";
-              oAuthExtraScopes = [ "ssh_publickeys" "groups_name" ];
+              oAuthExtraScopes = [
+                "ssh_publickeys"
+                "groups_name"
+              ];
             })
             // {
               preferShortUsername = true;
