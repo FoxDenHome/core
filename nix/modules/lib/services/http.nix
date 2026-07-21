@@ -38,6 +38,7 @@ let
     {
       present = true;
       public = true;
+      removeOrphanedClaimMaps = true;
       displayName = svcConfig.oAuth.displayName;
       originUrl = (map (url: "${url}${oAuthCallbackUrl}") baseUrls) ++ oAuthAbsoluteRedirectUrls;
       originLanding = nixpkgs.lib.lists.head baseUrls;
