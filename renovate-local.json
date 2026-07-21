@@ -28,7 +28,7 @@
     },
     {
       "matchManagers": ["npm"],
-      "matchPaths": ["nix/packages/donetick-server/**"],
+      "matchPaths": ["nix/packages/donetick-frontend/**"],
       "enabled": false
     },
     {
