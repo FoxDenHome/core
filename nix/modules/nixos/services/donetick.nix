@@ -45,7 +45,7 @@ let
           admin_groups = [ "superadmins" ];
           name = "FoxDen";
           client_id = svcConfig.oAuth.clientId;
-          scope = [
+          scopes = [
             "openid"
             "profile"
             "email"
