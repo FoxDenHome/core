@@ -16,6 +16,10 @@ pkgs.buildGoModule {
   buildInputs = [ ];
   ldflags = [ "-s -w" ];
 
+  preBuild = ''
+    patch -p1 -i ${./oidc-scopes.patch}
+  '';
+
   postInstall = ''
     mv $out/bin/core $out/bin/donetick-server
   '';

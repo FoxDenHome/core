@@ -1,22 +1,35 @@
 diff --git a/src/views/Authorization/LoginView.jsx b/src/views/Authorization/LoginView.jsx
-index 3fe8a79..bd6ec8a 100644
+index 3fe8a79..eb1394b 100644
 --- a/src/views/Authorization/LoginView.jsx
 +++ b/src/views/Authorization/LoginView.jsx
-@@ -316,7 +316,7 @@ const LoginView = () => {
+@@ -309,6 +309,12 @@ const LoginView = () => {
+     const authentikAuthorizeUrl = resource?.identity_provider?.auth_url
+     const state = generateRandomState()
+ 
++    const scopes = resource?.identity_provider?.scopes ?? [
++      'openid',
++      'profile',
++      'email'
++    ];
++
+     if (Capacitor.isNativePlatform()) {
+       const redirectUri = 'donetick://auth/oauth2'
+ 
+@@ -316,7 +322,7 @@ const LoginView = () => {
          response_type: 'code',
          client_id: resource?.identity_provider?.client_id,
          redirect_uri: redirectUri,
 -        scope: 'openid profile email',
-+        scope: 'openid profile email groups_name',
++        scope: scopes.join(' '),
          state: state,
        })
  
-@@ -343,7 +343,7 @@ const LoginView = () => {
+@@ -343,7 +349,7 @@ const LoginView = () => {
          response_type: 'code',
          client_id: resource?.identity_provider?.client_id,
          redirect_uri: `${window.location.origin}/auth/oauth2`,
 -        scope: 'openid profile email',
-+        scope: 'openid profile email groups_name',
++        scope: scopes.join(' '),
          state: state,
        })
  
