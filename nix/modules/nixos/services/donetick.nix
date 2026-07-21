@@ -20,7 +20,11 @@ let
 
     server = {
       port = 3010;
-      cors_allow_origins = [ externalUrl "capacitor://localhost" "http://localhost" ];
+      cors_allow_origins = [
+        externalUrl
+        "capacitor://localhost"
+        "http://localhost"
+      ];
       serve_frontend = false;
       serve_swagger = false;
       public_host = externalUrl;
@@ -94,6 +98,9 @@ in
             (services.http.mkOauthConfig {
               inherit svcConfig config;
               oAuthCallbackUrl = "/auth/oauth2";
+              oAuthAbsoluteRedirectUrls = [
+                "donetick://auth/oauth2"
+              ];
             })
             // {
               allowInsecureClientDisablePkce = true;
@@ -118,7 +125,6 @@ in
             }
           ];
         };
-
 
         systemd.services.http-donetick = {
           serviceConfig = {

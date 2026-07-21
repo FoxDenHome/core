@@ -8,6 +8,7 @@ let
       config,
       svcConfig,
       oAuthCallbackUrl ? "/oauth2/callback",
+      oAuthAbsoluteRedirectUrls ? [ ],
       ...
     }:
     let
@@ -36,7 +37,7 @@ let
       present = true;
       public = true;
       displayName = svcConfig.oAuth.displayName;
-      originUrl = map (url: "${url}${oAuthCallbackUrl}") baseUrls;
+      originUrl = (map (url: "${url}${oAuthCallbackUrl}") baseUrls) ++ oAuthAbsoluteRedirectUrls;
       originLanding = nixpkgs.lib.lists.head baseUrls;
       scopeMaps.login-users = [
         "preferred_username"
