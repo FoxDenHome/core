@@ -9,7 +9,6 @@ let
       svcConfig,
       oAuthCallbackUrl ? "/oauth2/callback",
       oAuthExtraScopes ? [ ],
-      oAuthExtraGroups ? [ ],
       oAuthAbsoluteRedirectUrls ? [ ],
       ...
     }:
@@ -42,14 +41,13 @@ let
       originUrl = (map (url: "${url}${oAuthCallbackUrl}") baseUrls) ++ oAuthAbsoluteRedirectUrls;
       originLanding = nixpkgs.lib.lists.head baseUrls;
 
-      scopeMaps = nixpkgs.lib.attrsets.genAttrs ([ "login-users" ] ++ oAuthExtraGroups) (group: 
-        [
-          "preferred_username"
-          "email"
-          "openid"
-          "profile"
-        ] ++ oAuthExtraScopes
-      );
+      scopeMaps.login-users = [
+        "preferred_username"
+        "email"
+        "openid"
+        "profile"
+      ]
+      ++ oAuthExtraScopes;
     }
     // imageFileObj
   );
