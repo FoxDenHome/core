@@ -8,6 +8,7 @@ let
       config,
       svcConfig,
       oAuthCallbackUrl ? "/oauth2/callback",
+      oAuthGroup ? "login-users",
       oAuthExtraScopes ? [ ],
       oAuthAbsoluteRedirectUrls ? [ ],
       ...
@@ -41,7 +42,7 @@ let
       originUrl = (map (url: "${url}${oAuthCallbackUrl}") baseUrls) ++ oAuthAbsoluteRedirectUrls;
       originLanding = nixpkgs.lib.lists.head baseUrls;
 
-      scopeMaps.login-users = [
+      scopeMaps."${oAuthGroup}" = [
         "preferred_username"
         "email"
         "openid"
