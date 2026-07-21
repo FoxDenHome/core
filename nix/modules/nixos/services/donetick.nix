@@ -103,6 +103,7 @@ in
                 "donetick://auth/oauth2"
               ];
               oAuthExtraScopes = [ "groups" ];
+              oAuthExtraGroups = [ "superadmins" ];
             })
             // {
               allowInsecureClientDisablePkce = true;
