@@ -102,6 +102,7 @@ in
               oAuthAbsoluteRedirectUrls = [
                 "donetick://auth/oauth2"
               ];
+              oAuthExtraScopes = [ "groups_name" ];
             })
             // {
               allowInsecureClientDisablePkce = true;
