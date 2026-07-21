@@ -8,6 +8,7 @@ let
       config,
       svcConfig,
       oAuthCallbackUrl ? "/oauth2/callback",
+      oAuthExtraScopes ? [ ],
       oAuthAbsoluteRedirectUrls ? [ ],
       ...
     }:
@@ -44,7 +45,7 @@ let
         "email"
         "openid"
         "profile"
-      ];
+      ] ++ oAuthExtraScopes;
     }
     // imageFileObj
   );

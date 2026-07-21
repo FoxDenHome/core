@@ -49,6 +49,7 @@ let
             "openid"
             "profile"
             "email"
+            "groups"
           ];
           auth_url = "https://auth.foxden.network/ui/oauth2";
           token_url = "https://auth.foxden.network/oauth2/token";
@@ -101,6 +102,7 @@ in
               oAuthAbsoluteRedirectUrls = [
                 "donetick://auth/oauth2"
               ];
+              oAuthExtraScopes = [ "groups" ];
             })
             // {
               allowInsecureClientDisablePkce = true;
