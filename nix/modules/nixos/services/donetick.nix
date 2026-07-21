@@ -49,7 +49,7 @@ let
             "openid"
             "profile"
             "email"
-            "groups_name"
+            "groups"
           ];
           auth_url = "https://auth.foxden.network/ui/oauth2";
           token_url = "https://auth.foxden.network/oauth2/token";
