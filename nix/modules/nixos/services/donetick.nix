@@ -42,7 +42,7 @@ let
     oauth2 =
       if svcConfig.oAuth.enable then
         {
-          admin_groups = "superadmins";
+          admin_groups = [ "superadmins" ];
           name = "FoxDen";
           client_id = svcConfig.oAuth.clientId;
           scope = [
@@ -138,24 +138,7 @@ in
           environment = {
             DONETICK_DISABLE_SIGNUP = "True";
             DT_ENV = "selfhosted";
-
-          }
-          // (
-            if svcConfig.oAuth.enable then
-              {
-                DT_DISABLE_PASSWORD_AUTH = "true";
-                DT_OAUTH2_ADMIN_GROUPS = "superadmins";
-                DT_OAUTH2_NAME = "FoxDen";
-                DT_OAUTH2_CLIENT_ID = svcConfig.oAuth.clientId;
-                DT_OAUTH2_SCOPE = "openid profile email";
-                DT_OAUTH2_AUTH_URL = "https://auth.foxden.network/ui/oauth2";
-                DT_OAUTH2_TOKEN_URL = "https://auth.foxden.network/oauth2/token";
-                DT_OAUTH2_USER_INFO_URL = "https://auth.foxden.network/oauth2/openid/${svcConfig.oAuth.clientId}/userinfo";
-                DT_OAUTH2_REDIRECT_URL = "${externalUrl}/auth/oauth2";
-              }
-            else
-              { }
-          );
+          };
 
           serviceConfig = {
             StateDirectory = "donetick";
