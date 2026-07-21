@@ -1,0 +1,22 @@
+diff --git a/src/views/Authorization/LoginView.jsx b/src/views/Authorization/LoginView.jsx
+index 3fe8a79..bd6ec8a 100644
+--- a/src/views/Authorization/LoginView.jsx
++++ b/src/views/Authorization/LoginView.jsx
+@@ -316,7 +316,7 @@ const LoginView = () => {
+         response_type: 'code',
+         client_id: resource?.identity_provider?.client_id,
+         redirect_uri: redirectUri,
+-        scope: 'openid profile email',
++        scope: 'openid profile email groups_name',
+         state: state,
+       })
+ 
+@@ -343,7 +343,7 @@ const LoginView = () => {
+         response_type: 'code',
+         client_id: resource?.identity_provider?.client_id,
+         redirect_uri: `${window.location.origin}/auth/oauth2`,
+-        scope: 'openid profile email',
++        scope: 'openid profile email groups_name',
+         state: state,
+       })
+ 

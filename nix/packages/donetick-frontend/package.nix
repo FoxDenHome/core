@@ -18,6 +18,7 @@ pkgs.buildNpmPackage {
   preBuild = ''
     cp -fv ${./package.json} ./package.json
     cp -fv ${./package-lock.json}  ./package-lock.json
+    patch -p1 -i ${./oidc-scopes.patch}
   '';
 
   npmFlags = [ "--ignore-scripts" ];
