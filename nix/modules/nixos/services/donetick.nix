@@ -20,7 +20,7 @@ let
 
     server = {
       port = 3010;
-      cors_allow_origins = [ externalUrl "capacitor://localhost" ];
+      cors_allow_origins = [ externalUrl "capacitor://localhost" "http://localhost" ];
       serve_frontend = false;
       serve_swagger = false;
       public_host = externalUrl;
