@@ -37,10 +37,13 @@ in
     boot = {
       initrd.systemd.enable = true;
       plymouth.enable = false;
-      binfmt.emulatedSystems = lib.lists.remove systemArch [
-        "x86_64-linux"
-        "aarch64-linux"
-      ];
+      binfmt = {
+        preferStaticEmulators = true;
+        emulatedSystems = lib.lists.remove systemArch [
+          "x86_64-linux"
+          "aarch64-linux"
+        ];
+      };
       kernelPackages = lib.mkDefault pkgs.linuxPackages_latest;
       kernelParams = [
         "iommu.passthrough=0"
