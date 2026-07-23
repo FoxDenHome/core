@@ -97,7 +97,7 @@ in
           passwordFile = "/run/nut-secrets/upsmon";
         };
       };
-      schedulerRules = pkgs.writeText "upssched.conf" ''
+      schedulerRules = "${pkgs.writeText "upssched.conf" ''
         CMDSCRIPT ${pkgs.writeShellScript "cmdscript.sh" cmdScript}
         AT ONBATT * EXECUTE onbatt
         AT ONLINE * EXECUTE onpower
@@ -109,7 +109,7 @@ in
         }
         AT ONLINE * CANCEL-TIMER shutdown
         AT LOWBATT * EXECUTE shutdown
-      '';
+      ''}";
     };
   };
 }
