@@ -134,7 +134,7 @@ in
   make =
     nixosConfigurations:
     let
-      hostsBySystem = foxDenLib.global.config.get [ "foxDen" "hosts" "hosts" ] nixosConfigurations;
+      hostsMap = foxDenLib.global.config.getAttrSet [ "foxDen" "hosts" "hosts" ] nixosConfigurations;
       gateways = foxDenLib.global.hosts.getGateways nixosConfigurations;
 
       resolveHostRef =
@@ -142,7 +142,7 @@ in
         let
           ref = rule.${field};
           refType = builtins.typeOf ref;
-          interface = hostsBySystem.${ref.system}.${ref.host}.interfaces.${ref.interface};
+          interface = hostsMap.${ref.host}.interfaces.${ref.interface};
         in
         if refType == "set" then
           (map (

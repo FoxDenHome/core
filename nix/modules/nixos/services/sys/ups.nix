@@ -2,6 +2,7 @@
   lib,
   pkgs,
   config,
+  hostName,
   ...
 }:
 let
@@ -55,6 +56,23 @@ in
       };
       wantedBy = [ "multi-user.target" ];
     };
+
+    foxDen.firewall.rules = [
+      {
+        table = "filter";
+        chain = "forward";
+        action = "accept";
+        source = {
+          host = hostName;
+        };
+        destination = {
+          host = "ups-rack";
+        };
+        dstport = 161;
+        protocol = "udp";
+        comment = "snmp-${hostName}-ups-rack-allow-snmp";
+      }
+    ];
 
     power.ups = {
       enable = true;
