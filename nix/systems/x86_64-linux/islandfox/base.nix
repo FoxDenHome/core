@@ -93,7 +93,7 @@
 
   foxDen.services = {
     watchdog.enable = true;
+    ups.enable = true;
     backupmgr.enable = config.lib.foxDen.sops.mkIfAvailable true;
-    apcupsd.enable = config.lib.foxDen.sops.mkIfAvailable true;
   };
 }

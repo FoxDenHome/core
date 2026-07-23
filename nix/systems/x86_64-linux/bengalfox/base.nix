@@ -94,7 +94,7 @@
 
   foxDen.services = {
     watchdog.enable = true;
+    ups.enable = true;
     superfan.enable = true;
-    apcupsd.enable = config.lib.foxDen.sops.mkIfAvailable true;
   };
 }
