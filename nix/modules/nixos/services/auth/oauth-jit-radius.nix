@@ -31,7 +31,7 @@ let
       {
         subnets = [ "10.1.11.2/32" ];
         secret = "$\{RADIUS_SECRET_EATON}";
-        mapper = "";
+        mapper = "eaton";
       }
       {
         subnets = [
