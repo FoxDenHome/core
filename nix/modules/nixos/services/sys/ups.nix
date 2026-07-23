@@ -113,6 +113,7 @@ in
               "SYSLOG+EXEC"
             ]
           ];
+          SHUTDOWNCMD = null;
           POWERDOWNFLAG = null;
         };
         monitor.ups-rack = {
