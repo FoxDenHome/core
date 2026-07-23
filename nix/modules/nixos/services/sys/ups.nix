@@ -18,7 +18,12 @@ in
     lowBatteryLevel = lib.mkOption {
       type = lib.types.ints.positive;
       default = 30;
-      description = "Battery level (%) to trigger shutdown";
+      description = "Battery level (%) to trigger low battery state (and shutdown)";
+    };
+    secondsRuntimeLeft = lib.mkOption {
+      type = lib.types.ints.unsigned;
+      default = 5 * 60;
+      description = "Seconds of time left to trigger low battery state (and shutdown)";
     };
     secondsOnBattery = lib.mkOption {
       type = lib.types.ints.unsigned;
@@ -84,6 +89,7 @@ in
           "snmp_version = v1"
           "mibs = eaton_pw_nm2"
           "override.battery.charge.low = ${toString svcConfig.lowBatteryLevel}"
+          "override.battery.runtime.low = ${toString svcConfig.secondsRuntimeLeft}"
         ];
       };
       users = {
