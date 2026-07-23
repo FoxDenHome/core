@@ -31,7 +31,7 @@ in
       "d /run/nut-secrets 0700 root root"
     ];
 
-    systemd.service.upsd-generate-passwords = {
+    systemd.services.upsd-generate-passwords = {
       description = "NUT upsd random generate service passwords";
       after = [ "network.target" ];
       before = [
@@ -42,8 +42,12 @@ in
         Type = "oneshot";
         ExecStart = pkgs.writeShellScript "ups-secrets.sh" ''
           set -ex
-          dd if=/dev/urandom bs=32 count=1 | base64 > of=/run/nut-secrets/upsmon
-          chmod 600 /run/nut-secrets/upsmon
+          for user in (upsmon); do
+            if [ ! -f "/run/nut-secrets/$user" ]; then
+              dd if=/dev/urandom bs=32 count=1 | base64 > of="/run/nut-secrets/$user"
+            fi
+            chmod 600 "/run/nut-secrets/$user"
+          done
         '';
         RemainAfterExit = true;
       };
