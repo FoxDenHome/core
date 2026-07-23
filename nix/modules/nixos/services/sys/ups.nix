@@ -99,7 +99,6 @@ in
       };
       upsmon = {
         settings = {
-          MINSUPPLIES = 1;
           NOTIFYFLAG = [
             [
               "ONLINE"
@@ -117,8 +116,7 @@ in
           POWERDOWNFLAG = null;
         };
         monitor.ups-rack = {
-          type = "master";
-          powerValue = 2;
+          type = "primary";
           user = "upsmon";
           passwordFile = "/run/nut-secrets/upsmon";
         };

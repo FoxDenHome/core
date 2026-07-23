@@ -94,7 +94,10 @@
 
   foxDen.services = {
     watchdog.enable = true;
-    ups.enable = true;
+    ups = {
+      enable = true;
+      secondsOnBattery = 5 * 60;
+    };
     superfan.enable = true;
   };
 }
