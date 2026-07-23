@@ -42,7 +42,7 @@ in
         AT ONBATT * EXECUTE onbatt
         AT ONLINE * EXECUTE onpower
         ${
-          if svcCondiv.secondsOnBattery > 0 then
+          if svcConfig.secondsOnBattery > 0 then
             "AT ONBATT * START-TIMER shutdown ${svcConfig.secondsOnBattery}"
           else
             ""
