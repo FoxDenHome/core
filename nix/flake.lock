@@ -353,11 +353,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1784830947,
-        "narHash": "sha256-YMNy2a0TM6w7t7NqW9Zi5+o62hvVogu44lM9ZIqPsQ4=",
+        "lastModified": 1784831363,
+        "narHash": "sha256-txaVzRRByLNhqQMB8VEI8euDPgJMIAYc3/DWWy8R6LY=",
         "ref": "refs/heads/main",
-        "rev": "32b60d4416a2babebfc26463c18d710ca85579ab",
-        "revCount": 217,
+        "rev": "404fa6d319052a8602c6e761ef850d0cdad09cff",
+        "revCount": 218,
         "type": "git",
         "url": "https://git.foxden.network/FoxDen/oauth-jit-radius"
       },
