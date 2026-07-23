@@ -17,25 +17,25 @@ let
 in
 pkgs.stdenv.mkDerivation (finalAttrs: {
   pname = "affine-server";
-  version = "0.27.1";
+  version = "0.27.3";
 
   src = pkgs.fetchFromGitHub {
     owner = "toeverything";
     repo = "AFFiNE";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-QyqH2P2Z/AKz9P2hNGvdJK2YX3tvSFIjQZegHD6bHhI=";
+    hash = "sha256-GQ56cuJyAtgRz/hHXW7P7stnSNPMbSVS9KHuNLoHpDk=";
   };
 
   cargoDeps = pkgs.rustPlatform.fetchCargoVendor {
     inherit (finalAttrs) pname version src;
-    hash = "sha256-BPcSWpDOmOoZxx4x8RMAOuZO+AiOvgbn8f2jGy3yLPQ=";
+    hash = "sha256-jtoF+KUo+C9WctKWJHGrvFPYNEWOkehagRYLORBz04A=";
   };
 
   # keep yarnOfflineCache same output style with offlineCache = yarn-berry.fetchYarnBerryDeps { inherit (finalAttrs) src missingHashes; hash = "" };
   yarnOfflineCache = pkgs.stdenvNoCC.mkDerivation {
     name = "yarn-offline-cache";
     inherit (finalAttrs) src;
-    outputHash = "sha256-duG+rlX0yvVml9kj66AY+CzM0TCdhk0YcMXNUc2qkis=";
+    outputHash = "sha256-79vP0hC+p91Ut/VvTipNCC0yM/1PUXOncA4iel5eLg8=";
     outputHashMode = "recursive";
 
     nativeBuildInputs = [
