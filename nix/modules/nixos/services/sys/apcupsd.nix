@@ -25,7 +25,9 @@ in
         UPSCABLE ether
         UPSTYPE snmp
         NISIP 127.0.0.1
-        DEVICE ups-rack.foxden.network:161:APC_NOTRAP:apcupsd
+        NETSERVER on
+        NISPORT 3551
+        DEVICE ups-rack.foxden.network:161:RFC:monitor_sprFp7
         BATTERYLEVEL ${toString svcConfig.batteryLevel}
         MINUTES ${toString svcConfig.minutes}
       '';
