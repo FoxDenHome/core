@@ -27,6 +27,29 @@ in
   };
 
   config = lib.mkIf svcConfig.enable {
+    systemd.tmpfiles.rules = [
+      "d /run/nut-secrets 0700 root root"
+    ];
+
+    systemd.service.upsd-generate-passwords = {
+      description = "NUT upsd random generate service passwords";
+      after = [ "network.target" ];
+      before = [
+        "upsmon.service"
+        "upsd.service"
+      ];
+      serviceConfig = {
+        Type = "oneshot";
+        ExecStart = pkgs.writeShellScript "ups-secrets.sh" ''
+          set -ex
+          dd if=/dev/urandom bs=32 count=1 | base64 > of=/run/nut-secrets/upsmon
+          chmod 600 /run/nut-secrets/upsmon
+        '';
+        RemainAfterExit = true;
+      };
+      wantedBy = [ "multi-user.target" ];
+    };
+
     power.ups = {
       enable = true;
       ups.ups-rack = {
@@ -36,6 +59,11 @@ in
         snmp_version = "v1";
         mibs = "pw";
         "override.battery.charge.low" = svcConfig.lowBatteryLevel;
+      };
+      users = {
+        upsmon = {
+          passwordFile = "/run/nut-secrets/upsmon";
+        };
       };
       upsmon = {
         settings = {
@@ -59,6 +87,8 @@ in
         monitor.ups-rack = {
           type = "master";
           powerValue = 2;
+          user = "upsmon";
+          passwordFile = "/run/nut-secrets/upsmon";
         };
       };
       schedulerRules = pkgs.writeText "upssched.conf" ''
