@@ -37,7 +37,7 @@ in
         mibs = "pw";
         "override.battery.charge.low" = svcConfig.lowBatteryLevel;
       };
-      upsmon.ups-rack = {
+      upsmon.monitor.ups-rack = {
         type = "slave"; # We do NOT shut the UPS down!
       };
       schedulerRules = pkgs.writeText "upssched.conf" ''
