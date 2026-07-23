@@ -56,14 +56,10 @@ in
       wantedBy = [ "multi-user.target" ];
     };
 
-    systemd.services.upsd = {
-      path = [ config.power.ups.package ];
-    };
-
     power.ups = {
       enable = true;
       ups.ups-rack = {
-        driver = "snmp-ups";
+        driver = "${config.power.ups.package}/bin/snmp-ups";
         port = "ups-rack.foxden.network:161";
         directives = [
           "community = monitor_sprFp7"
