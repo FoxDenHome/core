@@ -59,7 +59,7 @@ in
     power.ups = {
       enable = true;
       ups.ups-rack = {
-        driver = "${config.power.ups.package}/bin/snmp-ups";
+        driver = "snmp-ups";
         port = "ups-rack.foxden.network:161";
         directives = [
           "community = monitor_sprFp7"
