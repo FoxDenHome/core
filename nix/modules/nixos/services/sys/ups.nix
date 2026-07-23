@@ -21,7 +21,7 @@ in
       description = "Battery level (%) to trigger low battery state (and shutdown)";
     };
     secondsRuntimeLeft = lib.mkOption {
-      type = lib.types.ints.unsigned;
+      type = lib.types.ints.positive;
       default = 5 * 60;
       description = "Seconds of time left to trigger low battery state (and shutdown)";
     };
