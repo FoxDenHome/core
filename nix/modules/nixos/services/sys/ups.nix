@@ -64,7 +64,7 @@ in
         directives = [
           "community = monitor_sprFp7"
           "snmp_version = v1"
-          "mibs = pw"
+          "mibs = eaton_pw_nm2"
           "override.battery.charge.low = ${toString svcConfig.lowBatteryLevel}"
         ];
       };
