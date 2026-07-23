@@ -57,6 +57,7 @@ let
           {
             args = { };
             issuer = "https://auth.foxden.network/oauth2/openid/${svcConfig.oAuth.clientId}";
+            allowPrivateNetwork = true;
             clientId = svcConfig.oAuth.clientId;
             clientSecret = svcConfig.oAuth.clientId;
           }
