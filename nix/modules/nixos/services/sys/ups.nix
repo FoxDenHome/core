@@ -57,7 +57,7 @@ in
     };
 
     systemd.services.upsd = {
-      path = [ config.ups.package ];
+      path = [ config.power.ups.package ];
     };
 
     power.ups = {
