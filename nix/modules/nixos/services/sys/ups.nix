@@ -56,6 +56,10 @@ in
       wantedBy = [ "multi-user.target" ];
     };
 
+    systemd.services.upsd = {
+      path = [ config.ups.package ];
+    };
+
     power.ups = {
       enable = true;
       ups.ups-rack = {
