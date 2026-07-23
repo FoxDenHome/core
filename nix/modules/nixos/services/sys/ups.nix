@@ -98,7 +98,7 @@ in
         };
       };
       schedulerRules = pkgs.writeText "upssched.conf" ''
-        CMDSCRIPT ${pkgs.writeShellScreipt "cmdscript.sh" cmdScript}
+        CMDSCRIPT ${pkgs.writeShellScript "cmdscript.sh" cmdScript}
         AT ONBATT * EXECUTE onbatt
         AT ONLINE * EXECUTE onpower
         ${
