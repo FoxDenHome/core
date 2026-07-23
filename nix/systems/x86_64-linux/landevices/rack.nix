@@ -48,7 +48,7 @@
           duid = "0x0003000100c0b7e8b2a0";
           iaid = 2;
         };
-        mac = "00:20:85:DB:92:BA";
+        mac = "00:C0:B7:E8:B2:A0";
         addresses = [
           "10.1.11.2/16"
           "fd2c:f4cb:63be:1::b02/64"
