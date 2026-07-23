@@ -42,12 +42,14 @@ in
         Type = "oneshot";
         ExecStart = pkgs.writeShellScript "ups-secrets.sh" ''
           set -ex
-          for user in (upsmon); do
+          adduser() {
+            local user="$1"
             if [ ! -f "/run/nut-secrets/$user" ]; then
               dd if=/dev/urandom bs=32 count=1 | base64 > of="/run/nut-secrets/$user"
             fi
             chmod 600 "/run/nut-secrets/$user"
-          done
+          }
+          adduser upsmon
         '';
         RemainAfterExit = true;
       };
