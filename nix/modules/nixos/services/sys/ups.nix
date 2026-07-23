@@ -37,8 +37,29 @@ in
         mibs = "pw";
         "override.battery.charge.low" = svcConfig.lowBatteryLevel;
       };
-      upsmon.monitor.ups-rack = {
-        type = "slave"; # We do NOT shut the UPS down!
+      upsmon = {
+        settings = {
+          MINSUPPLIES = 1;
+          NOTIFYFLAG = [
+            [
+              "ONLINE"
+              "SYSLOG+EXEC"
+            ]
+            [
+              "ONBATT"
+              "SYSLOG+EXEC"
+            ]
+            [
+              "LOWBATT"
+              "SYSLOG+EXEC"
+            ]
+          ];
+          POWERDOWNFLAG = null;
+        };
+        monitor.ups-rack = {
+          type = "master";
+          powerValue = 2;
+        };
       };
       schedulerRules = pkgs.writeText "upssched.conf" ''
         CMDSCRIPT ${pkgs.writeShellScreipt "cmdscript.sh"}
