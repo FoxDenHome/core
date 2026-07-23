@@ -37,6 +37,9 @@ in
         mibs = "pw";
         "override.battery.charge.low" = svcConfig.lowBatteryLevel;
       };
+      upsmon.ups-rack = {
+        type = "slave"; # We do NOT shut the UPS down!
+      };
       schedulerRules = pkgs.writeText "upssched.conf" ''
         CMDSCRIPT ${pkgs.writeShellScreipt "cmdscript.sh"}
         AT ONBATT * EXECUTE onbatt
