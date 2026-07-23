@@ -59,10 +59,12 @@ in
       ups.ups-rack = {
         driver = "snmp-ups";
         port = "ups-rack.foxden.network:161";
-        community = "monitor_sprFp7";
-        snmp_version = "v1";
-        mibs = "pw";
-        "override.battery.charge.low" = svcConfig.lowBatteryLevel;
+        directives = {
+          community = "monitor_sprFp7";
+          snmp_version = "v1";
+          mibs = "pw";
+          "override.battery.charge.low" = svcConfig.lowBatteryLevel;
+        };
       };
       users = {
         upsmon = {
