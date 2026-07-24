@@ -99,9 +99,9 @@ in
             // {
               preferShortUsername = true;
               claimMaps = {
-                "apc_service_type" = {
+                "eaton_access_level" = {
                   valuesByGroup = {
-                    "superadmins" = [ "admin" ];
+                    "superadmins" = [ "3" ];
                   };
                 };
                 "cyberpower_service_type" = {
