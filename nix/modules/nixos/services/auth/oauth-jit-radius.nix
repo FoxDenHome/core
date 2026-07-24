@@ -53,6 +53,7 @@ let
       scopes = [
         "openid"
         "profile"
+        "groups_name"
       ];
       client_id = svcConfig.oAuth.clientId;
       client_secret = "$\{OAUTH_CLIENT_SECRET}";
