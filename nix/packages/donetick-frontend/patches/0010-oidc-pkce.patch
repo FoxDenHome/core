@@ -41,10 +41,10 @@ index 4420b35..e9ec681 100644
              redirect_uri: redirectURI,
            }),
 diff --git a/src/views/Authorization/LoginView.jsx b/src/views/Authorization/LoginView.jsx
-index eb1394b..b18bf4c 100644
+index eb1394b..6e017e2 100644
 --- a/src/views/Authorization/LoginView.jsx
 +++ b/src/views/Authorization/LoginView.jsx
-@@ -298,16 +298,28 @@ const LoginView = () => {
+@@ -298,16 +298,29 @@ const LoginView = () => {
    const handleForgotPassword = () => {
      Navigate('/forgot-password')
    }
@@ -69,15 +69,16 @@ index eb1394b..b18bf4c 100644
 +    const verifier = generateRandomString(32)
 +    localStorage.setItem('authVerifier', verifier)
 +
-+    const challenge = new Uint8Array(
-+      crypto.subtle.digest('SHA-256', new TextEncoder().encode(verifier)),
-+    ).toBase64({
++    const challengeDigest = new Uint8Array(
++      await crypto.subtle.digest('SHA-256', new TextEncoder().encode(verifier)),
++    )
++    const challenge = challengeDigest.toBase64({
 +      alphabet: 'base64url',
 +    })
  
      const scopes = resource?.identity_provider?.scopes ?? [
        'openid',
-@@ -324,6 +336,8 @@ const LoginView = () => {
+@@ -324,6 +337,8 @@ const LoginView = () => {
          redirect_uri: redirectUri,
          scope: scopes.join(' '),
          state: state,
@@ -86,7 +87,7 @@ index eb1394b..b18bf4c 100644
        })
  
        const authUrl = `${authentikAuthorizeUrl}?${params.toString()}`
-@@ -351,6 +365,8 @@ const LoginView = () => {
+@@ -351,6 +366,8 @@ const LoginView = () => {
          redirect_uri: `${window.location.origin}/auth/oauth2`,
          scope: scopes.join(' '),
          state: state,
