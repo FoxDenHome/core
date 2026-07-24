@@ -1,5 +1,5 @@
 diff --git a/src/views/Authorization/LoginView.jsx b/src/views/Authorization/LoginView.jsx
-index 3fe8a79..eb1394b 100644
+index 3fe8a79..45b8528 100644
 --- a/src/views/Authorization/LoginView.jsx
 +++ b/src/views/Authorization/LoginView.jsx
 @@ -309,6 +309,12 @@ const LoginView = () => {
@@ -9,8 +9,8 @@ index 3fe8a79..eb1394b 100644
 +    const scopes = resource?.identity_provider?.scopes ?? [
 +      'openid',
 +      'profile',
-+      'email'
-+    ];
++      'email',
++    ]
 +
      if (Capacitor.isNativePlatform()) {
        const redirectUri = 'donetick://auth/oauth2'
