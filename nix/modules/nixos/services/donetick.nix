@@ -55,6 +55,7 @@ let
           token_url = "https://auth.foxden.network/oauth2/token";
           user_info_url = "https://auth.foxden.network/oauth2/openid/${svcConfig.oAuth.clientId}/userinfo";
           redirect_url = "${externalUrl}/auth/oauth2";
+          pkce = true;
         }
       else
         { };
