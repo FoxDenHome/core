@@ -41,7 +41,7 @@ index 4420b35..e9ec681 100644
              redirect_uri: redirectURI,
            }),
 diff --git a/src/views/Authorization/LoginView.jsx b/src/views/Authorization/LoginView.jsx
-index eb1394b..08c4f30 100644
+index eb1394b..530c4f7 100644
 --- a/src/views/Authorization/LoginView.jsx
 +++ b/src/views/Authorization/LoginView.jsx
 @@ -298,16 +298,26 @@ const LoginView = () => {
@@ -69,7 +69,7 @@ index eb1394b..08c4f30 100644
 +    const verifier = generateRandomString(32)
 +    localStorage.setItem('authVerifier', verifier)
 +
-+    const challenge = crypto.suble.digest('SHA-256', verifier).toBase64({
++    const challenge = crypto.subtle.digest('SHA-256', verifier).toBase64({
 +      alphabet: 'base64url',
 +    })
  
