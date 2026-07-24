@@ -16,9 +16,13 @@ pkgs.buildNpmPackage {
   npmConfigHook = pkgs.importNpmLock.npmConfigHook;
 
   preBuild = ''
+    for pfile in ${./patches}/*.patch; do
+      echo "Applying patch $(basename "$pfile")"
+      patch -p1 -i $pfile
+    done
+
     cp -fv ${./package.json} ./package.json
     cp -fv ${./package-lock.json}  ./package-lock.json
-    patch -p1 -i ${./oidc-scopes.patch}
   '';
 
   npmFlags = [ "--ignore-scripts" ];

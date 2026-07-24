@@ -17,7 +17,10 @@ pkgs.buildGoModule {
   ldflags = [ "-s -w" ];
 
   preBuild = ''
-    patch -p1 -i ${./oidc-scopes.patch}
+    for pfile in ${./patches}/*.patch; do
+      echo "Applying patch $(basename "$pfile")"
+      patch -p1 -i $pfile
+    done
   '';
 
   postInstall = ''

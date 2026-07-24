@@ -1,0 +1,32 @@
+diff --git a/src/views/Authorization/Authenticating.jsx b/src/views/Authorization/Authenticating.jsx
+index 4420b35..2115034 100644
+--- a/src/views/Authorization/Authenticating.jsx
++++ b/src/views/Authorization/Authenticating.jsx
+@@ -76,7 +76,7 @@ const AuthenticationLoading = () => {
+     const code = urlParams.get('code')
+     const returnedState = urlParams.get('state')
+ 
+-    const storedState = localStorage.getItem('authState')
++    const storedState = Cookies.get('oauth_state')
+ 
+     if (returnedState !== storedState) {
+       setMessage('Authentication failed')
+diff --git a/src/views/Authorization/LoginView.jsx b/src/views/Authorization/LoginView.jsx
+index eb1394b..bb8c08b 100644
+--- a/src/views/Authorization/LoginView.jsx
++++ b/src/views/Authorization/LoginView.jsx
+@@ -299,8 +299,12 @@ const LoginView = () => {
+     Navigate('/forgot-password')
+   }
+   const generateRandomState = () => {
+-    const randomState = Math.random().toString(32).substring(5)
+-    localStorage.setItem('authState', randomState)
++    const data = new Uint8Array(32)
++    crypto.getRandomValues(data)
++    const randomState = data.toBase64({
++      alphabet: 'base64url',
++    })
++    Cookies.set('oauth_state', randomState)
+ 
+     return randomState
+   }
