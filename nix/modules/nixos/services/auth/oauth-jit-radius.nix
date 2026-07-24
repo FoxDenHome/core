@@ -56,8 +56,10 @@ let
         "groups_name"
       ];
       client_id = svcConfig.oAuth.clientId;
-      client_secret = "$\{OAUTH_CLIENT_SECRET}";
+      client_secret = "PKCE";
       server_addr = "127.0.0.1:1444";
+      admin_group = "superadmins";
+      viewer_group = "";
     };
   };
 
