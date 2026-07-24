@@ -45,6 +45,7 @@ let
           admin_groups = [ "superadmins" ];
           name = "FoxDen";
           client_id = svcConfig.oAuth.clientId;
+          client_secret = "PKCE";
           scopes = [
             "openid"
             "profile"
