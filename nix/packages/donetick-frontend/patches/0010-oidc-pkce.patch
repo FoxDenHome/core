@@ -41,7 +41,7 @@ index 4420b35..83c280c 100644
              redirect_uri: redirectURI,
            }),
 diff --git a/src/views/Authorization/LoginView.jsx b/src/views/Authorization/LoginView.jsx
-index eb1394b..758f1bc 100644
+index eb1394b..2e08c23 100644
 --- a/src/views/Authorization/LoginView.jsx
 +++ b/src/views/Authorization/LoginView.jsx
 @@ -298,16 +298,20 @@ const LoginView = () => {
@@ -82,12 +82,12 @@ index eb1394b..758f1bc 100644
 -        redirect_uri: redirectUri,
 -        scope: scopes.join(' '),
 -        state: state,
-+    const params = {
++    const params = new URLSearchParams({
 +      response_type: 'code',
 +      client_id: resource?.identity_provider?.client_id,
 +      scope: scopes.join(' '),
 +      state: state,
-+    }
++    })
 +
 +    if (resource?.identity_provider?.pkce) {
 +      const verifier = generateRandomString(32)
@@ -103,14 +103,14 @@ index eb1394b..758f1bc 100644
 +        alphabet: 'base64url',
        })
  
-+      params.code_challenge = challenge
-+      params.code_challenge_method = 'S256'
++      params.set('code_challenge', challenge)
++      params.set('code_challenge_method', 'S256')
 +    } else {
 +      localStorage.removeItem('authVerifier')
 +    }
 +
 +    if (Capacitor.isNativePlatform()) {
-+      params.redirect_uri = 'donetick://auth/oauth2'
++      params.set('redirect_uri', 'donetick://auth/oauth2')
 +
        const authUrl = `${authentikAuthorizeUrl}?${params.toString()}`
        console.log('Opening OAuth in browser:', authUrl)
@@ -126,7 +126,7 @@ index eb1394b..758f1bc 100644
 -        scope: scopes.join(' '),
 -        state: state,
 -      })
-+      params.redirect_uri = `${window.location.origin}/auth/oauth2`
++      params.set('redirect_uri', `${window.location.origin}/auth/oauth2`)
  
        console.log('redirect', `${authentikAuthorizeUrl}?${params.toString()}`)
        window.location.href = `${authentikAuthorizeUrl}?${params.toString()}`
