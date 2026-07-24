@@ -97,17 +97,13 @@ in
         foxDen.services.donetick.oAuth.overrideService = true;
         foxDen.services.kanidm.oauth2 = lib.mkIf svcConfig.oAuth.enable {
           ${svcConfig.oAuth.clientId} = (
-            (services.http.mkOauthConfig {
+            services.http.mkOauthConfig {
               inherit svcConfig config;
               oAuthCallbackUrl = "/auth/oauth2";
               oAuthAbsoluteRedirectUrls = [
                 "donetick://auth/oauth2"
               ];
               oAuthExtraScopes = [ "groups_name" ];
-            })
-            // {
-              allowInsecureClientDisablePkce = true;
-              public = false;
             }
           );
         };
