@@ -98,33 +98,12 @@ in
             })
             // {
               preferShortUsername = true;
-              claimMaps = {
-                "eaton_access_level" = {
-                  valuesByGroup = {
-                    "superadmins" = [ "3" ];
-                  };
-                };
-                "cyberpower_service_type" = {
-                  valuesByGroup = {
-                    "superadmins" = [ "admin" ];
-                  };
-                };
-                "mikrotik_group" = {
-                  valuesByGroup = {
-                    "superadmins" = [ "full" ];
-                  };
-                };
-                "supermicro_permissions" = {
-                  valuesByGroup = {
-                    "superadmins" = [ "administrator" ];
-                  };
-                };
-              };
               scopeMaps.superadmins = [
                 "preferred_username"
                 "email"
                 "openid"
                 "profile"
+                "groups_name"
               ];
             };
         };
