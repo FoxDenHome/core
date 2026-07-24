@@ -1,5 +1,5 @@
 diff --git a/internal/auth/identity_provider.go b/internal/auth/identity_provider.go
-index d7070e1..a9b5abf 100644
+index d7070e1..db8f5c9 100644
 --- a/internal/auth/identity_provider.go
 +++ b/internal/auth/identity_provider.go
 @@ -33,7 +33,7 @@ func NewIdentityProvider(cfg *config.Config) *IdentityProvider {
@@ -7,7 +7,7 @@ index d7070e1..a9b5abf 100644
  }
  
 -func (i *IdentityProvider) ExchangeToken(ctx context.Context, code string, redirectURL string) (string, error) {
-+func (i *IdentityProvider) ExchangeToken(ctx context.Context, code string, redirectURL string, oauthState string) (string, error) {
++func (i *IdentityProvider) ExchangeToken(ctx context.Context, code string, redirectURL string, verifier string) (string, error) {
  	if !i.isEnabled {
  		return "", errors.New("identity provider is not enabled")
  	}
@@ -16,26 +16,28 @@ index d7070e1..a9b5abf 100644
  	}
  
 -	token, err := conf.Exchange(ctx, code)
-+	token, err := conf.Exchange(ctx, code, oauth2.VerifierOption(oauthState))
++	token, err := conf.Exchange(ctx, code, oauth2.VerifierOption(verifier))
  	if err != nil {
  		// Enhanced error handling for OAuth2 errors
  		switch {
 diff --git a/internal/user/handler.go b/internal/user/handler.go
-index 9ec1449..a5b71e2 100644
+index 9ec1449..a04dfb8 100644
 --- a/internal/user/handler.go
 +++ b/internal/user/handler.go
-@@ -633,7 +633,13 @@ func (h *Handler) thirdPartyAuthCallback(c *gin.Context) {
+@@ -615,6 +615,7 @@ func (h *Handler) thirdPartyAuthCallback(c *gin.Context) {
+ 		type Request struct {
+ 			Code        string `json:"code"`
+ 			RedirectURI string `json:"redirect_uri"`
++			Verifier    string `json:"verifier"`
+ 		}
+ 		var req Request
+ 		if err := c.ShouldBindJSON(&req); err != nil {
+@@ -633,7 +634,7 @@ func (h *Handler) thirdPartyAuthCallback(c *gin.Context) {
  		logger.Infow("account.handler.thirdPartyAuthCallback (oauth2) attempting to exchange code", "codeLength", len(req.Code), "redirectURI", req.RedirectURI)
  
  		// Pass the redirect URI from the request if provided, otherwise use config default
 -		token, err := h.identityProvider.ExchangeToken(c, req.Code, req.RedirectURI)
-+		oauthState, err := c.Cookie("oauth_state")
-+		if err != nil {
-+			logger.Errorw("account.handler.thirdPartyAuthCallback (oauth2) missing oauth_state cookie")
-+			c.JSON(http.StatusBadRequest, gin.H{"error": "oauth_state cookie is required"})
-+			return
-+		}
-+		token, err := h.identityProvider.ExchangeToken(c, req.Code, req.RedirectURI, oauthState)
++		token, err := h.identityProvider.ExchangeToken(c, req.Code, req.RedirectURI, req.Verifier)
  
  		if err != nil {
  			logger.Errorw("account.handler.thirdPartyAuthCallback (oauth2) failed to exchange token", "err", err, "code", req.Code[:min(len(req.Code), 10)]+"...")

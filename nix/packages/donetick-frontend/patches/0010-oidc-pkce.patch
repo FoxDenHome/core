@@ -1,32 +1,95 @@
+diff --git a/src/CapacitorListener.js b/src/CapacitorListener.js
+index fd8d195..37ac98d 100644
+--- a/src/CapacitorListener.js
++++ b/src/CapacitorListener.js
+@@ -82,6 +82,7 @@ const handleOAuthDeepLink = async url => {
+     const urlObj = new URL(url)
+     const code = urlObj.searchParams.get('code')
+     const state = urlObj.searchParams.get('state')
++    const verifier = localStorage.getItem('authVerifier')
+ 
+     if (code && state) {
+       // If we're already on the OAuth handler page with the same code, skip
+@@ -96,7 +97,7 @@ const handleOAuthDeepLink = async url => {
+       // Store the OAuth params for the app to pick up
+       await Preferences.set({
+         key: 'oauth_callback',
+-        value: JSON.stringify({ code, state, timestamp: Date.now() }),
++        value: JSON.stringify({ code, state, verifier, timestamp: Date.now() }),
+       })
+ 
+       // Close the browser if it's still open
 diff --git a/src/views/Authorization/Authenticating.jsx b/src/views/Authorization/Authenticating.jsx
-index 4420b35..2115034 100644
+index 4420b35..e9ec681 100644
 --- a/src/views/Authorization/Authenticating.jsx
 +++ b/src/views/Authorization/Authenticating.jsx
-@@ -76,7 +76,7 @@ const AuthenticationLoading = () => {
-     const code = urlParams.get('code')
-     const returnedState = urlParams.get('state')
+@@ -85,6 +85,8 @@ const AuthenticationLoading = () => {
+       return
+     }
  
--    const storedState = localStorage.getItem('authState')
-+    const storedState = Cookies.get('oauth_state')
- 
-     if (returnedState !== storedState) {
-       setMessage('Authentication failed')
++    const verifier = localStorage.getItem('authVerifier')
++
+     if (code) {
+       await apiClient.init()
+       const baseURL = apiClient.getApiURL()
+@@ -99,6 +101,7 @@ const AuthenticationLoading = () => {
+           },
+           body: JSON.stringify({
+             code,
++            verifier,
+             state: returnedState,
+             redirect_uri: redirectURI,
+           }),
 diff --git a/src/views/Authorization/LoginView.jsx b/src/views/Authorization/LoginView.jsx
-index eb1394b..bb8c08b 100644
+index eb1394b..08c4f30 100644
 --- a/src/views/Authorization/LoginView.jsx
 +++ b/src/views/Authorization/LoginView.jsx
-@@ -299,8 +299,12 @@ const LoginView = () => {
+@@ -298,16 +298,26 @@ const LoginView = () => {
+   const handleForgotPassword = () => {
      Navigate('/forgot-password')
    }
-   const generateRandomState = () => {
+-  const generateRandomState = () => {
 -    const randomState = Math.random().toString(32).substring(5)
 -    localStorage.setItem('authState', randomState)
-+    const data = new Uint8Array(32)
++  const generateRandomString = entropyLen => {
++    const data = new Uint8Array(entropyLen)
 +    crypto.getRandomValues(data)
 +    const randomState = data.toBase64({
 +      alphabet: 'base64url',
 +    })
-+    Cookies.set('oauth_state', randomState)
  
      return randomState
    }
+ 
+   const handleAuthentikLogin = async () => {
+     const authentikAuthorizeUrl = resource?.identity_provider?.auth_url
+-    const state = generateRandomState()
++    const state = generateRandomString(16)
++    localStorage.setItem('authState', state)
++    const verifier = generateRandomString(32)
++    localStorage.setItem('authVerifier', verifier)
++
++    const challenge = crypto.suble.digest('SHA-256', verifier).toBase64({
++      alphabet: 'base64url',
++    })
+ 
+     const scopes = resource?.identity_provider?.scopes ?? [
+       'openid',
+@@ -324,6 +334,8 @@ const LoginView = () => {
+         redirect_uri: redirectUri,
+         scope: scopes.join(' '),
+         state: state,
++        code_challenge: challenge,
++        code_challenge_method: 'S256',
+       })
+ 
+       const authUrl = `${authentikAuthorizeUrl}?${params.toString()}`
+@@ -351,6 +363,8 @@ const LoginView = () => {
+         redirect_uri: `${window.location.origin}/auth/oauth2`,
+         scope: scopes.join(' '),
+         state: state,
++        code_challenge: challenge,
++        code_challenge_method: 'S256',
+       })
+ 
+       console.log('redirect', `${authentikAuthorizeUrl}?${params.toString()}`)
