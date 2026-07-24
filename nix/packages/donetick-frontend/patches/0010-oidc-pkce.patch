@@ -1,12 +1,12 @@
 diff --git a/src/CapacitorListener.js b/src/CapacitorListener.js
-index fd8d195..37ac98d 100644
+index fd8d195..72646a9 100644
 --- a/src/CapacitorListener.js
 +++ b/src/CapacitorListener.js
 @@ -82,6 +82,7 @@ const handleOAuthDeepLink = async url => {
      const urlObj = new URL(url)
      const code = urlObj.searchParams.get('code')
      const state = urlObj.searchParams.get('state')
-+    const verifier = localStorage.getItem('authVerifier')
++    const verifier = localStorage.getItem('authVerifier') ?? ''
  
      if (code && state) {
        // If we're already on the OAuth handler page with the same code, skip
@@ -20,14 +20,14 @@ index fd8d195..37ac98d 100644
  
        // Close the browser if it's still open
 diff --git a/src/views/Authorization/Authenticating.jsx b/src/views/Authorization/Authenticating.jsx
-index 4420b35..e9ec681 100644
+index 4420b35..83c280c 100644
 --- a/src/views/Authorization/Authenticating.jsx
 +++ b/src/views/Authorization/Authenticating.jsx
 @@ -85,6 +85,8 @@ const AuthenticationLoading = () => {
        return
      }
  
-+    const verifier = localStorage.getItem('authVerifier')
++    const verifier = localStorage.getItem('authVerifier') ?? ''
 +
      if (code) {
        await apiClient.init()
@@ -41,10 +41,10 @@ index 4420b35..e9ec681 100644
              redirect_uri: redirectURI,
            }),
 diff --git a/src/views/Authorization/LoginView.jsx b/src/views/Authorization/LoginView.jsx
-index eb1394b..6e017e2 100644
+index eb1394b..758f1bc 100644
 --- a/src/views/Authorization/LoginView.jsx
 +++ b/src/views/Authorization/LoginView.jsx
-@@ -298,16 +298,29 @@ const LoginView = () => {
+@@ -298,16 +298,20 @@ const LoginView = () => {
    const handleForgotPassword = () => {
      Navigate('/forgot-password')
    }
@@ -66,33 +66,67 @@ index eb1394b..6e017e2 100644
 -    const state = generateRandomState()
 +    const state = generateRandomString(16)
 +    localStorage.setItem('authState', state)
-+    const verifier = generateRandomString(32)
-+    localStorage.setItem('authVerifier', verifier)
-+
-+    const challengeDigest = new Uint8Array(
-+      await crypto.subtle.digest('SHA-256', new TextEncoder().encode(verifier)),
-+    )
-+    const challenge = challengeDigest.toBase64({
-+      alphabet: 'base64url',
-+    })
  
      const scopes = resource?.identity_provider?.scopes ?? [
        'openid',
-@@ -324,6 +337,8 @@ const LoginView = () => {
-         redirect_uri: redirectUri,
-         scope: scopes.join(' '),
-         state: state,
-+        code_challenge: challenge,
-+        code_challenge_method: 'S256',
+@@ -315,17 +319,36 @@ const LoginView = () => {
+       'email'
+     ];
+ 
+-    if (Capacitor.isNativePlatform()) {
+-      const redirectUri = 'donetick://auth/oauth2'
+-
+-      const params = new URLSearchParams({
+-        response_type: 'code',
+-        client_id: resource?.identity_provider?.client_id,
+-        redirect_uri: redirectUri,
+-        scope: scopes.join(' '),
+-        state: state,
++    const params = {
++      response_type: 'code',
++      client_id: resource?.identity_provider?.client_id,
++      scope: scopes.join(' '),
++      state: state,
++    }
++
++    if (resource?.identity_provider?.pkce) {
++      const verifier = generateRandomString(32)
++      localStorage.setItem('authVerifier', verifier)
++
++      const challengeDigest = new Uint8Array(
++        await crypto.subtle.digest(
++          'SHA-256',
++          new TextEncoder().encode(verifier),
++        ),
++      )
++      const challenge = challengeDigest.toBase64({
++        alphabet: 'base64url',
        })
  
++      params.code_challenge = challenge
++      params.code_challenge_method = 'S256'
++    } else {
++      localStorage.removeItem('authVerifier')
++    }
++
++    if (Capacitor.isNativePlatform()) {
++      params.redirect_uri = 'donetick://auth/oauth2'
++
        const authUrl = `${authentikAuthorizeUrl}?${params.toString()}`
-@@ -351,6 +366,8 @@ const LoginView = () => {
-         redirect_uri: `${window.location.origin}/auth/oauth2`,
-         scope: scopes.join(' '),
-         state: state,
-+        code_challenge: challenge,
-+        code_challenge_method: 'S256',
-       })
+       console.log('Opening OAuth in browser:', authUrl)
+ 
+@@ -345,13 +368,7 @@ const LoginView = () => {
+       }
+     } else {
+       // For web platforms, use the current approach
+-      const params = new URLSearchParams({
+-        response_type: 'code',
+-        client_id: resource?.identity_provider?.client_id,
+-        redirect_uri: `${window.location.origin}/auth/oauth2`,
+-        scope: scopes.join(' '),
+-        state: state,
+-      })
++      params.redirect_uri = `${window.location.origin}/auth/oauth2`
  
        console.log('redirect', `${authentikAuthorizeUrl}?${params.toString()}`)
+       window.location.href = `${authentikAuthorizeUrl}?${params.toString()}`

@@ -1,5 +1,17 @@
+diff --git a/config/config.go b/config/config.go
+index aad50dc..e4bb77d 100644
+--- a/config/config.go
++++ b/config/config.go
+@@ -209,6 +209,7 @@ type OAuth2Config struct {
+ 	ClientID      string   `mapstructure:"client_id" yaml:"client_id"`
+ 	ClientSecret  string   `mapstructure:"client_secret" yaml:"client_secret"`
+ 	RedirectURL   string   `mapstructure:"redirect_url" yaml:"redirect_url"`
++	PKCE          bool     `mapstructure:"pkce" yaml:"pkce"`
+ 	Scopes        []string `mapstructure:"scopes" yaml:"scopes"`
+ 	AuthURL       string   `mapstructure:"auth_url" yaml:"auth_url"`
+ 	TokenURL      string   `mapstructure:"token_url" yaml:"token_url"`
 diff --git a/internal/auth/identity_provider.go b/internal/auth/identity_provider.go
-index d7070e1..db8f5c9 100644
+index d7070e1..5c99e89 100644
 --- a/internal/auth/identity_provider.go
 +++ b/internal/auth/identity_provider.go
 @@ -33,7 +33,7 @@ func NewIdentityProvider(cfg *config.Config) *IdentityProvider {
@@ -11,15 +23,43 @@ index d7070e1..db8f5c9 100644
  	if !i.isEnabled {
  		return "", errors.New("identity provider is not enabled")
  	}
-@@ -59,7 +59,7 @@ func (i *IdentityProvider) ExchangeToken(ctx context.Context, code string, redir
+@@ -59,7 +59,15 @@ func (i *IdentityProvider) ExchangeToken(ctx context.Context, code string, redir
  		},
  	}
  
 -	token, err := conf.Exchange(ctx, code)
-+	token, err := conf.Exchange(ctx, code, oauth2.VerifierOption(verifier))
++	options := make([]oauth2.AuthCodeOption, 0)
++	if i.config.PKCE {
++		if verifier == "" {
++			return "", errors.New("verifier is empty")
++		}
++		options = append(options, oauth2.VerifierOption(verifier))
++	}
++
++	token, err := conf.Exchange(ctx, code, options...)
  	if err != nil {
  		// Enhanced error handling for OAuth2 errors
  		switch {
+diff --git a/internal/resource/handler.go b/internal/resource/handler.go
+index 9e1ac15..0800d4b 100644
+--- a/internal/resource/handler.go
++++ b/internal/resource/handler.go
+@@ -23,6 +23,7 @@ type identityProvider struct {
+ 	Client_ID string   `json:"client_id" binding:"omitempty"`
+ 	Name      string   `json:"name" binding:"omitempty"`
+ 	Scopes    []string `json:"scopes" binding:"omitempty"`
++	PKCE      bool     `json:"pkce" binding:"omitempty"`
+ }
+ 
+ type Handler struct {
+@@ -42,6 +43,7 @@ func (h *Handler) getResource(c *gin.Context) {
+ 			Client_ID: h.config.OAuth2Config.ClientID,
+ 			Name:      h.config.OAuth2Config.Name,
+ 			Scopes:    h.config.OAuth2Config.Scopes,
++			PKCE:      h.config.OAuth2Config.PKCE,
+ 		},
+ 		MinVersion:             h.config.MinVersion,
+ 		APIVersion:             h.config.Info.Version,
 diff --git a/internal/user/handler.go b/internal/user/handler.go
 index 9ec1449..a04dfb8 100644
 --- a/internal/user/handler.go
