@@ -284,5 +284,21 @@
           "10.1.10.3/16"
         ];
       });
+      unifi = {
+        ssh = true;
+      }
+      // (mkIntf {
+        dns = {
+          fqdns = [
+            "unifi.foxden.network"
+            "foxden-unifi.foxden.network"
+          ];
+        };
+        mac = "24:5A:4C:8A:23:3F";
+        firewall.ingressAcceptRules = foxDenLib.firewall.templates.trusted "unifi";
+        addresses = [
+          "10.1.10.1/16"
+        ];
+      });
     };
 }
