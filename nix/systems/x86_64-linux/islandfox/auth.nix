@@ -11,7 +11,7 @@ in
     };
     oauth-jit-radius = {
       enable = true;
-      host = "radius";
+      host = "radius-auth";
       tls.enable = true;
       oAuth = {
         enable = true;
@@ -34,15 +34,29 @@ in
         "fd2c:f4cb:63be:2::b18/64"
       ];
     };
-    radius = mkVlanHost 1 {
+    radius-auth = mkVlanHost 2 {
       dns = {
         fqdns = [ "radius.auth.foxden.network" ];
         dynDns = true;
       };
       webservice.enable = true;
+      firewall.ingressAcceptRules = [
+        {
+          source = "10.1.0.0/16";
+          comment = "trusted-mgmt-radius-auth";
+          dstport = 1812;
+          proto = "udp";
+        }
+        {
+          source = "fd2c:f4cb:63be:1::/64";
+          comment = "trusted-mgmt-radius-auth";
+          dstport = 1812;
+          proto = "udp";
+        }
+      ];
       addresses = [
-        "10.1.14.2/16"
-        "fd2c:f4cb:63be:1::e02/64"
+        "10.2.11.11/16"
+        "fd2c:f4cb:63be:2::b0b/64"
       ];
     };
   };
