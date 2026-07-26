@@ -1,6 +1,6 @@
 { pkgs, ... }:
 let
-  version = "0.1.76-beta.20";
+  version = "0.1.76";
 in
 pkgs.buildGoModule {
   pname = "donetick-server";
@@ -9,7 +9,7 @@ pkgs.buildGoModule {
     repo = "donetick";
     owner = "donetick";
     rev = "v${version}";
-    hash = "sha256-2dR1h1iRLDUorrcnp42PTR62m1OPz2ZcGw/FZBZF670=";
+    hash = "sha256-erko77j6yPmDbEO0pxYu7GQLzKEAFOXn8ZcAccENjew=";
   };
   vendorHash = "sha256-4Ho9lIWk80k+6wVCk27EPYdD7eDC0SUXR9PcIAVmBRA=";
 
