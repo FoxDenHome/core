@@ -158,7 +158,10 @@
       }
       // (mkIntf {
         dns = {
-          fqdns = [ "nvr.foxden.network" ];
+          fqdns = [
+            "nvr.foxden.network"
+            "foxden-nvr.foxden.network"
+          ];
         };
         mac = "60:22:32:F1:BF:71";
         addresses = [
