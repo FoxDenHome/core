@@ -161,13 +161,8 @@
           fqdns = [ "nvr.foxden.network" ];
         };
         mac = "60:22:32:F1:BF:71";
-        dhcpv6 = {
-          duid = "0x00020000ab11cb412be9f2290424";
-          iaid = 1555819358;
-        };
         addresses = [
           "10.5.10.1/16"
-          "fd2c:f4cb:63be:5::a01/64"
         ];
         firewall.ingressAcceptRules = foxDenLib.firewall.templates.trusted "nvr";
       });
@@ -251,13 +246,8 @@
           fqdns = [ "switch-living-room.foxden.network" ];
         };
         mac = "E4:38:83:8C:AA:DA";
-        dhcpv6 = {
-          duid = "0x00030001e438838caada";
-          iaid = 65536;
-        };
         addresses = [
           "10.1.10.13/16"
-          "fd2c:f4cb:63be:1::a0d/64"
         ];
       };
       switch-rack = {
