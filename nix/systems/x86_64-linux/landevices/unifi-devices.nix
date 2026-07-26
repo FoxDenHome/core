@@ -4,13 +4,13 @@
     {
       fqdn = "_acme-challenge.nvr.foxden.network";
       type = "TXT";
-      value = "XHxRe6IfpcztkycnCwbrxTatbC5aJNwVdxAh2j4A74g";
+      value = "kFn7OM4YaM9lXcy4odp0wA_WpA75j5M4EQ7ADWsQuQc";
       horizon = "*";
     }
     {
       fqdn = "_acme-challenge.unifi.foxden.network";
       type = "TXT";
-      value = "VCIULpwpwgw91I1vacWC0UpSV6JbrYDzOkeSjmDQ1mg";
+      value = "ci6wjwvhVB8w_LBnWilRc69OjDu8C6uK_hctWW5UW6o";
       horizon = "*";
     }
   ];
@@ -160,7 +160,6 @@
         dns = {
           fqdns = [
             "nvr.foxden.network"
-            "foxden-nvr.foxden.network"
           ];
         };
         mac = "60:22:32:F1:BF:71";
@@ -284,7 +283,6 @@
         dns = {
           fqdns = [
             "unifi.foxden.network"
-            "foxden-unifi.foxden.network"
           ];
         };
         mac = "24:5A:4C:8A:23:3F";
