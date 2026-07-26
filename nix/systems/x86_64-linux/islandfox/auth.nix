@@ -44,14 +44,14 @@ in
         {
           source = "10.1.0.0/16";
           comment = "trusted-mgmt-radius-auth";
-          dstport = 1812;
-          proto = "udp";
+          port = 1812;
+          protocol = "udp";
         }
         {
           source = "fd2c:f4cb:63be:1::/64";
           comment = "trusted-mgmt-radius-auth";
-          dstport = 1812;
-          proto = "udp";
+          port = 1812;
+          protocol = "udp";
         }
       ];
       addresses = [
