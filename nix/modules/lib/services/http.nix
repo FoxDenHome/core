@@ -645,16 +645,21 @@ in
 
                   ${(inputs.extraHttpConfig or (data: "")) configFuncData}
 
-                  ${if builtins.elem pkgs.nginxModules.njs modules then ''
-                  js_path "/njs/lib/";
-                  js_fetch_trusted_certificate /etc/ssl/certs/ca-certificates.crt;
-                  acme_shared_zone zone=ngx_acme_shared:1M;
-                  acme_issuer letsencrypt {
-                    uri https://acme-v02.api.letsencrypt.org/directory;
-                    contact ssl@foxden.network;
-                    state_path ${storageRoot}/acme;
-                    accept_terms_of_service;
-                  }'' else ""}
+                  ${
+                    if builtins.elem pkgs.nginxModules.njs modules then
+                      ''
+                        js_path "/njs/lib/";
+                        js_fetch_trusted_certificate /etc/ssl/certs/ca-certificates.crt;
+                        acme_shared_zone zone=ngx_acme_shared:1M;
+                        acme_issuer letsencrypt {
+                          uri https://acme-v02.api.letsencrypt.org/directory;
+                          contact ssl@foxden.network;
+                          state_path ${storageRoot}/acme;
+                          accept_terms_of_service;
+                        }''
+                    else
+                      ""
+                  }
 
                   server {
                     server_name _;
@@ -762,6 +767,10 @@ in
                   "${pkgs.coreutils}/bin/mkdir -p ${storageRoot}/acme"
                 ];
                 BindPaths = if dynamicUser then [ ] else [ storageRoot ];
+                BindReadOnlyPaths = [
+                  pkgs.foxden-http-errors.passthru.nginxConf
+                  pkgs.foxden-http-errors
+                ];
                 ExecStart = "${package}/bin/nginx -g 'daemon off;' -e stderr -c \"\${CREDENTIALS_DIRECTORY}/nginx.conf\"";
               };
               wantedBy = [ "multi-user.target" ];
