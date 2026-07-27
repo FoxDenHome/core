@@ -27,6 +27,9 @@ in
       (services.http.make {
         name = "http-broadcast-box";
         inherit svcConfig pkgs config;
+        modules = [
+          pkgs.nginxModules.njs
+        ];
         target = "${proxyTargetBase};";
         extraHttpConfig =
           { ... }:
