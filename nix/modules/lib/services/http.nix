@@ -624,6 +624,14 @@ in
                     "" close;
                   }
 
+                  acme_shared_zone zone=ngx_acme_shared:1M;
+                  acme_issuer letsencrypt {
+                    uri https://acme-v02.api.letsencrypt.org/directory;
+                    contact ssl@foxden.network;
+                    state_path ${storageRoot}/acme;
+                    accept_terms_of_service;
+                  }
+
                   resolver ${nixpkgs.lib.strings.concatStringsSep " " (map foxDenLib.util.bracketIPv6 host.nameservers)};
 
                   ${foxDenLib.nginx.mkProxiesText "  " config}
@@ -635,13 +643,7 @@ in
                       ''
                         js_path "/njs/lib/";
                         js_fetch_trusted_certificate /etc/ssl/certs/ca-certificates.crt;
-                        acme_shared_zone zone=ngx_acme_shared:1M;
-                        acme_issuer letsencrypt {
-                          uri https://acme-v02.api.letsencrypt.org/directory;
-                          contact ssl@foxden.network;
-                          state_path ${storageRoot}/acme;
-                          accept_terms_of_service;
-                        }''
+                      ''
                     else
                       ""
                   }
