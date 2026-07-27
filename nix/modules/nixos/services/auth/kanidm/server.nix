@@ -174,8 +174,9 @@ in
             origin = "https://${hostName}";
             domain = hostName;
 
-            tls_chain = "/var/lib/foxden/http-kanidm/acme/${hostName}.crt";
-            tls_key = "/var/lib/foxden/http-kanidm/acme/${hostName}.key";
+            # TODO: https://github.com/nginx/nginx-acme/issues/145
+            tls_chain = "/var/lib/foxden/http-kanidm/acme/auth.foxden.network-665754e65df206a4.crt";
+            tls_key = "/var/lib/foxden/http-kanidm/acme/auth.foxden.network-665754e65df206a4.key";
 
             http_client_address_info.x-forward-for = [
               "127.0.0.1"

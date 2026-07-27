@@ -18,7 +18,8 @@ let
   );
 
   svcConfig = config.foxDen.services.xmpp;
-  tlsCertName = "foxden.network";
+  # TODO: https://github.com/nginx/nginx-acme/issues/145
+  tlsCertName = "foxden.network-babf92f5ee454627";
   tlsRoot = "/var/lib/foxden/http-prosody/acme";
   tlsChain = "${tlsRoot}/${tlsCertName}.crt";
   tlsKey = "${tlsRoot}/${tlsCertName}.key";
