@@ -356,7 +356,7 @@ in
         if config.foxDen.services.tlsHardwareAcceleration then
           ''
             ssl_protocols TLSv1.2;
-            ssl_ciphers ECDHE-RSA-AES128-GCM-SHA256:AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:AES256-GCM-SHA384;
+            ssl_ciphers ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:AES256-GCM-SHA384;
             ssl_prefer_server_ciphers on;
           ''
         else
