@@ -168,21 +168,25 @@ in
             };
           };
           server.enable = true;
-          server.settings = {
-            version = "2";
+          server.settings =
+            let
+              # TODO: https://github.com/nginx/nginx-acme/issues/145
+              certBase = "/var/lib/foxden/http-kanidm/acme/auth.foxden.network-665754e65df206a4";
+            in
+            {
+              version = "2";
 
-            origin = "https://${hostName}";
-            domain = hostName;
+              origin = "https://${hostName}";
+              domain = hostName;
 
-            # TODO: https://github.com/nginx/nginx-acme/issues/145
-            tls_chain = "/var/lib/foxden/http-kanidm/acme/auth.foxden.network-665754e65df206a4.crt";
-            tls_key = "/var/lib/foxden/http-kanidm/acme/auth.foxden.network-665754e65df206a4.key";
+              tls_chain = "${certBase}.crt";
+              tls_key = "${certBase}.key";
 
-            http_client_address_info.x-forward-for = [
-              "127.0.0.1"
-              "127.0.0.0/8"
-            ];
-          };
+              http_client_address_info.x-forward-for = [
+                "127.0.0.1"
+                "127.0.0.0/8"
+              ];
+            };
         };
 
         systemd.services.http-kanidm = {

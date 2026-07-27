@@ -19,10 +19,9 @@ let
 
   svcConfig = config.foxDen.services.xmpp;
   # TODO: https://github.com/nginx/nginx-acme/issues/145
-  tlsCertName = "foxden.network-babf92f5ee454627";
-  tlsRoot = "/var/lib/foxden/http-prosody/acme";
-  tlsChain = "${tlsRoot}/${tlsCertName}.crt";
-  tlsKey = "${tlsRoot}/${tlsCertName}.key";
+  tlsRoot = "/var/lib/foxden/http-prosody/acme/foxden.network-babf92f5ee454627";
+  tlsChain = "${tlsRoot}.crt";
+  tlsKey = "${tlsRoot}.key";
 in
 {
   options.foxDen.services.xmpp = services.http.mkOptions {
@@ -53,7 +52,6 @@ in
           serviceConfig = {
             StateDirectory = "prosody";
             BindReadOnlyPaths = [
-              "${tlsRoot}:/etc/prosody/certs"
               tlsChain
               tlsKey
               "/etc/prosody/prosody.cfg.lua"
