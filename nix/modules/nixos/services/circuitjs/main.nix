@@ -23,6 +23,9 @@ in
         inherit svcConfig pkgs config;
         name = "circuitjs";
         target = "root /web;";
+        modules = [
+          pkgs.nginxModules.njs
+        ];
         extraHttpConfig =
           { ... }:
           ''
