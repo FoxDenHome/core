@@ -86,6 +86,14 @@ let
 
   pkgs = mkPkgs nixpkgs [
     ./nixpkgs-patches/zfs_2.4_on_7.1.patch
+    {
+      pr = 433676;
+      hash = "sha256-jy3U0PYi/vGL8k2NEln5unb/+wCrdom0eKof7wPUHXo=";
+      excludes = [
+        "nixos/tests/all-tests.nix"
+        "nixos/tests/nginx-acme.nix"
+      ];
+    }
   ];
 
   localPackages = lib.attrsets.genAttrs (lib.attrNames (builtins.readDir ../../packages)) (

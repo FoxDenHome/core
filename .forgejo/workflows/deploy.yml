@@ -12,7 +12,10 @@ jobs:
     runs-on: ubuntu-24.04
     strategy:
       matrix:
-        target: [bengalfox.foxden.network, islandfox.foxden.network, icefox.foxden.network]
+        target:
+          - bengalfox.foxden.network
+          #- islandfox.foxden.network
+          - icefox.foxden.network
     steps:
       - uses: https://data.forgejo.org/actions/checkout@v7
       - name: Deploy to target
