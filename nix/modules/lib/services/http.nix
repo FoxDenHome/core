@@ -376,7 +376,7 @@ in
       package = pkgs.nginx.override {
         modules = nixpkgs.lib.lists.unique (
           [
-            pkgs.nginxModules.njs
+            pkgs.nginxModules.acme
           ]
           ++ modules
         );
@@ -528,17 +528,12 @@ in
         listen [::]:444;
         http2 on;
 
-        js_set $dynamic_ssl_cert acme.js_cert;
-        js_set $dynamic_ssl_key acme.js_key;
-        ssl_certificate data:$dynamic_ssl_cert;
-        ssl_certificate_key data:$dynamic_ssl_key;
+        acme_certificate letsencrypt;
+        ssl_certificate $acme_certificate;
+        ssl_certificate_key $acme_certificate_key;
         ${sslBaseConfig}
 
         ${headerConfig}
-
-        location /.well-known/acme-challenge/ {
-          js_content acme.challengeResponse;
-        }
 
         include ${pkgs.foxden-http-errors.passthru.nginxConf};
 
@@ -650,8 +645,16 @@ in
 
                   ${(inputs.extraHttpConfig or (data: "")) configFuncData}
 
+                  ${if builtins.elem pkgs.nginxModules.njs modules then ''
                   js_path "/njs/lib/";
                   js_fetch_trusted_certificate /etc/ssl/certs/ca-certificates.crt;
+                  acme_shared_zone zone=ngx_acme_shared:1M;
+                  acme_issuer letsencrypt {
+                    uri https://acme-v02.api.letsencrypt.org/directory;
+                    contact ssl@foxden.network;
+                    state_path ${storageRoot}/acme;
+                    accept_terms_of_service;
+                  }'' else ""}
 
                   server {
                     server_name _;
@@ -668,13 +671,6 @@ in
                   ${
                     if svcConfig.tls.enable then
                       ''
-                        js_var $njs_acme_server_names "${builtins.concatStringsSep " " hostMatchers}";
-                        js_var $njs_acme_account_email "ssl@foxden.network";
-                        js_var $njs_acme_dir "${storageRoot}/acme";
-                        js_var $njs_acme_directory_uri "https://acme-v02.api.letsencrypt.org/directory";
-                        js_shared_dict_zone zone=acme:1m;
-                        js_import acme from acme.js;
-
                         server {
                           server_name _;
                           listen 443 ssl default_server;
@@ -766,16 +762,6 @@ in
                   "${pkgs.coreutils}/bin/mkdir -p ${storageRoot}/acme"
                 ];
                 BindPaths = if dynamicUser then [ ] else [ storageRoot ];
-                BindReadOnlyPaths = [
-                  pkgs.foxden-http-errors.passthru.nginxConf
-                  pkgs.foxden-http-errors
-                  "${
-                    pkgs.fetchurl {
-                      url = "https://github.com/nginx/njs-acme/releases/download/v1.0.0/acme.js";
-                      hash = "sha256:1aefb709afc2ed81c07fbc5f6ab658782fe99e88569ee868e25d3a6f1e5355cb";
-                    }
-                  }:/njs/lib/acme.js"
-                ];
                 ExecStart = "${package}/bin/nginx -g 'daemon off;' -e stderr -c \"\${CREDENTIALS_DIRECTORY}/nginx.conf\"";
               };
               wantedBy = [ "multi-user.target" ];
