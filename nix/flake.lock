@@ -303,31 +303,6 @@
         "type": "github"
       }
     },
-    "nix-jekyll-builder": {
-      "inputs": {
-        "flake-utils": [
-          "spaceage-website",
-          "flake-utils"
-        ],
-        "nixpkgs": [
-          "spaceage-website",
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1743845240,
-        "narHash": "sha256-wOhfPMs1X9iShgAwJhG/SSs+xQC8woOOmUJHL2rpySA=",
-        "ref": "refs/heads/main",
-        "rev": "cd1eaacf494f61d59f9b07d8677d2e1205c1b5b2",
-        "revCount": 5,
-        "type": "git",
-        "url": "https://git.chobble.com/chobble/nix-jekyll-builder"
-      },
-      "original": {
-        "type": "git",
-        "url": "https://git.chobble.com/chobble/nix-jekyll-builder"
-      }
-    },
     "nixpkgs": {
       "locked": {
         "lastModified": 1785104993,
@@ -562,17 +537,25 @@
         "flake-utils": [
           "flake-utils"
         ],
-        "nix-jekyll-builder": "nix-jekyll-builder",
         "nixpkgs": [
           "nixpkgs"
+        ],
+        "pyproject-build-systems": [
+          "pyproject-build-systems"
+        ],
+        "pyproject-nix": [
+          "pyproject-nix"
+        ],
+        "uv2nix": [
+          "uv2nix"
         ]
       },
       "locked": {
-        "lastModified": 1785256150,
-        "narHash": "sha256-y6M+owIaKY1zWa1KqgUFAygishe1jiG23KCO0iVCRYc=",
+        "lastModified": 1785282357,
+        "narHash": "sha256-9c6owQjr0yihmfH6m8VWip7Vm4eBLXj900ucNs3Nnfo=",
         "ref": "refs/heads/main",
-        "rev": "49b9922030a28ab2709fc3fdba17f9b0f05a8e48",
-        "revCount": 130,
+        "rev": "909840be08959297de691fd0bb7e1f36d6fc4757",
+        "revCount": 132,
         "type": "git",
         "url": "https://git.foxden.network/SpaceAge/website"
       },
