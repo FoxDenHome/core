@@ -652,11 +652,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1785255973,
-        "narHash": "sha256-8Hdnmv9dy97EOqtO6Lq1OgJxRw3hZ82LhXZjvxMdEpQ=",
+        "lastModified": 1785264002,
+        "narHash": "sha256-xVGiC+5LNEMVpDvHgEKASZMXGh3hfL3laWLBBzDeKQw=",
         "ref": "refs/heads/main",
-        "rev": "34f463b59e3e7e65f3a19fd7a71dc159282199b0",
-        "revCount": 103,
+        "rev": "fffad2813711d863eb33f2147c09057378b23ceb",
+        "revCount": 105,
         "type": "git",
         "url": "https://git.foxden.network/FoxDen/uds-proxy"
       },
