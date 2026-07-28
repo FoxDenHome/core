@@ -170,8 +170,8 @@ in
           server.enable = true;
           server.settings =
             let
-              # TODO: https://github.com/nginx/nginx-acme/issues/145
-              certBase = "/var/lib/foxden/http-kanidm/acme/auth.foxden.network-665754e65df206a4";
+              certBase = "/var/lib/foxden/http-kanidm/acme";
+              certFiles = config.lib.foxDen.http.getCertFiles hostName;
             in
             {
               version = "2";
@@ -179,8 +179,8 @@ in
               origin = "https://${hostName}";
               domain = hostName;
 
-              tls_chain = "${certBase}.crt";
-              tls_key = "${certBase}.key";
+              tls_chain = "${certBase}/${certFiles.cert}";
+              tls_key = "${certBase}/${certFiles.key}";
 
               http_client_address_info.x-forward-for = [
                 "127.0.0.1"

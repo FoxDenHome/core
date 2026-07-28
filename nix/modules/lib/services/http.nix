@@ -216,7 +216,7 @@ let
 in
 {
   nixosModule =
-    { ... }:
+    { config, pkgs, ... }:
     {
       options.foxDen.services.trustedProxies =
         with nixpkgs.lib.types;
@@ -238,6 +238,19 @@ in
         "10.8.0.0/23"
         "10.9.0.0/23"
       ];
+
+      config.lib.foxDen.http.getCertFiles =
+        hostName:
+        let
+          # TODO: https://github.com/nginx/nginx-acme/issues/145
+          baseName = nixpkgs.lib.trim (
+            config.lib.foxDen.getStdout "${pkgs.nginx-acme-cache-key}/bin/nginx-acme-cache-key ${hostName}"
+          );
+        in
+        {
+          cert = "${baseName}.crt";
+          key = "${baseName}.key";
+        };
     };
 
   inherit mkOauthConfig;

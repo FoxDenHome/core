@@ -127,4 +127,16 @@ in
 
   bracketIPv6 = (ip: if (isIPv6 ip) then "[${ip}]" else ip);
   mkPtr = (ip: if (isIPv6 ip) then ipv6Ptr ip else ipv4Ptr ip);
+
+  nixosModule =
+    { pkgs, ... }:
+    {
+      config.lib.foxDen.getStdout =
+        cmd:
+        let
+          rawCmd = "${cmd} > $out";
+          cmdDeriv = pkgs.runCommand "stdout" { } rawCmd;
+        in
+        builtins.readFile "${cmdDeriv}";
+    };
 }
