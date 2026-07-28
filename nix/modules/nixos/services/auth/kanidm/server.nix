@@ -171,7 +171,7 @@ in
           server.settings =
             let
               certBase = "/var/lib/foxden/http-kanidm/acme";
-              certFiles = config.lib.foxDen.http.getCertFiles hostName;
+              certFiles = config.lib.foxDen.http.getCertFiles svcConfig;
             in
             {
               version = "2";

@@ -20,7 +20,7 @@ let
   svcConfig = config.foxDen.services.xmpp;
 
   tlsRoot = "/var/lib/foxden/http-prosody/acme";
-  certFiles = config.lib.foxDen.http.getCertFiles "foxden.network";
+  certFiles = config.lib.foxDen.http.getCertFiles svcConfig;
   tlsChain = "${tlsRoot}/${certFiles.cert}";
   tlsKey = "${tlsRoot}/${certFiles.key}";
 in

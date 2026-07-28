@@ -240,11 +240,15 @@ in
       ];
 
       config.lib.foxDen.http.getCertFiles =
-        hostName:
+        svcConfig:
         let
+          host = foxDenLib.hosts.getByName config svcConfig.host;
+          hostNames = nixpkgs.lib.lists.uniqueStrings (
+            nixpkgs.lib.flatten (map (iface: iface.dns.fqdns) (nixpkgs.lib.attrsets.attrValues host.interfaces))
+          );
           # TODO: https://github.com/nginx/nginx-acme/issues/145
           baseName = nixpkgs.lib.trim (
-            config.lib.foxDen.getStdout "${pkgs.nginx-acme-cache-key}/bin/nginx-acme-cache-key ${hostName}"
+            config.lib.foxDen.getStdout "${pkgs.nginx-acme-cache-key}/bin/nginx-acme-cache-key ${nixpkgs.lib.concatStringsSep " " hostNames}"
           );
         in
         {
