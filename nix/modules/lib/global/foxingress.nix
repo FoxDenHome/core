@@ -86,18 +86,10 @@ let
     };
     defaults = {
       backends = {
-        default = {
-          host = "169.254.169.254";
-        };
-        http = {
-          port = 80;
-        };
-        https = {
-          port = 443;
-        };
-        quic = {
-          port = 443;
-        };
+        default.host = "127.42.13.37";
+        http.port = 0;
+        https.port = 0;
+        quic.port = 0;
       };
     };
   };
