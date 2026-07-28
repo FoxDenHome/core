@@ -180,6 +180,30 @@
         "type": "github"
       }
     },
+    "foxCaves": {
+      "inputs": {
+        "flake-utils": [
+          "flake-utils"
+        ],
+        "nixpkgs": [
+          "nixpkgs"
+        ],
+        "nixpkgs-acme": "nixpkgs-acme"
+      },
+      "locked": {
+        "lastModified": 1785218457,
+        "narHash": "sha256-N18/JemuXo69LiTot3yqQ+UvxnEG+7+HpX9x8wNCGp8=",
+        "ref": "refs/heads/main",
+        "rev": "de260cc959d88b6bf28c5d1d2f33f0e738888d13",
+        "revCount": 4096,
+        "type": "git",
+        "url": "https://git.foxden.network/foxCaves/foxCaves"
+      },
+      "original": {
+        "type": "git",
+        "url": "https://git.foxden.network/foxCaves/foxCaves"
+      }
+    },
     "foxIngress": {
       "inputs": {
         "flake-utils": [
@@ -201,29 +225,6 @@
       "original": {
         "type": "git",
         "url": "https://git.foxden.network/FoxDen/foxIngress"
-      }
-    },
-    "foxcaves": {
-      "inputs": {
-        "flake-utils": [
-          "flake-utils"
-        ],
-        "nixpkgs": [
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1785190078,
-        "narHash": "sha256-isZ1ng355+oakSYYFRpes72fgByEN/HXXX93BIDTnOQ=",
-        "ref": "refs/heads/main",
-        "rev": "48056181fb4eef75474c64159a9b97bcf83b373a",
-        "revCount": 4089,
-        "type": "git",
-        "url": "https://git.foxden.network/foxCaves/foxCaves"
-      },
-      "original": {
-        "type": "git",
-        "url": "https://git.foxden.network/foxCaves/foxCaves"
       }
     },
     "gitbackup": {
@@ -343,6 +344,22 @@
         "type": "github"
       }
     },
+    "nixpkgs-acme": {
+      "locked": {
+        "lastModified": 1778142421,
+        "narHash": "sha256-jPgU/NVfHI15fWL6a1GtoMKqyR0Kyig2qzKe5/KSMrc=",
+        "owner": "nyanloutre",
+        "repo": "nixpkgs",
+        "rev": "080d910a61192a5edc25b0efc5db75b405476f0d",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nyanloutre",
+        "ref": "init-nginx-acme-module",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
     "oauth-jit-radius": {
       "inputs": {
         "flake-utils": [
@@ -421,8 +438,8 @@
         "e621dumper": "e621dumper",
         "fadumper": "fadumper",
         "flake-utils": "flake-utils",
+        "foxCaves": "foxCaves",
         "foxIngress": "foxIngress",
-        "foxcaves": "foxcaves",
         "gitbackup": "gitbackup",
         "home-manager": "home-manager",
         "impermanence": "impermanence",

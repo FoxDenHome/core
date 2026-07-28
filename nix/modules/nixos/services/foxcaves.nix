@@ -54,7 +54,7 @@ in
           requires = [ "redis-foxcaves.service" ];
 
           serviceConfig = {
-            ExecStart = [ "${pkgs.foxcaves}/bin/foxcaves" ];
+            ExecStart = [ "${pkgs.foxCaves}/bin/foxCaves" ];
 
             User = "foxcaves";
             Group = "foxcaves";

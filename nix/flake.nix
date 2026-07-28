@@ -76,7 +76,7 @@
         flake-utils.follows = "flake-utils";
       };
     };
-    foxcaves = {
+    foxCaves = {
       url = "git+https://git.foxden.network/foxCaves/foxCaves";
       inputs = {
         nixpkgs.follows = "nixpkgs";
