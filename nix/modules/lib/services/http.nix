@@ -213,6 +213,8 @@ let
       ];
     };
   };
+
+  nginxAcmeAlg = "ecdsa:256";
 in
 {
   nixosModule =
@@ -248,7 +250,7 @@ in
           );
           # TODO: https://github.com/nginx/nginx-acme/issues/145
           baseName = nixpkgs.lib.trim (
-            config.lib.foxDen.getStdout "${pkgs.nginx-acme-cache-key}/bin/nginx-acme-cache-key ${nixpkgs.lib.concatStringsSep " " hostNames}"
+            config.lib.foxDen.getStdout "${pkgs.nginx-acme-cache-key}/bin/nginx-acme-cache-key --key ${nginxAcmeAlg} ${nixpkgs.lib.concatStringsSep " " hostNames}"
           );
         in
         {
@@ -530,7 +532,7 @@ in
         listen [::]:444;
         http2 on;
 
-        acme_certificate letsencrypt;
+        acme_certificate letsencrypt key=${nginxAcmeAlg};
         ssl_certificate $acme_certificate;
         ssl_certificate_key $acme_certificate_key;
         ${sslBaseConfig}
@@ -641,7 +643,7 @@ in
                     "" close;
                   }
 
-                  acme_shared_zone zone=ngx_acme_shared:1M;
+                  acme_shared_zone zone=ngx_acme_shared:64k;
                   acme_issuer letsencrypt {
                     uri https://acme-v02.api.letsencrypt.org/directory;
                     contact ssl@foxden.network;
