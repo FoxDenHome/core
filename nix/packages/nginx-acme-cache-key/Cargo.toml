@@ -1,0 +1,12 @@
+[package]
+name = "nginx-acme-cache-key"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[[bin]]
+name = "nginx-acme-cache-key"
+path = "src/main.rs"
+
+[dependencies]
+siphasher = { version = "1.0.1", default-features = false }
