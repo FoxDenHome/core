@@ -1,15 +1,16 @@
-from subprocess import check_output
 from json import load as json_load
+from subprocess import check_output
+from typing import Any
+
 from configure.util import (
     NIX_DIR,
-    get_ipv4_netname,
-    MTikRouter,
     ROUTERS,
-    parse_mtik_bool,
+    MTikRouter,
     format_mtik_bool,
     format_weird_mtik_ip,
+    get_ipv4_netname,
+    parse_mtik_bool,
 )
-from typing import Any
 
 IGNORE_CHANGES = {
     "id",
@@ -39,11 +40,11 @@ def refresh_dhcp_router(dhcp_leases: list[dict[str, Any]], router: MTikRouter) -
 
     dhcpv4_leases = api_dhcpv4.get()
     dhcpv4_leases_map = {lease["id"]: lease for lease in dhcpv4_leases}
-    stray_dhcpv4_leases = set([lease["id"] for lease in dhcpv4_leases])
+    stray_dhcpv4_leases = {lease["id"] for lease in dhcpv4_leases}
 
     dhcpv6_bindings = api_dhcpv6.get()
     dhcpv6_bindings_map = {binding["id"]: binding for binding in dhcpv6_bindings}
-    stray_dhcpv6_bindings = set([binding["id"] for binding in dhcpv6_bindings])
+    stray_dhcpv6_bindings = {binding["id"] for binding in dhcpv6_bindings}
 
     for lease in dhcp_leases:
         if "ipv4" not in lease:

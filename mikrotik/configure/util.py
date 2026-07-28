@@ -1,8 +1,9 @@
-from os.path import dirname, realpath, join
 from dataclasses import dataclass, field
+from os.path import dirname, join, realpath
 from subprocess import check_call, check_output
-from uuid import uuid4
 from time import sleep
+from uuid import uuid4
+
 from routeros_api import RouterOsApiPool
 from routeros_api.exceptions import RouterOsApiCommunicationError
 
@@ -129,9 +130,9 @@ def format_mtik_bool(val: bool) -> str:
 
 
 def parse_mtik_bool(val: str | bool) -> bool:
-    if val == "true" or val == True:  # noqa: E712
+    if val == "true" or val == True:
         return True
-    if val == "false" or val == False:  # noqa: E712
+    if val == "false" or val == False:
         return False
     raise ValueError(f"Invalid MTik boolean value: {val}")
 

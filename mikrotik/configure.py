@@ -1,15 +1,17 @@
 #!/usr/bin/env -S uv run
 
-from configure.dyndns import refresh_dyndns
-from configure.dns import refresh_dns
+from contextlib import contextmanager
+from subprocess import CalledProcessError
+
 from configure.dhcp import refresh_dhcp
+from configure.dns import refresh_dns
+from configure.dyndns import refresh_dyndns
 from configure.firewall import refresh_firewall
 from configure.foxingress import refresh_foxingress
 from configure.scripts import refresh_scripts
-from configure.vrrp import refresh_vrrp
 from configure.tftp import refresh_tftp
 from configure.util import ROUTERS
-from contextlib import contextmanager
+from configure.vrrp import refresh_vrrp
 
 
 @contextmanager
@@ -22,7 +24,7 @@ def mtik_router_admin():
         for router in ROUTERS:
             try:
                 router.disable_user()
-            except Exception as e:
+            except CalledProcessError as e:
                 print("Failed to disable user on", router, "with error", e)
 
 

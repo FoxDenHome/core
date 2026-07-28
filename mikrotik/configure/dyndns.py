@@ -1,7 +1,8 @@
 import re
-from subprocess import check_output
 from json import loads as json_loads
-from configure.util import mtik_path, ROUTERS, MTikRouter, MTikScript
+from subprocess import check_output
+
+from configure.util import ROUTERS, MTikRouter, MTikScript, mtik_path
 
 MAIN_SCRIPT = "dynamic-ip-update"
 TEMPLATE = mtik_path(f"files/dyndns/{MAIN_SCRIPT}.rsc")
@@ -79,11 +80,13 @@ def make_dyndns_script(router: MTikRouter) -> None:
     if not found_hosts:
         raise RuntimeError("No # HOSTS # found in script")
 
-    router.scripts.add(MTikScript(
-        name=MAIN_SCRIPT,
-        source="".join(outlines),
-        schedule="5m",
-    ))
+    router.scripts.add(
+        MTikScript(
+            name=MAIN_SCRIPT,
+            source="".join(outlines),
+            schedule="5m",
+        )
+    )
 
 
 def refresh_dyndns():

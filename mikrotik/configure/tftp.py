@@ -1,4 +1,4 @@
-from configure.util import mtik_path, ROUTERS
+from configure.util import ROUTERS, mtik_path
 
 ROOT_PATH = mtik_path("files/tftp")
 

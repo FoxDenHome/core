@@ -1,7 +1,8 @@
-from subprocess import check_output
 from json import load as json_load
-from configure.util import format_mtik_duration, NIX_DIR, ROUTERS
+from subprocess import check_output
 from typing import Any, cast
+
+from configure.util import NIX_DIR, ROUTERS, format_mtik_duration
 
 INTERNAL_RECORDS: dict[str, Any] | None = None
 
@@ -59,7 +60,6 @@ def mtik_key(record: dict[str, Any]) -> str:
 
 
 def find_record(name: str, rectype: str) -> dict | None:
-    global INTERNAL_RECORDS
     assert INTERNAL_RECORDS is not None
     name = name.removesuffix(".")
     for zone, records in INTERNAL_RECORDS.items():
@@ -183,8 +183,7 @@ def refresh_dns():
                 # MTik does not support those atm, also PTR is auto-created, so we got those
                 continue
 
-            for record in mtik_process(record_raw):
-                mikrotik_records.append(record)
+            mikrotik_records += mtik_process(record_raw)
 
     mikrotik_records += FIXED_RECORDS
     mikrotik_forwarders += FIXED_FORWARDERS

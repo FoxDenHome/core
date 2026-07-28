@@ -1,7 +1,8 @@
-from configure.util import MTikRouter, MTikScript, ROUTERS, mtik_path
+from configure.util import ROUTERS, MTikRouter, MTikScript, mtik_path
 
 MAIN_SCRIPT = "wan-online-adjust"
 TEMPLATE = mtik_path(f"files/vrrp/{MAIN_SCRIPT}.rsc")
+
 
 def make_vrrp_script(router: MTikRouter) -> None:
     with open(TEMPLATE, "r") as file:

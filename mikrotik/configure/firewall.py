@@ -1,15 +1,16 @@
-from subprocess import check_output
+from dataclasses import dataclass, field
 from json import load as json_load
+from subprocess import check_output
+from typing import Any
+
 from configure.util import (
     NIX_DIR,
     ROUTERS,
-    format_mtik_bool,
-    is_ipv6,
-    format_weird_mtik_ip,
     MTikRouter,
+    format_mtik_bool,
+    format_weird_mtik_ip,
+    is_ipv6,
 )
-from dataclasses import dataclass, field
-from typing import Any
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -585,7 +586,7 @@ def refresh_firewall() -> None:
             del attribs[name]
 
         if len(families) == 1:
-            for field in {"src-address", "dst-address"}:
+            for field in ("src-address", "dst-address"):
                 if field not in attribs:
                     continue
                 attribs[field] = format_weird_mtik_ip(attribs[field])

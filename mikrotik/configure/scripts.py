@@ -1,13 +1,15 @@
+from os import listdir
+from os.path import basename
+from os.path import join as path_join
+
 from configure.util import (
-    mtik_path,
+    ROUTERS,
     MTikRouter,
     MTikScript,
     format_mtik_bool,
-    ROUTERS,
+    mtik_path,
     parse_mtik_bool,
 )
-from os.path import basename, join as path_join
-from os import listdir
 
 SCRIPT_DIR = mtik_path("scripts")
 
@@ -80,13 +82,13 @@ def refresh_script_router(router: MTikRouter, base_scripts: set[MTikScript]) -> 
 
     existing_scripts = api_script.get()
     existing_scripts_map = {script["name"]: script for script in existing_scripts}
-    stray_scripts = set([script["name"] for script in existing_scripts])
+    stray_scripts = {script["name"] for script in existing_scripts}
 
     existing_schedules = api_scheduler.get()
     existing_schedules_map = {
         scheduler["name"]: scheduler for scheduler in existing_schedules
     }
-    stray_schedules = set([scheduler["name"] for scheduler in existing_schedules])
+    stray_schedules = {scheduler["name"] for scheduler in existing_schedules}
 
     scripts_to_run: list[str] = []
     for script in base_scripts | router.scripts:
