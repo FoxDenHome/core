@@ -278,7 +278,7 @@ in
           wants = [ "podman-forgejo-runner.service" ];
 
           serviceConfig = {
-            ExecStart = "${pkgs.nix-serve-ng}/bin/nix-serve -p 1111";
+            ExecStart = "${pkgs.nix-serve-ng}/bin/nix-serve --port 1111";
             UMask = 0000;
             BindReadOnlyPaths = [
               "/nix/store"
