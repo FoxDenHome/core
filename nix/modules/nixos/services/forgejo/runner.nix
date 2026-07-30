@@ -105,7 +105,7 @@ let
       network = "";
       enable_ipv6 = true;
       privileged = true;
-      options = "";
+      options = "--volume /var/lib/forgejo-runner/mnt:/var/lib/forgejo-runner/mnt:ro";
       workdir_parent = "";
       valid_volumes = [ ];
       docker_host = "-";
@@ -156,6 +156,10 @@ in
       (services.make {
         name = "podman-forgejo-runner-prune";
         overrideHost = svcConfig.containerHost;
+        inherit svcConfig pkgs config;
+      }).config
+      (services.make {
+        name = "nix-serve-forgejo-runner";
         inherit svcConfig pkgs config;
       }).config
       {
@@ -254,6 +258,7 @@ in
             serviceConfig = {
               Type = "exec";
               ExecStartPre = [
+                "${pkgs.coreutils}/bin/mkdir -p /var/lib/forgejo-runner/mnt"
                 "${pkgs.podman}/bin/podman --log-level=info system migrate"
                 "-${pkgs.podman}/bin/podman container prune --force"
                 "-${pkgs.podman}/bin/podman network prune --force"
@@ -267,6 +272,23 @@ in
             wantedBy = [ "multi-user.target" ];
           }
         ];
+
+        systemd.services.nix-serve-forgejo-runner = {
+          after = [ "podman-forgejo-runner.service" ];
+          wants = [ "podman-forgejo-runner.service" ];
+
+          serviceConfig = {
+            ExecStart = "${pkgs.nix-serve-ng}/bin/nix-serve -S /var/lib/forgejo-runner/mnt/nix-serve.sock";
+            BindReadOnlyPaths = [ "/nix/store" ];
+            User = "forgejo-runner";
+            Group = "forgejo-runner";
+            WorkingDirectory = "/var/lib/forgejo-runner";
+            StateDirectory = "forgejo-runner";
+            Nice = 5;
+          };
+
+          wantedBy = [ "multi-user.target" ];
+        };
 
         environment.persistence."/nix/persist/forgejo" = {
           hideMounts = true;
