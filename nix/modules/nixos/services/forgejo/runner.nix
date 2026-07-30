@@ -105,9 +105,9 @@ let
       network = "";
       enable_ipv6 = true;
       privileged = true;
-      options = "--volume /var/lib/forgejo-runner/mnt:/var/lib/forgejo-runner/mnt:ro";
+      options = "--add-host=host.docker.internal:host-gateway";
       workdir_parent = "";
-      valid_volumes = [ "/var/lib/forgejo-runner/mnt" ];
+      valid_volumes = [ ];
       docker_host = "-";
       force_pull = true;
       force_rebuild = false;
@@ -278,9 +278,12 @@ in
           wants = [ "podman-forgejo-runner.service" ];
 
           serviceConfig = {
-            ExecStart = "${pkgs.nix-serve-ng}/bin/nix-serve -S /var/lib/forgejo-runner/mnt/nix-serve.sock";
+            ExecStart = "${pkgs.nix-serve-ng}/bin/nix-serve -p 1111";
             UMask = 0000;
-            BindReadOnlyPaths = [ "/nix/store" "/nix/var/nix" ];
+            BindReadOnlyPaths = [
+              "/nix/store"
+              "/nix/var/nix"
+            ];
             User = "forgejo-runner";
             Group = "forgejo-runner";
             WorkingDirectory = "/var/lib/forgejo-runner";
