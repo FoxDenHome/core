@@ -31,7 +31,7 @@ in
           serviceConfig = {
             DynamicUser = true;
             Type = "simple";
-            ExecStart = "${pkgs.spaceage-tts}/bin/TTS";
+            ExecStart = "${pkgs.spaceage-tts}/bin/tts";
             Environment = [
               "OUT_DIR=/var/lib/spaceage-tts"
               "LISTEN_ADDR=127.0.0.1:8000"
