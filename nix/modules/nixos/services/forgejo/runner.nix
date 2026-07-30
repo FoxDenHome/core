@@ -107,7 +107,7 @@ let
       privileged = true;
       options = "--volume /var/lib/forgejo-runner/mnt:/var/lib/forgejo-runner/mnt:ro";
       workdir_parent = "";
-      valid_volumes = [ ];
+      valid_volumes = [ "/var/lib/forgejo-runner/mnt" ];
       docker_host = "-";
       force_pull = true;
       force_rebuild = false;
