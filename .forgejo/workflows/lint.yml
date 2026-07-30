@@ -31,7 +31,7 @@ jobs:
           cd ./nix
           echo $NIX_PATH
           nix-channel --list
-          nix run '<nixpkgs>#nixfmt-tree' -- --ci
+          nix run 'nixpkgs#nixfmt-tree' -- --ci
       - name: Lint mikrotik
         run: |
           cd ./mikrotik
