@@ -280,7 +280,7 @@ in
           serviceConfig = {
             ExecStart = "${pkgs.nix-serve-ng}/bin/nix-serve -S /var/lib/forgejo-runner/mnt/nix-serve.sock";
             UMask = 0000;
-            BindReadOnlyPaths = [ "/nix/store" ];
+            BindReadOnlyPaths = [ "/nix/store" "/nix/var/nix" ];
             User = "forgejo-runner";
             Group = "forgejo-runner";
             WorkingDirectory = "/var/lib/forgejo-runner";
