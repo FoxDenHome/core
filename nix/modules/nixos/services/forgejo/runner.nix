@@ -287,6 +287,8 @@ in
               "/nix/var/nix"
             ];
             DynamicUser = true;
+            StateDirectory = "nix-serve-forgejo-runner";
+            WorkingDirectory = "/var/lib/nix-serve-forgejo-runner";
             User = "nix-serve-forgejo-runner";
             Group = "nix-serve-forgejo-runner";
             Nice = 5;
