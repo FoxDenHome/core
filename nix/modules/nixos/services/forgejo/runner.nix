@@ -259,7 +259,6 @@ in
             serviceConfig = {
               Type = "exec";
               ExecStartPre = [
-                "${pkgs.coreutils}/bin/mkdir -p /var/lib/forgejo-runner/mnt"
                 "${pkgs.podman}/bin/podman --log-level=info system migrate"
                 "-${pkgs.podman}/bin/podman container prune --force"
                 "-${pkgs.podman}/bin/podman network prune --force"
