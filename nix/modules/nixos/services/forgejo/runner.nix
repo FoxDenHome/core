@@ -274,6 +274,7 @@ in
           }
         ];
 
+        nix.settings.allowed-users = [ "nix-serve-forgejo-runner" ];
         systemd.services.nix-serve-forgejo-runner = {
           after = [ "podman-forgejo-runner.service" ];
           wants = [ "podman-forgejo-runner.service" ];
@@ -285,10 +286,9 @@ in
               "/nix/store"
               "/nix/var/nix"
             ];
-            User = "forgejo-runner";
-            Group = "forgejo-runner";
-            WorkingDirectory = "/var/lib/forgejo-runner";
-            StateDirectory = "forgejo-runner";
+            DynamicUser = true;
+            User = "nix-serve-forgejo-runner";
+            Group = "nix-serve-forgejo-runner";
             Nice = 5;
           };
 
