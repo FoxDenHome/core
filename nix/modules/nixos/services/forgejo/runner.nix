@@ -284,12 +284,6 @@ in
 
         nix.settings.allowed-users = [ "nix-serve-forgejo-runner" ];
         systemd.services.nix-serve-forgejo-runner = {
-          before = [ "podman-forgejo-runner.service" ];
-          wantedBy = [
-            "podman-forgejo-runner.service"
-            "multi-user.target"
-          ];
-
           serviceConfig = {
             ExecStart = "${pkgs.nix-serve-ng}/bin/nix-serve --port 1111";
             UMask = 0000;
@@ -304,6 +298,7 @@ in
             Nice = 5;
           };
 
+          wantedBy = [ "multi-user.target" ];
         };
 
         environment.persistence."/nix/persist/forgejo" = {
