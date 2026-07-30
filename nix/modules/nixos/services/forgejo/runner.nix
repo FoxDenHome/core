@@ -274,6 +274,14 @@ in
           }
         ];
 
+        users.users.nix-serve-forgejo-runner = {
+          isSystemUser = true;
+          group = "nix-serve-forgejo-runner";
+          description = "Forgejo runner nix-serve";
+          home = "/var/lib/nix-serve-forgejo-runner";
+        };
+        users.groups.nix-serve-forgejo-runner = { };
+
         nix.settings.allowed-users = [ "nix-serve-forgejo-runner" ];
         systemd.services.nix-serve-forgejo-runner = {
           after = [ "podman-forgejo-runner.service" ];
@@ -286,7 +294,6 @@ in
               "/nix/store"
               "/nix/var/nix"
             ];
-            DynamicUser = true;
             StateDirectory = "nix-serve-forgejo-runner";
             WorkingDirectory = "/var/lib/nix-serve-forgejo-runner";
             User = "nix-serve-forgejo-runner";
