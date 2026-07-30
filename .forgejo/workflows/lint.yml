@@ -18,7 +18,7 @@ jobs:
           github-token: ${{ secrets.EXT_GITHUB_TOKEN }}
       - uses: https://github.com/cachix/install-nix-action@v31
         with:
-          nix_path: nixpkgs=channel:nixos-26.05
+          nix_path: ''
           github_access_token: ${{ secrets.EXT_GITHUB_TOKEN }}
           enable_kvm: false
           install_options: --no-daemon
@@ -31,7 +31,7 @@ jobs:
           cd ./nix
           echo $NIX_PATH
           nix-channel --list
-          nix run nixfmt-tree -- --ci
+          nix run '<nixpkgs>#nixfmt-tree' -- --ci
       - name: Lint mikrotik
         run: |
           cd ./mikrotik
