@@ -20,6 +20,11 @@ jobs:
         with:
           nix_path: nixpkgs=channel:nixos-26.05
           github_access_token: ${{ secrets.EXT_GITHUB_TOKEN }}
+          extra_nix_config: |
+            trusted-public-keys = cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY= cache.nixos-cuda.org:74DUi4Ye579gUqzH4ziL9IyiJBlDpMRn9MBN8oNan9M=
+            trusted-substituters = unix:///var/lib/forgejo-runner/mnt/nix-serve.sock https://cache.nixos-cuda.org https://cache.nixos.org/
+            substituters = unix:///var/lib/forgejo-runner/mnt/nix-serve.sock https://cache.nixos-cuda.org https://cache.nixos.org/
+            require-sigs = false
       - name: Lint nix
         run: |
           cd ./nix
