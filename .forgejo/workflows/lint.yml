@@ -29,6 +29,7 @@ jobs:
       - name: Lint nix
         run: |
           cd ./nix
+          nix-channel --list
           nix run nixfmt-tree -- --ci
       - name: Lint mikrotik
         run: |
