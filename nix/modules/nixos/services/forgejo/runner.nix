@@ -160,6 +160,7 @@ in
       }).config
       (services.make {
         name = "nix-serve-forgejo-runner";
+        overrideHost = svcConfig.containerHost;
         inherit svcConfig pkgs config;
       }).config
       {
