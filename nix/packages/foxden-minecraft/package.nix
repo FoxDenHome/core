@@ -41,13 +41,13 @@ let
   modpack = {
     name = "serverpack_foxden_create.zip";
     message = "Locally built Minecraft modpack (serverpack_foxden_create.zip)";
-    hash = "sha256:e2b8d3125660266fdad4c381c6b8a85c8cf53ecac58dfed994f7a55388ff669e";
+    hash = "sha256:37e20a430a6833f00fb075754230cd64f3019eb8d1d6326ed0d5d0285ee2f2ce";
   };
 
   clientModpack = {
     name = "modpack_foxden_create.zip";
     message = "Locally built Minecraft modpack (modpack_foxden_create.zip)";
-    hash = "sha256:23f16de43a77d5bb22e91f4c2626270a6416d8900a46aaa3d9b19fef3a2546d6";
+    hash = "sha256:8ad1e592863b176b1b574eb56a975c45514583d5ff53fa3b1b5279067984da26";
   };
 in
 pkgs.stdenvNoCC.mkDerivation {
@@ -67,8 +67,8 @@ pkgs.stdenvNoCC.mkDerivation {
       hash = "sha256:6508639b623d67700f8a7c3b798fc268f1da10cc290133325816f2b3f73c38ab";
     })
     (pkgs.fetchurl {
-      url = "https://github.com/BeneHenke/BluemapCreateEntityAddon/releases/download/v1.2.0/createentityaddon-1.2.0-5.13+.jar";
-      hash = "sha256:9292c667b7fc45a8c88b7174a982a4ac978c5df45adecdf01ddeb541c4b5b02c";
+      url = "https://github.com/BeneHenke/BluemapCreateEntityAddon/releases/download/v1.2.1/createentityaddon-1.2.1-5.13+.jar";
+      hash = "sha256:bf58443687040401c0d137b99298460094c61d4eda760f52b1d5856e0a33cf91";
     })
     (pkgs.stdenvNoCC.mkDerivation {
       name = "bluemap-create-resource-pack.zip";
