@@ -131,6 +131,7 @@ in
   nixosModule =
     { pkgs, ... }:
     {
+      config.lib.foxDen.snmp.ro = "monitor_sprFp7";
       config.lib.foxDen.getStdout =
         cmd:
         let

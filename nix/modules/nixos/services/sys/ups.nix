@@ -86,7 +86,7 @@ in
         driver = "snmp-ups";
         port = "ups-rack.foxden.network:161";
         directives = [
-          "community = monitor_sprFp7"
+          "community = ${config.lib.foxDen.snmp.ro}"
           "snmp_version = v1"
           "mibs = eaton_pw_nm2"
           "override.battery.charge.low = ${toString svcConfig.lowBatteryLevel}"

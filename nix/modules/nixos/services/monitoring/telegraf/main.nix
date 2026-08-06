@@ -75,12 +75,6 @@ in
           }
         ];
 
-        sops.secrets.telegraf = config.lib.foxDen.sops.mkIfAvailable {
-          mode = "0400";
-          owner = "telegraf";
-          group = "telegraf";
-        };
-
         systemd.services.telegraf = {
           confinement.packages = [
             pkgs.coreutils
@@ -116,7 +110,9 @@ in
               BindReadOnlyPaths = [
                 "${mibsPackage}/mibs:/usr/share/snmp/mibs"
               ];
-              EnvironmentFile = config.lib.foxDen.sops.mkIfAvailable config.sops.secrets.telegraf.path;
+              Environment = [
+                "SNMP_COMMUNITY=${config.lib.foxDen.snmp.ro}"
+              ];
             };
         };
       }
