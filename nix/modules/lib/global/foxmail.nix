@@ -46,6 +46,13 @@ let
     sender = {
       dkim = {
         ttl = "1h";
+        headers = [
+          "from"
+        ];
+        canonicalization = "relaxed/relaxed";
+      };
+      headers = {
+        FoxMail-Host = "unset";
       };
     };
     receiver = {
