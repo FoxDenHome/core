@@ -34,12 +34,14 @@ let
   renderInterface = (
     iface:
     let
-      privateAddrs = lib.filter util.isPrivateIP (map util.removeIPCidr iface.addresses);
+      privateAddrs = map util.addHostCidr (
+        lib.filter util.isPrivateIP (map util.removeIPCidr iface.addresses)
+      );
     in
     lib.genAttrs iface.email.allowedFrom (from: privateAddrs)
   );
 
-  # Consumer must fill in sender.dkim.selector, sender.domain, sender.receiver.domain
+  # Consumer must fill in sender.dkim.selector, domain
   boilerplateCfg = {
     sender = {
       dkim = {

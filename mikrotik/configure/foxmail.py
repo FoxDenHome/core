@@ -2,6 +2,7 @@ from os import makedirs
 from os.path import join as path_join
 from shutil import rmtree
 from subprocess import check_output
+import json
 
 from configure.util import NIX_DIR, ROUTERS, mtik_path
 
@@ -23,18 +24,21 @@ def refresh_foxmail():
         .decode("utf-8")
     )
     with open(result, "r") as file:
-        config = file.read()
+        config = json.load(file)
 
     rmtree(OUT_PATH, ignore_errors=True)
     makedirs(OUT_PATH, exist_ok=True)
-
-    with open(path_join(OUT_PATH, "config.yml"), "w") as out_file:
-        out_file.write(config)
 
     for router in ROUTERS:
         if router.horizon != "internal":
             continue
         print(f"## {router.host}")
+
+        config["domain"] = router.host
+        config["sender"]["dkim"]["selector"] = router.host.split(".")[0]
+        with open(path_join(OUT_PATH, "config.yml"), "w") as out_file:
+            json.dump(config, out_file)
+
         changes = router.sync(OUT_PATH, "/foxmail")
         if changes:
             print("### Restarting foxMail container", changes)

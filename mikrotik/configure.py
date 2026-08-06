@@ -8,6 +8,7 @@ from configure.dns import refresh_dns
 from configure.dyndns import refresh_dyndns
 from configure.firewall import refresh_firewall
 from configure.foxingress import refresh_foxingress
+from configure.foxmail import refresh_foxmail
 from configure.scripts import refresh_scripts
 from configure.tftp import refresh_tftp
 from configure.util import ROUTERS
@@ -34,6 +35,8 @@ def main():
         refresh_dyndns()
         print("# foxIngress configuration")
         refresh_foxingress()
+        print("# foxMail configuration")
+        refresh_foxmail()
         print("# DNS configuration")
         refresh_dns()
         print("# DHCP configuration")
