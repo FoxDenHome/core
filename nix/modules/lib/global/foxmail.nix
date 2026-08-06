@@ -55,7 +55,7 @@ let
         greeting = "foxMail ESMTP";
       };
     };
-    prometheus.listener = ":9001";
+    prometheus.listener = ":9002";
   };
 in
 {
