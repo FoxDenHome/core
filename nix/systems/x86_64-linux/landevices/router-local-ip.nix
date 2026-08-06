@@ -1,26 +1,35 @@
 { lib, ... }:
 let
-  mkDevice = name: suffix4: suffix6: [
-    {
-      fqdn = "${name}.foxden.network";
-      ttl = 30;
-      type = "A";
-      value = "10.2.${suffix4}";
-      horizon = "internal";
-    }
-    {
-      fqdn = "${name}.foxden.network";
-      ttl = 30;
-      type = "AAAA";
-      value = "fd2c:f4cb:63be:2::${suffix6}";
-      horizon = "internal";
-    }
-  ];
+  mkDevice =
+    name: suffix4: suffix6:
+    [
+      {
+        fqdn = "${name}.foxden.network";
+        ttl = 30;
+        type = "A";
+        value = "10.2.${suffix4}";
+        horizon = "internal";
+      }
+    ]
+    ++ (
+      if suffix6 != "" then
+        [
+          {
+            fqdn = "${name}.foxden.network";
+            ttl = 30;
+            type = "AAAA";
+            value = "fd2c:f4cb:63be:2::${suffix6}";
+            horizon = "internal";
+          }
+        ]
+      else
+        [ ]
+    );
 in
 {
   config.foxDen.dns.records = lib.flatten [
     (mkDevice "gateway" "0.1" "1")
-    (mkDevice "mailer" "0.25" "19")
+    (mkDevice "mailer" "0.25" "") # "19")
     (mkDevice "dns" "0.53" "35")
     (mkDevice "ntp" "0.123" "7b")
     (mkDevice "router" "1.1" "101")
