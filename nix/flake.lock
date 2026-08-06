@@ -214,11 +214,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1786034748,
-        "narHash": "sha256-bxXhxN252aSk/FDZ0Uxwe0WvZ3PqKX+ANMDJpQxUB+s=",
+        "lastModified": 1786036787,
+        "narHash": "sha256-mYiQlzd72zi78oaXBX2Mur16PocxWXdMA9YyHPPRmFc=",
         "ref": "refs/heads/main",
-        "rev": "92be9fdfad23855ba0723404f58a27174784db57",
-        "revCount": 268,
+        "rev": "548e19fc12afcb1749bb7c585751c67080c5e541",
+        "revCount": 269,
         "type": "git",
         "url": "https://git.foxden.network/FoxDen/foxIngress"
       },
