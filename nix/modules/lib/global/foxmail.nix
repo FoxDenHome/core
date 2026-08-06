@@ -49,7 +49,6 @@ let
         headers = [
           "from"
         ];
-        canonicalization = "relaxed/relaxed";
       };
       headers = {
         FoxMail-Host = "unset";
