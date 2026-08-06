@@ -26,6 +26,7 @@ in
         ];
         dynDns = true;
       };
+      email.allowedFrom = [ "docs@foxden.network" ];
       webservice.enable = true;
       addresses = [
         "10.2.11.7/16"

@@ -41,6 +41,7 @@ in
           port = 22;
         }
       ];
+      email.allowedFrom = [ "git@foxden.network" ];
       addresses = [
         "10.2.11.13/16"
         "fd2c:f4cb:63be:2::b0d/64"

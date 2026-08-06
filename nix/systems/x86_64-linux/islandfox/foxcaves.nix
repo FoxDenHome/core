@@ -21,6 +21,7 @@ in
         ];
         dynDns = true;
       };
+      email.allowedFrom = [ "noreply@foxcav.es" ];
       webservice.enable = true;
       addresses = [
         "10.3.10.1/16"
