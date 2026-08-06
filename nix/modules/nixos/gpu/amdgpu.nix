@@ -25,19 +25,6 @@ in
       "d /run/amdgpu-data 0755 root root"
     ];
 
-    sops.secrets."ryzen-ai-license" = config.lib.foxDen.sops.mkIfAvailable { };
-    system.activationScripts.reformatRyzenAILicense = config.lib.foxDen.sops.mkIfAvailable {
-      text = ''
-        ${pkgs.coreutils}/bin/mkdir -p /run/amdgpu-data
-        ${pkgs.dos2unix}/bin/unix2dos -q -n ${
-          config.sops.secrets."ryzen-ai-license".path
-        } /run/amdgpu-data/Xilinx.lic
-      '';
-      deps = [
-        "setupSecrets"
-      ];
-    };
-
     boot.kernelModules = [ "amdxdna" ];
     services.xserver.videoDrivers = [ "amdgpu" ];
     hardware.amdgpu.opencl.enable = true;

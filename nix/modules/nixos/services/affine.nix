@@ -23,8 +23,10 @@ let
       listenAddr = "127.0.0.1";
     };
     mailer = {
+      "SMTP.host" = "mailer.foxden.network";
+      "SMTP.port" = 2525;
       "SMTP.name" = hostName;
-      "SMTP.sender" = "FoxDen Docs <docs@foxden.network>";
+      "SMTP.sender" = "FoxDen Docs <${svcConfig.email}>";
     };
     telemetry = {
       allowedOrigin = [ externalUrl ];
@@ -69,6 +71,10 @@ in
 {
   options.foxDen.services.affine = {
     indexer = lib.mkEnableOption "Enable opensearch dependency and indexer";
+    email = lib.mkOption {
+      type = lib.types.str;
+      description = "E-Mail for the service";
+    };
   }
   // services.http.mkOptions {
     name = "AFFiNE";
@@ -96,8 +102,6 @@ in
         name = "affine";
       }).config
       {
-        sops.secrets.affine = config.lib.foxDen.sops.mkIfAvailable { };
-
         foxDen.services.affine.oAuth.overrideService = true;
         foxDen.services.kanidm.oauth2 = lib.mkIf svcConfig.oAuth.enable {
           ${svcConfig.oAuth.clientId} = (
@@ -151,7 +155,6 @@ in
             StateDirectory = "affine";
             User = "affine";
             Group = "affine";
-            EnvironmentFile = config.lib.foxDen.sops.mkIfAvailable config.sops.secrets.affine.path;
             ExecStartPre = [
               "${pkgs.writeShellScript "affine-server-init.sh" ''
                 ${pkgs.coreutils}/bin/mkdir -p /var/lib/affine/.affine/{config,storage}

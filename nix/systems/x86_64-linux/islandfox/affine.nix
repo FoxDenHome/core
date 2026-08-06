@@ -9,6 +9,7 @@ in
       tls.enable = true;
       indexer = true;
       host = "affine";
+      email = "docs@foxden.network";
       oAuth = {
         enable = true;
         clientId = "affine";
