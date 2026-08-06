@@ -54,8 +54,6 @@ in
               host = "mailer.foxden.network",
               ssl = false,
               port = 2525,
-              username = "",
-              password = "",
               from = "foxCaves <${svcConfig.email}>",
               admin_email = "foxcaves@doridian.net",
             },
