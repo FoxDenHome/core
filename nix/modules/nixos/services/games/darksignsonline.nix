@@ -27,7 +27,7 @@ let
   bindReadOnlyPaths = lib.mkMerge [
     [
       "${pkgs.darksignsonline-server}/var/www/darksignsonline:/var/www/darksignsonline"
-      "${pkgs.writeFile "dso-config.php" configPhp}:/run/darksignsonline/dso-config.php"
+      "${pkgs.writeText "dso-config.php" configPhp}:/run/darksignsonline/dso-config.php"
     ]
     (config.lib.foxDen.sops.mkIfAvailable [
       "${config.sops.secrets.darksignsonline.path}:/run/darksignsonline/dso-config-secret.php"
