@@ -48,12 +48,17 @@ let
         ttl = "1h";
         headers = [
           "from"
+          "to"
+          "date"
+          "subject"
+          "foxmail-id"
+          "foxmail-host"
+          "message-id"
+          "mime-version"
         ];
-        body-canonicalization = "relaxed";
-        header-canonicalization = "relaxed";
       };
       headers = {
-        FoxMail-Host = "unset";
+        foxMail-Host = "unset";
       };
     };
     receiver = {
