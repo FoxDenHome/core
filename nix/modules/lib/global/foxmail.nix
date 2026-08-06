@@ -3,17 +3,30 @@ let
   lib = nixpkgs.lib;
   util = foxDenLib.util;
 
+  emailDomain =
+    addr:
+    let
+      spl = lib.splitString "@" addr;
+    in
+    builtins.elemAt spl ((lib.length spl) - 1);
+
   mkForGateway =
     gateway: ifaces:
     let
       ifacesFiltered = lib.filter (iface: iface.gateway == gateway) ifaces;
+      subnets = lib.mergeAttrsList (map renderInterface ifacesFiltered);
     in
     boilerplateCfg
     // {
       gateway = gateway;
+      sender = boilerplateCfg.sender // {
+        dkim = boilerplateCfg.sender.dkim // {
+          domains = lib.uniqueStrings (map emailDomain (lib.attrNames subnets));
+        };
+      };
       receiver = boilerplateCfg.receiver // {
         auth = boilerplateCfg.receiver.auth // {
-          subnets = lib.mergeAttrsList (map renderInterface ifacesFiltered);
+          inherit subnets;
         };
       };
     };
