@@ -1,6 +1,9 @@
 { ... }:
 let
-  dkimPrefixes = ["foxmail._domainkey" "foxmail-backup._domainkey"];
+  dkimPrefixes = [
+    "foxmail._domainkey"
+    "foxmail-backup._domainkey"
+  ];
   domains = [
     "doridian.net"
     "doridian.de"

@@ -61,6 +61,7 @@ in
         ];
         dynDns = true;
       };
+      email.allowedFrom = [ "noreply@darksignsonline.com" ];
       webservice.enable = true;
       addresses = [
         "10.3.10.15/16"

@@ -3,9 +3,12 @@ let
   lib = nixpkgs.lib;
   globalConfig = foxDenLib.global.config;
 
-  getInterfaces =
-    nixosConfigurations:
-    getInterfacesFromHosts (globalConfig.getAttrSet [ "foxDen" "hosts" "hosts" ] nixosConfigurations);
+  getHosts = globalConfig.getAttrSet [
+    "foxDen"
+    "hosts"
+    "hosts"
+  ];
+  getInterfaces = nixosConfigurations: getInterfacesFromHosts (getHosts nixosConfigurations);
   getInterfacesFromHosts =
     hosts:
     lib.flatten (
@@ -23,7 +26,7 @@ let
     );
 in
 {
-  inherit getInterfaces getInterfacesFromHosts;
+  inherit getInterfaces getInterfacesFromHosts getHosts;
   getGateways =
     nixosConfigurations:
     lib.lists.unique (map (iface: iface.gateway) (getInterfaces nixosConfigurations));

@@ -95,6 +95,10 @@ in
                 default = false;
               };
             };
+            email.allowedFrom = lib.mkOption {
+              type = listOf str;
+              default = [ ];
+            };
             firewall = {
               ingressAcceptRules = lib.mkOption {
                 type = listOf portType;
@@ -220,10 +224,6 @@ in
                 type = ints.positive;
                 default = 200;
               };
-            };
-            email.allowedFrom = lib.mkOption {
-              type = listOf str;
-              default = [ ];
             };
             ssh = lib.mkEnableOption "Does this host accept SSH connections";
             nameservers = lib.mkOption {
