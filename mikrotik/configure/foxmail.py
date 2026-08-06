@@ -34,7 +34,7 @@ def refresh_foxmail():
             continue
         print(f"## {router.host}")
 
-        config["sender"]["headers"]["foxMail-Host"] = router.host
+        config["sender"]["headers"]["FoxMail-Host"] = router.host
         config["sender"]["proxy"] = "socks5://10.99.10.1:1080"
         config["sender"]["domain"] = "redfox.doridian.net"
         config["sender"]["dkim"]["selector"] = router.host.split(".")[0]
