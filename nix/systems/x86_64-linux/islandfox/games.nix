@@ -7,6 +7,7 @@ in
     darksignsonline = {
       enable = true;
       domain = "darksignsonline.com";
+      email = "noreply@darksignsonline.com";
       tls = {
         enable = true;
         hsts = "preload";

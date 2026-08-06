@@ -10,12 +10,27 @@ let
   phpPkg = pkgs.php84;
   svcConfig = config.foxDen.services.darksignsonline;
 
+  configPhp = ''
+    <?php
+    $MYSQL_HOST = ''';
+    $MYSQL_USERNAME = 'darksignsonline';
+    $MYSQL_PASSWORD = ''';
+    $MYSQL_DATABASE = 'darksignsonline';
+    $SMTP_HOST = 'mailer.foxden.network';
+    $SMTP_PORT = 2525;
+    $SMTP_USERNAME = ''';
+    $SMTP_PASSWORD = ''';
+    $SMTP_FROM = '${svcConfig.email}';
+    require_once('/run/darksignsonline/dso-config-secret.php');
+  '';
+
   bindReadOnlyPaths = lib.mkMerge [
     [
       "${pkgs.darksignsonline-server}/var/www/darksignsonline:/var/www/darksignsonline"
+      "${pkgs.writeFile "dso-config.php" configPhp}:/run/darksignsonline/dso-config.php"
     ]
     (config.lib.foxDen.sops.mkIfAvailable [
-      "${config.sops.secrets.darksignsonline.path}:/run/darksignsonline/dso-config.php"
+      "${config.sops.secrets.darksignsonline.path}:/run/darksignsonline/dso-config-secret.php"
     ])
   ];
 in
@@ -24,6 +39,10 @@ in
     domain = lib.mkOption {
       type = lib.types.str;
       description = "Domain name for the service";
+    };
+    email = lib.mkOption {
+      type = lib.types.str;
+      description = "E-Mail for the service";
     };
     tls = lib.mkEnableOption "Enable TLS for the service";
   }
