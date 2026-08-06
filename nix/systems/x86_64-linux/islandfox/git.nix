@@ -9,6 +9,7 @@ in
       enable = true;
       host = "git";
       tls.enable = true;
+      email = "git@foxden.network";
       oAuth = {
         enable = true;
         clientId = "git";

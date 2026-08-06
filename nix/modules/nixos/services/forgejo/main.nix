@@ -29,7 +29,6 @@ let
     BindReadOnlyPaths = [
       "/usr/bin/env"
     ];
-    EnvironmentFile = config.lib.foxDen.sops.mkIfAvailable config.sops.secrets.forgejo.path;
     StateDirectory = ifDefaultData "forgejo";
   };
 
@@ -53,6 +52,10 @@ in
       type = lib.types.path;
       default = defaultDataDir;
       description = "Directory to store git data";
+    };
+    email = lib.mkOption {
+      type = lib.types.str;
+      description = "E-Mail for the service";
     };
   }
   // services.http.mkOptions {
@@ -83,8 +86,6 @@ in
         target = "fastcgi_pass 127.0.0.1:3000;";
       }).config
       {
-        sops.secrets.forgejo = config.lib.foxDen.sops.mkIfAvailable { };
-
         foxDen.services.forgejo.oAuth.overrideService = true;
 
         foxDen.services.kanidm.oauth2 = lib.mkIf svcConfig.oAuth.enable {
@@ -132,6 +133,13 @@ in
               ROOT_URL = "${proto}://${hostName}";
               START_SSH_SERVER = true;
               BUILTIN_SSH_SERVER_USER = "git";
+            };
+            mailer = {
+              ENABLED = true;
+              PROTOCOL = "smtp";
+              SMTP_ADDR = "mailer.foxden.network";
+              SMTP_PORT = 2525;
+              FROM = "FoxDen Git <${svcConfig.email}>";
             };
             service = {
               DISABLE_REGISTRATION = true;
