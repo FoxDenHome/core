@@ -1,8 +1,8 @@
+import json
 from os import makedirs
 from os.path import join as path_join
 from shutil import rmtree
 from subprocess import check_output
-import json
 
 from configure.util import NIX_DIR, ROUTERS, mtik_path
 
