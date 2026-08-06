@@ -20,6 +20,7 @@ in
 {
   config.foxDen.dns.records = lib.flatten [
     (mkDevice "gateway" "0.1" "1")
+    (mkDevice "mailer" "0.25" "19")
     (mkDevice "dns" "0.53" "35")
     (mkDevice "ntp" "0.123" "7b")
     (mkDevice "router" "1.1" "101")
