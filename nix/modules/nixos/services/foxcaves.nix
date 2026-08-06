@@ -117,6 +117,7 @@ in
         systemd.services.foxcaves = {
           after = [ "redis-foxcaves.service" ];
           requires = [ "redis-foxcaves.service" ];
+          restartTriggers = [ config.environment.etc."foxcaves/production.lua".text ];
 
           serviceConfig = {
             ExecStart = [ "${pkgs.foxCaves}/bin/foxCaves" ];
