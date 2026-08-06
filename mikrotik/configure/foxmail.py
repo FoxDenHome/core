@@ -34,9 +34,10 @@ def refresh_foxmail():
             continue
         print(f"## {router.host}")
 
-        config["domain"] = router.host
         config["sender"]["proxy"] = "socks5://10.99.10.1:1080"
+        config["sender"]["domain"] = "redfox.doridian.net"
         config["sender"]["dkim"]["selector"] = router.host.split(".")[0]
+        config["receiver"]["smtp"]["domain"] = router.host
         with open(path_join(OUT_PATH, "config.yml"), "w") as out_file:
             json.dump(config, out_file)
 
