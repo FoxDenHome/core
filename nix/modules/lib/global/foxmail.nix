@@ -52,13 +52,10 @@ let
           "date"
           "subject"
           "foxmail-id"
-          "foxmail-host"
           "message-id"
+          "received"
           "mime-version"
         ];
-      };
-      headers = {
-        foxMail-Host = "unset";
       };
     };
     receiver = {
