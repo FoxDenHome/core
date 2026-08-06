@@ -95,6 +95,7 @@ let
   ipReverses = foxDenLib.global.hosts.getIPReverses nixosConfigurations;
   dns = foxDenLib.global.dns.mkConfig nixosConfigurations;
   foxIngress = foxDenLib.global.foxingress.make nixosConfigurations;
+  foxMail = foxDenLib.global.foxmail.make nixosConfigurations;
   dhcp = foxDenLib.global.dhcp.make nixosConfigurations;
   firewall = foxDenLib.global.firewall.make nixosConfigurations;
   kanidm = foxDenLib.global.kanidm.mkConfig nixosConfigurations;
@@ -113,6 +114,7 @@ let
           dns
           ipReverses
           foxIngress
+          foxMail
           ;
       };
       modules = [
@@ -228,6 +230,12 @@ in
     json = nixpkgs.lib.attrsets.mapAttrs (
       name: cfg: builtins.toFile "foxIngress.json" (builtins.toJSON cfg)
     ) foxIngress;
+  };
+  foxMail = {
+    attrset = foxMail;
+    json = nixpkgs.lib.attrsets.mapAttrs (
+      name: cfg: builtins.toFile "foxMail.json" (builtins.toJSON cfg)
+    ) foxMail;
   };
   dhcp = {
     attrset = dhcp;

@@ -221,6 +221,10 @@ in
                 default = 200;
               };
             };
+            email.allowedFrom = lib.mkOption {
+              type = listOf str;
+              default = [ ];
+            };
             ssh = lib.mkEnableOption "Does this host accept SSH connections";
             nameservers = lib.mkOption {
               type = listOf str;
