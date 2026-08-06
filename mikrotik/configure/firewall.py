@@ -313,6 +313,16 @@ DEFAULT_RULES_TAIL: list[FirewallRule] = [
         },
     ),
     FirewallRule(
+        families=["ip", "ipv6"],
+        table="filter",
+        attribs={
+            "action": "accept",
+            "chain": "forward",
+            "in-interface": "veth-foxmail",
+            "out-interface": "wg-s2s",
+        },
+    ),
+    FirewallRule(
         families=["ip"],
         table="filter",
         attribs={

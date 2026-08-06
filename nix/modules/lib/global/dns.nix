@@ -105,6 +105,7 @@ let
               [
                 "v=spf1"
                 "a:arcticfox.doridian.net"
+                "a:redfox.doridian.net"
               ]
               ++ (
                 if zone.email == "fastmail" then
