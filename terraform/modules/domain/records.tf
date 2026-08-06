@@ -97,7 +97,7 @@ resource "dns-he-net_txt" "static" {
 
   domain = each.value.fqdn
   ttl    = each.value.ttl
-  data   = join(" ", [for partList in chunklist(split("", each.value.value), 255) : "\"${join("", partList)}\""])
+  data   = "\"${each.value.value}\""
 }
 
 resource "dns-he-net_a" "dynamic" {

@@ -24,7 +24,7 @@ in
         type = "TXT";
         ttl = 3600;
         inherit (record) value;
-        horizon = "*";
+        horizon = "external";
       }) (lib.attrsToList domain.value)
     ) (lib.attrsToList dkimEntries)
   );
