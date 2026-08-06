@@ -23,7 +23,7 @@ let
     let
       privateAddrs = lib.filter util.isPrivateIP (map util.removeIPCidr iface.addresses);
     in
-    if (privateAddrs != [ ]) then lib.genAttrs iface.email.allowedFrom (from: privateAddrs) else { }
+    lib.genAttrs iface.email.allowedFrom (from: privateAddrs)
   );
 
   # Consumer must fill in sender.dkim.selector, sender.domain, sender.receiver.domain
