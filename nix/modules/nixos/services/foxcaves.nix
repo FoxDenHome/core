@@ -7,7 +7,6 @@
 }:
 let
   services = foxDenLib.services;
-
   svcConfig = config.foxDen.services.foxcaves;
 in
 {
@@ -15,6 +14,10 @@ in
     storageDir = lib.mkOption {
       type = lib.types.str;
       default = "/var/lib/foxcaves/storage";
+    };
+    email = lib.mkOption {
+      type = lib.types.str;
+      description = "E-Mail for the service";
     };
   }
   // services.mkOptions {
@@ -32,13 +35,77 @@ in
         name = "foxcaves";
       }).config
       {
-        sops.secrets.foxcaves = config.lib.foxDen.sops.mkIfAvailable {
-          mode = "0400";
-          owner = "foxcaves";
-          group = "foxcaves";
-        };
-        environment.etc."foxcaves/production.lua".source =
-          config.lib.foxDen.sops.mkIfAvailable config.sops.secrets.foxcaves.path;
+        environment.etc."foxcaves/production.lua".text = ''
+          return {
+            redis = {
+              host = "127.0.0.1",
+              port = 6379,
+              password = nil,
+            },
+            mysql = {
+              host = nil,
+              port = nil,
+              path = os.getenv("MYSQL_SOCKET"),
+              user = os.getenv("MYSQL_USERNAME"),
+              password = "",
+              database = os.getenv("MYSQL_DATABASE"),
+            },
+            email = {
+              host = "mailer.foxden.network",
+              ssl = false,
+              port = 2525,
+              username = "",
+              password = "",
+              from = "foxCaves <${svcConfig.email}>",
+              admin_email = "foxcaves@doridian.net",
+            },
+            files = {
+              thumbnail_max_size = 50 * 1024 * 1024,
+            },
+            app = {
+              disable_email_confirmation = false,
+              enable_testing_routes = false,
+              require_user_approval = true,
+              expiry_check_period = 60 * 15, -- 15 minutes
+              executor = "tracefile",
+            },
+            totp = {
+              max_past = 1,
+              max_future = 1,
+              secret_bytes = 20,
+              issuer = "foxCaves"
+            },
+            captcha = {
+              registration = true,
+              login = false,
+              forgot_password = false,
+              resend_activation = false,
+            },
+            storage = {
+              default = "fs",
+              backends = {
+                fs = {
+                  driver = "local",
+                  root_folder = "/var/lib/foxcaves/storage",
+                  chunk_size = 8192,
+                },
+              },
+            },
+            cookies = {
+              path = "/",
+              samesite = "Strict",
+              httponly = true,
+              secure = true,
+            },
+            http = {
+              app_url = "https://foxcav.es",
+              cdn_url = "https://f0x.es",
+              enable_acme = true,
+              redirect_www = true,
+              upstream_ips = {"10.99.10.1/32"},
+            },
+          }
+        '';
 
         users.users.foxcaves = {
           isSystemUser = true;

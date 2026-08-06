@@ -7,6 +7,7 @@ in
     foxcaves = {
       enable = true;
       host = "foxcaves";
+      email = "noreply@foxcav.es";
     };
   };
 
