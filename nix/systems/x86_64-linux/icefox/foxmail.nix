@@ -12,7 +12,7 @@
   foxDen.hosts.hosts = {
     foxmail =
       let
-        host = config.lib.foxDenSys.mkV6Host {
+        host = config.lib.foxDenSys.mkMinHost {
           dns = {
             fqdns = [ "icefox-foxmail.foxden.network" ];
           };
@@ -24,7 +24,10 @@
       in
       {
         nameservers = host.nameservers;
-        interfaces.foxden = host.interfaces.foxden;
+        interfaces.foxden = host.interfaces.foxden // {
+          Destination = "0.0.0.0/0";
+          Gateway = "10.99.12.1";
+        };
       };
   };
 }
