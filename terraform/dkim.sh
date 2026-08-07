@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+curl -fsL http://router.foxden.network:9002/dkim.json http://router-backup.foxden.network:9002/dkim.json | jq -s '.[0] * .[1]'
