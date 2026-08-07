@@ -46,16 +46,6 @@ let
     sender = {
       dkim = {
         ttl = "1h";
-        headers = [
-          "from"
-          "to"
-          "date"
-          "subject"
-          "foxmail-id"
-          "message-id"
-          "received"
-          "mime-version"
-        ];
       };
     };
     receiver = {
