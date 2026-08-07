@@ -56,9 +56,9 @@ in
   inherit boilerplateCfg;
 
   getForGateway =
-    nixosConfigurations: gateway:
+    config: gateway:
     let
-      ifaces = foxDenLib.global.hosts.getInterfaces nixosConfigurations;
+      ifaces = foxDenLib.global.hosts.getInterfacesFromHosts config.foxDen.hosts.hosts;
     in
     mkForGateway gateway ifaces;
 

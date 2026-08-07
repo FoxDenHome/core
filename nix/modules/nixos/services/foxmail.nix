@@ -28,9 +28,11 @@ let
       };
     };
 
+  # TODO: Gateway config might need global config in the future, but only icefox uses this
+  #       and icefox only serves itself
   configData =
     if svcConfig.configFromGateway != "" then
-      extendConfig (foxDenLib.global.foxmail.getForGateway nixosConfigurations svcConfig.configFromGateway)
+      extendConfig (foxDenLib.global.foxmail.getForGateway config svcConfig.configFromGateway)
     else
       foxDenLib.global.foxmail.boilerplateCfg // svcConfig.config;
 
