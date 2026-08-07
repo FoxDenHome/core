@@ -18,11 +18,7 @@ let
     in
     boilerplateCfg
     // {
-      sender = {
-        dkim = {
-          domains = lib.uniqueStrings (map emailDomain (lib.attrNames subnets));
-        };
-      };
+      sender.dkim.domains = lib.uniqueStrings (map emailDomain (lib.attrNames subnets));
       receiver = boilerplateCfg.receiver // {
         auth = {
           inherit subnets;
