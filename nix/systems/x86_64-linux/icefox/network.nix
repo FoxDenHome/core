@@ -148,6 +148,7 @@ in
   );
   foxDen.hosts.index = 3;
   foxDen.hosts.gateway = "icefox";
+  foxDen.hosts.mailer = "router";
   foxDen.hosts.hostingProvider = "ovh";
 
   virtualisation.libvirtd.allowedBridges = [
@@ -166,7 +167,7 @@ in
 
       sharedIPRules = map (
         rule:
-        "  ${rule.protocol} dport ${builtins.toString rule.dstport} dnat to ${rule.toAddresses} comment \"${rule.comment}\""
+        "  ${rule.protocol} dport ${toString rule.dstport} dnat to ${rule.toAddresses} comment \"${rule.comment}\""
       ) portForwardrules;
     in
     {

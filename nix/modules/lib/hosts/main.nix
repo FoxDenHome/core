@@ -325,6 +325,10 @@ in
           type = str;
           default = "default";
         };
+        mailer = lib.mkOption {
+          type = str;
+          default = "default";
+        };
         hostingProvider = lib.mkOption {
           type = str;
           default = "home";
@@ -489,7 +493,7 @@ in
                             config.foxDen.hosts.defaultSysctls // interface.sysctls
                           );
 
-                          settingToStr = setting: if setting == false then "0" else builtins.toString setting;
+                          settingToStr = setting: if setting == false then "0" else toString setting;
 
                           sysctls = lib.concatStringsSep "\n" (
                             map (

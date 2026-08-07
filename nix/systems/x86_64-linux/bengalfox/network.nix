@@ -20,6 +20,7 @@ in
 
   foxDen.hosts.index = 1;
   foxDen.hosts.gateway = "router";
+  foxDen.hosts.mailer = "router";
   foxDen.services.tlsHardwareAcceleration = true;
   virtualisation.libvirtd.allowedBridges = [ ifcfg.interface ];
 
@@ -38,7 +39,7 @@ in
       {
         PVID = ifcfg.phyPvid;
         EgressUntagged = ifcfg.phyPvid;
-        VLAN = builtins.toString ifcfg.phyPvid;
+        VLAN = toString ifcfg.phyPvid;
       }
     ];
 

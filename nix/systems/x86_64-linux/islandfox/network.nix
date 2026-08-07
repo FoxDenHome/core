@@ -26,6 +26,7 @@ in
 
   foxDen.hosts.index = 2;
   foxDen.hosts.gateway = "router";
+  foxDen.hosts.mailer = "router";
   virtualisation.libvirtd.allowedBridges = [ ifcfg.interface ];
 
   systemd.network.networks = {
@@ -44,7 +45,7 @@ in
         {
           PVID = ifcfg.phyPvid;
           EgressUntagged = ifcfg.phyPvid;
-          VLAN = builtins.toString ifcfg.phyPvid;
+          VLAN = toString ifcfg.phyPvid;
         }
       ];
 

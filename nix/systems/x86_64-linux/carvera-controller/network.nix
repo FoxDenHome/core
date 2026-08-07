@@ -14,6 +14,7 @@ in
 {
   foxDen.hosts.index = 5;
   foxDen.hosts.gateway = "router";
+  foxDen.hosts.mailer = "router";
 
   services.avahi.enable = true;
   networking.firewall.allowedTCPPorts = [ 5900 ];
