@@ -55,7 +55,12 @@ in
 {
   inherit boilerplateCfg;
 
-  getForGateway = config: gateway: mkForGateway gateway config.foxDen.services.foxMail;
+  getForGateway =
+    config: gateway:
+    let
+      ifaces = foxDenLib.global.hosts.getInterfaces config;
+    in
+    mkForGateway gateway ifaces;
 
   make =
     nixosConfigurations:
