@@ -18,7 +18,9 @@ let
     in
     boilerplateCfg
     // {
-      sender.dkim.domains = lib.uniqueStrings (map emailDomain (lib.attrNames subnets));
+      sender = boilerplateCfg.sender // {
+        dkim.domains = lib.uniqueStrings (map emailDomain (lib.attrNames subnets));
+      };
       receiver = boilerplateCfg.receiver // {
         auth = {
           inherit subnets;
@@ -38,6 +40,9 @@ let
 
   # Consumer must fill in sender.domain, reciever.smtp.domain, sender.dkim.selector
   boilerplateCfg = {
+    sender = {
+      require-tls = true;
+    };
     receiver = {
       smtp = {
         listener = ":2525";
