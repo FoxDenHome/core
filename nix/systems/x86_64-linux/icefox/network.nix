@@ -405,6 +405,7 @@ in
       let
         mkIntf = subifcfg: {
           driver.name = "null";
+          email.allowedFrom = [ "icefox@foxden.network" ];
           inherit (subifcfg) mac addresses;
           dns.fqdns = [
             "icefox.foxden.network"

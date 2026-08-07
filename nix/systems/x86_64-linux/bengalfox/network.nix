@@ -89,6 +89,7 @@ in
         dns = {
           fqdns = [ "bengalfox.foxden.network" ];
         };
+        email.allowedFrom = [ "bengalfox@foxden.network" ];
         inherit (ifcfg) mac addresses;
       };
     };

@@ -27,6 +27,7 @@
             "redfox.doridian.net"
           ];
         };
+        email.allowedFrom = [ "redfox@foxden.network" ];
         addresses = [
           "10.99.10.1"
           "fd2c:f4cb:63be::a63:a01"

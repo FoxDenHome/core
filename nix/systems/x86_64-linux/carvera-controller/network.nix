@@ -41,6 +41,7 @@ in
       ssh = true;
       interfaces.default = {
         driver.name = "null";
+        email.allowedFrom = [ "carvera-controller@foxden.network" ];
         dns = {
           fqdns = [ "carvera-controller.foxden.network" ];
         };

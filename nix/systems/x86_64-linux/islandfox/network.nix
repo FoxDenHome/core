@@ -101,6 +101,7 @@ in
       ssh = true;
       interfaces.default = {
         driver.name = "null";
+        email.allowedFrom = [ "islandfox@foxden.network" ];
         dns = {
           fqdns = [ "islandfox.foxden.network" ];
         };

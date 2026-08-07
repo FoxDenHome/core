@@ -59,4 +59,14 @@ in
       mailers = lib.lists.unique (map (iface: iface.mailer) ifaces);
     in
     lib.attrsets.genAttrs mailers (mailer: mkForMailer mailer ifaces);
+
+  nixosModule =
+    { config, ... }:
+    {
+      config.networking.hosts =
+        lib.mkIf (config.foxDen.hosts.mailer == "router" && config.foxDen.hosts.gateway != "router")
+          {
+            "10.99.0.1" = [ "mailer.foxden.network" ];
+          };
+    };
 }
