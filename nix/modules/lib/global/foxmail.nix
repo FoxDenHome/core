@@ -10,10 +10,10 @@ let
     in
     builtins.elemAt spl ((lib.length spl) - 1);
 
-  mkForGateway =
-    gateway: ifaces:
+  mkForMailer =
+    mailer: ifaces:
     let
-      ifacesFiltered = lib.filter (iface: iface.gateway == gateway) ifaces;
+      ifacesFiltered = lib.filter (iface: iface.mailer == mailer) ifaces;
       subnets = lib.mergeAttrsList (map renderInterface ifacesFiltered);
     in
     boilerplateCfg
@@ -50,13 +50,13 @@ in
 {
   inherit boilerplateCfg;
 
-  getForGateway = config: gateway: mkForGateway gateway config.foxDen.foxMail;
+  getForMailer = config: mailer: mkForMailer mailer config.foxDen.foxMail;
 
   make =
     nixosConfigurations:
     let
-      gateways = foxDenLib.global.hosts.getGateways nixosConfigurations;
       ifaces = foxDenLib.global.hosts.getInterfaces nixosConfigurations;
+      mailers = lib.lists.unique (map (iface: iface.mailer) ifaces);
     in
-    lib.attrsets.genAttrs gateways (gateway: mkForGateway gateway ifaces);
+    lib.attrsets.genAttrs mailers (mailer: mkForMailer mailer ifaces);
 }
