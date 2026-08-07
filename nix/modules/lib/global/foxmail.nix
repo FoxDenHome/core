@@ -19,7 +19,7 @@ let
         let
           allEMails = lib.uniqueStrings ((lib.attrNames a) ++ (lib.attrNames b));
         in
-        lib.genAttrs allEMails (email: (a.${email} or []) ++ (b.${email} or []));
+        lib.genAttrs allEMails (email: (a.${email} or [ ]) ++ (b.${email} or [ ]));
       subnets = builtins.foldl' mergeLists { } (map renderInterface ifacesFiltered);
     in
     lib.recursiveUpdate boilerplateCfg {
