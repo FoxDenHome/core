@@ -18,14 +18,13 @@ let
     in
     boilerplateCfg
     // {
-      gateway = gateway;
-      sender = boilerplateCfg.sender // {
-        dkim = boilerplateCfg.sender.dkim // {
+      sender = {
+        dkim = {
           domains = lib.uniqueStrings (map emailDomain (lib.attrNames subnets));
         };
       };
       receiver = boilerplateCfg.receiver // {
-        auth = boilerplateCfg.receiver.auth // {
+        auth = {
           inherit subnets;
         };
       };
@@ -43,13 +42,7 @@ let
 
   # Consumer must fill in sender.domain, reciever.smtp.domain, sender.dkim.selector
   boilerplateCfg = {
-    sender = {
-      dkim = {
-        ttl = "1h";
-      };
-    };
     receiver = {
-      auth.subnets = { };
       smtp = {
         listener = ":2525";
         greeting = "foxMail ESMTP";
