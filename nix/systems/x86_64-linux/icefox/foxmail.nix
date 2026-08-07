@@ -20,9 +20,6 @@
             "10.99.12.13/24"
             "fd2c:f4cb:63be::a63:c0d/120"
           ];
-          sysctls = {
-            "net.ipv6.conf.INTERFACE.accept_ra_defrtr" = "0";
-          };
         };
       in
       {
