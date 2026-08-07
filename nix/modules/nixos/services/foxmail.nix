@@ -31,9 +31,9 @@ let
   #       and icefox only serves itself
   configData =
     if svcConfig.configFromGateway != "" then
-      extendConfig (foxDenLib.global.foxMail.getForGateway config svcConfig.configFromGateway)
+      extendConfig (foxDenLib.global.foxmail.getForGateway config svcConfig.configFromGateway)
     else
-      foxDenLib.global.foxMail.boilerplateCfg // svcConfig.config;
+      foxDenLib.global.foxmail.boilerplateCfg // svcConfig.config;
 
   configFile =
     if svcConfig.configText != "" then
