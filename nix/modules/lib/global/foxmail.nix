@@ -14,10 +14,13 @@ let
     gateway: ifaces:
     let
       ifacesFiltered = lib.filter (iface: iface.gateway == gateway) ifaces;
-      mergeLists = a: b: let
-        allEMails = lib.uniqueStrings ((lib.attrNames a) ++ (lib.attrNames b));
-      in lib.genAttrs allEMails (email: a.${email} ++ b.${email});
-      subnets = builtins.foldl' mergeLists {} (map renderInterface ifacesFiltered);
+      mergeLists =
+        a: b:
+        let
+          allEMails = lib.uniqueStrings ((lib.attrNames a) ++ (lib.attrNames b));
+        in
+        lib.genAttrs allEMails (email: a.${email} ++ b.${email});
+      subnets = builtins.foldl' mergeLists { } (map renderInterface ifacesFiltered);
     in
     lib.recursiveUpdate boilerplateCfg {
       sender = {
