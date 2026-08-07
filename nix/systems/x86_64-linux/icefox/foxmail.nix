@@ -20,6 +20,9 @@
             "10.99.12.13/24"
             "fd2c:f4cb:63be::a63:c0d/120"
           ];
+          sysctls = {
+            "net.ipv6.conf.INTERFACE.accept_ra_defrtr" = "0";
+          };
         };
       in
       {
@@ -29,6 +32,10 @@
             {
               Destination = "0.0.0.0/0";
               Gateway = "10.99.12.1";
+            }
+            {
+              Destination = "::/0";
+              Gateway = "fd2c:f4cb:63be::a63:c01";
             }
           ];
         };
