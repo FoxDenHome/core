@@ -51,7 +51,7 @@ in
               database = os.getenv("MYSQL_DATABASE"),
             },
             email = {
-              host = "mailer.foxden.network",
+              host = "${config.lib.foxDen.mailerHost}",
               ssl = false,
               port = 2525,
               from = "foxCaves <${svcConfig.email}>",

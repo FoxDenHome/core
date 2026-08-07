@@ -23,7 +23,7 @@ let
       listenAddr = "127.0.0.1";
     };
     mailer = {
-      "SMTP.host" = "mailer.foxden.network";
+      "SMTP.host" = config.lib.foxDen.mailerHost;
       "SMTP.port" = 2525;
       "SMTP.name" = hostName;
       "SMTP.sender" = "FoxDen Docs <${svcConfig.email}>";

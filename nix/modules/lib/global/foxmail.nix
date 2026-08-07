@@ -3,6 +3,11 @@ let
   lib = nixpkgs.lib;
   util = foxDenLib.util;
 
+  mailerByGateway = {
+    router = "mailer.foxden.network";
+    icefox = "icefox.foxden.network";
+  };
+
   emailDomain =
     addr:
     let
@@ -74,4 +79,10 @@ in
       gateways = foxDenLib.global.hosts.getGateways nixosConfigurations;
     in
     lib.attrsets.genAttrs gateways (gateway: mkForGateway gateway ifaces);
+
+  nixosModule =
+    { config, ... }:
+    {
+      config.lib.foxDen.mailerHost = mailerByGateway.${config.foxDen.hosts.gateway};
+    };
 }

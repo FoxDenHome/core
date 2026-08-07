@@ -16,7 +16,7 @@ let
     $MYSQL_USERNAME = 'darksignsonline';
     $MYSQL_PASSWORD = ''';
     $MYSQL_DATABASE = 'darksignsonline';
-    $SMTP_HOST = 'mailer.foxden.network';
+    $SMTP_HOST = '${config.lib.foxDen.mailerHost}';
     $SMTP_PORT = 2525;
     $SMTP_USERNAME = ''';
     $SMTP_PASSWORD = ''';

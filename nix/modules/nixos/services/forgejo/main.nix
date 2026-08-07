@@ -137,7 +137,7 @@ in
             mailer = {
               ENABLED = true;
               PROTOCOL = "smtp";
-              SMTP_ADDR = "mailer.foxden.network";
+              SMTP_ADDR = config.lib.foxDen.mailerHost;
               SMTP_PORT = 2525;
               FROM = "FoxDen Git <${svcConfig.email}>";
             };
