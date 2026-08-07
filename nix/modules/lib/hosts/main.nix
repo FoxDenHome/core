@@ -1,12 +1,13 @@
-{ nixpkgs, foxDenLib, ... }:
+{ nixpkgs, foxDenLib, hostName, ... }:
 let
   util = foxDenLib.util;
   eSA = lib.strings.escapeShellArg;
   lib = nixpkgs.lib;
 
   getByName = (
-    config: name:
+    config: rawName:
     let
+      name = if rawName == "" then hostName else rawName;
       namespace = "host-${name}";
     in
     {
