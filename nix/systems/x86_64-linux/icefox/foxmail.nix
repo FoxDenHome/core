@@ -12,7 +12,7 @@
   foxDen.hosts.hosts = {
     foxmail =
       let
-        host = config.lib.foxDenSys.mkMinHost {
+        host = config.lib.foxDenSys.mkV6Host {
           dns = {
             fqdns = [ "icefox-foxmail.foxden.network" ];
           };
