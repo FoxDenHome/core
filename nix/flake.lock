@@ -227,6 +227,29 @@
         "url": "https://git.foxden.network/FoxDen/foxIngress"
       }
     },
+    "foxMail": {
+      "inputs": {
+        "flake-utils": [
+          "flake-utils"
+        ],
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1786124446,
+        "narHash": "sha256-N9jIrFxn8O/I4obIgTFxaBS9N1VVWDOtXdyxxncouoc=",
+        "ref": "refs/heads/main",
+        "rev": "ac1004d7aad927763e4d893653326ce2dbf646cc",
+        "revCount": 86,
+        "type": "git",
+        "url": "https://git.foxden.network/FoxDen/foxMail"
+      },
+      "original": {
+        "type": "git",
+        "url": "https://git.foxden.network/FoxDen/foxMail"
+      }
+    },
     "gitbackup": {
       "inputs": {
         "flake-utils": [
@@ -415,6 +438,7 @@
         "flake-utils": "flake-utils",
         "foxCaves": "foxCaves",
         "foxIngress": "foxIngress",
+        "foxMail": "foxMail",
         "gitbackup": "gitbackup",
         "home-manager": "home-manager",
         "impermanence": "impermanence",

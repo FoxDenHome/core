@@ -128,6 +128,13 @@
         flake-utils.follows = "flake-utils";
       };
     };
+    foxMail = {
+      url = "git+https://git.foxden.network/FoxDen/foxMail";
+      inputs = {
+        nixpkgs.follows = "nixpkgs";
+        flake-utils.follows = "flake-utils";
+      };
+    };
     CCSFTP = {
       url = "git+https://git.foxden.network/FoxDen/CCSFTP";
       inputs = {
