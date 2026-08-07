@@ -49,7 +49,7 @@ let
         greeting = "foxMail ESMTP";
       };
     };
-    prometheus.listener = ":9002";
+    http.listener = ":9002";
   };
 in
 {
