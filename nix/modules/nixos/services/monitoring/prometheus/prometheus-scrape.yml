@@ -33,7 +33,7 @@ scrape_configs:
 
   - job_name: foxmail
     static_configs:
-      - targets: ['router.foxden.network:9002', 'router-backup.foxden.network:9002']
+      - targets: ['router.foxden.network:9002', 'router-backup.foxden.network:9002', 'icefox-foxmail.foxden.network:9002']
 
   - job_name: minecraft
     static_configs:
