@@ -405,6 +405,7 @@ in
         mkIntf = subifcfg: {
           driver.name = "null";
           inherit (subifcfg) mac addresses;
+          email.allowedFrom = [ "icefox@foxden.network" ];
           dns.fqdns = [
             "icefox.foxden.network"
             "icefox.doridian.net"
@@ -415,9 +416,7 @@ in
         inherit (ifcfg) nameservers;
         ssh = true;
         interfaces.default = mkIntf ifcfg;
-        interfaces.foxden = mkIntf ifcfg-foxden // {
-          email.allowedFrom = [ "icefox@foxden.network" ];
-        };
+        interfaces.foxden = mkIntf ifcfg-foxden;
         interfaces.routed = mkIntf ifcfg-routed;
       };
   };

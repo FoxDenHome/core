@@ -14,14 +14,16 @@ let
     gateway: ifaces:
     let
       ifacesFiltered = lib.filter (iface: iface.gateway == gateway) ifaces;
-      subnets = lib.mergeAttrsList (map renderInterface ifacesFiltered);
+      mergeLists = a: b: let
+        allEMails = lib.uniqueStrings ((lib.attrNames a) ++ (lib.attrNames b));
+      in lib.genAttrs allEMails (email: a.${email} ++ b.${email});
+      subnets = builtins.foldl' mergeLists {} (map renderInterface ifacesFiltered);
     in
-    boilerplateCfg
-    // {
-      sender = boilerplateCfg.sender // {
+    lib.recursiveUpdate boilerplateCfg {
+      sender = {
         dkim.domains = lib.uniqueStrings (map emailDomain (lib.attrNames subnets));
       };
-      receiver = boilerplateCfg.receiver // {
+      receiver = {
         auth = {
           inherit subnets;
         };
