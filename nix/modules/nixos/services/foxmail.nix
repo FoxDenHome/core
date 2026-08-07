@@ -4,7 +4,7 @@
   config,
   foxDenLib,
   ...
-}: # sender.domain, reciever.smtp.domain, sender.dkim.selector
+}:
 let
   services = foxDenLib.services;
   svcConfig = config.foxDen.services.foxMail;
@@ -20,7 +20,7 @@ let
           selector = lib.head (lib.splitString "." hostName);
         };
       };
-      receiver = cfg.reciever // {
+      receiver = cfg.receiver // {
         smtp = cfg.receiver.smtp // {
           domain = hostName;
         };

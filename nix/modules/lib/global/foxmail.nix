@@ -38,7 +38,7 @@ let
     lib.genAttrs iface.email.allowedFrom (from: privateAddrs)
   );
 
-  # Consumer must fill in sender.domain, reciever.smtp.domain, sender.dkim.selector
+  # Consumer must fill in sender.domain, receiver.smtp.domain, sender.dkim.selector
   boilerplateCfg = {
     sender = {
       require-tls = true;
