@@ -150,10 +150,6 @@ in
               type = str;
               default = config.foxDen.hosts.gateway;
             };
-            mailer = lib.mkOption {
-              type = str;
-              default = config.foxDen.hosts.mailer;
-            };
             nameOverride = lib.mkOption {
               type = nullOr str;
               default = null;
@@ -326,10 +322,6 @@ in
           '';
         };
         gateway = lib.mkOption {
-          type = str;
-          default = "default";
-        };
-        mailer = lib.mkOption {
           type = str;
           default = "default";
         };

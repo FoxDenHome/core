@@ -2,7 +2,6 @@
 {
   foxDen.hosts.index = 4;
   foxDen.hosts.gateway = "redfox";
-  foxDen.hosts.mailer = "router";
   foxDen.hosts.hostingProvider = "vultr";
 
   foxDen.hosts.hosts =

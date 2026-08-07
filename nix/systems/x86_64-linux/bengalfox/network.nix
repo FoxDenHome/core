@@ -20,7 +20,6 @@ in
 
   foxDen.hosts.index = 1;
   foxDen.hosts.gateway = "router";
-  foxDen.hosts.mailer = "router";
   foxDen.services.tlsHardwareAcceleration = true;
   virtualisation.libvirtd.allowedBridges = [ ifcfg.interface ];
 

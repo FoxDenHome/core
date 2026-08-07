@@ -2,57 +2,48 @@
   pkgs,
   lib,
   config,
-  nixosConfigurations,
   foxDenLib,
   ...
 }:
 let
   services = foxDenLib.services;
   svcConfig = config.foxDen.services.foxMail;
-  hostName = services.getFirstFQDN config svcConfig;
+  svcHostName = services.getFirstFQDN config svcConfig;
 
   extendConfig =
     cfg:
     cfg
     // {
       sender = cfg.sender // {
-        domain = hostName;
+        domain = if svcConfig.senderDomain == "" then svcHostName else svcConfig.senderDomain;
         dkim = cfg.sender.dkim // {
-          selector = lib.head (lib.splitString "." hostName);
+          selector = lib.head (lib.splitString "." svcHostName);
         };
       };
       receiver = cfg.receiver // {
         smtp = cfg.receiver.smtp // {
-          domain = hostName;
+          domain = svcHostName;
         };
       };
     };
 
   # TODO: Gateway config might need global config in the future, but only icefox uses this
   #       and icefox only serves itself
-  configData =
-    if svcConfig.configFromGateway != "" then
-      extendConfig (foxDenLib.global.foxmail.getForGateway config svcConfig.configFromGateway)
-    else
-      foxDenLib.global.foxmail.boilerplateCfg // svcConfig.config;
-
   configFile =
-    if svcConfig.configText != "" then
-      pkgs.writers.writeText "config.yml" svcConfig.configText
-    else
-      pkgs.writers.writeYAML "config.yml" configData;
+    let
+      configData = extendConfig (
+        foxDenLib.global.foxmail.getForGateway config svcConfig.configFromGateway
+      );
+    in
+    pkgs.writers.writeYAML "config.yml" configData;
 in
 {
   options.foxDen.services.foxMail = {
-    config = lib.mkOption {
-      type = lib.types.attrsOf lib.types.any;
-    };
-    configText = lib.mkOption {
+    configFromGateway = lib.mkOption {
       type = lib.types.str;
-      description = "Raw text configuration for foxMail, alternative to 'config' option.";
       default = "";
     };
-    configFromGateway = lib.mkOption {
+    senderDomain = lib.mkOption {
       type = lib.types.str;
       default = "";
     };
