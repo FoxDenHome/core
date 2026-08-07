@@ -25,8 +25,12 @@
       {
         nameservers = host.nameservers;
         interfaces.foxden = host.interfaces.foxden // {
-          Destination = "0.0.0.0/0";
-          Gateway = "10.99.12.1";
+          routes = [
+            {
+              Destination = "0.0.0.0/0";
+              Gateway = "10.99.12.1";
+            }
+          ];
         };
       };
   };
