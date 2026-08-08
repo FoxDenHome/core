@@ -87,7 +87,7 @@ in
     in
     {
       lib.foxDen.mailerHost = mailer;
-      services.mail.sendmailSetuidWrapper = {
+      security.wrappers.sendmail = {
         source = pkgs.writeShellScript "sendmail.sh" ''
           export FOXMAIL_DEFAULT_SERVER='${mailer}:2525'
           exec ${pkgs.foxMail}/bin/sendmail "$@"
