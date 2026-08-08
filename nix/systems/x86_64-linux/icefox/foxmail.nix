@@ -5,5 +5,14 @@
     host = "";
     configFromGateway = "icefox";
   };
-  networking.firewall.interfaces."br-foxden".allowedTCPPorts = [ 2525 ];
+  networking.firewall.interfaces = {
+    br-foxden.allowedTCPPorts = [
+      9002
+      2525
+    ];
+    wg-foxden.allowedTCPPorts = [
+      9002
+      2525
+    ];
+  };
 }
