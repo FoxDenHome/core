@@ -62,6 +62,8 @@ in
         ZED_EMAIL_ADDR = "alerts@foxden.network";
         ZED_EMAIL_PROG = "/run/wrappers/bin/sendmail";
         ZED_EMAIL_OPTS = "--stdin-is-body -s '@SUBJECT@' -f '${hostName}@foxden.network' @ADDRESS@";
+        ZED_NOTIFY_INTERVAL_SECS = 1;
+        ZED_NOTIFY_VERBOSE = 1;
       };
       autoScrub = {
         enable = true;
