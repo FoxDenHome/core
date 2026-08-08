@@ -59,9 +59,6 @@ in
 
     services.zfs = {
       zed.settings = {
-        ZED_EMAIL_ADDR = "alerts@foxden.network";
-        ZED_EMAIL_PROG = "/run/wrappers/bin/sendmail";
-        ZED_EMAIL_OPTS = "--stdin-is-body -s '@SUBJECT@' -f '${hostName}@foxden.network' @ADDRESS@";
         ZED_NOTIFY_INTERVAL_SECS = 3600;
         ZED_NOTIFY_VERBOSE = 1;
       };
