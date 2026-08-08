@@ -5,12 +5,5 @@
     host = "";
     configFromGateway = "icefox";
   };
-  foxDen.hosts.hosts.icefox.interfaces.foxden = {
-    firewall.ingressAcceptRules = [
-      {
-        protocol = "tcp";
-        port = 2525;
-      }
-    ];
-  };
+  networking.interfaces."br-foxden".allowedTCPPorts = [ 2525 ];
 }
