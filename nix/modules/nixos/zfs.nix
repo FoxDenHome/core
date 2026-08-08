@@ -2,7 +2,6 @@
   pkgs,
   lib,
   config,
-  hostName,
   ...
 }:
 let
@@ -61,7 +60,6 @@ in
       zed = {
         enableMail = true;
         settings = {
-          ZED_EMAIL_ADDR = [ "${hostName}@foxden.network" ];
           ZED_EMAIL_PROG = "/run/wrappers/bin/sendmail";
           ZED_EMAIL_OPTS = "-t -i";
         };
