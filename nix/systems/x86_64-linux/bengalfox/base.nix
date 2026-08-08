@@ -38,7 +38,8 @@
   boot.swraid = {
     enable = true;
     mdadmConf = ''
-      MAILADDR mdmon@doridian.net
+      MAILFROM bengalfox@foxden.network
+      MAILADDR alerts@doridian.net
       ARRAY /dev/md0 metadata=1.2 UUID=d7b38210:439317d1:a74f0783:99635083
       ARRAY /dev/md1 metadata=1.2 UUID=115c644c:fcb4a527:5d784e0c:9c379b03
     '';

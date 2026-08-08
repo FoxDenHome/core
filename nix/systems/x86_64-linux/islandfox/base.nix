@@ -35,7 +35,8 @@
   boot.swraid = {
     enable = true;
     mdadmConf = ''
-      MAILADDR mdmon@doridian.net
+      MAILFROM islandfox@foxden.network
+      MAILADDR alerts@doridian.net
       ARRAY /dev/md0 metadata=1.2 UUID=44bb6487:5f9e160b:901236f6:191fb9b4
     '';
   };
