@@ -1,5 +1,8 @@
 on:
   push:
+    paths:
+      - '.forgejo/workflows/deploy.yml'
+      - 'nix/**'
     branches:
       - main
 
