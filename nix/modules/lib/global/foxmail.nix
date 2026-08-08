@@ -81,8 +81,15 @@ in
     lib.attrsets.genAttrs gateways (gateway: mkForGateway gateway ifaces);
 
   nixosModule =
-    { config, ... }:
+    { config, pkgs, ... }:
+    let
+      mailer = mailerByGateway.${config.foxDen.hosts.gateway};
+    in
     {
-      config.lib.foxDen.mailerHost = mailerByGateway.${config.foxDen.hosts.gateway};
+      lib.foxDen.mailerHost = mailer;
+      services.mail.sendmailSetuidWrapper.source = pkgs.writeShellScript "sendmail.sh" ''
+        export FOXMAIL_DEFAULT_SERVER='${mailer}:2525'
+        exec ${pkgs.foxMail}/bin/sendmail "$@"
+      '';
     };
 }
