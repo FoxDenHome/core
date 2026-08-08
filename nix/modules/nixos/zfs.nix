@@ -59,9 +59,9 @@ in
 
     services.zfs = {
       zed.settings = {
-        ZED_EMAIL_ADDR = "${hostName}@foxden.network";
+        ZED_EMAIL_ADDR = "alerts@foxden.network";
         ZED_EMAIL_PROG = "/run/wrappers/bin/sendmail";
-        ZED_EMAIL_OPTS = "-t -i";
+        ZED_EMAIL_OPTS = "-s '@SUBJECT@' -f '${hostName}@foxden.network' @ADDRESS@";
       };
       autoScrub = {
         enable = true;
