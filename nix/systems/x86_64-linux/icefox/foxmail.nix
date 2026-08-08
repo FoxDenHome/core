@@ -5,7 +5,7 @@
     host = "";
     configFromGateway = "icefox";
   };
-  foxDen.hosts.hosts.icefox.interface.foxden = {
+  foxDen.hosts.hosts.icefox.interfaces.foxden = {
     firewall.ingressAcceptRules = [
       {
         protocol = "tcp";
