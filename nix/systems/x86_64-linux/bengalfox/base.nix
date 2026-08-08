@@ -7,6 +7,8 @@
   foxDen.boot.secure = true;
   foxDen.boot.espMounts = [ "/boot2" ];
 
+  services.smartd.notifications.test = true; # TESTING
+
   system.stateVersion = "26.05";
 
   imports = [ ../../../profiles/server.nix ];
