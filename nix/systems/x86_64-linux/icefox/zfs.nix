@@ -47,7 +47,6 @@ in
     ++ (mkZfsMounts "/mnt/zhdd" "ztank/ROOT/BENGALFOX/zhdd" zhddMounts)
   );
 
-  services.zfs.zed.settings.ZED_EMAIL_ADDR = [ "icefox@foxden.network" ];
   foxDen.zfs = {
     enable = true;
   };

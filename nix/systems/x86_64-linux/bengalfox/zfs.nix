@@ -44,7 +44,6 @@ in
     ) zhddMounts
   );
 
-  services.zfs.zed.settings.ZED_EMAIL_ADDR = [ "bengalfox@foxden.network" ];
   foxDen.zfs = {
     enable = true;
     sanoid = {
