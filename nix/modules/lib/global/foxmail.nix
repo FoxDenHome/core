@@ -5,7 +5,7 @@ let
 
   mailerByGateway = {
     router = "mailer.foxden.network";
-    icefox = "icefox.foxden.network";
+    icefox = "10.99.12.1";
   };
 
   emailDomain =
