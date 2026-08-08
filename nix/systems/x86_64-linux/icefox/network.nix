@@ -418,6 +418,12 @@ in
         interfaces.default = mkIntf ifcfg;
         interfaces.foxden = mkIntf ifcfg-foxden;
         interfaces.routed = mkIntf ifcfg-routed;
+        interfaces.foxden-bridge = {
+          driver.name = null;
+          mac = null;
+          email.allowedFrom = [ "icefox@foxden.network" ];
+          addresses = ifcfg-foxden.bridgeAddresses;
+        };
       };
   };
 }
