@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
-exec curl -fsL \
+set -euo pipefail
+
+curl -fsL \
         http://router.foxden.network:9002/dkim.json \
         http://router-backup.foxden.network:9002/dkim.json \
         http://icefox-foxmail.foxden.network:9002/dkim.json \
