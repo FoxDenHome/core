@@ -47,4 +47,5 @@ provider "dns-he-net" {
   username   = var.he_net_username
   password   = var.he_net_password
   otp_secret = var.he_net_otp_secret
+  store_type = "dummy"
 }
