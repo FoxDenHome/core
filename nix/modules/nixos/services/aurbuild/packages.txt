@@ -16,15 +16,15 @@ android-sdk-platform-tools
 makemkv
 mstflint
 numbat-bin
-https://github.com/Doridian/linux-cachyos-dori!linux-cachyos!linux-cachyos-dori
 starsector
 affine
 uxplay
 https://git.foxden.network/FoxDen/backupmgr
 openssh-hpn
 iloader-bin
-proxmark3-iceman-git
 polymath
 soapytezuka-git
 jdk25-graalvm-bin
 lsiutil
+proxmark3-iceman-git
+https://github.com/Doridian/linux-cachyos-dori!linux-cachyos!linux-cachyos-dori
