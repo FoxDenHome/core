@@ -24,7 +24,7 @@ https://git.foxden.network/FoxDen/backupmgr
 openssh-hpn
 iloader-bin
 proxmark3-iceman-git
-jdk21-graalvm-ee-bin
 polymath
 soapytezuka-git
-sone
+jdk25-graalvm-bin
+lsiutil
