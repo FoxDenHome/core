@@ -1,6 +1,6 @@
 { ... }:
 {
   systemd.tmpfiles.rules = [
-    "w /sys/kernel/mm/transparent_hugepage/shmem_enabled 0644 root root - advise"
+    "w /sys/kernel/mm/transparent_hugepage/shmem_enabled - - - - advise"
   ];
 }
