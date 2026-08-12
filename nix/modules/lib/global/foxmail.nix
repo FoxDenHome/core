@@ -52,6 +52,10 @@ let
   boilerplateCfg = {
     sender = {
       require-tls = true;
+      mta-sts = {
+        enable = true;
+        cache-size = 4096;
+      };
     };
     receiver = {
       smtp = {
