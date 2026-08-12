@@ -22,7 +22,7 @@ let
     )
   );
   stsManagedZones = lib.naturalSort (
-    lib.attrNames (lib.filterAttrs (_: zone: zone.email != null) dns.zones)
+    lib.attrNames (lib.filterAttrs (_: zone: zone.email != null && zone.email != "arcticfox") dns.zones)
   );
 
   buildScript = ''

@@ -104,12 +104,13 @@ let
             value = nixpkgs.lib.concatStringsSep " " (
               [
                 "v=spf1"
-                "a:arcticfox.doridian.net"
                 "a:redfox.doridian.net"
               ]
               ++ (
                 if zone.email == "fastmail" then
                   [ "include:spf.messagingengine.com" ]
+                else if zone.email == "arcticfox" then
+                  [ "a:arcticfox.doridian.net" ]
                 else if zone.email == "thundermail" then
                   [ "include:spf.thundermail.com" ]
                 else
