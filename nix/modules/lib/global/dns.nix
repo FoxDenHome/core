@@ -295,9 +295,7 @@ in
   mkConfig = (
     nixosConfigurations:
     let
-      zones = nixpkgs.lib.mapAttrs (name: zone: zone) (
-        globalConfig.getAttrSet [ "foxDen" "dns" "zones" ] nixosConfigurations
-      );
+      zones = globalConfig.getAttrSet [ "foxDen" "dns" "zones" ] nixosConfigurations;
       records =
         (globalConfig.getList [ "foxDen" "dns" "records" ] nixosConfigurations)
         ++ nixpkgs.lib.flatten (
