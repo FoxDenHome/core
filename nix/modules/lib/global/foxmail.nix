@@ -60,7 +60,7 @@ let
       require-tls = true;
       mta-sts = {
         enable = true;
-        cache-size = 4096;
+        cache-size = 65536;
       };
     };
     receiver = {
