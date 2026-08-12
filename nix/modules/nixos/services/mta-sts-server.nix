@@ -33,7 +33,7 @@ let
       local mx="$2"
       if [ ! -f "$file" ]; then
         printf 'version: STSv1\r\n' > "$file"
-        printf 'mode: testing\r\n' >> "$file"
+        printf 'mode: enforce\r\n' >> "$file"
         printf 'max_age: 604800\r\n' >> "$file"
       fi
       printf "mx: $mx\r\n" >> "$file"
