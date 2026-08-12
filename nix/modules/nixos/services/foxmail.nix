@@ -1,6 +1,7 @@
 {
   pkgs,
   lib,
+  dns,
   config,
   foxDenLib,
   ...
@@ -32,7 +33,7 @@ let
   configFile =
     let
       configData = extendConfig (
-        foxDenLib.global.foxmail.getForGateway config svcConfig.configFromGateway
+        foxDenLib.global.foxmail.getForGateway config svcConfig.configFromGateway dns.zones
       );
     in
     pkgs.writers.writeYAML "config.yml" configData;

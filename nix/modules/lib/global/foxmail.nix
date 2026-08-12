@@ -2,6 +2,7 @@
 let
   lib = nixpkgs.lib;
   util = foxDenLib.util;
+  globalConfig = foxDenLib.global.config;
 
   mailerByGateway = {
     router = "mailer.foxden.network";
@@ -16,7 +17,7 @@ let
     builtins.elemAt spl ((lib.length spl) - 1);
 
   mkForGateway =
-    gateway: ifaces:
+    gateway: ifaces: zones:
     let
       ifacesFiltered = lib.filter (iface: iface.gateway == gateway) ifaces;
       mergeLists =
@@ -30,6 +31,11 @@ let
     lib.recursiveUpdate boilerplateCfg {
       sender = {
         dkim.domains = lib.uniqueStrings (map emailDomain (lib.attrNames subnets));
+        mta-sts = {
+          required-for = lib.attrNames (
+            lib.filterAttrs (name: zone: zone.email != null && zone.email != "arcticfox") zones
+          );
+        };
       };
       receiver = {
         auth = {
@@ -70,19 +76,20 @@ in
   inherit boilerplateCfg;
 
   getForGateway =
-    config: gateway:
+    config: gateway: zones:
     let
       ifaces = foxDenLib.global.hosts.getInterfacesFromHosts config.foxDen.hosts.hosts;
     in
-    mkForGateway gateway ifaces;
+    mkForGateway gateway ifaces zones;
 
   make =
     nixosConfigurations:
     let
       ifaces = foxDenLib.global.hosts.getInterfaces nixosConfigurations;
       gateways = foxDenLib.global.hosts.getGateways nixosConfigurations;
+      zones = globalConfig.getAttrSet [ "foxDen" "dns" "zones" ] nixosConfigurations;
     in
-    lib.attrsets.genAttrs gateways (gateway: mkForGateway gateway ifaces);
+    lib.attrsets.genAttrs gateways (gateway: mkForGateway gateway ifaces zones);
 
   nixosModule =
     {

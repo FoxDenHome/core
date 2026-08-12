@@ -237,11 +237,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1786516497,
-        "narHash": "sha256-wJxu2Ar3vss4Ng140W/8siqmqfDLb7nPEkezpNwiMrM=",
+        "lastModified": 1786550358,
+        "narHash": "sha256-je7wxIhCZ/+D50rvenpROc0dN6+yLk4oYiqyZ1/P8uE=",
         "ref": "refs/heads/main",
-        "rev": "2d45e7b437b1a522991dc8fbc9f91c616c42612f",
-        "revCount": 101,
+        "rev": "7664d4468d1fc4d0475cbb8ec67562f755b6c339",
+        "revCount": 103,
         "type": "git",
         "url": "https://git.foxden.network/FoxDen/foxMail"
       },
