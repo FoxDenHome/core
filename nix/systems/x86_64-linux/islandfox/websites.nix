@@ -17,6 +17,11 @@ in
       host = "circuitjs";
       tls.enable = true;
     };
+    mta-sts-server = {
+      enable = true;
+      host = "mta-sts";
+      tls.enable = true;
+    };
   };
 
   foxDen.hosts.hosts = {
@@ -47,6 +52,20 @@ in
       addresses = [
         "10.2.11.25/16"
         "fd2c:f4cb:63be:2::b19/64"
+      ];
+    };
+    mta-sts = mkVlanHost 3 {
+      dns = {
+        fqdns = [
+          "mta-sts-server.foxden.network"
+        ]
+        ++ config.foxDen.services.mta-sts-server.fqdns;
+        dynDns = true;
+      };
+      webservice.enable = true;
+      addresses = [
+        "10.3.10.2/16"
+        "fd2c:f4cb:63be:3::a02/64"
       ];
     };
   };

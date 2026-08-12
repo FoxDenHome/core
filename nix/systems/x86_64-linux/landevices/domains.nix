@@ -22,12 +22,15 @@
 
     "e.b.3.6.b.c.4.f.c.2.d.f.ip6.arpa" = {
       registrar = "local";
+      email = null;
     };
     "10.in-addr.arpa" = {
       registrar = "local";
+      email = null;
     };
     "41.68.100.in-addr.arpa" = {
       registrar = "local";
+      email = null;
     };
   };
 }

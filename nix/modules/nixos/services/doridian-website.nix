@@ -11,11 +11,9 @@ let
   svcConfig = config.foxDen.services.doridian-website;
 in
 {
-  options.foxDen.services.doridian-website = (
-    services.http.mkOptions {
-      name = "Doridian's website";
-    }
-  );
+  options.foxDen.services.doridian-website = services.http.mkOptions {
+    name = "Doridian's website";
+  };
 
   config = lib.mkIf svcConfig.enable (
     lib.mkMerge [
