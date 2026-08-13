@@ -61,6 +61,7 @@ let
       mta-sts = {
         enable = true;
         cache-size = 65536;
+        max-ttl = "8760h"; # ~ 1 year
       };
     };
     receiver = {
