@@ -237,11 +237,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1786553195,
-        "narHash": "sha256-TjFeg+Ou9U+T1mTQk2KRTppQ/jVn96zWGr37lrXLv54=",
+        "lastModified": 1786589825,
+        "narHash": "sha256-L1uX2OB6RsxPhMxwjvD0Iz4WnOmYq96cmvVpnGy2G00=",
         "ref": "refs/heads/main",
-        "rev": "d55083692a48a852b5506925d2ceeaffca70ef17",
-        "revCount": 106,
+        "rev": "35c32def093db1c906fff5f7991b6ba89646ef51",
+        "revCount": 108,
         "type": "git",
         "url": "https://git.foxden.network/FoxDen/foxMail"
       },
@@ -328,11 +328,11 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1786430034,
-        "narHash": "sha256-Vux08kA5PICwS2sViCMfwVLAHNoH8TkKAeBo25LjpMI=",
+        "lastModified": 1786535285,
+        "narHash": "sha256-rG5HKMAgAhMgydvKGtco6rqTxRq4EDZQCx9USLvVqYw=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "70cc4559b10a6062b05ff1af17e0add065ccaed9",
+        "rev": "9f78f44a87948854445dae0b6bf82b2e87e4efb5",
         "type": "github"
       },
       "original": {
