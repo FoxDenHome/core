@@ -30,11 +30,11 @@ in
         modules = [
           pkgs.nginxModules.njs
         ];
-        http2 = false;
         target = "${proxyTargetBase};";
         extraHttpConfig =
           { ... }:
           ''
+            subrequest_output_buffer_size 4M;
             js_import sdpfixer from sdpfixer.js;
           '';
         extraConfig =
