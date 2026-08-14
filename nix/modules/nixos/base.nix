@@ -154,8 +154,10 @@
       pciutils
       rsync
       screen
+      sg3_utils
       smartmontools
       ssh-to-age
+      storcli
       unixtools.netstat
       usbutils
       util-linux
