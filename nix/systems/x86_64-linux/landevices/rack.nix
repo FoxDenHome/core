@@ -17,13 +17,8 @@
           fqdns = [ "pikvm-rack.foxden.network" ];
         };
         mac = "D8:3A:DD:A3:82:A8";
-        dhcpv6 = {
-          duid = "0x00020000ab114a5edad0f8fd0afa";
-          iaid = 4174257057;
-        };
         addresses = [
           "10.1.13.2/16"
-          "fd2c:f4cb:63be:1::d02/64"
         ];
       };
       tape-library = mkIntf {
@@ -31,13 +26,8 @@
           fqdns = [ "tape-library.foxden.network" ];
         };
         mac = "00:0E:11:14:70:8B";
-        dhcpv6 = {
-          duid = "0x00030001000e1114708b";
-          iaid = 286552203;
-        };
         addresses = [
           "10.1.13.1/16"
-          "fd2c:f4cb:63be:1::d01/64"
         ];
       };
       ups-rack = mkIntf {
@@ -54,13 +44,8 @@
           fqdns = [ "ats-rack.foxden.network" ];
         };
         mac = "00:0C:15:04:39:93";
-        dhcpv6 = {
-          duid = "0x00030001000c15043993";
-          iaid = 167781915;
-        };
         addresses = [
           "10.1.11.4/16"
-          "fd2c:f4cb:63be:1::b04/64"
         ];
       };
     };

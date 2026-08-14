@@ -35,13 +35,8 @@
           fqdns = [ "hue.foxden.network" ];
         };
         mac = "C4:29:96:B5:2B:8F";
-        dhcpv6 = {
-          duid = "0x00020000ab11a39d5ea7b078c55a";
-          iaid = 1491564959;
-        };
         addresses = [
           "10.2.12.1/16"
-          "fd2c:f4cb:63be:2::c01/64"
         ];
       };
       hue-sync-box = mkIntf {
@@ -67,13 +62,8 @@
           fqdns = [ "nanoleaf-lines-wizzy.foxden.network" ];
         };
         mac = "80:8A:F7:03:55:58";
-        dhcpv6 = {
-          duid = "0x00030001808af7035558";
-          iaid = 1;
-        };
         addresses = [
           "10.2.12.19/16"
-          "fd2c:f4cb:63be:2::c13/64"
         ];
       };
       printer = mkIntf {
@@ -110,6 +100,15 @@
         mac = "c0:84:7d:20:57:c0";
         addresses = [
           "10.2.10.5/16"
+        ];
+      };
+      ups-dori-office = mkIntf {
+        dns = {
+          fqdns = [ "ups-dori-office.foxden.network" ];
+        };
+        mac = "00:0C:15:03:74:03";
+        addresses = [
+          "10.1.11.3/16"
         ];
       };
     };
