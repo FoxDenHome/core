@@ -364,6 +364,7 @@ in
       svcConfig,
       pkgs,
       dynamicUser ? true,
+      http2 ? true,
       modules ? [ ],
       rawConfig ? null,
       ...
@@ -530,7 +531,7 @@ in
         }
         listen 444;
         listen [::]:444;
-        http2 on;
+        http2 ${if http2 then "on" else "off"};
 
         acme_certificate letsencrypt key=${nginxAcmeAlg};
         ssl_certificate $acme_certificate;
@@ -697,7 +698,7 @@ in
                           }
                           listen 444 ssl default_server proxy_protocol;
                           listen [::]:444 ssl default_server proxy_protocol;
-                          http2 on;
+                          http2 ${if http2 then "on" else "off"};
 
                           include ${pkgs.foxden-http-errors.passthru.nginxConf};
                           ssl_reject_handshake on;
