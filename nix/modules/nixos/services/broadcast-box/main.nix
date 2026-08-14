@@ -30,6 +30,7 @@ in
         modules = [
           pkgs.nginxModules.njs
         ];
+        http2 = false;
         target = "${proxyTargetBase};";
         extraHttpConfig =
           { ... }:
