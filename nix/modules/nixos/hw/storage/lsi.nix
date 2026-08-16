@@ -19,7 +19,7 @@
         Group = "root";
         ExecStart = [
           "${pkgs.writeShellScript "storcli-node-exporter.sh" ''
-            ${pkgs.python}/bin/python3 '${config.foxDen.node-exporter.textfilesContrib}/storcli.py' --storcli-path '${pkgs.storcli}/bin/storcli64' > /var/lib/
+            ${config.foxDen.node-exporter.python}/bin/python3 '${config.foxDen.node-exporter.textfilesContrib}/storcli.py' --storcli-path '${pkgs.storcli}/bin/storcli64' > /var/lib/
           ''}"
         ];
       };
