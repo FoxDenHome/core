@@ -33,6 +33,7 @@
   ];
   boot.extraModulePackages = [ ];
   foxDen.nvidia.enable = true;
+  foxDen.lsi.enable = true;
   powerManagement.cpuFreqGovernor = "ondemand";
 
   boot.swraid = {

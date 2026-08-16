@@ -38,10 +38,7 @@
     options ib_core netns_mode=0
   '';
 
-  services.prometheus.exporters.node = {
-    enable = true;
-    enabledCollectors = [ "systemd" ];
-  };
+  foxDen.node-exporter.enable = true;
   networking.firewall.extraInputRules = ''
     ip saddr 10.0.0.0/8 tcp dport ${toString config.services.prometheus.exporters.node.port} accept
     ip6 saddr fc00::/7 tcp dport ${toString config.services.prometheus.exporters.node.port} accept
