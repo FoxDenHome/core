@@ -23,7 +23,7 @@
             outfile='${config.foxDen.node-exporter.textfileDirectory}/storcli.prom'
             ${config.foxDen.node-exporter.python}/bin/python3 \
                 '${config.foxDen.node-exporter.textfilesContrib}/storcli.py' \
-                --storcli-path '${pkgs.storcli}/bin/storcli64' \
+                --storcli_path '${pkgs.storcli}/bin/storcli64' \
               > "$outfile.tmp"
             rm -f "$outfile"
             mv "$outfile.tmp" "$outfile"
