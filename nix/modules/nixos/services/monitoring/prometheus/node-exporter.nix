@@ -25,8 +25,9 @@
       type = lib.types.package;
     };
     textfileDirectory = lib.mkOption {
+      readOnly = true;
       type = lib.types.str;
-      default = "/var/lib/node-exporter/textfile";
+      default = "/run/node-exporter-textfile";
     };
   };
 
@@ -37,7 +38,11 @@
         "systemd"
         "textfile"
       ];
-      extraFlags = [ "--collector.textfile.directory=/var/lib/node-exporter/textfile" ];
+      extraFlags = [ "--collector.textfile.directory=/run/node-exporter-textfile" ];
     };
+
+    systemd.tmpfiles.rules = [
+      "d /run/node-exporter-textfile 0755 root root"
+    ];
   };
 }
