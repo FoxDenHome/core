@@ -24,6 +24,10 @@
       ]);
       type = lib.types.package;
     };
+    textfileDirectory = lib.mkOption {
+      type = lib.types.str;
+      default = "/var/lib/node-exporter/textfile";
+    };
   };
 
   config = lib.mkIf config.foxDen.node-exporter.enable {

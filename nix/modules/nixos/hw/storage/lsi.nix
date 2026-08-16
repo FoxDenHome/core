@@ -19,7 +19,14 @@
         Group = "root";
         ExecStart = [
           "${pkgs.writeShellScript "storcli-node-exporter.sh" ''
-            ${config.foxDen.node-exporter.python}/bin/python3 '${config.foxDen.node-exporter.textfilesContrib}/storcli.py' --storcli-path '${pkgs.storcli}/bin/storcli64' > /var/lib/
+            set -euo pipefail
+            outfile='${config.foxDen.node-exporter.textfileDirectory}/storcli.prom'
+            ${config.foxDen.node-exporter.python}/bin/python3 \
+                '${config.foxDen.node-exporter.textfilesContrib}/storcli.py' \
+                --storcli-path '${pkgs.storcli}/bin/storcli64' \
+              > "$outfile.tmp"
+            rm -f "$outfile"
+            mv "$outfile.tmp" "$outfile"
           ''}"
         ];
       };
