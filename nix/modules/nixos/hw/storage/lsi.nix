@@ -20,7 +20,7 @@
         ExecStart = [
           "${pkgs.writeShellScript "sas3temp-node-exporter.sh" ''
             set -euo pipefail
-            outfile='${config.foxDen.node-exporter.textfileDirectory}/sas3temp.prom'
+            outfile='${config.foxDen.node-exporter.textfile.directory}/sas3temp.prom'
             ${pkgs.sas3temp}/bin/sas3temp > "$outfile.tmp"
             rm -f "$outfile"
             mv "$outfile.tmp" "$outfile"
