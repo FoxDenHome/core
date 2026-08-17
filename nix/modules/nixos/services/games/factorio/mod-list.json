@@ -19,9 +19,9 @@
         {
             "name": "AutoDeconstruct",
             "enabled": true,
-            "sha1": "7f11d80ba2cad874e620d4de54e90977aa4af6e9",
-            "url": "https://mods.factorio.com/download/AutoDeconstruct/6a3e747fb47877e4de0fde12",
-            "version": "1.1.1"
+            "sha1": "360f16278fa71c2e7f13b1a052418d95ef0638a9",
+            "url": "https://mods.factorio.com/download/AutoDeconstruct/6a6aaca5a4738e589774902d",
+            "version": "1.1.2"
         },
         {
             "name": "DiscoScience",
@@ -40,9 +40,9 @@
         {
             "name": "even-pickier-dollies",
             "enabled": true,
-            "sha1": "dfdc2bebeb6565fda22272d7afef1d26a7bc0092",
-            "url": "https://mods.factorio.com/download/even-pickier-dollies/6a3b3efd86ba470d8520dbca",
-            "version": "3.0.0"
+            "sha1": "258b855c4649c2c6b8b52cd1e8005fc65186a0f5",
+            "url": "https://mods.factorio.com/download/even-pickier-dollies/6a63ab18d1754912a27de802",
+            "version": "3.0.2"
         },
         {
             "name": "flib",
@@ -61,16 +61,16 @@
         {
             "name": "LogisticTrainNetwork",
             "enabled": true,
-            "sha1": "52eaec8e3e897fad6cdd35babb203ff9fc6ee9b2",
-            "url": "https://mods.factorio.com/download/LogisticTrainNetwork/6a3ca45a7bc95b7398f8dab6",
-            "version": "3.0.0"
+            "sha1": "8d75aefcf09f7f75a5c3cfb039c0600f365129f0",
+            "url": "https://mods.factorio.com/download/LogisticTrainNetwork/6a7932ccba3d9abcd7654581",
+            "version": "3.1.0"
         },
         {
             "name": "LtnManager",
             "enabled": true,
-            "sha1": "ce487d9336dcc4d23876144f6ab4bc4b50d13fe0",
-            "url": "https://mods.factorio.com/download/LtnManager/6a4abc18955735e46ccdfd6c",
-            "version": "0.5.3"
+            "sha1": "df625c11024555cf9bc5a257efd0e0b21e0a48f5",
+            "url": "https://mods.factorio.com/download/LtnManager/6a824c1c58e12a52b2617fd8",
+            "version": "0.6.0"
         },
         {
             "name": "LTN_Combinator_Modernized",
