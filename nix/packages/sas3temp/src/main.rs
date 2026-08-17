@@ -290,7 +290,7 @@ fn samples_for(index: u32, info: &IocInfo, page: &[u8]) -> Vec<Sample> {
     let identity = [
         ("controller", index.to_string()),
         ("pci_address", pci_address(&info.pci_information)),
-        ("adapter", adapter_type(info.adapter_type).to_owned()),
+        ("adapter_type", adapter_type(info.adapter_type).to_owned()),
         ("firmware", firmware_version(info.firmware_version)),
     ];
     [("ioc", OFF_IOC_TEMPERATURE), ("board", OFF_BOARD_TEMPERATURE)]
@@ -597,9 +597,9 @@ mod tests {
                 "Temperature reported by an LSI Fusion-MPT HBA sensor.\n",
                 "# TYPE lsi_hba_temperature_celsius gauge\n",
                 "lsi_hba_temperature_celsius{controller=\"0\",pci_address=\"0000:03:00.0\",",
-                "adapter=\"SAS3\",firmware=\"16.00.12.00\",sensor=\"ioc\"} 47\n",
+                "adapter_type=\"SAS3\",firmware=\"16.00.12.00\",sensor=\"ioc\"} 47\n",
                 "lsi_hba_temperature_celsius{controller=\"0\",pci_address=\"0000:03:00.0\",",
-                "adapter=\"SAS3\",firmware=\"16.00.12.00\",sensor=\"board\"} 30\n",
+                "adapter_type=\"SAS3\",firmware=\"16.00.12.00\",sensor=\"board\"} 30\n",
             )
         );
     }
