@@ -479,7 +479,6 @@ in
         proxy_request_buffering off;
         proxy_cache off;
         proxy_buffering off;
-        proxy_read_timeout 60s;
         fastcgi_request_buffering off;
         fastcgi_buffering off;
         client_max_body_size 0;
