@@ -477,6 +477,7 @@ in
       proxyConfigNoHost = ''
         proxy_http_version 1.1;
         proxy_request_buffering off;
+        proxy_cache off;
         proxy_buffering off;
         proxy_read_timeout 60s;
         fastcgi_request_buffering off;
