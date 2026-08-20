@@ -35,6 +35,15 @@ in
     };
 
     boot = {
+      initrd.availableKernelModules = [
+        "sd_mod"
+        "ahci"
+        "xhci_pci"
+        "ehci_pci"
+        "nvme"
+        "usbhid"
+        "usb_storage"
+      ];
       initrd.systemd.enable = true;
       plymouth.enable = false;
       binfmt = {

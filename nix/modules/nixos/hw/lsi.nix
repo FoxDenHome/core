@@ -12,6 +12,10 @@
       storcli
     ];
 
+    boot.initrd.availableKernelModules = [
+      "mpt3sas"
+    ];
+
     systemd.services.storcli-node-exporter = {
       serviceConfig = {
         Type = "simple";

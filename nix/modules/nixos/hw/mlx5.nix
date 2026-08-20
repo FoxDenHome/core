@@ -6,6 +6,11 @@ in
   options.foxDen.mlx5.enable = lib.mkEnableOption "Enable full MLX5 kernel support";
 
   config = lib.mkIf config.foxDen.mlx5.enable {
+    boot.kernelModules = [
+      "mlx5_core"
+      "mlx5_en"
+      "rdma_cm"
+    ];
     boot.kernelPatches = [
       {
         name = "mlx5-en-tls";
