@@ -15,7 +15,7 @@ in
     broadcast-box = mkVlanHost 3 {
       dns = {
         fqdns = [
-          "watch.f0x.es"
+          "live.foxden.network"
         ];
         dynDns = true;
       };
