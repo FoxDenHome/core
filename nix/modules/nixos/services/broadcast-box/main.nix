@@ -40,6 +40,11 @@ in
         extraConfig =
           { proxyConfig, ... }:
           ''
+            location /api/sse/ {
+              ${proxyConfig}
+              proxy_read_timeout 86400s;
+              ${proxyTargetBase}
+            }
             location = /api/raw_whip {
               ${proxyConfig}
               ${proxyTargetBase}/api/whip;
