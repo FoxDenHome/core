@@ -34,6 +34,7 @@
   boot.extraModulePackages = [ ];
   foxDen.nvidia.enable = true;
   foxDen.lsi.enable = true;
+  foxDen.mlx5.enable = true;
   powerManagement.cpuFreqGovernor = "ondemand";
 
   boot.swraid = {
