@@ -5,13 +5,13 @@
 }:
 let
   name = "broadcast-box";
-  version = "2.0.2-dori";
+  version = "2.0.3-dori";
 
   src = pkgs.fetchFromGitHub {
     repo = "broadcast-box";
     owner = "Glimesh";
-    rev = "d4d186a765f6e70e4303660cd387be7e96a028a9";
-    hash = "sha256-VhigcFhyiYJVgMmoYsUpt0Q0Lg2u5fRCdi5rCUcsnM4=";
+    rev = "9f43de20e802ee8acc826c3999e021e736dd2a89";
+    hash = "sha256-N9aqqvYZg3Hx5xymaMzQ0eEhQycGdyP/weVpIw2R4bc=";
   };
 
   frontend = pkgs.buildNpmPackage {
@@ -35,7 +35,7 @@ in
 pkgs.buildGoModule {
   inherit version src frontend;
   pname = name;
-  vendorHash = "sha256-VvUFeleuCSm4ikkxOXpd+tMLTf2ZHR6V8gDGtKXTiV4=";
+  vendorHash = "sha256-YHFPZuZlgPrYo072pBU47vfGKwjr62YPCT5S3gAjhuI=";
   proxyVendor = true; # fixes darwin/linux hash mismatch
 
   postPatch = ''
