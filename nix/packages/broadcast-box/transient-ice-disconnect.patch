@@ -1,0 +1,54 @@
+--- orig/broadcast-box-main/web/src/components/player/functions/peerconnection.tsx	2026-08-03 12:54:39.000000000 +0000
++++ repo/broadcast-box-main/web/src/components/player/functions/peerconnection.tsx	2026-08-20 23:12:29.981788095 +0000
+@@ -6,6 +6,10 @@
+ 
+ const REACTION_DATA_CHANNEL_LABEL = "bb-data-v1";
+ 
++// `disconnected` is a transient ICE state that frequently recovers on its own,
++// most noticeably in Firefox. Wait it out before tearing the session down.
++const DISCONNECTED_GRACE_MS = 5_000;
++
+ export interface CurrentLayersMessage {
+ 	id: string,
+ 	audioLayerCurrent: string
+@@ -104,6 +108,7 @@
+ 	let evtSource: EventSource | undefined
+ 	let dataChannelsPublished = false
+ 	let isClosed = false
++	let disconnectedTimeout: ReturnType<typeof setTimeout> | undefined
+ 
+ 	const clearDataChannels = () => {
+ 		chatAdapter.detachChannel()
+@@ -119,6 +124,7 @@
+ 		}
+ 
+ 		isClosed = true
++		clearTimeout(disconnectedTimeout)
+ 		evtSource?.close()
+ 		clearDataChannels()
+ 		peerConnection.close()
+@@ -207,12 +213,22 @@
+ 		await peerConnection.setRemoteDescription({ sdp: answer, type: 'answer' })
+ 
+ 		peerConnection.addEventListener('connectionstatechange', () => {
++			clearTimeout(disconnectedTimeout)
++
+ 			if (
+ 				peerConnection.connectionState === 'closed' ||
+-				peerConnection.connectionState === 'failed' ||
+-				peerConnection.connectionState === 'disconnected'
++				peerConnection.connectionState === 'failed'
+ 			) {
+ 				closeConnection()
++				return
++			}
++
++			if (peerConnection.connectionState === 'disconnected') {
++				disconnectedTimeout = setTimeout(() => {
++					if (peerConnection.connectionState === 'disconnected') {
++						closeConnection()
++					}
++				}, DISCONNECTED_GRACE_MS)
+ 			}
+ 		})
+ 

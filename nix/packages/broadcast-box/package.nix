@@ -24,6 +24,7 @@ let
 
     preBuild = ''
       # The VITE_API_PATH environment variable is needed
+      patch -i ${./transient-ice-disconnect.patch} -p3
       cp "${src}/.env.production" ../
     '';
     installPhase = ''
