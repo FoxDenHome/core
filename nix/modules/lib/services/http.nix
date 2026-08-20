@@ -642,7 +642,7 @@ in
 
                   map $http_upgrade $connection_upgrade {
                     default upgrade;
-                    "" close;
+                    "" "";
                   }
 
                   acme_shared_zone zone=ngx_acme_shared:64k;
