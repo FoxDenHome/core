@@ -27,5 +27,6 @@ soapytezuka-git
 jdk25-graalvm-bin
 lsiutil
 google-cloud-cli
+libstrangle-git
 proxmark3-iceman-git
 https://github.com/Doridian/linux-cachyos-dori!linux-cachyos!linux-cachyos-dori
