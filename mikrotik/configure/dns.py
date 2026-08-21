@@ -35,11 +35,7 @@ FIXED_RECORDS = [
 ] + [
     { "type": "AAAA", "name": zone, "match-subdomain": "true", "address": "::ffff"}
     for zone in [
-        "google.com",
-        "googlemail.com",
-        "gmail.com",
         "googlevideo.com",
-        "youtube.com",
     ]
 ]
 
