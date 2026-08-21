@@ -25,6 +25,24 @@ IGNORE_CHANGES = {"id", "invalid", "packets", "bytes", "dynamic"}
 
 DEFAULT_RULES_HEAD: list[FirewallRule] = [
     FirewallRule(
+        families=["ip"],
+        table="filter",
+        attribs={
+            "action": "accept",
+            "chain": "forward",
+            "protocol": "icmp",
+        },
+    ),
+    FirewallRule(
+        families=["ipv6"],
+        table="filter",
+        attribs={
+            "action": "accept",
+            "chain": "forward",
+            "protocol": "icmpv6",
+        },
+    ),
+    FirewallRule(
         families=["ip", "ipv6"],
         table="filter",
         attribs={
@@ -63,24 +81,6 @@ DEFAULT_RULES_HEAD: list[FirewallRule] = [
             "chain": "forward",
             "comment": "related, established",
             "connection-state": "established,related",
-        },
-    ),
-    FirewallRule(
-        families=["ip"],
-        table="filter",
-        attribs={
-            "action": "accept",
-            "chain": "forward",
-            "protocol": "icmp",
-        },
-    ),
-    FirewallRule(
-        families=["ipv6"],
-        table="filter",
-        attribs={
-            "action": "accept",
-            "chain": "forward",
-            "protocol": "icmpv6",
         },
     ),
     FirewallRule(
