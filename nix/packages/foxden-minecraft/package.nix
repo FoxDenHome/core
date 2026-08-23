@@ -41,13 +41,13 @@ let
   modpack = {
     name = "serverpack_foxden_create.zip";
     message = "Locally built Minecraft modpack (serverpack_foxden_create.zip)";
-    hash = "sha256:c6b8d91986f2951a797373095a0c163c24442c9cef9359b8d6329c6f4327c41f";
+    hash = "sha256:3b1e6eccdb348ac306278077dfc828d679a8e75c1fac72b2b89eac97c36fded8";
   };
 
   clientModpack = {
     name = "modpack_foxden_create.zip";
     message = "Locally built Minecraft modpack (modpack_foxden_create.zip)";
-    hash = "sha256:b478cbf5e2b5067f7f33097e383a7cd05d7a3bfcbe9ab50720aba4fd76a2b964";
+    hash = "sha256:5d5416a38b3480725dd0b6fecc528f7a355b806c2832a63358e376ccaeca8cc7";
   };
 in
 pkgs.stdenvNoCC.mkDerivation {
