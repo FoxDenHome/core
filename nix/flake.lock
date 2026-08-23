@@ -636,11 +636,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1786550981,
-        "narHash": "sha256-b1Ysfn669xYz0PTLHYynWKPrw75E9OBo7vxvIlPDdsQ=",
+        "lastModified": 1787520535,
+        "narHash": "sha256-3/mJbc6Gei+pKO9vzcN9NQBZ0hERGnl5ZTKoj7y0tic=",
         "ref": "refs/heads/main",
-        "rev": "72b7537e2a171a865e1e2a78ee99eefe2657cd90",
-        "revCount": 571,
+        "rev": "c6594e2faac15ae1ede1998e55d5352f0c551f4f",
+        "revCount": 572,
         "type": "git",
         "url": "https://git.foxden.network/FoxDen/tapemgr"
       },
