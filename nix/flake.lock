@@ -191,11 +191,11 @@
         "nixpkgs-acme": "nixpkgs-acme"
       },
       "locked": {
-        "lastModified": 1787375749,
-        "narHash": "sha256-s1Lei5PN3Xyyu6Mm7sk3+QXxhsNmdF7WeKoubSiDWjY=",
+        "lastModified": 1787507756,
+        "narHash": "sha256-AMd6pC/GsaO4c8DUUQ+3/3+RMtcmetDkcPMu2So8EDc=",
         "ref": "refs/heads/main",
-        "rev": "ceb0f8360b9f73bb87abe918b2a4e644eab73e65",
-        "revCount": 4128,
+        "rev": "06443c4529beaf4f19dc7b8c930b7f6a82a7338e",
+        "revCount": 4129,
         "type": "git",
         "url": "https://git.foxden.network/foxCaves/foxCaves"
       },
@@ -328,11 +328,11 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1787204541,
-        "narHash": "sha256-OURZPknrTjQrlNyxPdqzyqmU/81Wes1CUP/Ft1Rv/YI=",
+        "lastModified": 1787414105,
+        "narHash": "sha256-WncT27+3BOkgTaJZLnCsf3LcYf9RXMuR9ONSN4rzQ7s=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "5880666fd9eb563038431edb35c2d0aa595884e6",
+        "rev": "a9e6d84f9c2f9012f5fe7d964a7851352300e61a",
         "type": "github"
       },
       "original": {
