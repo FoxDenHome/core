@@ -30,5 +30,6 @@ google-cloud-cli
 libstrangle-git
 tether-bin
 libx52
+wluma
 proxmark3-iceman-git
 https://github.com/Doridian/linux-cachyos-dori!linux-cachyos!linux-cachyos-dori
