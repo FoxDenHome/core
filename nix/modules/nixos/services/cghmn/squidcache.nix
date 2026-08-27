@@ -117,7 +117,8 @@ in
             Type = "simple";
             ExecStart = [ "${pkgs.squid}/bin/squid --foreground -YCs -f ${squidConfig}" ];
             ExecStartPre = [
-              "${pkgs.coreutils}/bin/mkdir -p '${dataDir}/logs' '${svcConfig.cache.dir}'"
+              "+${pkgs.coreutils}/bin/mkdir -p '${dataDir}/logs' '${svcConfig.cache.dir}'"
+              "+${pkgs.coreutils}/bin/chown cghmn-squidcache:cghmn-squidcache -R '${dataDir}'"
               "${pkgs.squid}/bin/squid --foreground -z -f ${squidConfig}"
             ];
 
