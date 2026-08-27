@@ -19,7 +19,7 @@ rec {
   mkVlanHost = (
     ifcfg: vlan: cfg:
     let
-      driver = ifcfg.defaultDriver or "bridge";
+      driver = ifcfg.defaultDriver or cfg.driver or "bridge";
       commonConfig = {
         mtu = ifcfg.mtu;
         vlan = vlan;
