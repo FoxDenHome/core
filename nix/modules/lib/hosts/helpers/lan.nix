@@ -1,4 +1,4 @@
-{ ... }:
+{ nixpkgs, ... }:
 let
   isNativeVLAN = vlan: vlan < 16;
 
@@ -10,7 +10,7 @@ let
         "fd2c:f4cb:63be:${builtins.toString vlan}\::35"
       ]
     else
-      throw "Must set explicit nameservers for non-native VLAN ID";
+      [ ];
 
   mkRoutes =
     vlan:
@@ -22,7 +22,7 @@ let
         }
       ]
     else
-      throw "Must set explicit routes for non-native VLAN ID";
+      [ ];
 in
 {
   inherit mkNameservers mkRoutes;
@@ -30,7 +30,7 @@ in
   mkVlanHost = (
     ifcfg: vlan: cfg:
     let
-      driver = ifcfg.defaultDriver or (cfg.driver or { }).name or "bridge";
+      driver = ifcfg.defaultDriver or "bridge";
       commonConfig = {
         mtu = ifcfg.mtu;
         vlan = vlan;
@@ -38,7 +38,7 @@ in
     in
     {
       nameservers = mkNameservers vlan;
-      interfaces.default = {
+      interfaces.default = nixpkgs.lib.recursiveUpdate {
         driver = {
           name = driver;
           sriov = {
@@ -52,8 +52,7 @@ in
           // commonConfig;
         };
         routes = mkRoutes vlan;
-      }
-      // cfg;
+      } cfg;
     }
   );
 }
