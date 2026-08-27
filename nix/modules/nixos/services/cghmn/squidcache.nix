@@ -9,6 +9,7 @@ let
   services = foxDenLib.services;
 
   svcConfig = config.foxDen.services.cghmn-squidcache;
+  svcHostName = services.getFirstFQDN config svcConfig;
 
   dataDir = "/var/lib/cghmn-squidcache";
 
@@ -18,6 +19,7 @@ let
     cache_log stdio:${dataDir}/logs/cache.log
     access_log stdio:${dataDir}/logs/access.log
     cache_store_log stdio:${dataDir}/logs/store.log
+    visible_hostname ${svcHostName}
 
     # Access control
     ## ACL
