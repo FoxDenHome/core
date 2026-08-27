@@ -94,7 +94,7 @@ in
               "AF_UNIX"
             ];
 
-            StateDirectory = "cghmn-squid";
+            StateDirectory = "cghmn-squidcache";
           };
           wantedBy = [ "multi-user.target" ];
         };
