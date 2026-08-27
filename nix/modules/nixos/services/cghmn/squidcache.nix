@@ -33,7 +33,7 @@ let
     ${lib.concatStringsSep "\n" (map (dom: "acl allowed_domains dstdomain ${dom}") svcConfig.domains)}
 
     # HTTP
-    http_port 80 intercept connection-auth=off
+    http_port 80 connection-auth=off
     reply_header_add Proxy-Ident "CGHMN Squid Cache (contact Doridian for issues/help)"
 
     http_access deny !http_ports
