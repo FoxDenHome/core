@@ -25,6 +25,26 @@ IGNORE_CHANGES = {"id", "invalid", "packets", "bytes", "dynamic"}
 
 DEFAULT_RULES_HEAD: list[FirewallRule] = [
     FirewallRule(
+        families=["ip", "ipv6"],
+        table="filter",
+        attribs={
+            "action": "drop",
+            "chain": "forward",
+            "in-interface-list": "no-internet",
+            "out-interface-list": "zone-wan",
+        },
+    ),
+    FirewallRule(
+        families=["ip", "ipv6"],
+        table="filter",
+        attribs={
+            "action": "drop",
+            "chain": "forward",
+            "in-interface-list": "zone-wan",
+            "out-interface-list": "no-internet",
+        },
+    ),
+    FirewallRule(
         families=["ip"],
         table="filter",
         attribs={

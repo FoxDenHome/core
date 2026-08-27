@@ -31,6 +31,12 @@ in
       dns = {
         fqdns = [ "cghmn-squidcache.foxden.network" ];
       };
+      firewall.ingressAcceptRules = [
+        {
+          protocol = "tcp";
+          port = 80;
+        }
+      ];
       addresses = [ "100.68.41.2/16" ];
     };
   };
