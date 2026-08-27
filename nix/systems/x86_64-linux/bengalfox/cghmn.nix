@@ -5,7 +5,7 @@ let
     config.lib.foxDenSys.mkVlanHost 2001 (
       cfg
       // {
-        driver = "bridge";
+        driver.name = "bridge";
       }
     );
 in

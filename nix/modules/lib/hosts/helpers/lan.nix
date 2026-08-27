@@ -1,4 +1,4 @@
-{ ... }:
+{ nixpkgs, ... }:
 rec {
   mkNameservers = (
     vlan: [
@@ -19,7 +19,7 @@ rec {
   mkVlanHost = (
     ifcfg: vlan: cfg:
     let
-      driver = ifcfg.defaultDriver or cfg.driver or "bridge";
+      driver = ifcfg.defaultDriver or "bridge";
       commonConfig = {
         mtu = ifcfg.mtu;
         vlan = vlan;
@@ -27,7 +27,7 @@ rec {
     in
     {
       nameservers = mkNameservers vlan;
-      interfaces.default = {
+      interfaces.default = nixpkgs.lib.recursiveUpdate {
         driver = {
           name = driver;
           sriov = {
@@ -41,8 +41,7 @@ rec {
           // commonConfig;
         };
         routes = mkRoutes vlan;
-      }
-      // cfg;
+      } cfg;
     }
   );
 }
