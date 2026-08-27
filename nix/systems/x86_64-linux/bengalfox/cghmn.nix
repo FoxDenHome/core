@@ -2,7 +2,7 @@
 let
   mkCGMNHost =
     cfg:
-    config.lib.foxDenSys.mkVlanHost 2001 (
+    (config.lib.foxDenSys.mkVlanHost 2001 (
       cfg
       // {
         driver.name = "bridge";
@@ -11,7 +11,10 @@ let
           Gateway = "100.68.41.1";
         };
       }
-    );
+    ))
+    // {
+      nameservers = [ "100.68.41.1" ];
+    };
 in
 {
   foxDen.services = {
