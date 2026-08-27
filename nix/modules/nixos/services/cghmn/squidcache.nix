@@ -53,12 +53,12 @@ in
   options.foxDen.services.cghmn-squidcache =
     with lib.types;
     {
-      cacheDir = {
+      cacheDir = lib.mkOption {
         type = path;
         default = "${dataDir}/cache";
         description = "Directory to store Squid data";
       };
-      domains = {
+      domains = lib.mkOption {
         type = uniq (listOf str);
         default = [ "debian.org" ];
         description = "Which domains to permit proxying for";
