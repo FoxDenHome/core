@@ -28,7 +28,7 @@ let
     acl localnet src fc00::/7
     acl localnet src 100.64.0.0/10
 
-    acl http_ports port 80
+    acl http_ports port 80 accel allow-direct connection-auth=off
 
     ${lib.concatStringsSep "\n" (map (dom: "acl allowed_domains dstdomain ${dom}") svcConfig.domains)}
 
