@@ -19,6 +19,7 @@ let
     cache_log stdio:${dataDir}/logs/cache.log
     access_log stdio:${dataDir}/logs/access.log
     cache_store_log stdio:${dataDir}/logs/store.log
+    pid_filename ${dataDir}/squid.pid
     visible_hostname ${svcHostName}
 
     # Access control
