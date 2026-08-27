@@ -12,6 +12,7 @@ let
   svcHostName = services.getFirstFQDN config svcConfig;
 
   dataDir = "/var/lib/cghmn-squidcache";
+  defaultCacheDir = "${dataDir}/cache";
 
   squidConfig = pkgs.writers.writeText "squid.conf" ''
     # Main config
@@ -60,7 +61,7 @@ in
       cache = {
         dir = lib.mkOption {
           type = path;
-          default = "${dataDir}/cache";
+          default = defaultCacheDir;
           description = "Directory to store Squid data";
         };
         sizeMB = lib.mkOption {
@@ -117,8 +118,7 @@ in
             Type = "simple";
             ExecStart = [ "${pkgs.squid}/bin/squid --foreground -YCs -f ${squidConfig}" ];
             ExecStartPre = [
-              "+${pkgs.coreutils}/bin/mkdir -p '${dataDir}/logs' '${svcConfig.cache.dir}'"
-              "+${pkgs.coreutils}/bin/chown cghmn-squidcache:cghmn-squidcache -R '${dataDir}'"
+              "${pkgs.coreutils}/bin/mkdir -p '${dataDir}/logs'"
               "${pkgs.squid}/bin/squid --foreground -z -f ${squidConfig}"
             ];
 
@@ -133,7 +133,7 @@ in
             ];
 
             StateDirectory = "cghmn-squidcache";
-            BindPaths = [ svcConfig.cache.dir ];
+            BindPaths = if svcConfig.cache.dir != defaultCacheDir then [ svcConfig.cache.dir ] else [ ];
           };
           wantedBy = [ "multi-user.target" ];
         };
