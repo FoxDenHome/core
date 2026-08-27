@@ -88,7 +88,7 @@ in
       };
       domains = lib.mkOption {
         type = uniq (listOf str);
-        default = [ "debian.org" ];
+        default = [ ".debian.org" ];
         description = "Which domains to permit proxying for";
       };
     }
