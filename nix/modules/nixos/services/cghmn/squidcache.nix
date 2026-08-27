@@ -18,7 +18,6 @@ let
     cache_log stdio:${dataDir}/logs/cache.log
     access_log stdio:${dataDir}/logs/access.log
     cache_store_log stdio:${dataDir}/logs/store.log
-    cache_effective_user cghmn-squidcache cghmn-squidcache
 
     # Access control
     ## ACL
@@ -113,6 +112,10 @@ in
             Type = "simple";
             ExecStart = [ "${pkgs.squid}/bin/squid --foreground -YCs -f ${squidConfig}" ];
             ExecStartPre = [ "${pkgs.coreutils}/bin/mkdir -p '${dataDir}/logs' '${svcConfig.cache.dir}'" ];
+
+            User = "cghmn-squidcache";
+            Group = "cghmn-squidcache";
+            WorkingDirectory = "/var/lib/cghmn-squidcache";
 
             RestrictAddressFamilies = lib.mkForce [
               "AF_INET"
