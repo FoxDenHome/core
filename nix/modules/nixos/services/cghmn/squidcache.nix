@@ -22,6 +22,8 @@ let
     pid_filename ${dataDir}/squid.pid
     visible_hostname ${svcHostName}
 
+    shutdown_lifetime 5 seconds
+
     # Access control
     ## ACL
     acl localnet src 10.0.0.0/8
