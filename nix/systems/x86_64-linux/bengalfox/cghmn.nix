@@ -23,6 +23,11 @@ in
     cghmn-squidcache = {
       enable = true;
       host = "cghmn-squidcache";
+
+      cache = {
+        sizeMB = 1024 * 1024 * 1; # 1 TByte
+        dir = "/mnt/zhdd/cghmn/squidcache";
+      };
     };
   };
 

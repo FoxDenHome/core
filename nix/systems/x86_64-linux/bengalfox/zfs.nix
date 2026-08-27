@@ -6,6 +6,7 @@
 let
   zhddMounts = [
     ""
+    "cghmn"
     "e621"
     "furaffinity"
     "kiwix"
