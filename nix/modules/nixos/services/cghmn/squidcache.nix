@@ -14,7 +14,7 @@ let
 
   squidConfig = pkgs.writers.writeText "squid.conf" ''
     # Main config
-    cache_dir ${svcConfig.cacheDir}
+    cache_dir ${svcConfig.cache.type} ${svcConfig.cache.dir} ${svcConfig.cache.size} ${toString svcConfig.cache.l1} ${toString svcConfig.cache.l2}
     cache_log stdio:${dataDir}/logs/cache.log
     access_log stdio:${dataDir}/logs/access.log
     cache_store_log stdio:${dataDir}/logs/store.log
@@ -53,10 +53,36 @@ in
   options.foxDen.services.cghmn-squidcache =
     with lib.types;
     {
-      cacheDir = lib.mkOption {
-        type = path;
-        default = "${dataDir}/cache";
-        description = "Directory to store Squid data";
+      cache = {
+        dir = lib.mkOption {
+          type = path;
+          default = "${dataDir}/cache";
+          description = "Directory to store Squid data";
+        };
+        sizeMB = lib.mkOption {
+          type = str;
+          default = "100";
+          description = "Squid cache size (in MBytes)";
+        };
+        l1 = lib.mkOption {
+          type = ints.positive;
+          default = 16;
+          description = "Number of L1 directories";
+        };
+        l2 = lib.mkOption {
+          type = ints.positive;
+          default = 256;
+          description = "Number of L2 directories";
+        };
+        type = lib.mkOption {
+          type = enum [
+            "ufs"
+            "aufs"
+            "diskd"
+          ];
+          default = "aufs";
+          description = "Cache type";
+        };
       };
       domains = lib.mkOption {
         type = uniq (listOf str);
