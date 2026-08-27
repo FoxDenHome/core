@@ -121,6 +121,7 @@ in
             ];
 
             StateDirectory = "cghmn-squidcache";
+            BindPaths = [ svcConfig.cache.dir ];
           };
           wantedBy = [ "multi-user.target" ];
         };
