@@ -12,7 +12,7 @@ let
 
   dataDir = "/var/lib/cghmn-squidcache";
 
-  squidConfig = pkgs.writeTextFile "squid.conf" ''
+  squidConfig = pkgs.writers.writeText "squid.conf" ''
     # Main config
     cache_dir ${svcConfig.cacheDir}
     cache_log stdio:${dataDir}/logs/cache.log
