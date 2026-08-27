@@ -114,7 +114,10 @@ in
           serviceConfig = {
             Type = "simple";
             ExecStart = [ "${pkgs.squid}/bin/squid --foreground -YCs -f ${squidConfig}" ];
-            ExecStartPre = [ "${pkgs.coreutils}/bin/mkdir -p '${dataDir}/logs' '${svcConfig.cache.dir}'" ];
+            ExecStartPre = [
+              "${pkgs.coreutils}/bin/mkdir -p '${dataDir}/logs' '${svcConfig.cache.dir}'"
+              "${pkgs.squid}/bin/squid --foreground -z -f ${squidConfig}"
+            ];
 
             User = "cghmn-squidcache";
             Group = "cghmn-squidcache";
