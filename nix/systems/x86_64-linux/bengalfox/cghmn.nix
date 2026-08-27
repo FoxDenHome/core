@@ -6,10 +6,12 @@ let
       cfg
       // {
         driver.name = "bridge";
-        routes = {
-          Destination = "0.0.0.0/0";
-          Gateway = "100.68.41.1";
-        };
+        routes = [
+          {
+            Destination = "0.0.0.0/0";
+            Gateway = "100.68.41.1";
+          }
+        ];
       }
     ))
     // {
