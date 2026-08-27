@@ -112,7 +112,7 @@ in
           serviceConfig = {
             Type = "simple";
             ExecStart = [ "${pkgs.squid}/bin/squid --foreground -YCs -f ${squidConfig}" ];
-            ExecStartPre = [ "${pkgs.coreutils}/bin/mkdir -p '${dataDir}/logs' '${svcConfig.cacheDir}'" ];
+            ExecStartPre = [ "${pkgs.coreutils}/bin/mkdir -p '${dataDir}/logs' '${svcConfig.cache.dir}'" ];
 
             RestrictAddressFamilies = lib.mkForce [
               "AF_INET"
