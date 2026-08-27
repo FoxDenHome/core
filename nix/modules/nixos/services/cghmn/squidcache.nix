@@ -14,7 +14,7 @@ let
 
   squidConfig = pkgs.writers.writeText "squid.conf" ''
     # Main config
-    cache_dir ${svcConfig.cache.type} ${svcConfig.cache.dir} ${svcConfig.cache.size} ${toString svcConfig.cache.l1} ${toString svcConfig.cache.l2}
+    cache_dir ${svcConfig.cache.type} ${svcConfig.cache.dir} ${toString svcConfig.cache.sizeMB} ${toString svcConfig.cache.l1} ${toString svcConfig.cache.l2}
     cache_log stdio:${dataDir}/logs/cache.log
     access_log stdio:${dataDir}/logs/access.log
     cache_store_log stdio:${dataDir}/logs/store.log
@@ -61,7 +61,7 @@ in
         };
         sizeMB = lib.mkOption {
           type = str;
-          default = "100";
+          default = ints.positive;
           description = "Squid cache size (in MBytes)";
         };
         l1 = lib.mkOption {
