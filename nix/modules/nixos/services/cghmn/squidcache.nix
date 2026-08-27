@@ -136,6 +136,18 @@ in
           };
           wantedBy = [ "multi-user.target" ];
         };
+
+        environment.persistence."/nix/persist/cghmn-squidcache" = {
+          hideMounts = true;
+          directories = [
+            {
+              directory = "/var/lib/cghmn-squidcache";
+              user = "cghmn-squidcache";
+              group = "cghmn-squidcache";
+              mode = "u=rwx,g=,o=";
+            }
+          ];
+        };
       }
     ]
   );
