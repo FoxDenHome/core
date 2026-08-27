@@ -28,12 +28,12 @@ let
     acl localnet src fc00::/7
     acl localnet src 100.64.0.0/10
 
-    acl http_ports port 80 accel allow-direct connection-auth=off
+    acl http_ports port 80
 
     ${lib.concatStringsSep "\n" (map (dom: "acl allowed_domains dstdomain ${dom}") svcConfig.domains)}
 
     # HTTP
-    http_port 80 connection-auth=off
+    http_port 80 accel allow-direct connection-auth=off
     reply_header_add Proxy-Ident "CGHMN Squid Cache (contact Doridian for issues/help)"
 
     http_access deny !http_ports
