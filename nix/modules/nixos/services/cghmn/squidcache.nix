@@ -60,8 +60,8 @@ in
           description = "Directory to store Squid data";
         };
         sizeMB = lib.mkOption {
-          type = str;
-          default = ints.positive;
+          type = ints.positive;
+          default = 100;
           description = "Squid cache size (in MBytes)";
         };
         l1 = lib.mkOption {
