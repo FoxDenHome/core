@@ -49,6 +49,7 @@ in
                   [ ];
               bridgeConfig = {
                 UseBPDU = false;
+                AllowPortToBeRoot = false;
               };
               linkConfig = {
                 MTUBytes = iface.driver.bridge.mtu;

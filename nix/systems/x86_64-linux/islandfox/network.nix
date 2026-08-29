@@ -72,6 +72,7 @@ in
         ];
         bridgeConfig = {
           UseBPDU = true;
+          AllowPortToBeRoot = true;
         };
 
         linkConfig = {
