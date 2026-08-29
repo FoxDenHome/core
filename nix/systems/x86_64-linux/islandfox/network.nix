@@ -12,10 +12,13 @@ let
     routes = foxDenLib.hosts.helpers.lan.mkRoutes 2;
     nameservers = foxDenLib.hosts.helpers.lan.mkNameservers 2;
     interface = "br-default";
+    bondInterface = "bond-default";
     phyIfaces = [
       "ens1np0"
       "enp2s0"
     ];
+    # ens1np0 is the thunderbolt 25GbE link, enp2s0 is the onboard fallback
+    phyPrimary = "ens1np0";
     phyPvid = 2;
     mtu = 9000;
     mac = config.lib.foxDen.mkHashMac "000001";
@@ -52,28 +55,35 @@ in
         MTUBytes = ifcfg.mtu;
       };
     };
+
+    "35-${ifcfg.bondInterface}" = {
+      name = ifcfg.bondInterface;
+      bridge = [ ifcfg.interface ];
+
+      bridgeVLANs = [
+        {
+          PVID = ifcfg.phyPvid;
+          EgressUntagged = ifcfg.phyPvid;
+          VLAN = "1-15";
+        }
+        {
+          VLAN = "2001";
+        }
+      ];
+
+      linkConfig = {
+        MTUBytes = ifcfg.mtu;
+      };
+    };
   }
   // builtins.listToAttrs (
     map (phyIface: {
-      name = "40-${ifcfg.interface}-root-${phyIface}";
+      name = "40-${ifcfg.bondInterface}-slave-${phyIface}";
       value = {
         name = phyIface;
-        bridge = [ ifcfg.interface ];
+        bond = [ ifcfg.bondInterface ];
 
-        bridgeVLANs = [
-          {
-            PVID = ifcfg.phyPvid;
-            EgressUntagged = ifcfg.phyPvid;
-            VLAN = "1-9";
-          }
-          {
-            VLAN = "2001";
-          }
-        ];
-        bridgeConfig = {
-          UseBPDU = true;
-          AllowPortToBeRoot = true;
-        };
+        networkConfig = if phyIface == ifcfg.phyPrimary then { PrimarySlave = true; } else { };
 
         linkConfig = {
           MTUBytes = ifcfg.mtu;
@@ -82,18 +92,30 @@ in
     }) ifcfg.phyIfaces
   );
 
-  systemd.network.netdevs."${ifcfg.interface}" = {
-    netdevConfig = {
-      Name = ifcfg.interface;
-      Kind = "bridge";
-      MACAddress = ifcfg.mac;
+  systemd.network.netdevs = {
+    "${ifcfg.interface}" = {
+      netdevConfig = {
+        Name = ifcfg.interface;
+        Kind = "bridge";
+        MACAddress = ifcfg.mac;
+      };
+
+      bridgeConfig = {
+        VLANFiltering = true;
+      };
     };
 
-    bridgeConfig = {
-      VLANFiltering = true;
-      STP = true;
-      HelloTimeSec = 2;
-      ForwardDelaySec = 4;
+    "${ifcfg.bondInterface}" = {
+      netdevConfig = {
+        Name = ifcfg.bondInterface;
+        Kind = "bond";
+      };
+
+      bondConfig = {
+        Mode = "active-backup";
+        MIIMonitorSec = "100ms";
+        PrimaryReselectPolicy = "always";
+      };
     };
   };
 

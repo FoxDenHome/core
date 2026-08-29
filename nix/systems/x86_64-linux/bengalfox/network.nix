@@ -68,7 +68,7 @@ in
       {
         PVID = ifcfg.phyPvid;
         EgressUntagged = ifcfg.phyPvid;
-        VLAN = "1-9";
+        VLAN = "1-15";
       }
       {
         VLAN = "2001";
