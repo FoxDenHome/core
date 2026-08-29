@@ -1,6 +1,7 @@
 {
   foxDenLib,
   config,
+  lib,
   ...
 }:
 let
@@ -13,16 +14,17 @@ let
     nameservers = foxDenLib.hosts.helpers.lan.mkNameservers 2;
     interface = "br-default";
     bondInterface = "bond-default";
+    # ens1np0 is the thunderbolt 25GbE link, enp2s0 is the onboard fallback
     phyIfaces = [
       "ens1np0"
       "enp2s0"
     ];
-    # ens1np0 is the thunderbolt 25GbE link, enp2s0 is the onboard fallback
-    phyPrimary = "ens1np0";
     phyPvid = 2;
     mtu = 9000;
     mac = config.lib.foxDen.mkHashMac "000001";
   };
+
+  phyIfacePrimary = lib.lists.head ifcfg.phyIfaces;
 in
 {
   lib.foxDenSys.mkVlanHost = foxDenLib.hosts.helpers.lan.mkVlanHost ifcfg;
@@ -83,7 +85,9 @@ in
         name = phyIface;
         bond = [ ifcfg.bondInterface ];
 
-        networkConfig = if phyIface == ifcfg.phyPrimary then { PrimarySlave = true; } else { };
+        networkConfig = {
+          PrimarySlave = phyIface == phyIfacePrimary;
+        };
 
         linkConfig = {
           MTUBytes = ifcfg.mtu;
