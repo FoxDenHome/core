@@ -19,7 +19,7 @@ in
       host = "factorio";
     };
     minecraft = {
-      enable = true;
+      enable = false;
       tls.enable = true;
       host = "minecraft";
     };
