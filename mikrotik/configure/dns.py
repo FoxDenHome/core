@@ -31,6 +31,8 @@ FIXED_RECORDS = [
         ("zahs.tv", "getflix"),
         ("cghmn", "cghmn"),
         ("retro", "cghmn"),
+        ("exit", "tor"),
+        ("onion", "tor"),
     ]
 ] + [
     { "type": "AAAA", "name": zone, "match-subdomain": "true", "address": "::ffff"}
@@ -47,6 +49,10 @@ FIXED_FORWARDERS = [
     {
         "name": "cghmn",
         "dns-servers": "100.64.12.1",
+    },
+    {
+        "name": "tor",
+        "dns-servers": "172.17.2.2",
     },
 ]
 

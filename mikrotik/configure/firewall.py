@@ -45,6 +45,26 @@ DEFAULT_RULES_HEAD: list[FirewallRule] = [
         },
     ),
     FirewallRule(
+        families=["ip", "ipv6"],
+        table="filter",
+        attribs={
+            "action": "drop",
+            "chain": "forward",
+            "in-interface-list": "no-internet",
+            "out-interface": "veth-tor",
+        },
+    ),
+    FirewallRule(
+        families=["ip", "ipv6"],
+        table="filter",
+        attribs={
+            "action": "drop",
+            "chain": "forward",
+            "in-interface": "veth-tor",
+            "out-interface-list": "no-internet",
+        },
+    ),
+    FirewallRule(
         families=["ip"],
         table="filter",
         attribs={
@@ -360,6 +380,16 @@ DEFAULT_RULES_TAIL: list[FirewallRule] = [
             "chain": "forward",
             "in-interface-list": "iface-cghmn",
             "out-interface-list": "iface-cghmn",
+        },
+    ),
+    FirewallRule(
+        families=["ip", "ipv6"],
+        table="filter",
+        attribs={
+            "action": "accept",
+            "chain": "forward",
+            "in-interface-list": "zone-local",
+            "out-interface": "veth-tor",
         },
     ),
     FirewallRule(
