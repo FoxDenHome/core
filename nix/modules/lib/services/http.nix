@@ -225,8 +225,8 @@ let
             name = "acme";
             owner = "nginx";
             repo = "nginx-acme";
-            rev = "v0.1.1";
-            hash = "sha256-wnO+lDhtAvBYlaN9vg6spSsfqgHhueODeTkuWKBFswc=";
+            rev = "v0.4.1";
+            hash = "sha256-+Nvjij/2g0AM97mhYYjkbfhhuxdFS61hx+JwtV+IwIY=";
           };
           combined =
             pkgs.runCommand "vendored-repo"
@@ -236,9 +236,6 @@ let
                 ];
                 cargoDeps = pkgs.rustPlatform.importCargoLock {
                   lockFile = "${src}/Cargo.lock";
-                  outputHashes = {
-                    "nginx-sys-0.5.0" = "sha256-nyJofVcObsWLVe/bYCM0W7oeKwN4PlDe/ue74En+zAY=";
-                  };
                 };
               }
               ''
