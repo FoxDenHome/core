@@ -108,6 +108,20 @@ in
       value = "wan.foxden.network.";
       horizon = "external";
     }
+    {
+      fqdn = "tor.foxden.network";
+      type = "A";
+      ttl = 3600;
+      value = "172.17.2.2";
+      horizon = "internal";
+    }
+    {
+      fqdn = "tor.foxden.network";
+      type = "AAAA";
+      ttl = 3600;
+      value = "fd2c:f4cb:63be::ac11:202";
+      horizon = "internal";
+    }
   ]
   ++ (mkWanRecs "wan" "10.2.0.1" "fd2c:f4cb:63be:2::1")
   ++ (mkWanRecs "router" "10.2.1.1" "fd2c:f4cb:63be:2::101")
