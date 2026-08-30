@@ -1,7 +1,0 @@
-{
-  "replace": false,
-  "values": [
-    "create:elevator_pulley",
-    "create:elevator_contact"
-  ]
-}

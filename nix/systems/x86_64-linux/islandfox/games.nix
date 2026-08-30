@@ -18,11 +18,6 @@ in
       enable = false;
       host = "factorio";
     };
-    minecraft = {
-      enable = false;
-      tls.enable = true;
-      host = "minecraft";
-    };
     spaceage-api = {
       enable = true;
       host = "spaceage-api";
@@ -85,34 +80,6 @@ in
       addresses = [
         "10.2.11.28/16"
         "fd2c:f4cb:63be:2::b1c/64"
-      ];
-    };
-    minecraft = mkVlanHost 2 {
-      dns = {
-        fqdns = [
-          "minecraft.foxden.network"
-          "mc.foxden.network"
-        ];
-        dynDns = true;
-      };
-      webservice.enable = true;
-      firewall.portForwards = [
-        {
-          protocol = "tcp";
-          port = 25522;
-        }
-        {
-          protocol = "tcp";
-          port = 25565;
-        }
-        {
-          protocol = "udp";
-          port = 25565;
-        }
-      ];
-      addresses = [
-        "10.2.11.14/16"
-        "fd2c:f4cb:63be:2::b0e/64"
       ];
     };
     spaceage-gmod = mkVlanHost 3 {
