@@ -262,8 +262,6 @@ let
         openssl
         cargo
         rustPlatform.bindgenHook
-        #rustPlatform.cargoSetupHook
-        #rustPlatform.maturinBuildHook
         rustc
         pkg-config
       ];
