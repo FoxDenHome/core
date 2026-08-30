@@ -3,3 +3,5 @@ add restart-policy=always restart-interval=15s dns=172.17.0.1 interface=veth-fox
     remote-image=git.foxden.network/foxden/foxingress:latest root-dir=/foxingress-root start-on-boot=yes workdir=/
 add restart-policy=always restart-interval=15s dns=172.17.1.1 interface=veth-foxmail logging=yes mount=/foxmail:/config:ro,/foxmail-data:/data:rw name=foxmail \
     remote-image=git.foxden.network/foxden/foxmail:latest root-dir=/foxmail-root start-on-boot=yes workdir=/
+add restart-policy=always restart-interval=15s dns=172.17.2.1 interface=veth-tor logging=yes mount=/tor:/config:ro,/tor-data:/data:rw name=tor \
+    remote-image=git.foxden.network/foxden/tortiny:latest root-dir=/tor-root start-on-boot=yes workdir=/data
