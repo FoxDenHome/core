@@ -216,38 +216,34 @@ let
 
   nginxAcmeAlg = "ecdsa:256";
 
-  nginxAcmeModule =
+  mkNginxAcmeModule =
     pkgs:
     let
+      gitSrc = pkgs.fetchFromGitHub {
+        name = "acme";
+        owner = "nginx";
+        repo = "nginx-acme";
+        rev = "v0.4.1";
+        hash = "sha256-+Nvjij/2g0AM97mhYYjkbfhhuxdFS61hx+JwtV+IwIY=";
+      };
       src =
-        let
-          src = pkgs.fetchFromGitHub {
-            name = "acme";
-            owner = "nginx";
-            repo = "nginx-acme";
-            rev = "v0.4.1";
-            hash = "sha256-+Nvjij/2g0AM97mhYYjkbfhhuxdFS61hx+JwtV+IwIY=";
-          };
-          combined =
-            pkgs.runCommand "vendored-repo"
-              {
-                nativeBuildInputs = [
-                  pkgs.rustPlatform.cargoSetupHook
-                ];
-                cargoDeps = pkgs.rustPlatform.importCargoLock {
-                  lockFile = "${src}/Cargo.lock";
-                };
-              }
-              ''
-                mkdir -p $out
-                cp -r ${src}/* $out/
+        pkgs.runCommand "vendored-repo"
+          {
+            nativeBuildInputs = [
+              pkgs.rustPlatform.cargoSetupHook
+            ];
+            cargoDeps = pkgs.rustPlatform.importCargoLock {
+              lockFile = "${gitSrc}/Cargo.lock";
+            };
+          }
+          ''
+            mkdir -p $out
+            cp -r ${gitSrc}/* $out/
 
-                runHook postUnpack
-                cp -r cargo-vendor-dir $out/
-                cp -r .cargo $out/
-              '';
-        in
-        combined;
+            runHook postUnpack
+            cp -r cargo-vendor-dir $out/
+            cp -r .cargo $out/
+          '';
     in
     {
       inherit src;
@@ -454,7 +450,7 @@ in
       package = pkgs.nginx.override {
         modules = nixpkgs.lib.lists.unique (
           [
-            (nginxAcmeModule pkgs)
+            (mkNginxAcmeModule pkgs)
           ]
           ++ modules
         );
