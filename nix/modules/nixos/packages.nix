@@ -84,16 +84,7 @@ let
     in
     import processedFlake pkgsConfig;
 
-  pkgs = mkPkgs nixpkgs [
-    {
-      pr = 433676;
-      hash = "sha256-jy3U0PYi/vGL8k2NEln5unb/+wCrdom0eKof7wPUHXo=";
-      excludes = [
-        "nixos/tests/all-tests.nix"
-        "nixos/tests/nginx-acme.nix"
-      ];
-    }
-  ];
+  pkgs = mkPkgs nixpkgs [ ];
 
   localPackages = lib.attrsets.genAttrs (lib.attrNames (builtins.readDir ../../packages)) (
     name: import ../../packages/${name}/package.nix (inputs // { inherit pkgs; })
