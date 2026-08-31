@@ -22,6 +22,11 @@
       vendorId = "0e8d";
       productId = "c616";
     }
+    {
+      # SNDWAY SW-525B
+      vendorId = "0483";
+      productId = "5750";
+    }
   ];
   autostart = true;
   interfaces.default = {
