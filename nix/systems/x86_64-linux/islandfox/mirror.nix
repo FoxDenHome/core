@@ -11,7 +11,6 @@ in
         enable = true;
         preferPerformance = true;
       };
-      dataDir = "/mnt/zhdd/mirror";
       archMirrorId = "archlinux.doridian.net";
       sources.archlinux = {
         rsyncUrl = "rsync://mirror.doridian.net/archlinux/";
@@ -22,6 +21,7 @@ in
         forceSync = true;
       };
       sources."foxdenaur/x86_64" = {
+        # TODO: This is now local, use the local?
         rsyncUrl = "rsync://aurbuild-x86-64.foxden.network/foxdenaur/";
         forceSync = true;
       };
