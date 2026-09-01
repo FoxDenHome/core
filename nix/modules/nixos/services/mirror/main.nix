@@ -275,8 +275,9 @@ in
         );
 
         systemd.tmpfiles.rules = [
-          "D /var/lib/mirror/data 0755 mirror mirror"
-        ];
+          "D ${svcConfig.dataDir} 0755 mirror mirror"
+        ]
+        ++ map (name: "D ${svcConfig.dataDir}/${name} 0755 mirror mirror") lib.attrNames svcConfig.sources;
 
         environment.persistence."/nix/persist/mirror" = {
           hideMounts = true;
