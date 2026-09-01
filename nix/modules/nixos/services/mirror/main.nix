@@ -207,7 +207,6 @@ in
             { name, value }:
             let
               svcName = mkSyncSvc name;
-              svcDir = "${svcConfig.dataDir}/${name}";
             in
             {
               name = svcName;
@@ -236,7 +235,7 @@ in
                     Group = "mirror";
 
                     BindPaths = [
-                      "${svcDir}:/data"
+                      "${svcConfig.dataDir}/${name}:/data"
                     ];
 
                     Environment = [
