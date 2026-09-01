@@ -245,10 +245,6 @@ in
                       "MIRROR_FORCE_SYNC=${toString value.forceSync}"
                     ];
 
-                    ExecStartPre = [
-                      "+${pkgs.coreutils}/bin/mkdir -p ${svcDir}"
-                      "+${pkgs.coreutils}/bin/chown mirror:mirror ${svcDir}"
-                    ];
                     ExecStart = [
                       "${pkgs.bash}/bin/bash ${./refresh/run.sh} ${./refresh/sync.sh}"
                     ];
@@ -277,6 +273,10 @@ in
               };
             }) (lib.attrsets.attrNames svcConfig.sources)
           )
+        );
+
+        systemd.tmpfiles.rules = map (name: "d ${svcConfig.dataDir}/${name} 0750 mirror mirror - -") (
+          lib.attrsets.attrNames svcConfig.sources
         );
 
         environment.persistence."/nix/persist/mirror" = {
