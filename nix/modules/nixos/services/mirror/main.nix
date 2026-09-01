@@ -274,15 +274,13 @@ in
           )
         );
 
+        systemd.tmpfiles.rules = [
+          "D /var/lib/mirror/data 0755 mirror mirror"
+        ];
+
         environment.persistence."/nix/persist/mirror" = {
           hideMounts = true;
           directories = [
-            {
-              directory = "/var/lib/mirror/data";
-              user = "mirror";
-              group = "mirror";
-              mode = "u=rwx,g=,o=";
-            }
             {
               directory = "/var/lib/mirror";
               user = "mirror";
