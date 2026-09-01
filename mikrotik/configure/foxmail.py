@@ -38,6 +38,11 @@ def refresh_foxmail():
         config["sender"]["domain"] = "redfox.doridian.net"
         config["sender"]["dkim"]["selector"] = router.host.split(".")[0]
         config["receiver"]["smtp"]["domain"] = router.host
+
+        subnets = config["receiver"]["auth"]["subnets"]
+        subnets["router@foxden.network"] = ["172.17.1.1/32"]
+        subnets["router-backup@foxden.network"] = ["172.17.1.1/32"]
+
         with open(path_join(OUT_PATH, "config.yml"), "w") as out_file:
             json.dump(config, out_file)
 
