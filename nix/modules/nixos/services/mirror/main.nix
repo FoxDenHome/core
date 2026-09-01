@@ -207,6 +207,7 @@ in
             { name, value }:
             let
               svcName = mkSyncSvc name;
+              svcDir = "${svcConfig.dataDir}/${name}";
             in
             {
               name = svcName;
@@ -235,7 +236,7 @@ in
                     Group = "mirror";
 
                     BindPaths = [
-                      "${svcConfig.dataDir}/${name}:/data"
+                      "${svcDir}:/data"
                     ];
 
                     Environment = [
@@ -244,6 +245,10 @@ in
                       "MIRROR_FORCE_SYNC=${toString value.forceSync}"
                     ];
 
+                    ExecStartPre = [
+                      "+${pkgs.coreutils}/bin/mkdir -p ${svcDir}"
+                      "+${pkgs.coreutils}/bin/chown mirror:mirror ${svcDir}"
+                    ];
                     ExecStart = [
                       "${pkgs.bash}/bin/bash ${./refresh/run.sh} ${./refresh/sync.sh}"
                     ];
@@ -272,13 +277,6 @@ in
               };
             }) (lib.attrsets.attrNames svcConfig.sources)
           )
-        );
-
-        systemd.tmpfiles.rules = [
-          "D ${svcConfig.dataDir} 0755 mirror mirror"
-        ]
-        ++ map (name: "D ${svcConfig.dataDir}/${name} 0755 mirror mirror") (
-          lib.attrNames svcConfig.sources
         );
 
         environment.persistence."/nix/persist/mirror" = {
