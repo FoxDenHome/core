@@ -275,9 +275,20 @@ in
           )
         );
 
-        systemd.tmpfiles.rules = map (name: "d ${svcConfig.dataDir}/${name} 0750 mirror mirror - -") (
-          lib.attrsets.attrNames svcConfig.sources
-        );
+        systemd.tmpfiles.rules =
+          let
+            # every ancestor of "foxdenaur/x86_64" relative to dataDir: "foxdenaur", "foxdenaur/x86_64"
+            prefixesOf =
+              name:
+              let
+                segments = lib.strings.splitString "/" name;
+              in
+              lib.imap0 (i: _: lib.concatStringsSep "/" (lib.take (i + 1) segments)) segments;
+          in
+          [ "d ${svcConfig.dataDir} 0750 mirror mirror - -" ]
+          ++ map (p: "d ${svcConfig.dataDir}/${p} 0750 mirror mirror - -") (
+            lib.unique (lib.concatMap prefixesOf (lib.attrsets.attrNames svcConfig.sources))
+          );
 
         environment.persistence."/nix/persist/mirror" = {
           hideMounts = true;
