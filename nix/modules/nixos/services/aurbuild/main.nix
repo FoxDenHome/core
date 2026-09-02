@@ -9,7 +9,13 @@ let
   svcConfig = config.foxDen.services.aurbuild;
 in
 {
-  options.foxDen.services.aurbuild = foxDenLib.services.oci.mkOptions {
+  options.foxDen.services.aurbuild = {
+    enableRsyncd = lib.mkOption {
+      type = lib.types.bool;
+      default = true;
+    };
+  }
+  // foxDenLib.services.oci.mkOptions {
     name = "AUR build service";
   };
 
@@ -48,10 +54,12 @@ in
           ];
         };
       }).config
-      (foxDenLib.services.make {
-        name = "aurbuild-rsyncd";
-        inherit svcConfig pkgs config;
-      }).config
+      (lib.mkIf svcConfig.enableRsyncd
+        (foxDenLib.services.make {
+          name = "aurbuild-rsyncd";
+          inherit svcConfig pkgs config;
+        }).config
+      )
       {
         security.polkit.extraConfig = ''
           var aurbuildUidOffset;
@@ -88,7 +96,7 @@ in
           };
         };
 
-        environment.etc."foxden/aurbuild/rsyncd.conf" = {
+        environment.etc."foxden/aurbuild/rsyncd.conf" = lib.mkIf svcConfig.enableRsyncd {
           text = ''
             use chroot = no
             max connections = 128
@@ -104,7 +112,7 @@ in
           '';
         };
 
-        systemd.services.aurbuild-rsyncd = {
+        systemd.services.aurbuild-rsyncd = lib.mkIf svcConfig.enableRsyncd {
           restartTriggers = [ config.environment.etc."foxden/aurbuild/rsyncd.conf".text ];
 
           serviceConfig = {

@@ -6,6 +6,7 @@ in
   foxDen.services = config.lib.foxDen.sops.mkIfAvailable {
     aurbuild = {
       enable = true;
+      enableRsyncd = false;
       host = "aurbuild";
     };
   };

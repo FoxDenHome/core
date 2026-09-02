@@ -21,13 +21,12 @@ in
         rsyncUrl = "rsync://mirror.doridian.net/cachyos/";
         forceSync = true;
       };
-      sources."foxdenaur/x86_64" = {
-        # TODO: This is now local, use the local?
-        rsyncUrl = "rsync://aurbuild-x86-64.foxden.network/foxdenaur/";
-        forceSync = true;
-      };
     };
   };
+
+  systemd.services.mirror-nginx.serviceConfig.BindReadOnlyPaths = [
+    "/var/lib/aurbuild/repo:/data/foxdenaur/x86_64"
+  ];
 
   foxDen.hosts.hosts = {
     mirror = mkVlanHost 2 {
