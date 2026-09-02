@@ -50,6 +50,10 @@ in
     sources = lib.mkOption {
       type = lib.types.attrsOf sourceType;
     };
+    extraMirrorReadMounts = lib.MkOption {
+      type = lib.types.listOf lib.types.str;
+      default = [ ];
+    };
     forceMirrorProto = lib.mkOption {
       type = lib.types.enum [
         null
@@ -181,7 +185,8 @@ in
                 "${pkgs.foxden-jsindex}/lib/node_modules/foxden-jsindex:/njs"
                 "${./templates}:/njs/templates/custom"
                 "${svcConfig.dataDir}:/data"
-              ];
+              ]
+              ++ svcConfig.extraMirrorReadMounts;
               User = "mirror";
               Group = "mirror";
             };
@@ -193,7 +198,8 @@ in
             serviceConfig = {
               BindReadOnlyPaths = [
                 "${svcConfig.dataDir}:/data"
-              ];
+              ]
+              ++ svcConfig.extraMirrorReadMounts;
 
               LoadCredential = "rsyncd.conf:/etc/foxden/mirror/rsyncd.conf";
 

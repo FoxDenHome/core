@@ -11,6 +11,9 @@ in
         enable = true;
         preferPerformance = true;
       };
+      extraMirrorReadMounts = [
+        "/var/lib/aurbuild/repo:/data/foxdenaur/x86_64"
+      ];
       forceMirrorProto = "ipv4";
       archMirrorId = "archlinux.doridian.net";
       sources.archlinux = {
@@ -23,10 +26,6 @@ in
       };
     };
   };
-
-  systemd.services.mirror-nginx.serviceConfig.BindReadOnlyPaths = [
-    "/var/lib/aurbuild/repo:/data/foxdenaur/x86_64"
-  ];
 
   foxDen.hosts.hosts = {
     mirror = mkVlanHost 2 {
