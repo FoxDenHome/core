@@ -308,7 +308,7 @@ in
           in
           [
             "d ${svcConfig.dataDir} 0750 mirror mirror - -"
-            "f+ /nix/persist/mirror/CACHEDIR.TAG 0644 mirror mirror - Signature: 8a477f597d28d172789f06886806bc55"
+            "f+ ${svcConfig.dataDir}/CACHEDIR.TAG 0644 mirror mirror - Signature: 8a477f597d28d172789f06886806bc55"
           ]
           ++ map (p: "d ${svcConfig.dataDir}/${p} 0750 mirror mirror - -") (
             lib.unique (lib.concatMap prefixesOf (lib.attrsets.attrNames svcConfig.sources))
