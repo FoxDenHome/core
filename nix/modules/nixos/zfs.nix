@@ -45,7 +45,7 @@ in
         forceImportRoot = false;
       };
       supportedFilesystems = [ "zfs" ];
-      kernelPackages = pkgs.linuxPackages_7_1;
+      kernelPackages = pkgs.linuxPackages_7_2;
     };
     environment.systemPackages = with pkgs; [
       mbuffer
