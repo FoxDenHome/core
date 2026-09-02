@@ -161,7 +161,7 @@ in
             reverse lookup = no
             forward lookup = no
 
-            exclude = .dori-local /_jsindex-static /.well-known
+            exclude = .dori-local _jsindex-static .well-known
 
             [archlinux]
                     path = /data/archlinux
