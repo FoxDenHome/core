@@ -32,6 +32,13 @@ set -euo pipefail
 # If you are a tier 1 mirror use: https://rsync.archlinux.org/lastupdate
 # Otherwise use the HTTP(S) URL from your chosen mirror.
 
+rsync_extra=()
+if [ -n "${MIRROR_FORCE_IPV4-}" ]; then
+	rsync_extra+=('-4')
+elif [ -n "${MIRROR_FORCE_IPV6-}" ]; then
+	rsync_extra+=('-6')
+fi
+
 rsync_cmd() {
 	rsync -rlptH \
 		--safe-links \
@@ -41,6 +48,7 @@ rsync_cmd() {
 		--contimeout=60 \
 		--no-motd \
 		--quiet \
+		"${rsync_extra[@]}" \
 		"$@"
 }
 

@@ -50,6 +50,14 @@ in
     sources = lib.mkOption {
       type = lib.types.attrsOf sourceType;
     };
+    forceMirrorProto = lib.mkOption {
+      type = lib.types.enum [
+        null
+        "ipv4"
+        "ipv6"
+      ];
+      default = null;
+    };
   }
   // (services.http.mkOptions {
     name = "Mirror server";
@@ -242,7 +250,15 @@ in
                       "\"MIRROR_SOURCE_RSYNC=${value.rsyncUrl}\""
                       "\"MIRROR_SOURCE_HTTPS=${value.httpsUrl}\""
                       "MIRROR_FORCE_SYNC=${toString value.forceSync}"
-                    ];
+                    ]
+                    ++ (
+                      if svcConfig.forceMirrorProto == null then
+                        [ ]
+                      else
+                        [
+                          "MIRROR_FORCE_${lib.toUpper svcConfig.forceMirrorProto}=1"
+                        ]
+                    );
 
                     ExecStart = [
                       "${pkgs.bash}/bin/bash ${./refresh/run.sh} ${./refresh/sync.sh}"

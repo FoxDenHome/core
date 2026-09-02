@@ -11,6 +11,7 @@ in
         enable = true;
         preferPerformance = true;
       };
+      forceMirrorProto = "ipv4";
       archMirrorId = "archlinux.doridian.net";
       sources.archlinux = {
         rsyncUrl = "rsync://mirror.doridian.net/archlinux/";
