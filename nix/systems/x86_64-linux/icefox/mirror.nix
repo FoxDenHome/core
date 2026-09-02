@@ -20,8 +20,8 @@ in
       sources.cachyos = {
         rsyncUrl = "rsync://202.61.194.133:8958/cachy";
       };
-      sources."foxdenaur/x86_64" = {
-        rsyncUrl = "rsync://aurbuild-x86-64.foxden.network/foxdenaur/";
+      sources.foxdenaur = {
+        rsyncUrl = "rsync://mirror.foxden.network/foxdenaur/";
         forceSync = true;
       };
     };
