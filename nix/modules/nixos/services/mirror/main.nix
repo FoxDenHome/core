@@ -50,7 +50,7 @@ in
     sources = lib.mkOption {
       type = lib.types.attrsOf sourceType;
     };
-    extraMirrorReadMounts = lib.MkOption {
+    extraMirrorReadMounts = lib.mkOption {
       type = lib.types.listOf lib.types.str;
       default = [ ];
     };
