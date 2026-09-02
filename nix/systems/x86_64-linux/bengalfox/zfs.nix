@@ -10,7 +10,6 @@ let
     "e621"
     "furaffinity"
     "kiwix"
-    "mirror"
     "nas"
     "nashome"
     "restic"
