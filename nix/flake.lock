@@ -335,6 +335,38 @@
         "type": "github"
       }
     },
+    "nvfw-mirror": {
+      "inputs": {
+        "flake-utils": [
+          "flake-utils"
+        ],
+        "nixpkgs": [
+          "nixpkgs"
+        ],
+        "pyproject-build-systems": [
+          "pyproject-build-systems"
+        ],
+        "pyproject-nix": [
+          "pyproject-nix"
+        ],
+        "uv2nix": [
+          "uv2nix"
+        ]
+      },
+      "locked": {
+        "lastModified": 1788391882,
+        "narHash": "sha256-rE3+uDZ/TifLF11nO6vxmhLopTH6Re62mAcnmXnz1Io=",
+        "ref": "refs/heads/main",
+        "rev": "5e5809a2884d6a03dd6a50dc7e170295aaab5c0e",
+        "revCount": 9,
+        "type": "git",
+        "url": "https://git.foxden.network/FoxDen/nvfw-mirror"
+      },
+      "original": {
+        "type": "git",
+        "url": "https://git.foxden.network/FoxDen/nvfw-mirror"
+      }
+    },
     "oauth-jit-radius": {
       "inputs": {
         "flake-utils": [
@@ -419,6 +451,7 @@
         "home-manager": "home-manager",
         "impermanence": "impermanence",
         "nixpkgs": "nixpkgs",
+        "nvfw-mirror": "nvfw-mirror",
         "oauth-jit-radius": "oauth-jit-radius",
         "pyproject-build-systems": "pyproject-build-systems",
         "pyproject-nix": "pyproject-nix",

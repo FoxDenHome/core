@@ -93,6 +93,16 @@
         pyproject-build-systems.follows = "pyproject-build-systems";
       };
     };
+    nvfw-mirror = {
+      url = "git+https://git.foxden.network/FoxDen/nvfw-mirror";
+      inputs = {
+        nixpkgs.follows = "nixpkgs";
+        flake-utils.follows = "flake-utils";
+        pyproject-nix.follows = "pyproject-nix";
+        uv2nix.follows = "uv2nix";
+        pyproject-build-systems.follows = "pyproject-build-systems";
+      };
+    };
     oauth-jit-radius = {
       url = "git+https://git.foxden.network/FoxDen/oauth-jit-radius";
       inputs = {

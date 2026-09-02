@@ -25,6 +25,10 @@ in
         forceSync = true;
       };
     };
+    nvfw-mirror = {
+      enable = true;
+      host = "mirror";
+    };
   };
 
   foxDen.hosts.hosts = {
