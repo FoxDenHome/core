@@ -48,63 +48,6 @@ let
     '';
   };
 
-  # ksmbd uses the same NT hash (MD4 of the UTF-16LE password) that Samba's
-  # passdb stores, just base64-encoded instead of hex-encoded, so users can
-  # move over without picking new passwords.
-  migrateSambaUsers = pkgs.writeShellApplication {
-    name = "ksmbd-migrate-samba-users";
-    runtimeInputs = [
-      pkgs.samba
-      pkgs.coreutils
-      pkgs.xxd
-    ];
-    text = ''
-            pwddb=''${1:-${pwddbPath}}
-            # pdbedit needs a working smb.conf, which is gone once Samba's foxDen
-            # service is disabled - not just for the passdb backend (passdb.tdb),
-            # but also "private dir" (which governs secrets.tdb, needed just to
-            # look up the domain SID for listing). Prefer the normally-mounted
-            # dir (in case Samba is still enabled when this runs), fall back to
-            # the raw persisted copy (once Samba's own environment.persistence
-            # stops applying, /var/lib/samba/private is no longer bind-mounted at
-            # all) - then generate a minimal smb.conf covering both settings
-            # instead of relying on any compiled-in defaults.
-            privatedir=''${2:-/var/lib/samba/private}
-            if [ ! -e "$privatedir/passdb.tdb" ]; then
-              privatedir=/nix/persist/samba/var/lib/samba/private
-            fi
-
-            tmp=$(mktemp)
-            conf=$(mktemp)
-            trap 'rm -f "$tmp" "$conf"' EXIT
-
-            cat > "$conf" <<-EOF
-      			[global]
-      			private dir = $privatedir
-      			passdb backend = tdbsam:$privatedir/passdb.tdb
-      			EOF
-
-            : > "$tmp"
-            while IFS=: read -r user _uid _lm nt _rest; do
-              [ -z "$user" ] && continue
-              if ! [[ "$nt" =~ ^[0-9A-Fa-f]{32}$ ]]; then
-                echo "ksmbd-migrate-samba-users: skipping $user (no usable NT hash)" >&2
-                continue
-              fi
-              b64=$(echo "$nt" | xxd -r -p | base64 -w0)
-              echo "$user:$b64" >> "$tmp"
-            done < <(pdbedit -s "$conf" -L -w)
-
-            if [ ! -s "$tmp" ]; then
-              echo "ksmbd-migrate-samba-users: no users found via $privatedir, nothing written" >&2
-              exit 1
-            fi
-
-            install -m 0600 -o root -g root "$tmp" "$pwddb"
-            echo "ksmbd-migrate-samba-users: wrote $(wc -l < "$pwddb") user(s) to $pwddb, from $privatedir" >&2
-            echo "ksmbd-migrate-samba-users: run 'systemctl reload ksmbd' to apply" >&2
-    '';
-  };
 in
 {
   options.foxDen.services.ksmbd = (
@@ -164,7 +107,6 @@ in
 
         environment.systemPackages = [
           pkgs.ksmbd-tools
-          migrateSambaUsers
         ];
 
         # Runs unconfined (not through services.make) deliberately: it just
