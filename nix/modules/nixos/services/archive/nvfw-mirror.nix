@@ -37,6 +37,9 @@ in
             User = "nvfw-mirror";
             Group = "nvfw-mirror";
             StateDirectory = "nvfw-mirror";
+
+            Type = "oneshot";
+            Restart = "no";
           };
         };
 
