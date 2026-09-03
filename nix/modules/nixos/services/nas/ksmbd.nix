@@ -190,11 +190,22 @@ in
             # mounting the file itself made rename() fail with EBUSY
             # (can't rename onto an active mount point).
             BindPaths = [ "/var/lib/ksmbd" ] ++ svcConfig.sharePaths;
-            BindReadOnlyPaths = services.mkEtcPaths [
-              "nsswitch.conf"
-              "fstab"
-              "mtab"
-            ];
+            BindReadOnlyPaths =
+              services.mkEtcPaths [
+                "nsswitch.conf"
+                "fstab"
+                "mtab"
+              ]
+              ++ [
+                # Users provided via kanidm-unixd (not flat /etc/passwd)
+                # only resolve if its socket is reachable - without this,
+                # NSS lookups for them fail inside the confined root and
+                # ksmbd rejects them with "Unknown user name or an error",
+                # even with the right password. Matches the bind nixpkgs'
+                # own kanidm module uses for its other confined clients.
+                "-/run/kanidm-unixd"
+                "-/run/kanidm-unixd:/var/run/kanidm-unixd"
+              ];
           };
         };
 
