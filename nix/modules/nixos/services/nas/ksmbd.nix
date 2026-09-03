@@ -178,7 +178,7 @@ in
             # this because plain TCP bind() only checks capabilities
             # against the caller's own (possibly private) user namespace.
             PrivateUsers = lib.mkForce false;
-            ExecStart = "${pkgs.ksmbd-tools}/bin/ksmbd.mountd --nodetach --config=\${CREDENTIALS_DIRECTORY}/ksmbd.conf --pwddb=${pwddbPath}";
+            ExecStart = "${pkgs.ksmbd-tools}/bin/ksmbd.mountd -v --nodetach --config=\${CREDENTIALS_DIRECTORY}/ksmbd.conf --pwddb=${pwddbPath}";
             ExecStartPost = "${bounceInterface}/bin/ksmbd-bounce-interface";
             ExecReload = "${pkgs.ksmbd-tools}/bin/ksmbd.control --reload";
             ExecStop = "${pkgs.ksmbd-tools}/bin/ksmbd.control --shutdown";
