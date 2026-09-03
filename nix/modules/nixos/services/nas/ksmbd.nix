@@ -32,7 +32,10 @@ let
   # has actually finished registering the interface name with the kernel.
   bounceInterface = pkgs.writeShellApplication {
     name = "ksmbd-bounce-interface";
-    runtimeInputs = [ pkgs.iproute2 ];
+    runtimeInputs = [
+      pkgs.iproute2
+      pkgs.coreutils
+    ];
     text = ''
       for _ in 1 2 3 4 5; do
         sleep 1
