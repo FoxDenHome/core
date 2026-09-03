@@ -96,38 +96,51 @@ in
         "/mnt/zhdd/nas"
         "/mnt/zhdd/nashome"
       ];
-    };
-  };
-
-  services.samba.settings = {
-    homes = {
-      "comment" = "Home Directories";
-      "browseable" = "no";
-      "guest ok" = "no";
-      "writable" = "yes";
-      "create mask" = "0600";
-      "directory mask" = "0700";
-      "path" = "/mnt/zhdd/nashome/%u";
-      "follow symlinks" = "no";
-      "wide links" = "no";
-    };
-    share = {
-      "comment" = "NAS share";
-      "browseable" = "yes";
-      "guest ok" = "yes";
-      "read only" = "yes";
-      "write list" = "wizzy doridian";
-      "printable" = "no";
-      "create mask" = "0664";
-      "force create mode" = "0664";
-      "force group" = "share";
-      "directory mask" = "2775";
-      "force directory mode" = "2775";
-      "path" = "/mnt/zhdd/nas";
-      "follow symlinks" = "no";
-      "wide links" = "no";
-      "veto files" = "/.*/";
-      "delete veto files" = "yes";
+      # ksmbd has no equivalent to Samba's [homes] auto-share (no
+      # per-user path substitution at all - confirmed unsupported
+      # upstream, see
+      # https://github.com/cifsd-team/ksmbd-tools/issues/327), so each
+      # home directory is a static share restricted to its owner
+      # instead.
+      settings = {
+        wizzy = {
+          "comment" = "wizzy's home directory";
+          "browseable" = "no";
+          "guest ok" = "no";
+          "writable" = "yes";
+          "create mask" = "0600";
+          "directory mask" = "0700";
+          "path" = "/mnt/zhdd/nashome/wizzy";
+          "follow symlinks" = "no";
+          "valid users" = "wizzy";
+        };
+        doridian = {
+          "comment" = "doridian's home directory";
+          "browseable" = "no";
+          "guest ok" = "no";
+          "writable" = "yes";
+          "create mask" = "0600";
+          "directory mask" = "0700";
+          "path" = "/mnt/zhdd/nashome/doridian";
+          "follow symlinks" = "no";
+          "valid users" = "doridian";
+        };
+        share = {
+          "comment" = "NAS share";
+          "browseable" = "yes";
+          "guest ok" = "yes";
+          "read only" = "yes";
+          "write list" = "wizzy doridian";
+          "create mask" = "0664";
+          "force create mode" = "0664";
+          "force group" = "share";
+          "directory mask" = "2775";
+          "force directory mode" = "2775";
+          "path" = "/mnt/zhdd/nas";
+          "follow symlinks" = "no";
+          "veto files" = "/.*/";
+        };
+      };
     };
   };
 
