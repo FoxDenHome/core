@@ -354,11 +354,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1788393866,
-        "narHash": "sha256-BYq6mtrSxnsc91Qk1UtjQBquO5XvyMYo+aC8eQr35ik=",
+        "lastModified": 1788394080,
+        "narHash": "sha256-mGmxKl1FnbHGpPeFexWBnHa3o98sPrZZL9Patf8oYUk=",
         "ref": "refs/heads/main",
-        "rev": "340ecf9c332644fdf84e30552ef799ab196e97e7",
-        "revCount": 10,
+        "rev": "07b9e3daeab73ba0355980ab4f94603cf48b1fa3",
+        "revCount": 11,
         "type": "git",
         "url": "https://git.foxden.network/FoxDen/nvfw-mirror"
       },
@@ -423,11 +423,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1786031528,
-        "narHash": "sha256-cROiHKO3UbIKqF5FG5NikvydzlfIj4EcR1Cty9qOVt4=",
+        "lastModified": 1788394333,
+        "narHash": "sha256-xYOP0Xym1eVGUaHFx+eJEaycFGoiCbst3fZf0xFHP78=",
         "owner": "pyproject-nix",
         "repo": "pyproject.nix",
-        "rev": "1b1485546d85f6f6c7aadb10c4923dbc09633263",
+        "rev": "6a8a7881d75b6f98967e7b8069f4ead331384301",
         "type": "github"
       },
       "original": {
