@@ -13,6 +13,7 @@ let
 
   # The actual in-netns name of the interface ksmbd needs to bind to.
   netInterfaceName = foxDenLib.hosts.getInterfaceName config svcConfig.host;
+  netnsName = (foxDenLib.hosts.getByName config svcConfig.host).namespace;
 
   ksmbdConf = pkgs.writeText "ksmbd.conf" (
     lib.generators.toINI { mkKeyValue = k: v: "${k} = ${toString v}"; } svcConfig.settings
@@ -22,14 +23,16 @@ let
   # to a live NETDEV_UP notification for a *named* interface (matched by a
   # global, all-namespaces netdevice notifier - see ksmbd_netdev_event() in
   # fs/smb/server/transport_tcp.c) - ksmbd.mountd's own startup IPC just
-  # registers the name, it never binds anything itself. Since the netns's
-  # interface is already up long before ksmbd.mountd starts, that live
-  # event never happens on its own, so the socket never gets created in
-  # the right netns (or anywhere, if it's genuinely never re-triggered).
-  # Bouncing the link from inside the netns after startup forces that
-  # event to fire with the correct namespace as "current" at that moment.
-  # Retried a few times since ExecStartPost can start before ksmbd.mountd
-  # has actually finished registering the interface name with the kernel.
+  # registers the name, it never binds anything itself. The netns the
+  # resulting socket lands in comes from whichever process's syscall
+  # context triggers that NETDEV_UP event, not from ksmbd.mountd's own
+  # netns (ksmbd.mountd deliberately runs in the root netns here - see
+  # the PrivateUsers comment below) - so this explicitly triggers it from
+  # inside the target netns via `ip netns exec`, exactly as confirmed
+  # live: bouncing the link that way is what moved the listener from the
+  # root netns into host-nas, independent of where ksmbd.mountd itself
+  # was running at the time. Retried a few times since ExecStartPost can
+  # start before ksmbd.mountd has actually registered the interface name.
   bounceInterface = pkgs.writeShellApplication {
     name = "ksmbd-bounce-interface";
     runtimeInputs = [
@@ -39,8 +42,8 @@ let
     text = ''
       for _ in 1 2 3 4 5; do
         sleep 1
-        ip link set ${lib.escapeShellArg netInterfaceName} down
-        ip link set ${lib.escapeShellArg netInterfaceName} up
+        ip netns exec ${lib.escapeShellArg netnsName} ip link set ${lib.escapeShellArg netInterfaceName} down
+        ip netns exec ${lib.escapeShellArg netnsName} ip link set ${lib.escapeShellArg netInterfaceName} up
       done
     '';
   };
@@ -56,50 +59,50 @@ let
       pkgs.xxd
     ];
     text = ''
-      pwddb=''${1:-${pwddbPath}}
-      # pdbedit needs a working smb.conf, which is gone once Samba's foxDen
-      # service is disabled - not just for the passdb backend (passdb.tdb),
-      # but also "private dir" (which governs secrets.tdb, needed just to
-      # look up the domain SID for listing). Prefer the normally-mounted
-      # dir (in case Samba is still enabled when this runs), fall back to
-      # the raw persisted copy (once Samba's own environment.persistence
-      # stops applying, /var/lib/samba/private is no longer bind-mounted at
-      # all) - then generate a minimal smb.conf covering both settings
-      # instead of relying on any compiled-in defaults.
-      privatedir=''${2:-/var/lib/samba/private}
-      if [ ! -e "$privatedir/passdb.tdb" ]; then
-        privatedir=/nix/persist/samba/var/lib/samba/private
-      fi
+            pwddb=''${1:-${pwddbPath}}
+            # pdbedit needs a working smb.conf, which is gone once Samba's foxDen
+            # service is disabled - not just for the passdb backend (passdb.tdb),
+            # but also "private dir" (which governs secrets.tdb, needed just to
+            # look up the domain SID for listing). Prefer the normally-mounted
+            # dir (in case Samba is still enabled when this runs), fall back to
+            # the raw persisted copy (once Samba's own environment.persistence
+            # stops applying, /var/lib/samba/private is no longer bind-mounted at
+            # all) - then generate a minimal smb.conf covering both settings
+            # instead of relying on any compiled-in defaults.
+            privatedir=''${2:-/var/lib/samba/private}
+            if [ ! -e "$privatedir/passdb.tdb" ]; then
+              privatedir=/nix/persist/samba/var/lib/samba/private
+            fi
 
-      tmp=$(mktemp)
-      conf=$(mktemp)
-      trap 'rm -f "$tmp" "$conf"' EXIT
+            tmp=$(mktemp)
+            conf=$(mktemp)
+            trap 'rm -f "$tmp" "$conf"' EXIT
 
-      cat > "$conf" <<-EOF
-			[global]
-			private dir = $privatedir
-			passdb backend = tdbsam:$privatedir/passdb.tdb
-			EOF
+            cat > "$conf" <<-EOF
+      			[global]
+      			private dir = $privatedir
+      			passdb backend = tdbsam:$privatedir/passdb.tdb
+      			EOF
 
-      : > "$tmp"
-      while IFS=: read -r user _uid _lm nt _rest; do
-        [ -z "$user" ] && continue
-        if ! [[ "$nt" =~ ^[0-9A-Fa-f]{32}$ ]]; then
-          echo "ksmbd-migrate-samba-users: skipping $user (no usable NT hash)" >&2
-          continue
-        fi
-        b64=$(echo "$nt" | xxd -r -p | base64 -w0)
-        echo "$user:$b64" >> "$tmp"
-      done < <(pdbedit -s "$conf" -L -w)
+            : > "$tmp"
+            while IFS=: read -r user _uid _lm nt _rest; do
+              [ -z "$user" ] && continue
+              if ! [[ "$nt" =~ ^[0-9A-Fa-f]{32}$ ]]; then
+                echo "ksmbd-migrate-samba-users: skipping $user (no usable NT hash)" >&2
+                continue
+              fi
+              b64=$(echo "$nt" | xxd -r -p | base64 -w0)
+              echo "$user:$b64" >> "$tmp"
+            done < <(pdbedit -s "$conf" -L -w)
 
-      if [ ! -s "$tmp" ]; then
-        echo "ksmbd-migrate-samba-users: no users found via $privatedir, nothing written" >&2
-        exit 1
-      fi
+            if [ ! -s "$tmp" ]; then
+              echo "ksmbd-migrate-samba-users: no users found via $privatedir, nothing written" >&2
+              exit 1
+            fi
 
-      install -m 0600 -o root -g root "$tmp" "$pwddb"
-      echo "ksmbd-migrate-samba-users: wrote $(wc -l < "$pwddb") user(s) to $pwddb, from $privatedir" >&2
-      echo "ksmbd-migrate-samba-users: run 'systemctl reload ksmbd' to apply" >&2
+            install -m 0600 -o root -g root "$tmp" "$pwddb"
+            echo "ksmbd-migrate-samba-users: wrote $(wc -l < "$pwddb") user(s) to $pwddb, from $privatedir" >&2
+            echo "ksmbd-migrate-samba-users: run 'systemctl reload ksmbd' to apply" >&2
     '';
   };
 in
@@ -140,11 +143,13 @@ in
           "server max protocol" = "SMB3_11";
           "server multi channel support" = "yes";
           "smb3 encryption" = "auto";
-          # Without this, ksmbd auto-binds to *any* interface, anywhere on
-          # the host, that gets a NETDEV_UP event while unconfigured - see
-          # the netInterfaceName/bounceInterface comment below. Pinning it
-          # here is also required for the bounce to end up matching this
-          # netns's interface by name at all.
+          # ksmbd.mountd runs in the root netns (see the PrivateUsers
+          # comment below), which also has the management interface - this
+          # name-based pin is what keeps it off that interface, since
+          # netdevice matching happens by name regardless of ksmbd.mountd's
+          # own netns. Without it, ksmbd auto-binds *any* interface,
+          # anywhere on the host, that gets a NETDEV_UP event while
+          # unconfigured - including the management one.
           "interfaces" = netInterfaceName;
           "bind interfaces only" = "yes";
         };
@@ -166,17 +171,32 @@ in
           description = "ksmbd userspace daemon";
           wantedBy = [ "multi-user.target" ];
           serviceConfig = {
-            # The ksmbd kernel module gates every control/config netlink
-            # message with netlink_capable(skb, CAP_NET_ADMIN), which is
-            # checked against the *owning user namespace of the target
-            # netns* (host-nas's, created by real root), not the calling
-            # task's own. A PrivateUsers=true confined user namespace (the
-            # confinement.enable default from services.make) can never
-            # pass that check - capabilities in a child user namespace
-            # never grant privilege in an ancestor one - so ksmbd.mountd
-            # would get EPERM setting up its listener. Samba never hit
-            # this because plain TCP bind() only checks capabilities
-            # against the caller's own (possibly private) user namespace.
+            # fs/smb/server/transport_ipc.c unicasts every kernel-initiated
+            # message to ksmbd.mountd (login requests, share-config
+            # requests, etc. - everything except the reply to ksmbd.mountd's
+            # own startup message) with genlmsg_unicast(&init_net, skb,
+            # ksmbd_tools_pid) - hardcoded to the root netns, unconditionally,
+            # in the current upstream kernel source. If ksmbd.mountd's own
+            # control socket is created in a different netns (e.g. via
+            # NetworkNamespacePath), the kernel can never find it there and
+            # every such message times out - confirmed live: this is what was
+            # behind "Unknown user name or an error" rejecting every login,
+            # regardless of credentials, once ksmbd.mountd ran confined to
+            # host-nas. So ksmbd.mountd has to run in the root netns; see the
+            # "interfaces" comment above and the bounceInterface comment for
+            # how the actual SMB listener still ends up confined to
+            # host-nas's interface despite that. (ksmbd.control's own
+            # --reload/--shutdown, which use a plain kill() rather than this
+            # netlink path, are a separate, still-unresolved issue - use a
+            # full service restart instead for now.)
+            NetworkNamespacePath = lib.mkForce null;
+            # Still needed even in the root netns: that same netlink_capable()
+            # CAP_NET_ADMIN check is against the target netns's *owning user
+            # namespace* (init_net's is the real, non-private init_user_ns),
+            # and a PrivateUsers=true confined user namespace (the
+            # confinement.enable default from services.make) can never pass
+            # that check - capabilities in a child user namespace never
+            # grant privilege in an ancestor one.
             PrivateUsers = lib.mkForce false;
             ExecStart = "${pkgs.ksmbd-tools}/bin/ksmbd.mountd -v --nodetach --config=\${CREDENTIALS_DIRECTORY}/ksmbd.conf --pwddb=${pwddbPath}";
             ExecStartPost = "${bounceInterface}/bin/ksmbd-bounce-interface";
@@ -205,6 +225,9 @@ in
                 # name or an error", even with the right password. Same
                 # bind samba.nix already carries for the same reason.
                 "-/var/run/nscd"
+                # `ip netns exec` (used by bounceInterface) needs to find
+                # the target netns file here.
+                "-/run/netns"
               ];
           };
         };
