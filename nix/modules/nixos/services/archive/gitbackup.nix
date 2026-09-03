@@ -46,7 +46,6 @@ in
 
           serviceConfig = {
             DynamicUser = true;
-            Type = "oneshot";
             Restart = "no";
 
             Environment = [
