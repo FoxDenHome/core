@@ -19,9 +19,29 @@ let
     }
     // config.foxDen.hosts.hosts.${name}
   );
+
+  # The interface name mkHooks (below) actually renames the host's
+  # primary interface to once it's moved into the netns - "host${suffix}",
+  # unless nameOverride is set. Kept in sync with mapIfaces/mkHooks by
+  # hand since suffix is otherwise only computed inside nixosModule.
+  getInterfaceName = (
+    config: rawName:
+    let
+      host = getByName config rawName;
+      ifaceEntry = lib.lists.head (lib.attrsets.attrsToList host.interfaces);
+      iface = ifaceEntry.value;
+
+      hostIndexHex1 = lib.toHexString config.foxDen.hosts.index;
+      hostIndexHex = if (lib.stringLength hostIndexHex1 == 1) then "0${hostIndexHex1}" else hostIndexHex1;
+      hash = util.mkShortHash 6 (host.name + "|" + ifaceEntry.name);
+      suffix = "${hostIndexHex}${hash}";
+    in
+    if iface.nameOverride != null then iface.nameOverride else "host${suffix}"
+  );
 in
 {
   getByName = getByName;
+  getInterfaceName = getInterfaceName;
 
   nixosModule = (
     {
