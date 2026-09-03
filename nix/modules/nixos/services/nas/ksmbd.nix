@@ -9,7 +9,8 @@ let
   services = foxDenLib.services;
   svcConfig = config.foxDen.services.ksmbd;
 
-  pwddbPath = "/var/lib/ksmbd/ksmbdpwd.db";
+  stateDir = "/var/lib/ksmbd";
+  pwddbPath = "${stateDir}/ksmbdpwd.db";
 
   # The actual in-netns name of the interface ksmbd needs to bind to.
   netInterfaceName = foxDenLib.hosts.getInterfaceName config svcConfig.host;
@@ -179,8 +180,8 @@ in
             # under /run - other services' sockets/runtime state included -
             # in exchange for not carrying a local patch to ksmbd-tools.
             BindPaths = [
-              "/var/lib/ksmbd"
-              "/run"
+              stateDir
+              "/run/ksmbd:/run"
             ]
             ++ svcConfig.sharePaths;
             BindReadOnlyPaths =
@@ -203,7 +204,8 @@ in
         };
 
         systemd.tmpfiles.rules = [
-          "d /var/lib/ksmbd 0700 root root - -"
+          "d ${stateDir} 0700 root root - -"
+          "d /run/ksmbd 0700 root root - -"
           "f ${pwddbPath} 0600 root root - -"
         ];
 
@@ -211,7 +213,7 @@ in
           hideMounts = true;
           directories = [
             {
-              directory = "/var/lib/ksmbd";
+              directory = stateDir;
               user = "root";
               group = "root";
               mode = "u=rwx,g=,o=";
