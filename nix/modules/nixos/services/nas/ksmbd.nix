@@ -159,9 +159,9 @@ in
             # that check - capabilities in a child user namespace never
             # grant privilege in an ancestor one.
             PrivateUsers = lib.mkForce false;
-            ExecStart = "${pkgs.ksmbd-tools}/bin/ksmbd.mountd -v --nodetach --config=\${CREDENTIALS_DIRECTORY}/ksmbd.conf --pwddb=${pwddbPath}";
-            ExecReload = "${pkgs.ksmbd-tools}/bin/ksmbd.control -v --reload";
-            ExecStop = "${pkgs.ksmbd-tools}/bin/ksmbd.control -v --shutdown";
+            ExecStart = "${pkgs.ksmbd-tools}/bin/ksmbd.mountd --nodetach --config=\${CREDENTIALS_DIRECTORY}/ksmbd.conf --pwddb=${pwddbPath}";
+            ExecReload = "${pkgs.ksmbd-tools}/bin/ksmbd.control --reload";
+            ExecStop = "${pkgs.ksmbd-tools}/bin/ksmbd.control --shutdown";
             LoadCredential = "ksmbd.conf:${ksmbdConf}";
             # ksmbd-tools hardcodes its lock file at /run/ksmbd.lock (no CLI
             # override exists). ExecStart/ExecReload/ExecStop each get their
