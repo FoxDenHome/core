@@ -54,6 +54,17 @@ let
     ];
     text = ''
       pwddb=''${1:-${pwddbPath}}
+      # pdbedit needs a working smb.conf to find its passdb backend, which
+      # is gone once Samba's foxDen service is disabled - point it at the
+      # tdbsam file directly instead. Prefer the normally-mounted path (in
+      # case Samba is still enabled when this runs), fall back to the raw
+      # persisted copy (once Samba's own environment.persistence stops
+      # applying, /var/lib/samba/private is no longer bind-mounted at all).
+      passdb=''${2:-/var/lib/samba/private/passdb.tdb}
+      if [ ! -e "$passdb" ]; then
+        passdb=/nix/persist/samba/var/lib/samba/private/passdb.tdb
+      fi
+
       tmp=$(mktemp)
       trap 'rm -f "$tmp"' EXIT
 
@@ -66,10 +77,15 @@ let
         fi
         b64=$(echo "$nt" | xxd -r -p | base64 -w0)
         echo "$user:$b64" >> "$tmp"
-      done < <(pdbedit -L -w)
+      done < <(pdbedit -b "tdbsam:$passdb" -L -w)
+
+      if [ ! -s "$tmp" ]; then
+        echo "ksmbd-migrate-samba-users: no users found via $passdb, nothing written" >&2
+        exit 1
+      fi
 
       install -m 0600 -o root -g root "$tmp" "$pwddb"
-      echo "ksmbd-migrate-samba-users: wrote $(wc -l < "$pwddb") user(s) to $pwddb" >&2
+      echo "ksmbd-migrate-samba-users: wrote $(wc -l < "$pwddb") user(s) to $pwddb, from $passdb" >&2
       echo "ksmbd-migrate-samba-users: run 'systemctl reload ksmbd' to apply" >&2
     '';
   };
