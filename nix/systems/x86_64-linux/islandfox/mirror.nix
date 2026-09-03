@@ -13,6 +13,7 @@ in
       };
       extraMirrorReadMounts = [
         "/var/lib/aurbuild/repo:/data/foxdenaur/x86_64"
+        "/var/lib/nvfw-mirror:/data/nvidia-mellanox-fw"
       ];
       forceMirrorProto = "ipv4";
       archMirrorId = "archlinux.doridian.net";
