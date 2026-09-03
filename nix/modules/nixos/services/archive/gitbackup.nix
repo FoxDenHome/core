@@ -49,7 +49,7 @@ in
             Restart = "no";
 
             Environment = [
-              "GITHUB_ORGANIZATIONS=foxCaves,FoxDenHome,FoxBukkit,MoonHack,PawNode,SpaceAgeMP,WSVPN"
+              "GITHUB_ORGANIZATIONS=FoxDenHome,SpaceAgeMP"
               "\"BACKUP_ROOT=${svcConfig.dataDir}\""
             ];
 
