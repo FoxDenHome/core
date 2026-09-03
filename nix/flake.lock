@@ -354,11 +354,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1788401054,
-        "narHash": "sha256-V0ekvdngk7CdoVNxEYueNuW3EHIjjfuyXl7txQbrkUU=",
+        "lastModified": 1788408091,
+        "narHash": "sha256-zGwXmtZVl6x6lpL5JdVkfWeikWjTm0qsKUFGad9ZUNc=",
         "ref": "refs/heads/main",
-        "rev": "bd1c280916bffdcdc231315209508d593bb69174",
-        "revCount": 12,
+        "rev": "4b8127f6296bb012519b5c0f79b578e71008624e",
+        "revCount": 13,
         "type": "git",
         "url": "https://git.foxden.network/FoxDen/nvfw-mirror"
       },
