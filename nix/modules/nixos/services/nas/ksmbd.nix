@@ -10,7 +10,6 @@ let
   svcConfig = config.foxDen.services.ksmbd;
 
   pwddbPath = "/var/lib/ksmbd/ksmbdpwd.db";
-  lockPath = "/run/ksmbd.lock";
 
   ksmbdConf = pkgs.writeText "ksmbd.conf" (
     lib.generators.toINI { mkKeyValue = k: v: "${k} = ${toString v}"; } svcConfig.settings
@@ -120,11 +119,13 @@ in
             ExecReload = "${pkgs.ksmbd-tools}/bin/ksmbd.control --reload";
             ExecStop = "${pkgs.ksmbd-tools}/bin/ksmbd.control --shutdown";
             LoadCredential = "ksmbd.conf:${ksmbdConf}";
-            BindPaths = [
-              "/var/lib/ksmbd"
-              lockPath
-            ]
-            ++ svcConfig.sharePaths;
+            # /run/ksmbd.lock is intentionally not bound to a host path:
+            # ExecStart/ExecReload/ExecStop all share this unit's private,
+            # confined /run, so ksmbd.mountd's own lock-file bookkeeping
+            # (a temp-file-then-rename) stays self-consistent there. Bind
+            # mounting the file itself made rename() fail with EBUSY
+            # (can't rename onto an active mount point).
+            BindPaths = [ "/var/lib/ksmbd" ] ++ svcConfig.sharePaths;
             BindReadOnlyPaths = services.mkEtcPaths [
               "nsswitch.conf"
               "fstab"
@@ -136,7 +137,6 @@ in
         systemd.tmpfiles.rules = [
           "d /var/lib/ksmbd 0700 root root - -"
           "f ${pwddbPath} 0600 root root - -"
-          "f ${lockPath} - - - - -"
         ];
 
         environment.persistence."/nix/persist/ksmbd" = {
