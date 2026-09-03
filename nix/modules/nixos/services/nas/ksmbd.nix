@@ -197,14 +197,14 @@ in
                 "mtab"
               ]
               ++ [
-                # Users provided via kanidm-unixd (not flat /etc/passwd)
-                # only resolve if its socket is reachable - without this,
-                # NSS lookups for them fail inside the confined root and
-                # ksmbd rejects them with "Unknown user name or an error",
-                # even with the right password. Matches the bind nixpkgs'
-                # own kanidm module uses for its other confined clients.
-                "-/run/kanidm-unixd"
-                "-/run/kanidm-unixd:/var/run/kanidm-unixd"
+                # NixOS's system.nssModules (kanidm's NSS module included)
+                # is resolved through nscd, not dlopen()'d directly by the
+                # querying process - without its socket, NSS lookups for
+                # kanidm-backed users (doridian, wizzy) fail inside the
+                # confined root and ksmbd rejects them with "Unknown user
+                # name or an error", even with the right password. Same
+                # bind samba.nix already carries for the same reason.
+                "-/var/run/nscd"
               ];
           };
         };
