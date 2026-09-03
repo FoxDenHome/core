@@ -161,8 +161,8 @@ in
             # grant privilege in an ancestor one.
             PrivateUsers = lib.mkForce false;
             ExecStart = "${pkgs.ksmbd-tools}/bin/ksmbd.mountd -v --nodetach --config=\${CREDENTIALS_DIRECTORY}/ksmbd.conf --pwddb=${pwddbPath}";
-            ExecReload = "${pkgs.ksmbd-tools}/bin/ksmbd.control --reload";
-            ExecStop = "${pkgs.ksmbd-tools}/bin/ksmbd.control --shutdown";
+            ExecReload = "${pkgs.ksmbd-tools}/bin/ksmbd.control -v --reload";
+            ExecStop = "${pkgs.ksmbd-tools}/bin/ksmbd.control -v --shutdown";
             LoadCredential = "ksmbd.conf:${ksmbdConf}";
             # /run/ksmbd.lock is intentionally not bound to a host path:
             # ExecStart/ExecReload/ExecStop all share this unit's private,
