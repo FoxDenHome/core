@@ -80,6 +80,7 @@ while :; do
 		--exclude='/lastupdate' \
 		--exclude=_jsindex-static \
 		--exclude=.dori-local \
+		--exclude=CACHEDIR.TAG \
 		--exclude=.well-known \
 		"${MIRROR_SOURCE_RSYNC}/" \
 		"${MIRROR_TARGET}/"

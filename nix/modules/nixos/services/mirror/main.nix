@@ -88,7 +88,7 @@ in
               ${baseWebConfig}
               root /data;
 
-              set $jsindex_ignore "/archlinux /cachyos";
+              set $jsindex_ignore "/archlinux /cachyos /CACHEDIR.TAG";
               set $jsindex_header "/njs/templates/custom/mirror_header.html";
               set $jsindex_entry "/njs/templates/entry.html";
               set $jsindex_footer "/njs/templates/footer.html";
@@ -112,7 +112,7 @@ in
               ${baseWebConfig}
               root /data/archlinux;
 
-              set $jsindex_ignore "";
+              set $jsindex_ignore "/CACHEDIR.TAG";
               set $jsindex_header "/njs/templates/custom/archlinux_header.html";
               set $jsindex_entry "/njs/templates/entry.html";
               set $jsindex_footer "/njs/templates/footer.html";
@@ -161,7 +161,7 @@ in
             reverse lookup = no
             forward lookup = no
 
-            exclude = .dori-local _jsindex-static .well-known
+            exclude = .dori-local _jsindex-static .well-known CACHEDIR.TAG
 
             [archlinux]
                     path = /data/archlinux
