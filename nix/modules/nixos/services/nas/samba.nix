@@ -44,7 +44,6 @@ in
         (services.make {
           inherit svcConfig pkgs config;
           name = name;
-          host = "samba";
         }).config
       ) smbServices)
       ++ [
