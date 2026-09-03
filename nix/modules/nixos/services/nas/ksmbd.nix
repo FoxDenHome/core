@@ -31,8 +31,8 @@ let
   # inside the target netns via `ip netns exec`, exactly as confirmed
   # live: bouncing the link that way is what moved the listener from the
   # root netns into host-nas, independent of where ksmbd.mountd itself
-  # was running at the time. Retried a few times since ExecStartPost can
-  # start before ksmbd.mountd has actually registered the interface name.
+  # was running at the time. Retried a few times since this can start
+  # before ksmbd.mountd has actually registered the interface name.
   bounceInterface = pkgs.writeShellApplication {
     name = "ksmbd-bounce-interface";
     runtimeInputs = [
@@ -167,9 +167,29 @@ in
           migrateSambaUsers
         ];
 
+        # Runs unconfined (not through services.make) deliberately: it just
+        # needs `ip netns exec` against the real host /run/netns, and
+        # fighting ksmbd.service's own confined chroot for that (`ip netns`
+        # looks under /var/run/netns, which doesn't reliably resolve to
+        # /run/netns inside a confined root the way it does on the host)
+        # isn't worth it for a one-shot link bounce. partOf ties its
+        # lifecycle to ksmbd.service: stopping/restarting that stops/
+        # restarts this too, and `wants` on ksmbd.service is what actually
+        # starts it after ksmbd.mountd itself comes up.
+        systemd.services.ksmbd-bounce-interface = {
+          description = "Bounce ksmbd's SMB interface to force a namespaced socket bind";
+          after = [ "ksmbd.service" ];
+          partOf = [ "ksmbd.service" ];
+          serviceConfig = {
+            Type = "oneshot";
+            ExecStart = "${bounceInterface}/bin/ksmbd-bounce-interface";
+          };
+        };
+
         systemd.services.ksmbd = {
           description = "ksmbd userspace daemon";
           wantedBy = [ "multi-user.target" ];
+          wants = [ "ksmbd-bounce-interface.service" ];
           serviceConfig = {
             # fs/smb/server/transport_ipc.c unicasts every kernel-initiated
             # message to ksmbd.mountd (login requests, share-config
@@ -199,7 +219,6 @@ in
             # grant privilege in an ancestor one.
             PrivateUsers = lib.mkForce false;
             ExecStart = "${pkgs.ksmbd-tools}/bin/ksmbd.mountd -v --nodetach --config=\${CREDENTIALS_DIRECTORY}/ksmbd.conf --pwddb=${pwddbPath}";
-            ExecStartPost = "${bounceInterface}/bin/ksmbd-bounce-interface";
             ExecReload = "${pkgs.ksmbd-tools}/bin/ksmbd.control --reload";
             ExecStop = "${pkgs.ksmbd-tools}/bin/ksmbd.control --shutdown";
             LoadCredential = "ksmbd.conf:${ksmbdConf}";
@@ -225,9 +244,6 @@ in
                 # name or an error", even with the right password. Same
                 # bind samba.nix already carries for the same reason.
                 "-/var/run/nscd"
-                # `ip netns exec` (used by bounceInterface) needs to find
-                # the target netns file here.
-                "-/run/netns"
               ];
           };
         };
