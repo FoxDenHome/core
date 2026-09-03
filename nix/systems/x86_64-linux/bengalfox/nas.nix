@@ -89,7 +89,7 @@ in
       host = "nzbget";
       downloadsDir = "/mnt/zssd/nas/usenet";
     };
-    samba = {
+    ksmbd = {
       enable = true;
       host = "nas";
       sharePaths = [
