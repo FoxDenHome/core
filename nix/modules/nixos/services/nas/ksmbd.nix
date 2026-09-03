@@ -148,9 +148,8 @@ in
             # "interfaces" comment above and the bounceInterface comment for
             # how the actual SMB listener still ends up confined to
             # host-nas's interface despite that. (ksmbd.control's own
-            # --reload/--shutdown, which use a plain kill() rather than this
-            # netlink path, are a separate, still-unresolved issue - use a
-            # full service restart instead for now.)
+            # --reload/--shutdown use a plain kill() rather than this netlink
+            # path - see the BindPaths comment below for that one.)
             NetworkNamespacePath = lib.mkForce null;
             # Still needed even in the root netns: that same netlink_capable()
             # CAP_NET_ADMIN check is against the target netns's *owning user
@@ -164,13 +163,26 @@ in
             ExecReload = "${pkgs.ksmbd-tools}/bin/ksmbd.control -v --reload";
             ExecStop = "${pkgs.ksmbd-tools}/bin/ksmbd.control -v --shutdown";
             LoadCredential = "ksmbd.conf:${ksmbdConf}";
-            # /run/ksmbd.lock is intentionally not bound to a host path:
-            # ExecStart/ExecReload/ExecStop all share this unit's private,
-            # confined /run, so ksmbd.mountd's own lock-file bookkeeping
-            # (a temp-file-then-rename) stays self-consistent there. Bind
-            # mounting the file itself made rename() fail with EBUSY
-            # (can't rename onto an active mount point).
-            BindPaths = [ "/var/lib/ksmbd" ] ++ svcConfig.sharePaths;
+            # ksmbd-tools hardcodes its lock file at /run/ksmbd.lock (no CLI
+            # override exists). ExecStart/ExecReload/ExecStop each get their
+            # own fresh, empty private /run under confinement (confirmed
+            # live: ExecReload saw "Can't open `/run/ksmbd.lock': No such
+            # file or directory" right after ExecStart had just written it),
+            # so ksmbd.control could never find the PID it needs to signal -
+            # every --reload/--shutdown failed with "Can't notify mountd".
+            # Binding the bare file itself doesn't work either: it breaks
+            # ksmbd.mountd's own write-temp-then-rename onto it (EBUSY,
+            # can't rename onto an active mount point). Binding the whole
+            # of /run (rather than rebuilding ksmbd-tools with a dedicated,
+            # narrowly-bindable rundir) is the trade-off made here: it's a
+            # real widening of what this confined root can see and write
+            # under /run - other services' sockets/runtime state included -
+            # in exchange for not carrying a local patch to ksmbd-tools.
+            BindPaths = [
+              "/var/lib/ksmbd"
+              "/run"
+            ]
+            ++ svcConfig.sharePaths;
             BindReadOnlyPaths =
               services.mkEtcPaths [
                 "nsswitch.conf"
