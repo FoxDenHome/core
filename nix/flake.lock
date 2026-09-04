@@ -607,11 +607,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1788308237,
-        "narHash": "sha256-aA/aP4jxz82Vy5CAmjs9dj1WGQFuq7MOf9ZiEPdCh60=",
+        "lastModified": 1788493369,
+        "narHash": "sha256-wRi2C1zd54g1MGCEaYUCSuxfWNcA/H5uSm5uMmqZpyo=",
         "ref": "refs/heads/main",
-        "rev": "c58a30afdae0d9e6dff017116746fcd53ffa4296",
-        "revCount": 188,
+        "rev": "18ffc0217a24c4cbe8d08d119add587c77273680",
+        "revCount": 189,
         "type": "git",
         "url": "https://git.foxden.network/FoxDen/superfan"
       },

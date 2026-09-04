@@ -29,7 +29,7 @@ in
         };
 
         systemd.tmpfiles.rules = [
-          "d /var/lock/superfan - - - - -"
+          "d /run/lock/superfan - - - - -"
         ];
 
         systemd.services.superfan = {
@@ -39,7 +39,7 @@ in
           confinement.packages = [ pkgs.lm_sensors ];
 
           serviceConfig = {
-            BindPaths = [ "/var/lock/superfan" ];
+            BindPaths = [ "/run/lock/superfan" ];
             Type = "simple";
             Restart = "always";
             TimeoutStartSec = "30";
