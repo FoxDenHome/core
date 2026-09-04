@@ -109,45 +109,46 @@ in
       # https://github.com/cifsd-team/ksmbd-tools/issues/327), so each
       # home directory is a static share restricted to its owner
       # instead.
-      settings = {
-        wizzy = {
-          "comment" = "wizzy's home directory";
-          "browseable" = "no";
-          "guest ok" = "no";
-          "writable" = "yes";
-          "create mask" = "0600";
-          "directory mask" = "0700";
-          "path" = "/mnt/zhdd/nashome/wizzy";
-          "follow symlinks" = "no";
-          "valid users" = "wizzy";
+      settings =
+        builtins.listToAttrs (
+          map
+            (user: {
+              name = user;
+              value = {
+                "comment" = "${user}'s home directory";
+                "browseable" = "no";
+                "guest ok" = "no";
+                "writable" = "yes";
+                "create mask" = "0600";
+                "directory mask" = "0700";
+                "path" = "/mnt/zhdd/nashome/${user}";
+                "follow symlinks" = "no";
+                "valid users" = user;
+              };
+            })
+            [
+              "wizzy"
+              "doridian"
+              "homeassistant"
+            ]
+        )
+        // {
+          share = {
+            "comment" = "NAS share";
+            "browseable" = "yes";
+            "guest ok" = "yes";
+            "read only" = "yes";
+            "write list" = "wizzy doridian";
+            "create mask" = "0664";
+            "force create mode" = "0664";
+            "force group" = "share";
+            "directory mask" = "2775";
+            "force directory mode" = "2775";
+            "path" = "/mnt/zhdd/nas";
+            "follow symlinks" = "no";
+            "veto files" = "/.*/";
+          };
         };
-        doridian = {
-          "comment" = "doridian's home directory";
-          "browseable" = "no";
-          "guest ok" = "no";
-          "writable" = "yes";
-          "create mask" = "0600";
-          "directory mask" = "0700";
-          "path" = "/mnt/zhdd/nashome/doridian";
-          "follow symlinks" = "no";
-          "valid users" = "doridian";
-        };
-        share = {
-          "comment" = "NAS share";
-          "browseable" = "yes";
-          "guest ok" = "yes";
-          "read only" = "yes";
-          "write list" = "wizzy doridian";
-          "create mask" = "0664";
-          "force create mode" = "0664";
-          "force group" = "share";
-          "directory mask" = "2775";
-          "force directory mode" = "2775";
-          "path" = "/mnt/zhdd/nas";
-          "follow symlinks" = "no";
-          "veto files" = "/.*/";
-        };
-      };
     };
   };
 
