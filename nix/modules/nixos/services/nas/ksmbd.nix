@@ -173,12 +173,15 @@ in
             # every --reload/--shutdown failed with "Can't notify mountd".
             # Binding the bare file itself doesn't work either: it breaks
             # ksmbd.mountd's own write-temp-then-rename onto it (EBUSY,
-            # can't rename onto an active mount point). Binding the whole
-            # of /run (rather than rebuilding ksmbd-tools with a dedicated,
-            # narrowly-bindable rundir) is the trade-off made here: it's a
-            # real widening of what this confined root can see and write
-            # under /run - other services' sockets/runtime state included -
-            # in exchange for not carrying a local patch to ksmbd-tools.
+            # can't rename onto an active mount point). So instead of
+            # binding the file, or the host's whole (shared, much wider)
+            # /run, remap a dedicated host directory onto the confined
+            # root's /run entirely: ksmbd.mountd still writes to the
+            # hardcoded /run/ksmbd.lock path from its own point of view,
+            # but that now really means /run/ksmbd/ksmbd.lock on the host -
+            # a real, persistent path every Exec* invocation shares,
+            # without ever exposing this confined root to any other
+            # service's sockets or runtime state under the real /run.
             BindPaths = [
               stateDir
               "/run/ksmbd:/run"
