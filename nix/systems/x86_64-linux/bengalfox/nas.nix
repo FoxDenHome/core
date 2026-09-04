@@ -92,6 +92,10 @@ in
     ksmbd = {
       enable = true;
       host = "nas";
+      # RoCE/SMB Direct only works on root-netns interfaces (see
+      # extraInterfaces in ksmbd.nix), so the RDMA-capable interface has to
+      # be named here rather than reached through the nas host's netns.
+      extraInterfaces = [ "br-default" ];
       sharePaths = [
         "/mnt/zhdd/nas"
         "/mnt/zhdd/nashome"
@@ -143,6 +147,8 @@ in
       };
     };
   };
+
+  networking.firewall.interfaces.br-default.allowedTCPPorts = [ 445 ];
 
   foxDen.hosts.hosts = {
     deluge =

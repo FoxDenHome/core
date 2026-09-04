@@ -61,6 +61,21 @@ in
         default = [ ];
         description = "Directories to share over SMB via ksmbd";
       };
+      extraInterfaces = lib.mkOption {
+        type = lib.types.listOf lib.types.str;
+        default = [ ];
+        example = [ "br-default" ];
+        description = ''
+          Additional interface names, by literal name, to listen on beyond
+          the one belonging to {option}`host`.
+
+          Primarily useful for RDMA/SMB Direct: ksmbd's RDMA listener is
+          always created in the root netns and bound to INADDR_ANY there
+          (see the "interfaces" comment in ksmbd.nix), so it can only ever
+          serve interfaces that live in the root netns - naming one here is
+          the only way to get SMB Direct working at all.
+        '';
+      };
       settings = lib.mkOption {
         type = lib.types.attrsOf (lib.types.attrsOf lib.types.str);
         default = { };
@@ -94,7 +109,16 @@ in
           # own netns. Without it, ksmbd auto-binds *any* interface,
           # anywhere on the host, that gets a NETDEV_UP event while
           # unconfigured - including the management one.
-          "interfaces" = netInterfaceName;
+          #
+          # Only applies to the TCP transport. The RDMA/SMB Direct listener
+          # ignores this list entirely: ksmbd_rdma_init() binds INADDR_ANY
+          # once, at daemon startup, from a system_long_wq kworker - so it
+          # lands in init_net (kworkers inherit kthreadd's namespaces, never
+          # the queueing task's) and covers every address visible there. An
+          # interface inside a netns can therefore never serve SMB Direct,
+          # no matter what this says or what gets bounced afterwards - hence
+          # extraInterfaces, for naming a root-netns interface that can.
+          "interfaces" = lib.concatStringsSep " " ([ netInterfaceName ] ++ svcConfig.extraInterfaces);
           "bind interfaces only" = "yes";
         };
 
