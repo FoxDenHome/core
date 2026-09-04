@@ -90,6 +90,17 @@ in
         default = [ ];
         description = "Directories to share over SMB via ksmbd";
       };
+      smbDirect = lib.mkEnableOption ''
+        SMB Direct (SMB over RDMA).
+
+        Compile-time only: ksmbd's RDMA listener does not exist unless the
+        kernel is built with SMB_SERVER_SMBDIRECT, so this rebuilds the
+        kernel. Without it a client's RDMA connect is rejected by the RDMA
+        core with IB_CM_REJ_INVALID_SERVICE_ID before ksmbd sees anything,
+        so nothing shows up in its log however verbose it is set to.
+
+        Needs an RDMA-capable interface in the root netns to be of any use
+        - see the "interfaces" comment below'';
       extraHosts = lib.mkOption {
         type = lib.types.listOf lib.types.str;
         default = [ ];
@@ -167,6 +178,14 @@ in
         users.groups.smbguest = { };
 
         boot.kernelModules = [ "ksmbd" ];
+
+        boot.kernelPatches = lib.optional svcConfig.smbDirect {
+          name = "ksmbd-smbdirect";
+          patch = null;
+          structuredExtraConfig = {
+            SMB_SERVER_SMBDIRECT = lib.kernel.yes;
+          };
+        };
 
         environment.systemPackages = [
           pkgs.ksmbd-tools
