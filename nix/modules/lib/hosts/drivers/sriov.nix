@@ -80,14 +80,17 @@ in
             sleep 0.1
           done
           # And rename it
+          ${ipCmd} link set dev "$ifname" name "${uniqueServiceInterface}"
+          ${ethtoolCmd} -K "${uniqueServiceInterface}" tls-hw-tx-offload on || true
+          ${ethtoolCmd} -K "${uniqueServiceInterface}" tls-hw-rx-offload on || true
+
+          exit 0
+          # RDMA, if present
           rdma_link_name="$(${pkgs.iproute2}/bin/rdma link show | grep "netdev $ifname\\s" | cut -d' ' -f2 | cut -d/ -f1 || :)"
           if [ -n "$rdma_link_name" ]; then
             ${pkgs.iproute2}/bin/rdma dev set "$rdma_link_name" name "${uniqueServiceInterface}"
             ${pkgs.iproute2}/bin/rdma dev set "${uniqueServiceInterface}" netns "${host.namespace}"
           fi
-          ${ipCmd} link set dev "$ifname" name "${uniqueServiceInterface}"
-          ${ethtoolCmd} -K "${uniqueServiceInterface}" tls-hw-tx-offload on || true
-          ${ethtoolCmd} -K "${uniqueServiceInterface}" tls-hw-rx-offload on || true
         }
 
         assign_vf_by_mac() {
