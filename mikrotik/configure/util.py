@@ -54,7 +54,7 @@ class MTikRouter:
                 self.host,
                 username=self._username,
                 password=self._password,
-                use_ssl=True,
+                use_ssl=False,
                 plaintext_login=True,
             )
             self._connection_cache = pool

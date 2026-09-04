@@ -499,17 +499,6 @@ DEFAULT_RULES_TAIL: list[FirewallRule] = [
         attribs={
             "action": "accept",
             "chain": "input",
-            "comment": "HTTP(S)",
-            "dst-port": "80,443",
-            "protocol": "tcp",
-        },
-    ),
-    FirewallRule(
-        families=["ip", "ipv6"],
-        table="filter",
-        attribs={
-            "action": "accept",
-            "chain": "input",
             "comment": "BGP",
             "dst-port": "179",
             "protocol": "tcp",
