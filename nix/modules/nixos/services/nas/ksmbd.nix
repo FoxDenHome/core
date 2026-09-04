@@ -24,6 +24,110 @@ let
 
   hostUnits = map (host: (foxDenLib.hosts.getByName config host).unit) svcConfig.extraHosts;
 
+  # nss-user-lookup.target orders after nscd, but nixpkgs' kanidm-unixd is
+  # not ordered before that target, so name its unit directly. It stays
+  # "activating" for the 10-15s its providers need to come up, so a plain
+  # After= is enough to cover the whole window.
+  nssUnits = [
+    "nss-user-lookup.target"
+  ]
+  ++ lib.optional config.services.kanidm.unix.enable "kanidm-unixd.service";
+
+  # Every user/group name in the config whose uid/gid ksmbd.mountd has to
+  # resolve through NSS. A "@name" entry in a user list means a group, as
+  # in Samba.
+  splitNames = s: lib.filter (n: n != "") (lib.splitString " " s);
+  namesFromKeys =
+    keys:
+    lib.unique (
+      lib.concatMap (section: lib.concatMap (key: splitNames (section.${key} or "")) keys) (
+        lib.attrValues svcConfig.settings
+      )
+    );
+  userListNames = namesFromKeys [
+    "admin users"
+    "force user"
+    "guest account"
+    "invalid users"
+    "read list"
+    "valid users"
+    "write list"
+  ];
+  nssUserNames = lib.filter (n: !lib.hasPrefix "@" n) userListNames;
+  nssGroupNames = lib.unique (
+    map (lib.removePrefix "@") (lib.filter (lib.hasPrefix "@") userListNames)
+    ++ namesFromKeys [ "force group" ]
+  );
+
+  # How long to wait for those names before starting ksmbd.mountd anyway.
+  # Has to stay under the unit's TimeoutStartSec, which ExecStartPre
+  # counts against.
+  nssTimeout = 60;
+
+  # ksmbd.mountd resolves every user in its pwddb to a uid/gid with a
+  # single getpwnam() as it loads the db at startup (new_ksmbd_user() in
+  # tools/management/user.c) and never retries. A name that does not
+  # resolve right then is registered with KSMBD_SHARE_INVALID_UID/GID
+  # (65535) and an empty supplementary group list - silently, with nothing
+  # logged. Everything else still works afterwards: the password comes
+  # from the pwddb rather than NSS so authentication succeeds, and the
+  # "valid users" check matches on the name, so the tree connect succeeds
+  # too. Only the file access runs as 65535, and since
+  # ksmbd_override_fsids() drops the fs capability set, every operation on
+  # a mode 0700 home directory comes back EACCES - a share that mounts
+  # fine and then denies even readdir.
+  #
+  # That is exactly what a reboot produced here: ksmbd.mountd started ~6s
+  # before kanidm-unixd finished coming up, so getpwnam("doridian")
+  # failed, and nothing short of restarting ksmbd fixed it. The "share"
+  # share kept working throughout because its "force group" is a local
+  # /etc/group entry, which resolves without kanidm.
+  #
+  # nssUnits above orders around that race; this gate then confirms it,
+  # through the very same NSS path mountd itself will use, before mountd
+  # is allowed to read the pwddb.
+  waitForNss = pkgs.writeShellApplication {
+    name = "ksmbd-wait-for-nss";
+    runtimeInputs = [
+      pkgs.getent
+      pkgs.coreutils
+    ];
+    text =
+      let
+        check =
+          { db, name }:
+          "getent ${db} ${lib.escapeShellArg name} >/dev/null || { echo \"still unresolved: ${db} entry ${name}\"; unresolved=1; }";
+        checks =
+          map (name: {
+            inherit name;
+            db = "passwd";
+          }) nssUserNames
+          ++ map (name: {
+            inherit name;
+            db = "group";
+          }) nssGroupNames;
+      in
+      ''
+        deadline=$(( $(date +%s) + ${toString nssTimeout} ))
+        while :; do
+          unresolved=0
+          ${lib.concatMapStringsSep "\n  " check checks}
+          if [ "$unresolved" -eq 0 ]; then
+            exit 0
+          fi
+          if [ "$(date +%s)" -ge "$deadline" ]; then
+            break
+          fi
+          sleep 1
+        done
+        # Starting anyway beats leaving SMB down entirely over a name that
+        # is never coming back (a deleted account, say) - but say so
+        # loudly, because any share depending on a name still unresolved
+        # here will serve EACCES until this unit is restarted.
+        echo "giving up after ${toString nssTimeout}s; shares for the names above will deny access until ksmbd is restarted" >&2
+      '';
+  };
+
   ksmbdConf = pkgs.writeText "ksmbd.conf" (
     lib.generators.toINI { mkKeyValue = k: v: "${k} = ${toString v}"; } svcConfig.settings
   );
@@ -216,9 +320,14 @@ in
         systemd.services.ksmbd = {
           description = "ksmbd userspace daemon";
           wantedBy = [ "multi-user.target" ];
-          wants = [ "ksmbd-bounce-interface.service" ];
-          after = hostUnits;
+          wants = [ "ksmbd-bounce-interface.service" ] ++ nssUnits;
+          after = hostUnits ++ nssUnits;
           serviceConfig = {
+            # See the waitForNss comment: without this, a name that NSS
+            # cannot resolve at this exact moment is pinned to uid/gid
+            # 65535 for the lifetime of the daemon, and its share denies
+            # everything.
+            ExecStartPre = "${waitForNss}/bin/ksmbd-wait-for-nss";
             # fs/smb/server/transport_ipc.c unicasts every kernel-initiated
             # message to ksmbd.mountd (login requests, share-config
             # requests, etc. - everything except the reply to ksmbd.mountd's
