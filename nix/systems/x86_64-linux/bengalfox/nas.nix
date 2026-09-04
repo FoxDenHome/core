@@ -1,6 +1,8 @@
 { config, foxDenLib, ... }:
 let
   mkVlanHost = config.lib.foxDenSys.mkVlanHost;
+  # nas-smb is in the root netns, so its interface is one of this machine's.
+  smbInterface = foxDenLib.hosts.getInterfaceName config "nas-smb";
 in
 {
   fileSystems."/mnt/zhdd/nas/torrent" = {
@@ -148,10 +150,21 @@ in
     };
   };
 
-  # nas-smb lives in the root netns, so its SMB traffic hits this machine's
-  # own firewall rather than only the router's forward chain.
-  networking.firewall.interfaces.${foxDenLib.hosts.getInterfaceName config "nas-smb"}.allowedTCPPorts =
-    [ 445 ];
+  networking.firewall = {
+    # SMB traffic for nas-smb hits this machine's own firewall rather than
+    # only the router's forward chain.
+    interfaces.${smbInterface}.allowedTCPPorts = [ 445 ];
+
+    # br-default carries the machine's other 10.2.0.0/16 address and wins
+    # the route lookup for the whole subnet, so replies to nas-smb leave
+    # through it - which makes strict reverse path filtering drop every
+    # packet arriving on nas-smb's interface. Check that one interface
+    # loosely instead: the source still has to be routable, just not back
+    # out the interface it came in on.
+    extraReversePathFilterRules = ''
+      iifname "${smbInterface}" fib saddr . mark oif exists accept
+    '';
+  };
 
   # Both br-default and nas-smb hold a 10.2.0.0/16 address on the same L2,
   # and with the default arp_ignore either of them would answer ARP for the

@@ -51,26 +51,31 @@ let
       pkgs.coreutils
       pkgs.sysctl
     ];
-    text = lib.concatMapStrings (
-      iface:
+    text =
       let
-        nsPrefix = if iface.netns == null then "" else "ip netns exec ${lib.escapeShellArg iface.netns} ";
+        nsPrefix =
+          iface: if iface.netns == null then "" else "ip netns exec ${lib.escapeShellArg iface.netns} ";
+        forEach = f: lib.concatMapStrings (iface: "${f iface}\n") hostInterfaces;
       in
       ''
         # A link going down otherwise takes the interface's IPv6 addresses
         # and every route through it with it, which the netns unit only
         # ever sets up once - so keep the addresses and put the routes back.
-        ${nsPrefix}sysctl -qw net.ipv6.conf.${iface.name}.keep_addr_on_down=1
+        ${forEach (iface: "${nsPrefix iface}sysctl -qw net.ipv6.conf.${iface.name}.keep_addr_on_down=1")}
         for _ in 1 2 3 4 5; do
           sleep 1
-          ${nsPrefix}ip link set ${lib.escapeShellArg iface.name} down
-          ${nsPrefix}ip link set ${lib.escapeShellArg iface.name} up
+          ${forEach (
+            iface:
+            "${nsPrefix iface}ip link set ${lib.escapeShellArg iface.name} down; ${nsPrefix iface}ip link set ${lib.escapeShellArg iface.name} up"
+          )}
         done
-        ${lib.concatMapStrings (
-          route: "${foxDenLib.hosts.renderRoute "${nsPrefix}ip" iface.name route} || true\n"
-        ) (if iface.routes == null then [ ] else iface.routes)}
-      ''
-    ) hostInterfaces;
+        ${forEach (
+          iface:
+          lib.concatMapStringsSep "\n" (
+            route: "${foxDenLib.hosts.renderRoute "${nsPrefix iface}ip" iface.name route} || true"
+          ) (if iface.routes == null then [ ] else iface.routes)
+        )}
+      '';
   };
 
 in
@@ -246,6 +251,18 @@ in
             BindPaths = [
               stateDir
               "/run/ksmbd:/run"
+              # ExecStop's `ksmbd.control --shutdown` writes "hard" to
+              # /sys/class/ksmbd-control/kill_server, and confinement (plus
+              # ProtectKernelTunables) leaves /sys read-only, so that write
+              # failed with "Can't kill ksmbd" - confirmed live. The kernel
+              # then keeps ksmbd_tools_pid set, so the next start takes
+              # transport_ipc.c's "Reconnect to a new user space daemon"
+              # path, which never re-runs ksmbd_tcp_set_interfaces: the
+              # interface list and its listening sockets stay whatever the
+              # previous generation asked for. A newly added interface
+              # therefore never gets a listener, no matter how often it is
+              # bounced, while a removed one keeps serving.
+              "/sys/class/ksmbd-control"
             ]
             ++ svcConfig.sharePaths;
             BindReadOnlyPaths =
