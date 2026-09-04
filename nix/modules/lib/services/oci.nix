@@ -75,7 +75,7 @@ let
               startLimitIntervalSec = nixpkgs.lib.mkForce 0;
 
               serviceConfig = {
-                NetworkNamespacePath = host.namespacePath;
+                NetworkNamespacePath = nixpkgs.lib.mkIf (host.namespacePath != null) host.namespacePath;
 
                 Restart = nixpkgs.lib.mkDefault "always";
                 RestartSec = nixpkgs.lib.mkForce "1s";

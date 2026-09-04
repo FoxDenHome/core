@@ -97,7 +97,9 @@ let
           startLimitIntervalSec = lib.mkForce 0;
 
           serviceConfig = {
-            NetworkNamespacePath = lib.mkIf (cfgHostName != "") host.namespacePath;
+            NetworkNamespacePath = lib.mkIf (
+              cfgHostName != "" && host.namespacePath != null
+            ) host.namespacePath;
             ProtectProc = "invisible";
             ProtectHostname =
               let

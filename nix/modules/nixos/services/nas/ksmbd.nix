@@ -12,9 +12,17 @@ let
   stateDir = "/var/lib/ksmbd";
   pwddbPath = "${stateDir}/ksmbdpwd.db";
 
-  # The actual in-netns name of the interface ksmbd needs to bind to.
-  netInterfaceName = foxDenLib.hosts.getInterfaceName config svcConfig.host;
-  netnsName = (foxDenLib.hosts.getByName config svcConfig.host).namespace;
+  # The interfaces ksmbd needs to bind to, by their actual name plus the
+  # netns the link bounce for them has to happen in (null = root netns).
+  mkHostInterface = host: {
+    name = foxDenLib.hosts.getInterfaceName config host;
+    netns = (foxDenLib.hosts.getByName config host).namespace;
+    routes = (foxDenLib.hosts.getInterface config host).routes or [ ];
+  };
+  hostInterfaces = map mkHostInterface ([ svcConfig.host ] ++ svcConfig.extraHosts);
+  interfaceNames = (map (iface: iface.name) hostInterfaces) ++ svcConfig.extraInterfaces;
+
+  hostUnits = map (host: (foxDenLib.hosts.getByName config host).unit) svcConfig.extraHosts;
 
   ksmbdConf = pkgs.writeText "ksmbd.conf" (
     lib.generators.toINI { mkKeyValue = k: v: "${k} = ${toString v}"; } svcConfig.settings
@@ -29,24 +37,40 @@ let
   # context triggers that NETDEV_UP event, not from ksmbd.mountd's own
   # netns (ksmbd.mountd deliberately runs in the root netns here - see
   # the PrivateUsers comment below) - so this explicitly triggers it from
-  # inside the target netns via `ip netns exec`, exactly as confirmed
-  # live: bouncing the link that way is what moved the listener from the
-  # root netns into host-nas, independent of where ksmbd.mountd itself
-  # was running at the time. Retried a few times since this can start
-  # before ksmbd.mountd has actually registered the interface name.
+  # inside the interface's own netns via `ip netns exec`, exactly as
+  # confirmed live: bouncing the link that way is what moved the listener
+  # from the root netns into host-nas, independent of where ksmbd.mountd
+  # itself was running at the time. Interfaces that already live in the
+  # root netns are bounced right here, without the prefix. Retried a few
+  # times since this can start before ksmbd.mountd has actually
+  # registered the interface name.
   bounceInterface = pkgs.writeShellApplication {
     name = "ksmbd-bounce-interface";
     runtimeInputs = [
       pkgs.iproute2
       pkgs.coreutils
+      pkgs.sysctl
     ];
-    text = ''
-      for _ in 1 2 3 4 5; do
-        sleep 1
-        ip netns exec ${lib.escapeShellArg netnsName} ip link set ${lib.escapeShellArg netInterfaceName} down
-        ip netns exec ${lib.escapeShellArg netnsName} ip link set ${lib.escapeShellArg netInterfaceName} up
-      done
-    '';
+    text = lib.concatMapStrings (
+      iface:
+      let
+        nsPrefix = if iface.netns == null then "" else "ip netns exec ${lib.escapeShellArg iface.netns} ";
+      in
+      ''
+        # A link going down otherwise takes the interface's IPv6 addresses
+        # and every route through it with it, which the netns unit only
+        # ever sets up once - so keep the addresses and put the routes back.
+        ${nsPrefix}sysctl -qw net.ipv6.conf.${iface.name}.keep_addr_on_down=1
+        for _ in 1 2 3 4 5; do
+          sleep 1
+          ${nsPrefix}ip link set ${lib.escapeShellArg iface.name} down
+          ${nsPrefix}ip link set ${lib.escapeShellArg iface.name} up
+        done
+        ${lib.concatMapStrings (
+          route: "${foxDenLib.hosts.renderRoute "${nsPrefix}ip" iface.name route} || true\n"
+        ) (if iface.routes == null then [ ] else iface.routes)}
+      ''
+    ) hostInterfaces;
   };
 
 in
@@ -61,6 +85,17 @@ in
         default = [ ];
         description = "Directories to share over SMB via ksmbd";
       };
+      extraHosts = lib.mkOption {
+        type = lib.types.listOf lib.types.str;
+        default = [ ];
+        example = [ "nas" ];
+        description = ''
+          Additional foxDen hosts to listen on beyond {option}`host`, by
+          name - their interface is resolved and bounced in whatever netns
+          they live in, so a host in its own netns can serve plain TCP
+          clients alongside a root netns one doing SMB Direct.
+        '';
+      };
       extraInterfaces = lib.mkOption {
         type = lib.types.listOf lib.types.str;
         default = [ ];
@@ -69,11 +104,9 @@ in
           Additional interface names, by literal name, to listen on beyond
           the one belonging to {option}`host`.
 
-          Primarily useful for RDMA/SMB Direct: ksmbd's RDMA listener is
-          always created in the root netns and bound to INADDR_ANY there
-          (see the "interfaces" comment in ksmbd.nix), so it can only ever
-          serve interfaces that live in the root netns - naming one here is
-          the only way to get SMB Direct working at all.
+          Unlike {option}`extraHosts` these are never bounced, so they only
+          work for interfaces something else already brought up while ksmbd
+          knew about them. Prefer {option}`extraHosts`.
         '';
       };
       settings = lib.mkOption {
@@ -116,9 +149,9 @@ in
           # lands in init_net (kworkers inherit kthreadd's namespaces, never
           # the queueing task's) and covers every address visible there. An
           # interface inside a netns can therefore never serve SMB Direct,
-          # no matter what this says or what gets bounced afterwards - hence
-          # extraInterfaces, for naming a root-netns interface that can.
-          "interfaces" = lib.concatStringsSep " " ([ netInterfaceName ] ++ svcConfig.extraInterfaces);
+          # no matter what this says or what gets bounced afterwards - only
+          # a host with netns = false can.
+          "interfaces" = lib.concatStringsSep " " interfaceNames;
           "bind interfaces only" = "yes";
         };
 
@@ -144,9 +177,12 @@ in
         # restarts this too, and `wants` on ksmbd.service is what actually
         # starts it after ksmbd.mountd itself comes up.
         systemd.services.ksmbd-bounce-interface = {
-          description = "Bounce ksmbd's SMB interface to force a namespaced socket bind";
-          after = [ "ksmbd.service" ];
-          partOf = [ "ksmbd.service" ];
+          description = "Bounce ksmbd's SMB interfaces to force a namespaced socket bind";
+          after = [ "ksmbd.service" ] ++ hostUnits;
+          requires = hostUnits;
+          # partOf the extra hosts too, so an interface that comes back
+          # without ksmbd itself restarting gets its listener re-created.
+          partOf = [ "ksmbd.service" ] ++ hostUnits;
           serviceConfig = {
             Type = "oneshot";
             ExecStart = "${bounceInterface}/bin/ksmbd-bounce-interface";
@@ -157,6 +193,7 @@ in
           description = "ksmbd userspace daemon";
           wantedBy = [ "multi-user.target" ];
           wants = [ "ksmbd-bounce-interface.service" ];
+          after = hostUnits;
           serviceConfig = {
             # fs/smb/server/transport_ipc.c unicasts every kernel-initiated
             # message to ksmbd.mountd (login requests, share-config

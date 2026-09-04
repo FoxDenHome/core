@@ -1,4 +1,4 @@
-{ config, ... }:
+{ config, foxDenLib, ... }:
 let
   mkVlanHost = config.lib.foxDenSys.mkVlanHost;
 in
@@ -91,14 +91,11 @@ in
     };
     ksmbd = {
       enable = true;
-      host = "nas";
-      # RoCE/SMB Direct only works on root-netns interfaces (see
-      # extraInterfaces in ksmbd.nix), so the RDMA-capable interface has to
-      # be named here rather than reached through the nas host's netns.
-      extraInterfaces = [
-        "br-default"
-        "mlx5_0"
-      ];
+      # RoCE/SMB Direct only works on root netns interfaces (see the
+      # "interfaces" comment in ksmbd.nix), which is what nas-smb is for.
+      host = "nas-smb";
+      # Legacy, non-RDMA clients keep reaching SMB on the nas host itself.
+      extraHosts = [ "nas" ];
       sharePaths = [
         "/mnt/zhdd/nas"
         "/mnt/zhdd/nashome"
@@ -151,7 +148,18 @@ in
     };
   };
 
-  networking.firewall.interfaces.br-default.allowedTCPPorts = [ 445 ];
+  # nas-smb lives in the root netns, so its SMB traffic hits this machine's
+  # own firewall rather than only the router's forward chain.
+  networking.firewall.interfaces.${foxDenLib.hosts.getInterfaceName config "nas-smb"}.allowedTCPPorts =
+    [ 445 ];
+
+  # Both br-default and nas-smb hold a 10.2.0.0/16 address on the same L2,
+  # and with the default arp_ignore either of them would answer ARP for the
+  # other's address - which would send SMB traffic down the wrong link.
+  boot.kernel.sysctl = {
+    "net.ipv4.conf.all.arp_ignore" = 1;
+    "net.ipv4.conf.all.arp_announce" = 2;
+  };
 
   foxDen.hosts.hosts = {
     deluge =
@@ -220,6 +228,32 @@ in
         "fd2c:f4cb:63be:2::b01/64"
       ];
     };
+    nas-smb =
+      (mkVlanHost 2 {
+        dns = {
+          fqdns = [ "nas-smb.foxden.network" ];
+        };
+        firewall.ingressAcceptRules = [
+          {
+            protocol = "tcp";
+            source = "10.0.0.0/8";
+            port = 445;
+          }
+        ];
+        addresses = [
+          "10.2.11.16/16"
+          "fd2c:f4cb:63be:2::b10/64"
+        ];
+        # The root netns already has a default route and RA handling of its
+        # own via br-default; a second set on this interface would fight it.
+        routes = [ ];
+        sysctls = {
+          "net.ipv6.conf.INTERFACE.accept_ra" = "0";
+        };
+      })
+      // {
+        netns = false;
+      };
     nzbget = mkVlanHost 2 {
       dns = {
         fqdns = [ "nzbget.foxden.network" ];

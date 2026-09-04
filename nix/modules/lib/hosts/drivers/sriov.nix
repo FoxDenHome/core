@@ -36,6 +36,7 @@ in
       uniqueServiceInterface,
       interface,
       host,
+      rootNetnsInterfaces,
       ...
     }:
     let
@@ -79,16 +80,30 @@ in
             fi
             sleep 0.1
           done
-          # And rename it
-          ${ipCmd} link set dev "$ifname" name "${uniqueServiceInterface}"
+          # And rename it, unless it already carries the name (a VF we keep
+          # in the root netns still does after a restart)
+          if [ "$ifname" != "${uniqueServiceInterface}" ]; then
+            ${ipCmd} link set dev "$ifname" down
+            ${ipCmd} link set dev "$ifname" name "${uniqueServiceInterface}"
+            ifname="${uniqueServiceInterface}"
+          fi
           ${ethtoolCmd} -K "${uniqueServiceInterface}" tls-hw-tx-offload on || true
           ${ethtoolCmd} -K "${uniqueServiceInterface}" tls-hw-rx-offload on || true
 
           # RDMA, if present
           rdma_link_name="$(${pkgs.iproute2}/bin/rdma link show | grep "netdev $ifname\\s" | cut -d' ' -f2 | cut -d/ -f1 || :)"
           if [ -n "$rdma_link_name" ]; then
-            ${pkgs.iproute2}/bin/rdma dev set "$rdma_link_name" name "${uniqueServiceInterface}"
-            ${pkgs.iproute2}/bin/rdma dev set "${uniqueServiceInterface}" netns "${host.namespace}"
+            if [ "$rdma_link_name" != "${uniqueServiceInterface}" ]; then
+              ${pkgs.iproute2}/bin/rdma dev set "$rdma_link_name" name "${uniqueServiceInterface}"
+            fi
+            ${
+              # Root netns interfaces keep their RDMA device where it is,
+              # which is the only place SMB Direct and friends can see it.
+              if host.namespace == null then
+                ":"
+              else
+                ''${pkgs.iproute2}/bin/rdma dev set "${uniqueServiceInterface}" netns "${host.namespace}"''
+            }
           fi
         }
 
@@ -109,12 +124,17 @@ in
 
         # Condition C: No free VFs, go hunting for unused ones (in main netns)
         for i in `seq 0 $(( $numvfs - 1 ))`; do
-          # If the interface is listed here with its name, it is in the root NS, so it is unused
-          ifname="$(${pkgs.coreutils}/bin/ls /sys/class/net/${root}/device/virtfn$i/net/)"
-          if [ -n "$ifname" ]; then
-            assign_vf "$i"
-            exit 0
+          # If the interface is listed here with its name, it is in the root
+          # NS, so it is unused - unless it is one we manage there ourselves
+          ifname="$(${pkgs.coreutils}/bin/ls /sys/class/net/${root}/device/virtfn$i/net/ 2>/dev/null || :)"
+          if [ -z "$ifname" ]; then
+            continue
           fi
+          case " ${builtins.concatStringsSep " " rootNetnsInterfaces} " in
+            *" $ifname "*) continue ;;
+          esac
+          assign_vf "$i"
+          exit 0
         done
 
         # Condition D: No VFs available

@@ -8,22 +8,37 @@ let
     config: rawName:
     let
       name = if rawName == "" then config.networking.hostName else rawName;
-      namespace = "host-${name}";
+      hostCfg = config.foxDen.hosts.hosts.${name};
+      # Root netns hosts have no namespace of their own - their interfaces
+      # are configured in place, on the machine itself.
+      namespace = if hostCfg.netns then "host-${name}" else null;
     in
     {
-      inherit name;
-      namespace = namespace;
-      namespacePath = "/run/netns/${namespace}";
+      inherit name namespace;
+      namespacePath = if namespace == null then null else "/run/netns/${namespace}";
       unit = "netns-host-${name}.service";
       resolvConf = "/etc/foxden/hosts/${name}/resolv.conf";
     }
-    // config.foxDen.hosts.hosts.${name}
+    // hostCfg
+  );
+
+  getInterface = (
+    config: rawName: (lib.lists.head (lib.attrsets.attrValues (getByName config rawName).interfaces))
+  );
+
+  # ipCmd is whatever runs ip in the interface's own netns.
+  renderRoute = (
+    ipCmd: dev: route:
+    "${ipCmd} route add "
+    + (if route.Destination != null then eSA route.Destination else "default")
+    + (if route.Gateway != null then " via ${eSA route.Gateway}" else " dev ${eSA dev}")
+    + (if route.GatewayOnLink == true then " onlink" else "")
   );
 
   # The interface name mkHooks (below) actually renames the host's
-  # primary interface to once it's moved into the netns - "host${suffix}",
-  # unless nameOverride is set. Kept in sync with mapIfaces/mkHooks by
-  # hand since suffix is otherwise only computed inside nixosModule.
+  # primary interface to once it's set up - "host${suffix}", unless
+  # nameOverride is set. Kept in sync with mapIfaces/mkHooks by hand since
+  # suffix is otherwise only computed inside nixosModule.
   getInterfaceName = (
     config: rawName:
     let
@@ -41,7 +56,9 @@ let
 in
 {
   getByName = getByName;
+  getInterface = getInterface;
   getInterfaceName = getInterfaceName;
+  renderRoute = renderRoute;
 
   nixosModule = (
     {
@@ -247,6 +264,16 @@ in
               };
             };
             ssh = lib.mkEnableOption "Does this host accept SSH connections";
+            netns = lib.mkOption {
+              type = bool;
+              default = true;
+              description = ''
+                Give this host its own network namespace. When false its
+                interfaces are set up in the root netns instead, which is
+                what SMB Direct/RDMA and anything else bound to init_net
+                needs (see ksmbd.nix).
+              '';
+            };
             nameservers = lib.mkOption {
               type = listOf str;
               default = [ ];
@@ -279,6 +306,17 @@ in
         ) (lib.attrsets.attrsToList host.interfaces)
       );
       interfaces = lib.flatten (map mapIfaces hosts);
+
+      # Every name an interface managed in the root netns can carry there,
+      # so drivers can tell one of ours apart from an unused one.
+      rootNetnsInterfaces = lib.lists.unique (
+        lib.flatten (
+          map (
+            iface:
+            [ "host${iface.suffix}" ] ++ (lib.lists.optional (iface.nameOverride != null) iface.nameOverride)
+          ) (lib.filter (iface: !iface.host.netns) interfaces)
+        )
+      );
 
       ifaceHasV4 = (iface: lib.any util.isIPv4 iface.addresses);
       ifaceHasV6 = (iface: lib.any util.isIPv6 iface.addresses);
@@ -473,16 +511,12 @@ in
                     host:
                     let
                       ipCmd = eSA "${pkgs.iproute2}/bin/ip";
-                      netnsExecCmd = "${ipCmd} netns exec ${eSA host.namespace}";
-                      ipInNsCmd = "${netnsExecCmd} ${ipCmd}";
-
-                      renderRoute = (
-                        dev: route:
-                        "${ipInNsCmd} route add "
-                        + (if route.Destination != null then eSA route.Destination else "default")
-                        + (if route.Gateway != null then " via ${eSA route.Gateway}" else " dev ${eSA dev}")
-                        + (if route.GatewayOnLink == true then " onlink" else "")
-                      );
+                      inRootNetns = host.namespace == null;
+                      # env is a no-op prefix, so root netns hosts keep the
+                      # same "prefix + command" shape the drivers expect.
+                      netnsExecCmd =
+                        if inRootNetns then "${pkgs.coreutils}/bin/env" else "${ipCmd} netns exec ${eSA host.namespace}";
+                      ipInNsCmd = if inRootNetns then ipCmd else "${netnsExecCmd} ${ipCmd}";
 
                       mkHooks = (
                         interface:
@@ -502,12 +536,16 @@ in
                               pkgs
                               uniqueServiceInterface
                               host
+                              rootNetnsInterfaces
                               ;
                           };
                           hooks = ifaceDriver.hooks driverRunParams;
 
+                          # The defaults are netns wide, so in the root netns
+                          # they would reconfigure the whole machine - such a
+                          # host only gets what it asks for itself.
                           sysctlsRaw = lib.filterAttrs (name: value: value != null) (
-                            config.foxDen.hosts.defaultSysctls // interface.sysctls
+                            (if inRootNetns then { } else config.foxDen.hosts.defaultSysctls) // interface.sysctls
                           );
 
                           settingToStr = setting: if setting == false then "0" else toString setting;
@@ -524,8 +562,10 @@ in
                             hooks.start
                             ++ [
                               "-${ipCmd} link set ${eSA uniqueServiceInterface} down"
-                              "${ipCmd} link set ${eSA uniqueServiceInterface} netns ${eSA host.namespace}"
                             ]
+                            ++ (lib.lists.optional (
+                              !inRootNetns
+                            ) "${ipCmd} link set ${eSA uniqueServiceInterface} netns ${eSA host.namespace}")
                             ++ (
                               if inNsServiceInterface != uniqueServiceInterface then
                                 [
@@ -547,20 +587,24 @@ in
                             ++ [
                               "${ipInNsCmd} link set ${eSA inNsServiceInterface} up"
                             ]
-                            ++ (map (renderRoute inNsServiceInterface) interface.routes);
+                            ++ (map (renderRoute ipInNsCmd inNsServiceInterface) interface.routes);
 
-                          stop = [
-                            "${ipInNsCmd} link set ${eSA inNsServiceInterface} down"
-                          ]
-                          ++ (
-                            if inNsServiceInterface != uniqueServiceInterface then
-                              [
-                                "${ipInNsCmd} link set ${eSA inNsServiceInterface} name ${eSA uniqueServiceInterface}"
-                              ]
-                            else
-                              [ ]
-                          )
-                          ++ hooks.stop;
+                          stop =
+                            # No netns gets torn down here, so the addresses
+                            # have to be removed explicitly.
+                            (lib.lists.optional inRootNetns "-${ipInNsCmd} addr flush dev ${eSA inNsServiceInterface}")
+                            ++ [
+                              "${ipInNsCmd} link set ${eSA inNsServiceInterface} down"
+                            ]
+                            ++ (
+                              if inNsServiceInterface != uniqueServiceInterface then
+                                [
+                                  "${ipInNsCmd} link set ${eSA inNsServiceInterface} name ${eSA uniqueServiceInterface}"
+                                ]
+                              else
+                                [ ]
+                            )
+                            ++ hooks.stop;
                         }
                       );
                     in
@@ -572,7 +616,8 @@ in
                           getHook = sub: lib.flatten (map (cfg: cfg.${sub}) ifaceHooks);
                         in
                         {
-                          description = "NetNS ${host.namespace}";
+                          description =
+                            if inRootNetns then "Root netns interfaces of host ${host.name}" else "NetNS ${host.namespace}";
                           after = [ "network-pre.target" ];
                           restartTriggers = [ (builtins.concatStringsSep " " host.nameservers) ];
 
@@ -580,17 +625,18 @@ in
                             Type = "oneshot";
                             RemainAfterExit = true;
 
-                            ExecStart = [
-                              "-${ipCmd} netns del ${eSA host.namespace}"
-                              "${ipCmd} netns add ${eSA host.namespace}"
-                              "${ipInNsCmd} addr add 127.0.0.1/8 dev lo"
-                              "${ipInNsCmd} addr add ::1/128 dev lo noprefixroute"
-                              "${ipInNsCmd} link set lo up"
-                            ]
-                            ++ (getHook "start");
+                            ExecStart =
+                              (lib.lists.optionals (!inRootNetns) [
+                                "-${ipCmd} netns del ${eSA host.namespace}"
+                                "${ipCmd} netns add ${eSA host.namespace}"
+                                "${ipInNsCmd} addr add 127.0.0.1/8 dev lo"
+                                "${ipInNsCmd} addr add ::1/128 dev lo noprefixroute"
+                                "${ipInNsCmd} link set lo up"
+                              ])
+                              ++ (getHook "start");
 
                             ExecStop = getHook "stop";
-                            ExecStopPost = [ "${ipCmd} netns del ${eSA host.namespace}" ];
+                            ExecStopPost = lib.lists.optional (!inRootNetns) "${ipCmd} netns del ${eSA host.namespace}";
 
                             TimeoutStartSec = "5min";
                           };
