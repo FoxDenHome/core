@@ -34,6 +34,10 @@
     directories = [ "/var/lib/rasdaemon" ];
   };
 
+  boot.extraModprobeConfig = ''
+    options ib_core netns_mode=0
+  '';
+
   foxDen.node-exporter.enable = true;
   networking.firewall.extraInputRules = ''
     ip saddr 10.0.0.0/8 tcp dport ${toString config.services.prometheus.exporters.node.port} accept

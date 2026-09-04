@@ -84,7 +84,6 @@ in
           ${ethtoolCmd} -K "${uniqueServiceInterface}" tls-hw-tx-offload on || true
           ${ethtoolCmd} -K "${uniqueServiceInterface}" tls-hw-rx-offload on || true
 
-          exit 0
           # RDMA, if present
           rdma_link_name="$(${pkgs.iproute2}/bin/rdma link show | grep "netdev $ifname\\s" | cut -d' ' -f2 | cut -d/ -f1 || :)"
           if [ -n "$rdma_link_name" ]; then
