@@ -95,7 +95,10 @@ in
       # RoCE/SMB Direct only works on root-netns interfaces (see
       # extraInterfaces in ksmbd.nix), so the RDMA-capable interface has to
       # be named here rather than reached through the nas host's netns.
-      extraInterfaces = [ "br-default" ];
+      extraInterfaces = [
+        "br-default"
+        "mlx5_0"
+      ];
       sharePaths = [
         "/mnt/zhdd/nas"
         "/mnt/zhdd/nashome"
