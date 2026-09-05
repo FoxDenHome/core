@@ -62,7 +62,7 @@ in
             }).overrideAttrs
               (old: {
                 installPhase = old.installPhase + ''
-                  rm -r $out/share/factorio/data/{elevated-rails,quality,space-age}
+                  rm -r $out/share/factorio/data/{elevated-rails,quality,space-age,recycler}
                 '';
               });
 
