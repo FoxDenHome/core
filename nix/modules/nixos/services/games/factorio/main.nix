@@ -14,6 +14,29 @@ let
   services = foxDenLib.services;
 
   svcConfig = config.foxDen.services.factorio;
+
+  tarDirectory =
+    if systemArch == "x86_64-linux" then "x64" else throw "Unsupported architecture ${systemArch}";
+
+  # nixpkgs' Factorio releases lag behind upstream, so pin a newer headless build ourselves.
+  # To bump: check `curl -s https://factorio.com/api/latest-releases` for the version, then
+  #   nix-prefetch-url --name factorio_headless_x64-<version>.tar.xz \
+  #     https://factorio.com/get-download/<version>/headless/linux64
+  #   nix hash convert --hash-algo sha256 --to base16 <output of the above>
+  mkFactorioHeadless =
+    { version, sha256 }:
+    pkgs.factorio-headless-experimental.override {
+      versionsJson = builtins.toFile "factorio-versions.json" (
+        builtins.toJSON {
+          ${systemArch}.headless.experimental = {
+            inherit version sha256 tarDirectory;
+            name = "factorio_headless_x64-${version}.tar.xz";
+            url = "https://factorio.com/get-download/${version}/headless/linux64";
+            needsAuth = false;
+          };
+        }
+      );
+    };
 in
 {
   options.foxDen.services.factorio = services.mkOptions {
@@ -32,11 +55,16 @@ in
           game-name = "FoxDen Factorio";
           description = "FoxDen Factorio";
 
-          package = pkgs.factorio-headless-experimental.overrideAttrs (old: {
-            installPhase = old.installPhase + ''
-              rm -r $out/share/factorio/data/{elevated-rails,quality,space-age}
-            '';
-          });
+          package =
+            (mkFactorioHeadless {
+              version = "2.1.17";
+              sha256 = "20159feb205cb28c5660b91437dd2659468b41f7836e5e777f6f592a2f51b00b";
+            }).overrideAttrs
+              (old: {
+                installPhase = old.installPhase + ''
+                  rm -r $out/share/factorio/data/{elevated-rails,quality,space-age}
+                '';
+              });
 
           admins = [
             "Doridian"
