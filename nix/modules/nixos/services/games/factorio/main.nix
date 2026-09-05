@@ -32,6 +32,8 @@ in
           game-name = "FoxDen Factorio";
           description = "FoxDen Factorio";
 
+          package = pkgs.factorio-headless-experimental;
+
           admins = [
             "Doridian"
             "WizzyThing"

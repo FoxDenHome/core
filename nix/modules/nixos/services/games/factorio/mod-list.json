@@ -5,16 +5,46 @@
             "enabled": true
         },
         {
-            "name": "elevated-rails",
-            "enabled": true
+            "name": "aai-containers",
+            "enabled": true,
+            "sha1": "61add69db9376ee603ebd5226083b7c10ef5ebe5",
+            "url": "https://mods.factorio.com/download/aai-containers/6a3b96ff86ba470d8520dbec",
+            "version": "0.4.0"
         },
         {
-            "name": "quality",
-            "enabled": true
+            "name": "aai-industry",
+            "enabled": true,
+            "sha1": "0f6df0890c92033c43897ff9ab467729fc82a66e",
+            "url": "https://mods.factorio.com/download/aai-industry/6a7648869acc92b0767415fa",
+            "version": "0.7.4"
         },
         {
-            "name": "space-age",
-            "enabled": true
+            "name": "aai-signal-transmission",
+            "enabled": true,
+            "sha1": "c6606a442a66d77eab8c8341a0e84a6c63b50197",
+            "url": "https://mods.factorio.com/download/aai-signal-transmission/6a3b96422e6b3d3dc94666ef",
+            "version": "0.6.0"
+        },
+        {
+            "name": "aai-vehicles-ironclad",
+            "enabled": true,
+            "sha1": "7a9336c53f6f02b14c9ec82be63754bbe8a904bc",
+            "url": "https://mods.factorio.com/download/aai-vehicles-ironclad/6a3b95addafc7000fc2e5ee6",
+            "version": "0.8.0"
+        },
+        {
+            "name": "alien-biomes",
+            "enabled": true,
+            "sha1": "2d28415ca54b129a8c000a8d1de7bf16b2773185",
+            "url": "https://mods.factorio.com/download/alien-biomes/6a3b94c51370f054aa144608",
+            "version": "0.8.0"
+        },
+        {
+            "name": "alien-biomes-graphics",
+            "enabled": true,
+            "sha1": "8ddfa5a980413e0c8dac6155905b0693fd5a48b8",
+            "url": "https://mods.factorio.com/download/alien-biomes-graphics/6a3b94a586ba470d8520dbe9",
+            "version": "0.8.0"
         },
         {
             "name": "AutoDeconstruct",
@@ -24,11 +54,25 @@
             "version": "1.1.2"
         },
         {
-            "name": "DiscoScience",
+            "name": "bullet-trails",
             "enabled": true,
-            "sha1": "29b6cac39070e5e59c82e16b09c8b48ae23a30b6",
-            "url": "https://mods.factorio.com/download/DiscoScience/6a44c8291b5bfc01712e071f",
-            "version": "2.1.0"
+            "sha1": "c19cbe9fd2953c4dee4ccd3833d7a00b66759b8d",
+            "url": "https://mods.factorio.com/download/bullet-trails/6a3b93d8dfc10b569359e00e",
+            "version": "0.8.0"
+        },
+        {
+            "name": "combat-mechanics-overhaul",
+            "enabled": true,
+            "sha1": "bb3d3908412576ebf6db4e4f970a36236ca95416",
+            "url": "https://mods.factorio.com/download/combat-mechanics-overhaul/6a3b93b22e6b3d3dc94666eb",
+            "version": "0.8.0"
+        },
+        {
+            "name": "equipment-gantry",
+            "enabled": true,
+            "sha1": "d352f8847bf3f072900ede57701f4d5184a62e03",
+            "url": "https://mods.factorio.com/download/equipment-gantry/6a3b938d3f1587a4c1a33031",
+            "version": "0.3.0"
         },
         {
             "name": "even-distribution",
@@ -54,9 +98,37 @@
         {
             "name": "fox-todo",
             "enabled": true,
-            "sha1": "e06cd7595ca43288ae1d05d42a089a6c706ed519",
-            "url": "https://mods.factorio.com/download/fox-todo/67724381edd84cc515ab0c8a",
-            "version": "2.1.3"
+            "sha1": "4f23dc4c8c5cc52aebf7e69c583ec375e34b8cec",
+            "url": "https://mods.factorio.com/download/fox-todo/6a9c95e6b469d8b7ae4cf693",
+            "version": "2.1.9"
+        },
+        {
+            "name": "grappling-gun",
+            "enabled": true,
+            "sha1": "308ec9c63b437e31a85afec76a3021d56b09fb24",
+            "url": "https://mods.factorio.com/download/grappling-gun/6a3b936d39f8ab4048ac8905",
+            "version": "0.5.0"
+        },
+        {
+            "name": "informatron",
+            "enabled": true,
+            "sha1": "70f8f81ae83f2360626d94e03db4b13db6d93b23",
+            "url": "https://mods.factorio.com/download/informatron/6a3dae518da3c2b5fa84a9f2",
+            "version": "0.5.0"
+        },
+        {
+            "name": "InserterFuelLeech",
+            "enabled": true,
+            "sha1": "20d6f1eaca48a8237e4add4b127601a9c555c96d",
+            "url": "https://mods.factorio.com/download/InserterFuelLeech/6a4524723cbb3669cd0de864",
+            "version": "1.0.5"
+        },
+        {
+            "name": "jetpack",
+            "enabled": true,
+            "sha1": "004f5a157432ec99ca4bde1da8245090d6af758f",
+            "url": "https://mods.factorio.com/download/jetpack/6a4cbb77e565efbcb570b1d5",
+            "version": "0.5.1"
         },
         {
             "name": "LogisticTrainNetwork",
@@ -80,6 +152,20 @@
             "version": "2.5.0"
         },
         {
+            "name": "Milestones",
+            "enabled": true,
+            "sha1": "fb9a62df916ae37ad9333f902556bfbaccb462f9",
+            "url": "https://mods.factorio.com/download/Milestones/6a7cb26553c887b98fc34278",
+            "version": "1.5.2"
+        },
+        {
+            "name": "ModuleInserterSimplified",
+            "enabled": true,
+            "sha1": "9106cb5c8ba6e2f9dd5ef0650aec0296f4e23151",
+            "url": "https://mods.factorio.com/download/ModuleInserterSimplified/6a3d69d82b2a85ea00e307b7",
+            "version": "2.2.0"
+        },
+        {
             "name": "nixie-tubes",
             "enabled": true,
             "sha1": "8e0d0855687c0079de21dd3d7f29c8d14aedbcd1",
@@ -89,9 +175,93 @@
         {
             "name": "pause-commands",
             "enabled": true,
-            "sha1": "f0efacd825d0352c2be5798381fd07851a35d51f",
-            "url": "https://mods.factorio.com/download/pause-commands/671c2b27024d2c6312ae9be3",
-            "version": "2.0.1"
+            "sha1": "f43beb08896af7d3eeea3303a77cfdb217bcb7a6",
+            "url": "https://mods.factorio.com/download/pause-commands/6a9c96b53a6cfbc91b8bf6fe",
+            "version": "2.1.1"
+        },
+        {
+            "name": "robot_attrition",
+            "enabled": true,
+            "sha1": "137863c84a45d76c562ea7a8b1a13d6c5d477f0c",
+            "url": "https://mods.factorio.com/download/robot_attrition/6a3b931539f8ab4048ac8904",
+            "version": "0.7.0"
+        },
+        {
+            "name": "shield-projector",
+            "enabled": true,
+            "sha1": "81c142b4d3d20e211e07008112a88a72c0c8b42f",
+            "url": "https://mods.factorio.com/download/shield-projector/6a3b92f586ba470d8520dbe8",
+            "version": "0.3.0"
+        },
+        {
+            "name": "show-max-underground-distance",
+            "enabled": true,
+            "sha1": "f87a6a509b7430f88f7e1fa7ddf6a2500e9bd43a",
+            "url": "https://mods.factorio.com/download/show-max-underground-distance/6a3ab74ac23b446555185adb",
+            "version": "0.1.1"
+        },
+        {
+            "name": "space-exploration",
+            "enabled": true,
+            "sha1": "57e8de0cc8fef1efcbca538bdefa0e190ba63430",
+            "url": "https://mods.factorio.com/download/space-exploration/6a763c8451ecf92677c663e4",
+            "version": "0.7.61"
+        },
+        {
+            "name": "space-exploration-graphics",
+            "enabled": true,
+            "sha1": "3527cb0b75104baecbe44377a99ee0a9efede76d",
+            "url": "https://mods.factorio.com/download/space-exploration-graphics/6a762ff78fa6a8630ec108e9",
+            "version": "0.7.7"
+        },
+        {
+            "name": "space-exploration-graphics-2",
+            "enabled": true,
+            "sha1": "52ef60481ea0f02c2873a5dad23f6ded2aacf70a",
+            "url": "https://mods.factorio.com/download/space-exploration-graphics-2/6a41add32070c65fb26a00dc",
+            "version": "0.7.3"
+        },
+        {
+            "name": "space-exploration-graphics-3",
+            "enabled": true,
+            "sha1": "a16ff921af0e32ed98014464683dbdacf988d783",
+            "url": "https://mods.factorio.com/download/space-exploration-graphics-3/6a41ae69a7283a7106f0a297",
+            "version": "0.7.3"
+        },
+        {
+            "name": "space-exploration-graphics-4",
+            "enabled": true,
+            "sha1": "24a617d22799be4dd38ebf2a7a5ba3b4c5c113c4",
+            "url": "https://mods.factorio.com/download/space-exploration-graphics-4/6a41af112070c65fb26a00dd",
+            "version": "0.7.3"
+        },
+        {
+            "name": "space-exploration-graphics-5",
+            "enabled": true,
+            "sha1": "d80c8d4a80b5f22011c9081567d8729a08c79cdc",
+            "url": "https://mods.factorio.com/download/space-exploration-graphics-5/6a52ac3a62fac5459f20ac6a",
+            "version": "0.7.5"
+        },
+        {
+            "name": "space-exploration-menu-simulations",
+            "enabled": true,
+            "sha1": "f9a9621684c6e18df77f6e9c1f73534a898ceaab",
+            "url": "https://mods.factorio.com/download/space-exploration-menu-simulations/6a549b98425eced196e68c59",
+            "version": "0.7.5"
+        },
+        {
+            "name": "space-exploration-official-modpack",
+            "enabled": true,
+            "sha1": "612c34cb91e7d78a2805fd4b77e64fccd8c5f1f5",
+            "url": "https://mods.factorio.com/download/space-exploration-official-modpack/6a9ab03084ca5867ff81087f",
+            "version": "0.7.0"
+        },
+        {
+            "name": "space-exploration-postprocess",
+            "enabled": true,
+            "sha1": "e400b86014cdc3c4d3d1e1097c3a688c74c12bcd",
+            "url": "https://mods.factorio.com/download/space-exploration-postprocess/6a549dbc20094db02ee637d2",
+            "version": "0.7.6"
         },
         {
             "name": "squeak-through-2",
@@ -106,13 +276,6 @@
             "sha1": "52ad7236dcff98f427e93c85de8b52f2ea13f21b",
             "url": "https://mods.factorio.com/download/textplates/6a3b92b386ba470d8520dbe7",
             "version": "0.8.0"
-        },
-        {
-            "name": "show-max-underground-distance",
-            "enabled": true,
-            "sha1": "f87a6a509b7430f88f7e1fa7ddf6a2500e9bd43a",
-            "url": "https://mods.factorio.com/download/show-max-underground-distance/6a3ab74ac23b446555185adb",
-            "version": "0.1.1"
         }
     ]
 }
