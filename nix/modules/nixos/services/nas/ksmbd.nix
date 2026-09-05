@@ -12,6 +12,23 @@ let
   stateDir = "/var/lib/ksmbd";
   pwddbPath = "${stateDir}/ksmbdpwd.db";
 
+  # ksmbd.mountd's confined root has this directory bind-mounted onto its
+  # own /run (see the BindPaths comment below), so anything the
+  # ksmbd-config unit drops here on the host is the very same file
+  # ksmbd.mountd sees one level up under /run - which is what makes a
+  # config change visible to the *running* daemon at all. A store path
+  # can't be: the confinement chroot only carries the closure of the
+  # Exec* lines as they were when the unit started (see
+  # systemd-confinement.nix), so a ksmbd.conf built by a later generation
+  # simply does not exist inside that mount namespace. LoadCredential is
+  # no better - systemd snapshots credentials once, at ExecStart, and
+  # never refreshes them for an ExecReload.
+  runtimeDir = "/run/ksmbd";
+  inner = path: "/run" + lib.removePrefix runtimeDir path;
+
+  confPath = "${runtimeDir}/ksmbd.conf";
+  nssNamesPath = "${runtimeDir}/nss-names";
+
   # The interfaces ksmbd needs to bind to, by their actual name plus the
   # netns the link bounce for them has to happen in (null = root netns).
   mkHostInterface = host: {
@@ -64,6 +81,17 @@ let
   # counts against.
   nssTimeout = 60;
 
+  # The gate's *input*, not the gate itself: kept as data next to the
+  # config rather than baked into the script, because a script whose text
+  # lists the names would land in ksmbd.service's ExecStartPre and so
+  # change the unit - and force a restart - every time a share brings in a
+  # user the config had not mentioned before. Which is exactly the restart
+  # adding a share is supposed to avoid.
+  nssNames = pkgs.writeText "ksmbd-nss-names" (
+    lib.concatMapStrings (name: "passwd ${name}\n") nssUserNames
+    + lib.concatMapStrings (name: "group ${name}\n") nssGroupNames
+  );
+
   # ksmbd.mountd resolves every user in its pwddb to a uid/gid with a
   # single getpwnam() as it loads the db at startup (new_ksmbd_user() in
   # tools/management/user.c) and never retries. A name that does not
@@ -92,45 +120,96 @@ let
       pkgs.getent
       pkgs.coreutils
     ];
-    text =
-      let
-        check =
-          { db, name }:
-          "getent ${db} ${lib.escapeShellArg name} >/dev/null || { echo \"still unresolved: ${db} entry ${name}\"; unresolved=1; }";
-        checks =
-          map (name: {
-            inherit name;
-            db = "passwd";
-          }) nssUserNames
-          ++ map (name: {
-            inherit name;
-            db = "group";
-          }) nssGroupNames;
-      in
-      ''
-        deadline=$(( $(date +%s) + ${toString nssTimeout} ))
-        while :; do
-          unresolved=0
-          ${lib.concatMapStringsSep "\n  " check checks}
-          if [ "$unresolved" -eq 0 ]; then
-            exit 0
+    text = ''
+      names=${inner nssNamesPath}
+      if [ ! -f "$names" ]; then
+        # ksmbd-config.service is Before= this unit and writes the list, so
+        # this only happens if that unit was bypassed. Starting unguarded
+        # beats refusing to serve SMB at all.
+        echo "no NSS name list at $names; starting unguarded" >&2
+        exit 0
+      fi
+
+      deadline=$(( $(date +%s) + ${toString nssTimeout} ))
+      while :; do
+        unresolved=0
+        while read -r db name; do
+          [ -n "$db" ] || continue
+          if ! getent "$db" "$name" >/dev/null; then
+            echo "still unresolved: $db entry $name"
+            unresolved=1
           fi
-          if [ "$(date +%s)" -ge "$deadline" ]; then
-            break
-          fi
-          sleep 1
-        done
-        # Starting anyway beats leaving SMB down entirely over a name that
-        # is never coming back (a deleted account, say) - but say so
-        # loudly, because any share depending on a name still unresolved
-        # here will serve EACCES until this unit is restarted.
-        echo "giving up after ${toString nssTimeout}s; shares for the names above will deny access until ksmbd is restarted" >&2
-      '';
+        done < "$names"
+        if [ "$unresolved" -eq 0 ]; then
+          exit 0
+        fi
+        if [ "$(date +%s)" -ge "$deadline" ]; then
+          break
+        fi
+        sleep 1
+      done
+      # Starting anyway beats leaving SMB down entirely over a name that
+      # is never coming back (a deleted account, say) - but say so
+      # loudly, because any share depending on a name still unresolved
+      # here will serve EACCES until this unit is reloaded.
+      echo "giving up after ${toString nssTimeout}s; shares for the names above will deny access until ksmbd is reloaded" >&2
+    '';
   };
 
-  ksmbdConf = pkgs.writeText "ksmbd.conf" (
-    lib.generators.toINI { mkKeyValue = k: v: "${k} = ${toString v}"; } svcConfig.settings
-  );
+  toConf = lib.generators.toINI { mkKeyValue = k: v: "${k} = ${toString v}"; };
+
+  ksmbdConf = pkgs.writeText "ksmbd.conf" (toConf svcConfig.settings);
+
+  # The half of the config a reload cannot apply, on its own so it can be
+  # ksmbd.service's restart trigger.
+  #
+  # SIGHUP makes ksmbd.mountd re-run load_config() (mountd/mountd.c), which
+  # drops and re-reads the pwddb and every share section - so users and
+  # shares, including whole shares appearing and disappearing, are live.
+  # The [global] section is not: everything in it reaches the kernel only
+  # through the one KSMBD_EVENT_STARTING_UP message that ipc_init() sends,
+  # and ipc_init() returns early on a reload because its netlink socket is
+  # already open (mountd/ipc.c). Interfaces, protocol range, ports,
+  # signing, credit and size limits and the rest therefore stay whatever
+  # the running generation asked for until the daemon is restarted.
+  globalConf = pkgs.writeText "ksmbd-global.conf" (toConf {
+    global = svcConfig.settings.global or { };
+  });
+
+  # Writes the two files ksmbd.mountd reads out of its own /run, then asks
+  # a running daemon to pick them up. Unconfined on purpose: it is the one
+  # thing in this module that has to see *this* generation's store paths
+  # while a daemon started by an older one is still running.
+  installConfig = pkgs.writeShellApplication {
+    name = "ksmbd-install-config";
+    runtimeInputs = [
+      pkgs.coreutils
+      pkgs.systemd
+    ];
+    text = ''
+      install -d -m 0700 ${runtimeDir}
+      # Written aside and renamed into place: a reload racing the write
+      # would otherwise hand ksmbd.mountd a half-file, and a config it
+      # fails to parse takes the daemon down with it rather than being
+      # ignored (worker_init() in mountd/mountd.c bails out of its event
+      # loop on a load_config() error).
+      install -m 0600 ${ksmbdConf} ${confPath}.new
+      install -m 0600 ${nssNames} ${nssNamesPath}.new
+      mv -f ${confPath}.new ${confPath}
+      mv -f ${nssNamesPath}.new ${nssNamesPath}
+
+      # At boot this unit runs before ksmbd.service, so there is nothing to
+      # reload and the files above are simply what it starts with.
+      if systemctl is-active --quiet ksmbd.service; then
+        # --no-block: this unit is ordered before ksmbd.service, so waiting
+        # on a job for it would deadlock whenever the same switch also
+        # restarts ksmbd.service (a [global] change). That restart absorbs
+        # the reload anyway.
+        systemctl reload --no-block ksmbd.service ||
+          echo "could not reload ksmbd.service; it is likely restarting anyway" >&2
+      fi
+    '';
+  };
 
   # ksmbd's kernel module only ever creates a listening socket in response
   # to a live NETDEV_UP notification for a *named* interface (matched by a
@@ -192,7 +271,22 @@ in
       sharePaths = lib.mkOption {
         type = lib.types.listOf lib.types.path;
         default = [ ];
-        description = "Directories to share over SMB via ksmbd";
+        description = ''
+          Filesystems the shares live on, purely for mount ordering.
+
+          ksmbd.mountd never touches a share's path - it only forwards the
+          string to the kernel in its share-config reply
+          (shm_handle_share_config_request() in tools/management/share.c),
+          and the kernel does every file operation from a kthread in the
+          root mount namespace. So these are deliberately *not* bound into
+          ksmbd.mountd's chroot: doing that would put the share list in
+          ksmbd.service's own unit, and every added or removed share would
+          then need a restart instead of a reload.
+
+          What they still buy is the RequiresMountsFor= those bind mounts
+          used to imply, which lives on ksmbd-config.service instead so
+          ksmbd does not come up over an unmounted mountpoint.
+        '';
       };
       smbDirect = lib.mkEnableOption ''
         SMB Direct (SMB over RDMA).
@@ -295,6 +389,30 @@ in
           pkgs.ksmbd-tools
         ];
 
+        # The only unit that knows what the shares are, so that a change to
+        # them restarts *this* - a no-op oneshot - and reloads ksmbd, rather
+        # than restarting the daemon and dropping every SMB session.
+        # Unconfined for the reason given in the installConfig comment.
+        systemd.services.ksmbd-config = {
+          description = "Install ksmbd's live configuration and reload ksmbd";
+          # requiredBy rather than a Requires= on ksmbd.service itself: the
+          # dependency then lives in a .requires symlink, leaving
+          # ksmbd.service's unit text free of anything share-shaped.
+          requiredBy = [ "ksmbd.service" ];
+          before = [ "ksmbd.service" ];
+          after = [ "systemd-tmpfiles-setup.service" ];
+          # What binding the share paths into ksmbd.service's chroot used to
+          # give implicitly - see the sharePaths option. Not a dependency of
+          # ksmbd.service, so a share's filesystem going away no longer takes
+          # the whole daemon with it.
+          unitConfig.RequiresMountsFor = svcConfig.sharePaths;
+          serviceConfig = {
+            Type = "oneshot";
+            RemainAfterExit = true;
+            ExecStart = "${installConfig}/bin/ksmbd-install-config";
+          };
+        };
+
         # Runs unconfined (not through services.make) deliberately: it just
         # needs `ip netns exec` against the real host /run/netns, and
         # fighting ksmbd.service's own confined chroot for that (`ip netns`
@@ -322,6 +440,10 @@ in
           wantedBy = [ "multi-user.target" ];
           wants = [ "ksmbd-bounce-interface.service" ] ++ nssUnits;
           after = hostUnits ++ nssUnits;
+          # Nothing else in this unit varies with the config any more, so
+          # this is what still forces a restart for the [global] settings a
+          # reload cannot reach - and only for those. See globalConf.
+          restartTriggers = [ globalConf ];
           serviceConfig = {
             # See the waitForNss comment: without this, a name that NSS
             # cannot resolve at this exact moment is pinned to uid/gid
@@ -354,10 +476,9 @@ in
             # that check - capabilities in a child user namespace never
             # grant privilege in an ancestor one.
             PrivateUsers = lib.mkForce false;
-            ExecStart = "${pkgs.ksmbd-tools}/bin/ksmbd.mountd --nodetach --config=\${CREDENTIALS_DIRECTORY}/ksmbd.conf --pwddb=${pwddbPath}";
+            ExecStart = "${pkgs.ksmbd-tools}/bin/ksmbd.mountd --nodetach --config=${inner confPath} --pwddb=${pwddbPath}";
             ExecReload = "${pkgs.ksmbd-tools}/bin/ksmbd.control --reload";
             ExecStop = "${pkgs.ksmbd-tools}/bin/ksmbd.control --shutdown";
-            LoadCredential = "ksmbd.conf:${ksmbdConf}";
             # ksmbd-tools hardcodes its lock file at /run/ksmbd.lock (no CLI
             # override exists). ExecStart/ExecReload/ExecStop each get their
             # own fresh, empty private /run under confinement (confirmed
@@ -378,7 +499,7 @@ in
             # service's sockets or runtime state under the real /run.
             BindPaths = [
               stateDir
-              "/run/ksmbd:/run"
+              "${runtimeDir}:/run"
               # ExecStop's `ksmbd.control --shutdown` writes "hard" to
               # /sys/class/ksmbd-control/kill_server, and confinement (plus
               # ProtectKernelTunables) leaves /sys read-only, so that write
@@ -391,8 +512,7 @@ in
               # therefore never gets a listener, no matter how often it is
               # bounced, while a removed one keeps serving.
               "/sys/class/ksmbd-control"
-            ]
-            ++ svcConfig.sharePaths;
+            ];
             BindReadOnlyPaths =
               services.mkEtcPaths [
                 "nsswitch.conf"
@@ -414,7 +534,7 @@ in
 
         systemd.tmpfiles.rules = [
           "d ${stateDir} 0700 root root - -"
-          "d /run/ksmbd 0700 root root - -"
+          "d ${runtimeDir} 0700 root root - -"
           "f ${pwddbPath} 0600 root root - -"
         ];
 
