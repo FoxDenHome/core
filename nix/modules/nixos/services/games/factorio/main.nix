@@ -32,7 +32,11 @@ in
           game-name = "FoxDen Factorio";
           description = "FoxDen Factorio";
 
-          package = pkgs.factorio-headless-experimental;
+          package = pkgs.factorio-headless.overrideAttrs (old: {
+            installPhase = old.installPhase + ''
+              rm -r $out/share/factorio/data/{elevated-rails,quality,space-age}
+            '';
+          });
 
           admins = [
             "Doridian"
