@@ -5,6 +5,18 @@
             "enabled": true
         },
         {
+            "name": "elevated-rails",
+            "enabled": false
+        },
+        {
+            "name": "quality",
+            "enabled": false
+        },
+        {
+            "name": "space-age",
+            "enabled": false
+        },
+        {
             "name": "aai-containers",
             "enabled": true,
             "sha1": "61add69db9376ee603ebd5226083b7c10ef5ebe5",
