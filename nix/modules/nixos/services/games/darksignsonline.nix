@@ -71,7 +71,7 @@ in
           { package, headerConfig, ... }:
           ''
             root /var/www/darksignsonline;
-            location = /worker.js {
+            location = /game/worker.js {
               ${headerConfig}
               add_header Cross-Origin-Embedder-Policy "require-corp" always;
             }
