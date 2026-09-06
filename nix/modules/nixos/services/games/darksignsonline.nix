@@ -77,6 +77,7 @@ in
             location /game/ {
               index index.php index.htm index.html;
               ${headerConfig}
+              add_header Cross-Origin-Opener-Policy "same-origin" always;
               add_header Cross-Origin-Embedder-Policy "require-corp" always;
             }
             location ~ ^/(api/)?[a-z0-9_]+\.php$ {
