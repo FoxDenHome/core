@@ -79,7 +79,7 @@ in
               ${headerConfig}
               add_header Cross-Origin-Embedder-Policy "require-corp" always;
             }
-            location ~ \.php$ {
+            location ~ ^/(api/)?[a-z0-9_]+\.php$ {
               fastcgi_index index.php;
               include ${package}/conf/fastcgi_params;
               fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
