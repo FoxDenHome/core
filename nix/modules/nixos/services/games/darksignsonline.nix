@@ -26,7 +26,7 @@ let
 
   bindReadOnlyPaths = lib.mkMerge [
     [
-      "${pkgs.darksignsonline-both}/var/www/darksignsonline:/var/www/darksignsonline"
+      "${pkgs.darksignsonline}/var/www/darksignsonline:/var/www/darksignsonline"
       "${pkgs.writeText "dso-config.php" configPhp}:/run/darksignsonline/dso-config.php"
     ]
     (config.lib.foxDen.sops.mkIfAvailable [
@@ -126,7 +126,7 @@ in
             Group = "darksignsonline";
 
             BindReadOnlyPaths = [
-              "${pkgs.darksignsonline-both}/var/www/darksignsonline:/var/www/darksignsonline"
+              "${pkgs.darksignsonline}/var/www/darksignsonline:/var/www/darksignsonline"
               "/run/phpfpm"
             ];
           };
