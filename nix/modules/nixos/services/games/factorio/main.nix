@@ -77,6 +77,13 @@ in
 
           mods =
             let
+              # Mod downloads need a factorio.com username+token, supplied out-of-band as
+              # FACTORIO_AUTH ("username=<name>&token=<token>"). NixOS hosts get it from the
+              # `impure-env` line in the sops `nix-config` secret (see modules/nixos/sops.nix);
+              # `configurable-impure-env` is enabled in modules/nixos/base.nix for that.
+              # On a non-NixOS workstation the same line must go into the *nix-daemon's* config
+              # (/etc/nix/nix.conf), since `impure-env` is a restricted setting that Nix ignores
+              # when passed by an untrusted client.
               fetchMod =
                 name: modInfo:
                 derivation {
