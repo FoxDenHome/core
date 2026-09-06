@@ -87,7 +87,6 @@ in
               add_header Cache-Control "no-cache" always;
             }
             location = /game/ {
-              alias /var/www/darksignsonline/game/index.html;
               ${headerConfig}
               add_header Cross-Origin-Opener-Policy "same-origin" always;
               add_header Cross-Origin-Embedder-Policy "require-corp" always;
