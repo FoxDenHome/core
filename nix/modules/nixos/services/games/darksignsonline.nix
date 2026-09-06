@@ -68,9 +68,13 @@ in
           index index.php index.htm index.html;
         '';
         extraConfig =
-          { package, ... }:
+          { package, headerConfig, ... }:
           ''
             root /var/www/darksignsonline;
+            location = /worker.js {
+              ${headerConfig}
+              add_header Cross-Origin-Embedder-Policy "require-corp" always;
+            }
             location ~ \.php$ {
               fastcgi_index index.php;
               include ${package}/conf/fastcgi_params;
