@@ -75,6 +75,7 @@ in
               return 308 /game/;
             }
             location /game/ {
+              index index.html;
               ${headerConfig}
               add_header Cross-Origin-Embedder-Policy "require-corp" always;
             }
