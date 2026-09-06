@@ -75,14 +75,19 @@ in
               return 308 /game/;
             }
             location /game/ {
-              index index.php index.htm index.html;
               ${headerConfig}
               add_header Cross-Origin-Opener-Policy "same-origin" always;
               add_header Cross-Origin-Embedder-Policy "require-corp" always;
               add_header Cache-Control "public, max-age=31536000, immutable" always;
             }
             location = /game/index.html {
-              index index.php index.htm index.html;
+              ${headerConfig}
+              add_header Cross-Origin-Opener-Policy "same-origin" always;
+              add_header Cross-Origin-Embedder-Policy "require-corp" always;
+              add_header Cache-Control "no-cache" always;
+            }
+            location = /game/ {
+              alias /var/www/darksignsonline/game/index.html;
               ${headerConfig}
               add_header Cross-Origin-Opener-Policy "same-origin" always;
               add_header Cross-Origin-Embedder-Policy "require-corp" always;
