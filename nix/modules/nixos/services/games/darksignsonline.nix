@@ -74,12 +74,8 @@ in
             location = /game {
               return 308 /game/;
             }
-            location = /game/ {
-              alias /var/www/darksignsonline/game/index.html;
-              ${headerConfig}
-              add_header Cross-Origin-Embedder-Policy "require-corp" always;
-            }
             location /game/ {
+              index index.php index.htm index.html;
               ${headerConfig}
               add_header Cross-Origin-Embedder-Policy "require-corp" always;
             }
