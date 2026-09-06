@@ -79,6 +79,14 @@ in
               ${headerConfig}
               add_header Cross-Origin-Opener-Policy "same-origin" always;
               add_header Cross-Origin-Embedder-Policy "require-corp" always;
+              add_header Cache-Control "public, max-age=31536000, immutable" always;
+            }
+            location = /game/index.html {
+              index index.php index.htm index.html;
+              ${headerConfig}
+              add_header Cross-Origin-Opener-Policy "same-origin" always;
+              add_header Cross-Origin-Embedder-Policy "require-corp" always;
+              add_header Cache-Control "no-cache" always;
             }
             location ~ ^/(api/)?[a-z0-9_]+\.php$ {
               fastcgi_index index.php;
