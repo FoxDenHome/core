@@ -85,12 +85,16 @@ in
               add_header Cross-Origin-Opener-Policy "same-origin" always;
               add_header Cross-Origin-Embedder-Policy "require-corp" always;
               add_header Cache-Control "no-cache" always;
+              etag off;
+              if_modified_since off;
             }
             location = /game/ {
               ${headerConfig}
               add_header Cross-Origin-Opener-Policy "same-origin" always;
               add_header Cross-Origin-Embedder-Policy "require-corp" always;
               add_header Cache-Control "no-cache" always;
+              etag off;
+              if_modified_since off;
             }
             location ~ ^/(api/)?[a-z0-9_]+\.php$ {
               fastcgi_index index.php;
