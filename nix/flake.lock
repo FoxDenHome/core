@@ -57,11 +57,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1788799393,
-        "narHash": "sha256-TNQzYTwom81rLRjddBre2fOdGfmbC1scJmfXbiTLJ1k=",
+        "lastModified": 1788801730,
+        "narHash": "sha256-QcjmFJjPJlvjbGoPTt/uEwNw3AnTJBjrcuObmx5Fou8=",
         "owner": "Doridian",
         "repo": "DarkSignsOnline",
-        "rev": "7ac71b402eb20159cda1f2427552dd9cef0319d5",
+        "rev": "f4740334832cdcc654f2d7f36c33180b13e90b38",
         "type": "github"
       },
       "original": {
