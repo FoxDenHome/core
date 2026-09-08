@@ -38,6 +38,7 @@ let
     rocmSupport = config.foxDen.amdgpu.enable;
     permittedInsecurePackages = [
       "gradle-7.6.6" # TODO: What is pulling this in?
+      "immich-2.7.5"
     ];
     problems.handlers = {
       zfs.broken = "warn"; # TODO: Remove this once ZFS officially supports 7.1
