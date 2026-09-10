@@ -49,7 +49,7 @@ in
   };
 
   foxDen.hosts.hosts = {
-    darksignsonline = mkVlanHost 3 {
+    darksignsonline = mkVlanHost 2 {
       dns = {
         fqdns = [
           "darksignsonline.com"
@@ -60,8 +60,8 @@ in
       email.allowedFrom = [ "noreply@darksignsonline.com" ];
       webservice.enable = true;
       addresses = [
-        "10.3.10.15/16"
-        "fd2c:f4cb:63be:3::a0f/64"
+        "10.2.11.36/16"
+        "fd2c:f4cb:63be:2::b24/64"
       ];
     };
     factorio = mkVlanHost 2 {
@@ -82,7 +82,7 @@ in
         "fd2c:f4cb:63be:2::b1c/64"
       ];
     };
-    spaceage-gmod = mkVlanHost 3 {
+    spaceage-gmod = mkVlanHost 2 {
       dns = {
         fqdns = [
           "spaceage-gmod.doridian.net"
@@ -96,11 +96,11 @@ in
         }
       ];
       addresses = [
-        "10.3.10.4/16"
-        "fd2c:f4cb:63be:3::a04/64"
+        "10.2.11.32/16"
+        "fd2c:f4cb:63be:2::b20/64"
       ];
     };
-    spaceage-api = mkVlanHost 3 {
+    spaceage-api = mkVlanHost 2 {
       dns = {
         fqdns = [
           "spaceage-api.doridian.net"
@@ -109,11 +109,11 @@ in
       };
       webservice.enable = true;
       addresses = [
-        "10.3.10.5/16"
-        "fd2c:f4cb:63be:3::a05/64"
+        "10.2.11.33/16"
+        "fd2c:f4cb:63be:2::b21/64"
       ];
     };
-    spaceage-tts = mkVlanHost 3 {
+    spaceage-tts = mkVlanHost 2 {
       dns = {
         fqdns = [
           "spaceage-tts.doridian.net"
@@ -122,11 +122,11 @@ in
       };
       webservice.enable = true;
       addresses = [
-        "10.3.10.6/16"
-        "fd2c:f4cb:63be:3::a06/64"
+        "10.2.11.34/16"
+        "fd2c:f4cb:63be:2::b22/64"
       ];
     };
-    spaceage-website = mkVlanHost 3 {
+    spaceage-website = mkVlanHost 2 {
       dns = {
         fqdns = [
           "spaceage.doridian.net"
@@ -135,8 +135,8 @@ in
       };
       webservice.enable = true;
       addresses = [
-        "10.3.10.9/16"
-        "fd2c:f4cb:63be:3::a09/64"
+        "10.2.11.35/16"
+        "fd2c:f4cb:63be:2::b23/64"
       ];
     };
   };

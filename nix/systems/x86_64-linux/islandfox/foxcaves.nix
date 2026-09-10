@@ -12,7 +12,7 @@ in
   };
 
   foxDen.hosts.hosts = {
-    foxcaves = mkVlanHost 3 {
+    foxcaves = mkVlanHost 2 {
       dns = {
         fqdns = [
           "foxcav.es"
@@ -25,8 +25,8 @@ in
       email.allowedFrom = [ "noreply@foxcav.es" ];
       webservice.enable = true;
       addresses = [
-        "10.3.10.1/16"
-        "fd2c:f4cb:63be:3::a01/64"
+        "10.2.11.29/16"
+        "fd2c:f4cb:63be:2::b1d/64"
       ];
     };
   };

@@ -54,7 +54,7 @@ in
         "fd2c:f4cb:63be:2::b19/64"
       ];
     };
-    mta-sts = mkVlanHost 3 {
+    mta-sts = mkVlanHost 2 {
       dns = {
         fqdns = [
           "mta-sts-server.foxden.network"
@@ -64,8 +64,8 @@ in
       };
       webservice.enable = true;
       addresses = [
-        "10.3.10.2/16"
-        "fd2c:f4cb:63be:3::a02/64"
+        "10.2.11.30/16"
+        "fd2c:f4cb:63be:2::b1e/64"
       ];
     };
   };

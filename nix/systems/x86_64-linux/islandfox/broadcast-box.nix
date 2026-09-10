@@ -12,7 +12,7 @@ in
   };
 
   foxDen.hosts.hosts = {
-    broadcast-box = mkVlanHost 3 {
+    broadcast-box = mkVlanHost 2 {
       dns = {
         fqdns = [
           "live.foxden.network"
@@ -31,8 +31,8 @@ in
         }
       ];
       addresses = [
-        "10.3.10.3/16"
-        "fd2c:f4cb:63be:3::a03/64"
+        "10.2.11.31/16"
+        "fd2c:f4cb:63be:2::b1f/64"
       ];
     };
   };
