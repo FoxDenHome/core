@@ -62,7 +62,7 @@
         dns = {
           fqdns = [ "fennec.foxden.network" ];
         };
-        mac = "08:C0:EB:BF:37:0E";
+        mac = "08:C0:EB:2B:13:D6";
         dhcpv6 = {
           duid = "0x0004f480d71b42f7092a0657194834b9505d";
           iaid = 910610530;
