@@ -72,6 +72,20 @@
           "fd2c:f4cb:63be:2::a01/64"
         ];
       });
+      fennec-bluefield = mkIntf {
+        dns = {
+          fqdns = [ "fennec-bluefield.foxden.network" ];
+        };
+        mac = "02:62:43:30:42:c7";
+        dhcpv6 = {
+          duid = "0x00020000ab11f124944a8dc702d9";
+          iaid = 1852215488;
+        };
+        addresses = [
+          "10.2.10.10/16"
+          "fd2c:f4cb:63be:2::a0a/64"
+        ];
+      };
       wizzy-desktop = mkIntf {
         dns = {
           fqdns = [ "wizzy-desktop.foxden.network" ];
