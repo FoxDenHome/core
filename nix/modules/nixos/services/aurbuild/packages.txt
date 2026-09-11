@@ -11,7 +11,7 @@ rpiusbboot
 openlinkhub-bin
 openterface_qt
 https://git.foxden.network/FoxDenAUR/initcpio-uki-sbsign
-https://git.foxden.network/FoxDenAUR/rshim-git
+rshim
 android-sdk-platform-tools
 makemkv
 mstflint
