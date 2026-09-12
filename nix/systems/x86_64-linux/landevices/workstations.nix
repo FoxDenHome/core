@@ -90,7 +90,7 @@
         dns = {
           fqdns = [ "wizzy-desktop.foxden.network" ];
         };
-        mac = "7C:FE:90:39:20:9A";
+        mac = "08:C0:EB:BF:37:0E";
         dhcpv6 = {
           duid = "0x000100013060c3d8ec9161cff6c9";
           iaid = 494730896;
