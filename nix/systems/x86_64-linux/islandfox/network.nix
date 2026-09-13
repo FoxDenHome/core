@@ -1,7 +1,6 @@
 {
   foxDenLib,
   config,
-  lib,
   ...
 }:
 let
