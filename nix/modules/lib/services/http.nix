@@ -677,6 +677,9 @@ in
                   access_log off;
                   log_not_found off;
 
+                  etag off;
+                  if_modified_since off;
+
                   include ${package}/conf/mime.types;
                   default_type application/octet-stream;
 
