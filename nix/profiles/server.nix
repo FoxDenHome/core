@@ -43,4 +43,6 @@
     ip saddr 10.0.0.0/8 tcp dport ${toString config.services.prometheus.exporters.node.port} accept
     ip6 saddr fc00::/7 tcp dport ${toString config.services.prometheus.exporters.node.port} accept
   '';
+
+  networking.firewall.allowedTCPPorts = [ 5201 ]; # iperf3 default port for testing
 }
