@@ -1,6 +1,5 @@
 html,
 body {
-  background-color: black;
   color: purple;
   font-family: Arial, Helvetica;
   padding: 0;
@@ -8,92 +7,31 @@ body {
   min-width: 640px;
   min-height: 480px;
 }
-@keyframes mainVisibleAnim {
-  0% {
-    opacity: 0;
-  }
-  80% {
-    opacity: 0;
-  }
-  100% {
-    opacity: 1;
-  }
+html {
+  background-color: black;
 }
-@keyframes leftAnimWelcome {
-  0% {
-    width: 100%;
-    font-size: 64px;
-    line-height: 64px;
-    opacity: 1;
-  }
-  20% {
-    width: 100%;
-    font-size: 64px;
-    line-height: 64px;
-    opacity: 1;
-  }
-  40% {
-    width: 200px;
-    font-size: 32px;
-    line-height: 32px;
-    opacity: 1;
-  }
-  80% {
-    font-size: 32px;
-    line-height: 32px;
-    opacity: 1;
-  }
-  100% {
-    opacity: 0;
-  }
-}
-@keyframes rightAnim {
-  0% {
-    width: 100%;
-    padding-top: 69px;
-    transform: rotateY(360deg);
-  }
-  20% {
-    width: 100%;
-    padding-top: 69px;
-    transform: rotateY(360deg);
-  }
-  40% {
-    width: 500px;
-    padding-top: 69px;
-    transform: rotateY(180deg);
-  }
-  80% {
-    width: 32px;
-    padding-top: 5px;
-    transform: rotateY(0deg);
-  }
-}
-#headerRight img {
+#header-right img {
   object-fit: contain;
   width: 100%;
   max-height: 500px;
 }
-#headerLeft ul {
+#header-left ul {
   list-style-type: none;
   margin: 0;
   padding: 0;
 }
-#headerLeft li {
+#header-left li {
   display: inline;
   height: 100%;
 }
-#headerLeft {
+#header-left {
   text-align: left;
   position: absolute;
   top: 5px;
   left: 5px;
   opacity: 1;
-  animation-name: mainVisibleAnim;
-  animation-duration: 2s;
-  animation-timing-function: linear;
 }
-#headerLeftWelcome {
+#header-left-welcome {
   font-size: 32px;
   line-height: 32px;
   position: absolute;
@@ -103,47 +41,25 @@ body {
   width: 200px;
   white-space: nowrap;
   opacity: 0;
-  animation-name: leftAnimWelcome;
-  animation-duration: 2s;
-  animation-timing-function: linear;
 }
-#headerRightContainer {
+#header-right-container {
   width: 100%;
   text-align: right;
   border-bottom: 1px solid purple;
 }
-#headerRight {
+#header-right {
   padding-top: 5px;
   padding-right: 5px;
   display: inline-block;
   text-align: center;
   width: 32px;
   white-space: nowrap;
-  animation-name: rightAnim;
-  animation-duration: 2s;
-  animation-timing-function: linear;
   transform: rotateY(0deg);
 }
-.viewRadio {
+.view-radio {
   display: none;
 }
-@keyframes selectAnim {
-  0% {
-    border-bottom-color: rgba(200, 0, 200, 0);
-  }
-  100% {
-    border-bottom-color: #c800c8;
-  }
-}
-@keyframes unselectAnim {
-  0% {
-    border-bottom-color: #c800c8;
-  }
-  100% {
-    border-bottom-color: rgba(200, 0, 200, 0);
-  }
-}
-.viewLabel {
+.view-label {
   height: 32px;
   font-size: 27px;
   border-bottom: 5px solid rgba(200, 0, 200, 0);
@@ -151,47 +67,250 @@ body {
   min-width: 150px;
   display: inline-block;
   cursor: pointer;
-  animation-name: unselectAnim;
-  animation-duration: 500ms;
 }
-.viewLabel label {
+.view-label label {
   cursor: pointer;
   display: block;
   width: 100%;
 }
-.viewDiv {
+.view-div {
   display: none;
   padding: 10px;
 }
-#viewDivContainer {
-  opacity: 1;
-  animation-name: mainVisibleAnim;
-  animation-duration: 2s;
-  animation-timing-function: linear;
-}
-.viewDiv a,
-.viewDiv a:active,
-.viewDiv a:visited {
+.view-div a,
+.view-div a:active,
+.view-div a:visited {
   color: purple;
   font-weight: bold;
 }
-#view-main-radio:checked ~ #viewDivContainer #view-main-div {
+#view-main-radio:checked ~ #view-div-container #view-main-div,
+#view-contact-radio:checked ~ #view-div-container #view-contact-div {
   display: inherit;
 }
-#view-main-radio:checked ~ #headerLeft #view-main-label {
-  animation-name: selectAnim;
-  animation-duration: 100ms;
-  animation-iteration-count: 5;
-  animation-timing-function: step-start(1);
+#view-main-radio:checked ~ #header-left #view-main-label,
+#view-contact-radio:checked ~ #header-left #view-contact-label {
   border-bottom-color: #c800c8;
 }
-#view-contact-radio:checked ~ #viewDivContainer #view-contact-div {
-  display: inherit;
+#pride-container div {
+  position: fixed;
+  right: 0px;
+  bottom: 0px;
+  width: 0px;
+  height: 0px;
+  padding: 0;
+  margin: 0;
+  animation-duration: 60s;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  z-index: -1;
+  border-color: black;
+  border-style: solid;
+  border-top-width: 48vb;
+  border-left-width: 48vb;
+  border-top-left-radius: 48vb;
 }
-#view-contact-radio:checked ~ #headerLeft #view-contact-label {
-  animation-name: selectAnim;
-  animation-duration: 100ms;
-  animation-iteration-count: 5;
-  animation-timing-function: step-start(1);
-  border-bottom-color: #c800c8;
+#pride-container {
+  opacity: 0.2;
+}
+/*
+  Total:
+  - Inner cutout at 48vb
+  - Max size 80vb
+  - Frames are: Pride, NB, Pan, Trans
+*/
+@keyframes pride-b1-anim {
+  0%, 10%, 90%, 100% {
+    border-color: #444444;
+  }
+  15%, 35% {
+    border-color: #fff430;
+  }
+  40%, 60% {
+    border-color: #ff218c;
+  }
+  65%, 85% {
+    border-color: #5bcefa;
+  }
+}
+@keyframes pride-b2-anim {
+  0%, 10%, 90%, 100% {
+    border-color: #784f17;
+    border-top-width: 76vb;
+    border-left-width: 76vb;
+    border-top-left-radius: 76vb;
+  }
+  15%, 35% {
+    border-color: #ffffff;
+    border-top-width: 72vb;
+    border-left-width: 72vb;
+    border-top-left-radius: 72vb;
+  }
+  40%, 60% {
+    border-color: #ffd800;
+    border-top-width: 70vb;
+    border-left-width: 70vb;
+    border-top-left-radius: 70vb;
+  }
+  65%, 85% {
+    border-color: #f5a9b8;
+    border-top-width: 74vb;
+    border-left-width: 74vb;
+    border-top-left-radius: 74vb;
+  }
+}
+@keyframes pride-b3-anim {
+  0%, 10%, 90%, 100% {
+    border-color: #ee2824;
+    border-top-width: 72vb;
+    border-left-width: 72vb;
+    border-top-left-radius: 72vb;
+  }
+  15%, 35% {
+    border-color: #9C59D1;
+    border-top-width: 64vb;
+    border-left-width: 64vb;
+    border-top-left-radius: 64vb;
+  }
+  40%, 60% {
+    border-color: #21b1ff;
+    border-top-width: 60vb;
+    border-left-width: 60vb;
+    border-top-left-radius: 60vb;
+  }
+  65%, 85% {
+    border-color: #ffffff;
+    border-top-width: 68vb;
+    border-left-width: 68vb;
+    border-top-left-radius: 68vb;
+  }
+}
+@keyframes pride-b4-anim {
+  0%, 10%, 90%, 100% {
+    border-color: #f46d1d;
+    border-top-width: 68vb;
+    border-left-width: 68vb;
+    border-top-left-radius: 68vb;
+  }
+  15%, 35% {
+    border-color: #444444;
+    border-top-width: 56vb;
+    border-left-width: 56vb;
+    border-top-left-radius: 56vb;
+  }
+  40%, 60% {
+    border-color: black;
+    border-top-width: 47vb;
+    border-left-width: 47vb;
+    border-top-left-radius: 47vb;
+  }
+  65%, 85% {
+    border-color: #f5a9b8;
+    border-top-width: 62vb;
+    border-left-width: 62vb;
+    border-top-left-radius: 62vb;
+  }
+}
+@keyframes pride-b5-anim {
+  0%, 10%, 90%, 100% {
+    border-color: #f5f011;
+    border-top-width: 64vb;
+    border-left-width: 64vb;
+    border-top-left-radius: 64vb;
+  }
+  15%, 35%, 40%, 60% {
+    border-color: black;
+    border-top-width: 47vb;
+    border-left-width: 47vb;
+    border-top-left-radius: 47vb;
+  }
+  65%, 85% {
+    border-color: #5bcefa;
+    border-top-width: 56vb;
+    border-left-width: 56vb;
+    border-top-left-radius: 56vb;
+  }
+}
+@keyframes pride-b6-anim {
+  0%, 10%, 90%, 100% {
+    border-color: #52bf37;
+    border-top-width: 60vb;
+    border-left-width: 60vb;
+    border-top-left-radius: 60vb;
+  }
+  15%, 35%, 40%, 60%, 65%, 85% {
+    border-color: black;
+    border-top-width: 47vb;
+    border-left-width: 47vb;
+    border-top-left-radius: 47vb;
+  }
+}
+@keyframes pride-b7-anim {
+  0%, 10%, 90%, 100% {
+    border-color: #2851a9;
+    border-top-width: 56vb;
+    border-left-width: 56vb;
+    border-top-left-radius: 56vb;
+  }
+  15%, 35%, 40%, 60%, 65%, 85% {
+    border-color: black;
+    border-top-width: 47vb;
+    border-left-width: 47vb;
+    border-top-left-radius: 47vb;
+  }
+}
+@keyframes pride-b8-anim {
+  0%, 10%, 90%, 100% {
+    border-color: #9c158f;
+    border-top-width: 52vb;
+    border-left-width: 52vb;
+    border-top-left-radius: 52vb;
+  }
+  15%, 35%, 40%, 60%, 65%, 85% {
+    border-color: black;
+    border-top-width: 47vb;
+    border-left-width: 47vb;
+    border-top-left-radius: 47vb;
+  }
+}
+@keyframes pride-cutout-anim {
+  0%, 10%, 15%, 35%, 90%, 100% {
+    border-top-width: 48vb;
+    border-left-width: 48vb;
+    border-top-left-radius: 48vb;
+  }
+  40%, 60%, 65%, 85% {
+    border-top-width: 50vb;
+    border-left-width: 50vb;
+    border-top-left-radius: 50vb;
+  }
+}
+#pride-cutout {
+  animation-name: pride-cutout-anim;
+}
+#pride-b1 {
+  border-top-width: 80vb !important;
+  border-left-width: 80vb !important;
+  border-top-left-radius: 80vb !important;
+  animation-name: pride-b1-anim;
+}
+#pride-b2 {
+  animation-name: pride-b2-anim;
+}
+#pride-b3 {
+  animation-name: pride-b3-anim;
+}
+#pride-b4 {
+  animation-name: pride-b4-anim;
+}
+#pride-b5 {
+  animation-name: pride-b5-anim;
+}
+#pride-b6 {
+  animation-name: pride-b6-anim;
+}
+#pride-b7 {
+  animation-name: pride-b7-anim;
+}
+#pride-b8 {
+  animation-name: pride-b8-anim;
 }
