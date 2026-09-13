@@ -13,18 +13,11 @@ let
     routes = foxDenLib.hosts.helpers.lan.mkRoutes 2;
     nameservers = foxDenLib.hosts.helpers.lan.mkNameservers 2;
     interface = "br-default";
-    bondInterface = "bond-default";
-    # ens1np0 is the thunderbolt 25GbE link, enp2s0 is the onboard fallback
-    phyIfaces = [
-      "ens1np0"
-      "enp2s0"
-    ];
+    phyIface = "ens1np0";
     phyPvid = 2;
     mtu = 9000;
     mac = config.lib.foxDen.mkHashMac "000001";
   };
-
-  phyIfacePrimary = lib.lists.head ifcfg.phyIfaces;
 in
 {
   lib.foxDenSys.mkVlanHost = foxDenLib.hosts.helpers.lan.mkVlanHost ifcfg;
@@ -58,8 +51,8 @@ in
       };
     };
 
-    "35-${ifcfg.bondInterface}" = {
-      name = ifcfg.bondInterface;
+    "35-${ifcfg.phyIface}" = {
+      name = ifcfg.phyIface;
       bridge = [ ifcfg.interface ];
 
       bridgeVLANs = [
@@ -77,24 +70,7 @@ in
         MTUBytes = ifcfg.mtu;
       };
     };
-  }
-  // builtins.listToAttrs (
-    map (phyIface: {
-      name = "40-${ifcfg.bondInterface}-slave-${phyIface}";
-      value = {
-        name = phyIface;
-        bond = [ ifcfg.bondInterface ];
-
-        networkConfig = {
-          PrimarySlave = phyIface == phyIfacePrimary;
-        };
-
-        linkConfig = {
-          MTUBytes = ifcfg.mtu;
-        };
-      };
-    }) ifcfg.phyIfaces
-  );
+  };
 
   systemd.network.netdevs = {
     "${ifcfg.interface}" = {
@@ -106,19 +82,6 @@ in
 
       bridgeConfig = {
         VLANFiltering = true;
-      };
-    };
-
-    "${ifcfg.bondInterface}" = {
-      netdevConfig = {
-        Name = ifcfg.bondInterface;
-        Kind = "bond";
-      };
-
-      bondConfig = {
-        Mode = "active-backup";
-        MIIMonitorSec = "100ms";
-        PrimaryReselectPolicy = "always";
       };
     };
   };
