@@ -121,15 +121,27 @@ html {
 @keyframes pride-b1-anim {
   0%, 10%, 90%, 100% {
     border-color: #444444;
+    border-top-width: 80vb;
+    border-left-width: 80vb;
+    border-top-left-radius: 80vb;
   }
   15%, 35% {
     border-color: #fff430;
+    border-top-width: 80vb;
+    border-left-width: 80vb;
+    border-top-left-radius: 80vb;
   }
   40%, 60% {
     border-color: #ff218c;
+    border-top-width: 80vb;
+    border-left-width: 80vb;
+    border-top-left-radius: 80vb;
   }
   65%, 85% {
     border-color: #5bcefa;
+    border-top-width: 80vb;
+    border-left-width: 80vb;
+    border-top-left-radius: 80vb;
   }
 }
 @keyframes pride-b2-anim {
@@ -288,9 +300,6 @@ html {
   animation-name: pride-cutout-anim;
 }
 #pride-b1 {
-  border-top-width: 80vb !important;
-  border-left-width: 80vb !important;
-  border-top-left-radius: 80vb !important;
   animation-name: pride-b1-anim;
 }
 #pride-b2 {
