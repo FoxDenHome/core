@@ -55,10 +55,10 @@ in
       };
       kernelPackages = lib.mkDefault pkgs.linuxPackages_latest;
       kernelParams = [
-        "iommu.passthrough=0"
+        "iommu=pt"
         "intel_iommu=on"
+        "pci=realloc"
       ];
-      # "audit=1" "audit_backlog_limit=256" "module.sig_enforce=1" "lockdown=integrity"
 
       loader.grub.enable = false;
       loader.systemd-boot.enable = lib.mkForce false;
