@@ -43,7 +43,7 @@ jobs:
       - uses: https://github.com/terraform-linters/setup-tflint@v6
         name: Setup TFLint
         with:
-          tflint_version: v0.59.1
+          tflint_version: v0.64.0
 
       - name: Init TFLint
         run: tflint --init
