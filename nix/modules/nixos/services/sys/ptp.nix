@@ -50,7 +50,7 @@ in
       # Default Data Set
       #
       twoStepFlag             1
-      clientOnly              0
+      clientOnly              1
       socket_priority         0
       priority1               128
       priority2               128
