@@ -17,6 +17,9 @@ in
         ACTION=="add", SUBSYSTEM=="net", ENV{ID_NET_DRIVER}=="mlx5_core", \
           RUN+="${ethtool} --set-priv-flags $name rx_cqe_compress off", \
           RUN+="${ethtool} -K $name rxhash on"
+
+        ACTION=="add", SUBSYSTEM=="net", ENV{ID_NET_DRIVER}=="mlx5_core", TEST!="device/physfn", \
+          RUN+="${ethtool} -G $name rx 4096 tx 4096"
       '';
     }
     (lib.mkIf config.foxDen.mlx5.enable {

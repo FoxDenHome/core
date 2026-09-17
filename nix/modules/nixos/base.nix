@@ -64,6 +64,7 @@
       "vm.swappiness" = 0;
       "vm.overcommit_memory" = 1;
       "kernel.sysrq" = 176;
+      "fs.aio-max-nr" = 1048576;
     };
   };
 

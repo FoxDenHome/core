@@ -72,6 +72,10 @@ in
     };
   };
 
+  boot.extraModprobeConfig = ''
+    options zfs zfs_arc_max=171798691840 zfs_dirty_data_max_max=17179869184 zfs_dirty_data_max=12884901888
+  '';
+
   sops.secrets."zfs-zhdd.key" = config.lib.foxDen.sops.mkIfAvailable {
     format = "binary";
     sopsFile = ../../../secrets/zfs-zhdd.key;

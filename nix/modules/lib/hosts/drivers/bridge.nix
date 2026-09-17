@@ -64,11 +64,13 @@ in
     {
       ipCmd,
       interface,
+      pkgs,
       uniqueServiceInterface,
       ...
     }:
     let
       hostIface = mkIfaceName interface;
+      ethtool = eSA "${pkgs.ethtool}/bin/ethtool";
     in
     {
       start = [
@@ -76,6 +78,8 @@ in
         "${ipCmd} link add ${eSA hostIface} type veth peer name ${eSA uniqueServiceInterface}"
         "${ipCmd} link set dev ${eSA hostIface} mtu ${toString interface.driver.bridge.mtu}"
         "${ipCmd} link set dev ${eSA uniqueServiceInterface} mtu ${toString interface.driver.bridge.mtu}"
+        "-${ethtool} -K ${eSA hostIface} gro on"
+        "-${ethtool} -K ${eSA uniqueServiceInterface} gro on"
       ];
       stop = [
         "-${ipCmd} link del ${eSA hostIface}"
