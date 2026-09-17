@@ -150,6 +150,10 @@ in
           };
         };
     };
+    ptp = {
+      enable = true;
+      interface = smbInterface;
+    };
   };
 
   networking.firewall = {
