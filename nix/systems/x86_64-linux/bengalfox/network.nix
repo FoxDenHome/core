@@ -80,7 +80,7 @@ in
     };
   };
 
-  foxDen.ptp = {
+  foxDen.services.ptp = {
     enable = true;
     interface = ifcfg.interface;
   };
