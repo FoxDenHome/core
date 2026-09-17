@@ -44,6 +44,11 @@ in
       wantedBy = [ "multi-user.target" ];
     };
 
+    networking.firewall.interfaces.${svcConfig.interface}.allowedUDPPorts = [
+      319
+      320
+    ];
+
     environment.etc."linuxptp/ptp4l.conf".text = ''
       [global]
       #
