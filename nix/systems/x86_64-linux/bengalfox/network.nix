@@ -80,6 +80,11 @@ in
     };
   };
 
+  foxDen.ptp = {
+    enable = true;
+    interface = ifcfg.interface;
+  };
+
   foxDen.hosts.hosts = {
     bengalfox = {
       ssh = true;

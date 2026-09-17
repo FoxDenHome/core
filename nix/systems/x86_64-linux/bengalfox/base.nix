@@ -25,7 +25,6 @@
   foxDen.nvidia.enable = true;
   foxDen.lsi.enable = true;
   foxDen.mlx5.enable = true;
-  foxDen.ptp.enable = true;
   powerManagement.cpuFreqGovernor = "ondemand";
 
   boot.swraid = {
