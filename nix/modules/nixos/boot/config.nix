@@ -57,6 +57,7 @@ in
       kernelParams = [
         "iommu=pt"
         "intel_iommu=on"
+        "pci=assign-busses"
         "pci=realloc"
       ];
 
