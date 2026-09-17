@@ -15,16 +15,6 @@ in
 {
   options.foxDen.services.ups = {
     enable = lib.mkEnableOption "NUT (UPS)";
-    lowBatteryLevel = lib.mkOption {
-      type = lib.types.ints.positive;
-      default = 30;
-      description = "Battery level (%) to trigger low battery state (and shutdown)";
-    };
-    secondsRuntimeLeft = lib.mkOption {
-      type = lib.types.ints.positive;
-      default = 5 * 60;
-      description = "Seconds of time left to trigger low battery state (and shutdown)";
-    };
     secondsOnBattery = lib.mkOption {
       type = lib.types.ints.unsigned;
       default = 0;
@@ -89,8 +79,6 @@ in
           "community = ${config.lib.foxDen.snmp.ro}"
           "snmp_version = v1"
           "mibs = eaton_pw_nm2"
-          "override.battery.charge.low = ${toString svcConfig.lowBatteryLevel}"
-          "override.battery.runtime.low = ${toString svcConfig.secondsRuntimeLeft}"
         ];
       };
       users = {
