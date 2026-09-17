@@ -31,7 +31,7 @@ in
     };
 
     systemd.services.phc2sys = {
-      after = [ "ptp4l.service " ];
+      after = [ "ptp4l.service" ];
       requires = [ "php4l.service" ];
 
       serviceConfig = {
