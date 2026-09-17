@@ -14,7 +14,7 @@ in
   config = lib.mkMerge [
     {
       services.udev.extraRules = ''
-        ACTION=="add", SUBSYSTEM=="net", DRIVER=="mlx5_core", \
+        ACTION=="add", SUBSYSTEM=="net", ENV{ID_NET_DRIVER}=="mlx5_core", \
           RUN+="${ethtool} --set-priv-flags $name rx_cqe_compress off", \
           RUN+="${ethtool} -K $name rxhash on"
       '';
