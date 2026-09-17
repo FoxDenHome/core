@@ -82,7 +82,7 @@ in
 
   foxDen.services.ptp = {
     enable = true;
-    interface = ifcfg.interface;
+    interface = ifcfg.phyIface;
   };
 
   foxDen.hosts.hosts = {
