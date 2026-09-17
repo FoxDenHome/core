@@ -63,6 +63,9 @@
     kernel.sysctl = {
       "vm.swappiness" = 0;
       "vm.overcommit_memory" = 1;
+      "vm.dirty_background_bytes" = 1073741824;
+      "vm.dirty_bytes" = 4294967296;
+      "vm.min_free_kbytes" = 524288;
       "kernel.sysrq" = 176;
       "fs.aio-max-nr" = 1048576;
     };

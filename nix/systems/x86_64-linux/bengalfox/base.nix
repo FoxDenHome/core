@@ -27,12 +27,6 @@
   foxDen.mlx5.enable = true;
   powerManagement.cpuFreqGovernor = "schedutil";
 
-  boot.kernel.sysctl = {
-    "vm.dirty_background_bytes" = 1073741824;
-    "vm.dirty_bytes" = 4294967296;
-    "vm.min_free_kbytes" = 1048576;
-  };
-
   boot.swraid = {
     enable = true;
     mdadmConf = ''
