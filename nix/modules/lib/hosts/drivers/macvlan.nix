@@ -2,6 +2,11 @@
 let
   lib = nixpkgs.lib;
   eSA = lib.strings.escapeShellArg;
+
+  # A host on the root interface's PVID rides that interface directly,
+  # everyone else gets a VLAN device hung off of it.
+  isPvid = cfg: cfg.vlan == cfg.rootPvid;
+  mkVlanIface = cfg: if isPvid cfg then cfg.root else "${cfg.root}.${toString cfg.vlan}";
 in
 {
   driverConfigType =
@@ -25,9 +30,27 @@ in
     };
 
   build =
-    { ... }:
+    { interfaces, ... }:
+    let
+      vlanIfaces = lib.lists.groupBy mkVlanIface (
+        lib.lists.filter (cfg: !(isPvid cfg)) (map (iface: iface.driver.macvlan) interfaces)
+      );
+    in
     {
-      config.systemd = { };
+      config.systemd.network.networks = lib.attrsets.mapAttrs' (vlanIface: cfgs: {
+        name = "50-macvlan-${vlanIface}";
+        value = {
+          name = vlanIface;
+          networkConfig = {
+            DHCP = "no";
+            IPv6AcceptRA = false;
+            LinkLocalAddressing = "no";
+          };
+          linkConfig = {
+            MTUBytes = lib.lists.foldl' (mtu: cfg: lib.trivial.max mtu cfg.mtu) 0 cfgs;
+          };
+        };
+      }) vlanIfaces;
     };
 
   hooks = (
@@ -38,17 +61,15 @@ in
       ...
     }:
     let
-      isPvid = interface.driver.sriov.vlan == interface.driver.sriov.rootPvid;
       cfg = interface.driver.macvlan;
-      vlanIface = if isPvid then cfg.root else "${cfg.root}.${toString cfg.vlan}";
+      vlanIface = mkVlanIface cfg;
     in
     {
       start =
-        # The VLAN device is shared by every host on it and never torn down,
-        # so whoever gets there first creates it.
-        (lib.lists.optionals (!isPvid) [
+        (lib.lists.optionals (!(isPvid cfg)) [
           "-${ipCmd} link add link ${eSA cfg.root} name ${eSA vlanIface} type vlan id ${toString cfg.vlan}"
-          "${ipCmd} link set dev ${eSA vlanIface} mtu ${toString cfg.mtu} up"
+          "${ipCmd} link set dev ${eSA vlanIface} mtu ${toString cfg.mtu} addrgenmode none up"
+          "-${ipCmd} addr flush dev ${eSA vlanIface}"
         ])
         ++ [
           "-${ipCmd} link del ${eSA uniqueServiceInterface}"
