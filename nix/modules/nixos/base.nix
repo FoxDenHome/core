@@ -192,6 +192,7 @@
 
       files = [
         "/etc/machine-id"
+        "/var/lib/systemd/random-seed"
       ]
       ++ lib.lists.flatten (
         lib.lists.forEach config.services.openssh.hostKeys (
