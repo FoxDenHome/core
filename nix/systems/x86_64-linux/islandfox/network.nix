@@ -24,7 +24,6 @@ in
 
   foxDen.hosts.index = 2;
   foxDen.hosts.gateway = "router";
-  virtualisation.libvirtd.allowedBridges = [ ifcfg.interface ];
 
   systemd.network.networks."30-${ifcfg.interface}" = {
     name = ifcfg.interface;

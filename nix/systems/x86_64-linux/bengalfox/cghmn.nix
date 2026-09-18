@@ -5,7 +5,7 @@ let
     (config.lib.foxDenSys.mkVlanHost 2001 (
       cfg
       // {
-        driver.name = "bridge";
+        driver.name = "macvlan";
         routes = [
           {
             Destination = "0.0.0.0/0";
