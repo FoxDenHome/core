@@ -36,6 +36,7 @@
     };
     webservice.enable = true;
     mac = "52:54:00:e9:7e:50";
+    driver = "sriov";
     dhcpv6 = {
       duid = "0x000412082c467ead763e36f522f36b41abed";
       iaid = 1555819358;

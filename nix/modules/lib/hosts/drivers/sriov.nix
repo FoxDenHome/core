@@ -65,7 +65,7 @@ in
         assign_vf() {
           idx="$1"
           # Enable spoof checking, set MAC and VLAN
-          ${ipCmd} link set dev "${root}" vf "$idx" spoofchk on mac "${interface.mac}" vlan "${builtins.toString vlan}"
+          ${ipCmd} link set dev "${root}" vf "$idx" spoofchk on mac "${interface.mac}" vlan "${toString vlan}"
           # Find current name of VF interface
           ifname=""
           maxtries=1200
