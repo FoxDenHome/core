@@ -1,4 +1,4 @@
-{ config, ... }:
+{ config, pkgs, ... }:
 {
   # These are set when you reinstall the system
   # Change them to "false" for first boot, before secrets exist
@@ -12,15 +12,17 @@
   imports = [ ../../../profiles/server.nix ];
   hardware.enableRedistributableFirmware = true;
   hardware.cpu.amd.updateMicrocode = true;
-  boot.initrd.kernelModules = [ ];
-  boot.kernelModules = [
-    "kvm-amd"
-    "mlx5_core"
-    "mlx5_en"
-    "r8169"
-    "rdma_cm"
-  ];
-  boot.extraModulePackages = [ ];
+  boot = {
+    kernelParams = [ "pcie_acs_override=downstream,multifunction" ];
+    kernelModules = [
+      "kvm-amd"
+      "mlx5_core"
+      "mlx5_en"
+      "r8169"
+      "rdma_cm"
+    ];
+    kernelPackages = pkgs.linuxPackages_zen;
+  };
   foxDen.amdgpu.enable = true;
   services.hardware.bolt.enable = true;
   powerManagement.cpuFreqGovernor = "performance";
