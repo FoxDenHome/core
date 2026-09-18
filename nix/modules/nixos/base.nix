@@ -183,6 +183,7 @@
         "/var/log"
         "/var/lib/nixos"
         "/var/lib/systemd/coredump"
+        "/var/lib/systemd/pstore"
         "/var/lib/systemd/timers"
         "/var/cache/fwupd"
         "/var/lib/fwupd"
