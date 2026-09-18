@@ -16,6 +16,7 @@ let
     phyPvid = 2;
     mtu = 9000;
     mac = config.lib.foxDen.mkHashMac "000001";
+    defaultDriver = "macvlan";
   };
 in
 {
