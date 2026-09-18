@@ -11,8 +11,7 @@ let
     ];
     routes = foxDenLib.hosts.helpers.lan.mkRoutes 2;
     nameservers = foxDenLib.hosts.helpers.lan.mkNameservers 2;
-    interface = "br-default";
-    phyIface = "ens1np0";
+    interface = "ens1np0";
     phyPvid = 2;
     mtu = 9000;
     mac = config.lib.foxDen.mkHashMac "000001";
@@ -26,68 +25,22 @@ in
   foxDen.hosts.gateway = "router";
   virtualisation.libvirtd.allowedBridges = [ ifcfg.interface ];
 
-  systemd.network.networks = {
-    "30-${ifcfg.interface}" = {
-      name = ifcfg.interface;
-      routes = ifcfg.routes;
-      address = ifcfg.addresses;
-      dns = ifcfg.nameservers;
+  systemd.network.networks."30-${ifcfg.interface}" = {
+    name = ifcfg.interface;
+    routes = ifcfg.routes;
+    address = ifcfg.addresses;
+    dns = ifcfg.nameservers;
 
-      networkConfig = {
-        DHCP = "no";
-        IPv6AcceptRA = true;
-      };
-
-      bridgeVLANs = [
-        {
-          PVID = ifcfg.phyPvid;
-          EgressUntagged = ifcfg.phyPvid;
-          VLAN = "1-15";
-        }
-        {
-          VLAN = "2001";
-        }
-      ];
-
-      linkConfig = {
-        MTUBytes = ifcfg.mtu;
-      };
+    networkConfig = {
+      DHCP = "no";
+      IPv6AcceptRA = true;
     };
 
-    "35-${ifcfg.phyIface}" = {
-      name = ifcfg.phyIface;
-      bridge = [ ifcfg.interface ];
-
-      bridgeVLANs = [
-        {
-          PVID = ifcfg.phyPvid;
-          EgressUntagged = ifcfg.phyPvid;
-          VLAN = "1-15";
-        }
-        {
-          VLAN = "2001";
-        }
-      ];
-
-      linkConfig = {
-        MTUBytes = ifcfg.mtu;
-      };
+    linkConfig = {
+      MTUBytes = ifcfg.mtu;
     };
   };
-
-  systemd.network.netdevs = {
-    "${ifcfg.interface}" = {
-      netdevConfig = {
-        Name = ifcfg.interface;
-        Kind = "bridge";
-        MACAddress = ifcfg.mac;
-      };
-
-      bridgeConfig = {
-        VLANFiltering = true;
-      };
-    };
-  };
+  #boot.initrd.systemd.network.networks."30-${ifcfg.interface}" = config.systemd.network.networks."30-${ifcfg.interface}";
 
   foxDen.hosts.hosts = {
     islandfox = {
