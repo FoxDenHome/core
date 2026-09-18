@@ -18,6 +18,7 @@ let
     mac = config.lib.foxDen.mkHashMac "000001";
     defaultDriver = "macvlan";
   };
+  hostIface = "sys-${ifcfg.phyIface}";
 in
 {
   lib.foxDenSys.mkVlanHost = foxDenLib.hosts.helpers.lan.mkVlanHost ifcfg;
@@ -25,8 +26,21 @@ in
   foxDen.hosts.index = 2;
   foxDen.hosts.gateway = "router";
 
-  systemd.network.networks."30-${ifcfg.interface}" = {
-    name = ifcfg.interface;
+  systemd.network.netdevs."${hostIface}" = {
+    netdevConfig = {
+      Name = hostIface;
+      Kind = "macvlan";
+      MACAddress = ifcfg.mac;
+      MTUBytes = ifcfg.mtu;
+    };
+
+    macvlanConfig = {
+      Mode = "bridge";
+    };
+  };
+
+  systemd.network.networks."30-${hostIface}" = {
+    name = hostIface;
     routes = ifcfg.routes;
     address = ifcfg.addresses;
     dns = ifcfg.nameservers;
@@ -34,6 +48,21 @@ in
     networkConfig = {
       DHCP = "no";
       IPv6AcceptRA = true;
+    };
+
+    linkConfig = {
+      MTUBytes = ifcfg.mtu;
+    };
+  };
+
+  systemd.network.networks."30-${ifcfg.interface}" = {
+    name = ifcfg.interface;
+    macvlan = [ hostIface ];
+
+    networkConfig = {
+      DHCP = "no";
+      IPv6AcceptRA = false;
+      LinkLocalAddressing = "no";
     };
 
     linkConfig = {
