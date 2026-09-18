@@ -116,6 +116,10 @@ in
       }) (lib.filter (vm: vm.config.autostart) vmList)
     );
 
+    systemd.tmpfiles.rules = [
+      "f+ /var/lib/libvirt/images/CACHEDIR.TAG 0644 root root - Signature: 8a477f597d28d172789f06886806bc55"
+    ];
+
     environment.persistence."/nix/persist/libvirt" = {
       hideMounts = true;
       directories = [
