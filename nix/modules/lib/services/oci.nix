@@ -17,6 +17,7 @@ let
         hostName = foxDenLib.services.getFirstFQDN config svcConfig;
         dependency = [ host.unit ];
         forwardGpu = gpu && !config.hardware.nvidia-container-toolkit.enable;
+        ctHome = "/var/lib/foxden-oci/${ctName}";
       in
       {
         config = {
@@ -60,11 +61,15 @@ let
             isSystemUser = true;
             group = ctName;
             autoSubUidGidRange = true;
-            home = "/var/lib/foxden-oci/${ctName}";
+            home = ctHome;
             createHome = true;
             linger = false; # This breaks container restarting in certain circumstances.
           };
           users.groups."${ctName}" = { };
+
+          systemd.tmpfiles.rules = [
+            "f+ ${ctHome}/CACHEDIR.TAG 0644 root root - Signature: 8a477f597d28d172789f06886806bc55"
+          ];
 
           systemd.services."podman-${ctName}" = nixpkgs.lib.mkMerge [
             {
