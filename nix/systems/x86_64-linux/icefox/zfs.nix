@@ -51,6 +51,10 @@ in
     enable = true;
   };
 
+  boot.extraModprobeConfig = ''
+    options zfs zfs_arc_max=8589934592
+  '';
+
   sops.secrets."zfs-ztank.key" = config.lib.foxDen.sops.mkIfAvailable {
     format = "binary";
     sopsFile = ../../../secrets/zfs-ztank.key;

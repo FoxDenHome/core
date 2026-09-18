@@ -33,6 +33,7 @@ in
     {
       pkgs,
       ipCmd,
+      ipInNsCmd,
       uniqueServiceInterface,
       interface,
       host,
@@ -67,7 +68,7 @@ in
           ${ipCmd} link set dev "${root}" vf "$idx" spoofchk on mac "${interface.mac}" vlan "${builtins.toString vlan}"
           # Find current name of VF interface
           ifname=""
-          maxtries=300
+          maxtries=1200
           while :; do
             ifname="$(${pkgs.coreutils}/bin/ls /sys/class/net/${root}/device/virtfn$idx/net/ 2>/dev/null || :)"
             if [ -n "$ifname" ]; then
@@ -146,8 +147,9 @@ in
         "${pkgs.util-linux}/bin/flock -x /run/foxden-sriov.lock '${allocSriovScript}' '${root}'"
         "${ipCmd} link set dev ${eSA uniqueServiceInterface} mtu ${toString interface.driver.sriov.mtu}"
       ];
-      stop = [
-      ];
+      stop = nixpkgs.lib.lists.optional (
+        host.namespace != null
+      ) "-${ipInNsCmd} link set ${eSA uniqueServiceInterface} netns 1";
     }
   );
 }

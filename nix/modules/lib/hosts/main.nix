@@ -594,12 +594,12 @@ in
                             # have to be removed explicitly.
                             (lib.lists.optional inRootNetns "-${ipInNsCmd} addr flush dev ${eSA inNsServiceInterface}")
                             ++ [
-                              "${ipInNsCmd} link set ${eSA inNsServiceInterface} down"
+                              "-${ipInNsCmd} link set ${eSA inNsServiceInterface} down"
                             ]
                             ++ (
                               if inNsServiceInterface != uniqueServiceInterface then
                                 [
-                                  "${ipInNsCmd} link set ${eSA inNsServiceInterface} name ${eSA uniqueServiceInterface}"
+                                  "-${ipInNsCmd} link set ${eSA inNsServiceInterface} name ${eSA uniqueServiceInterface}"
                                 ]
                               else
                                 [ ]
