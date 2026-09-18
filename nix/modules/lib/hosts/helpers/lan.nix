@@ -51,7 +51,7 @@ in
           }
           // commonConfig;
           macvlan = {
-            root = ifcfg.phyIface;
+            root = ifcfg.interface;
             rootPvid = ifcfg.phyPvid;
           }
           // commonConfig;
