@@ -42,6 +42,7 @@ in
         ];
         dynDns = true;
       };
+      driver.name = "sriov";
       firewall.ingressAcceptRules = [
         {
           protocol = "tcp";
