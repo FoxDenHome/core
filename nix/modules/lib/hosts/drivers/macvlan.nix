@@ -14,6 +14,9 @@ in
         root = lib.mkOption {
           type = str;
         };
+        rootPvid = nixpkgs.lib.mkOption {
+          type = ints.unsigned;
+        };
         mtu = lib.mkOption {
           type = ints.u16;
           default = 1500;
@@ -35,14 +38,15 @@ in
       ...
     }:
     let
+      isPvid = interface.driver.sriov.vlan == interface.driver.sriov.rootPvid;
       cfg = interface.driver.macvlan;
-      vlanIface = if cfg.vlan == 0 then cfg.root else "${cfg.root}.${toString cfg.vlan}";
+      vlanIface = if isPvid then cfg.root else "${cfg.root}.${toString cfg.vlan}";
     in
     {
       start =
         # The VLAN device is shared by every host on it and never torn down,
         # so whoever gets there first creates it.
-        (lib.lists.optionals (cfg.vlan != 0) [
+        (lib.lists.optionals (!isPvid) [
           "-${ipCmd} link add link ${eSA cfg.root} name ${eSA vlanIface} type vlan id ${toString cfg.vlan}"
           "${ipCmd} link set dev ${eSA vlanIface} mtu ${toString cfg.mtu} up"
         ])
