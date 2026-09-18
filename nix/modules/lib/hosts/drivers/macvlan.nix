@@ -1,19 +1,20 @@
 { nixpkgs, ... }:
 let
-  eSA = nixpkgs.lib.strings.escapeShellArg;
+  lib = nixpkgs.lib;
+  eSA = lib.strings.escapeShellArg;
 in
 {
   driverConfigType =
-    with nixpkgs.lib.types;
+    with lib.types;
     submodule {
       options = {
-        vlan = nixpkgs.lib.mkOption {
+        vlan = lib.mkOption {
           type = ints.unsigned;
         };
-        root = nixpkgs.lib.mkOption {
+        root = lib.mkOption {
           type = str;
         };
-        mtu = nixpkgs.lib.mkOption {
+        mtu = lib.mkOption {
           type = ints.u16;
           default = 1500;
         };
@@ -21,22 +22,9 @@ in
     };
 
   build =
-    { interfaces, ... }:
+    { ... }:
     {
-      config.systemd.network.netdevs = nixpkgs.lib.attrsets.listToAttrs (
-        map (iface: {
-          name = "${iface.driver.macvlan.root}.${toString iface.driver.macvlan.vlan}";
-          value = {
-            netdevConfig = {
-              Name = "${iface.driver.macvlan.root}.${toString iface.driver.macvlan.vlan}";
-              Kind = "vlan";
-            };
-            vlanConfig = {
-              Id = iface.driver.macvlan.vlan;
-            };
-          };
-        }) interfaces
-      );
+      config.systemd = { };
     };
 
   hooks = (
@@ -46,12 +34,24 @@ in
       uniqueServiceInterface,
       ...
     }:
+    let
+      cfg = interface.driver.macvlan;
+      vlanIface = cfg: if cfg.vlan == 0 then cfg.root else "${cfg.root}.${toString cfg.vlan}";
+      mtu = toString cfg.mtu;
+    in
     {
-      start = [
-        "-${ipCmd} link del ${eSA uniqueServiceInterface}"
-        "${ipCmd} link add link ${interface.driver.macvlan.root} name ${eSA uniqueServiceInterface} type macvlan mode bridge"
-        "${ipCmd} link set dev ${eSA uniqueServiceInterface} mtu ${toString interface.driver.macvlan.mtu}"
-      ];
+      start =
+        # The VLAN device is shared by every host on it and never torn down,
+        # so whoever gets there first creates it.
+        (lib.lists.optionals (cfg.vlan != 0) [
+          "-${ipCmd} link add link ${eSA cfg.root} name ${eSA vlanIface} type vlan id ${toString cfg.vlan}"
+          "${ipCmd} link set dev ${eSA vlanIface} mtu ${mtu} up"
+        ])
+        ++ [
+          "-${ipCmd} link del ${eSA uniqueServiceInterface}"
+          "${ipCmd} link add link ${eSA vlanIface} name ${eSA uniqueServiceInterface} type macvlan mode bridge"
+          "${ipCmd} link set dev ${eSA uniqueServiceInterface} mtu ${mtu}"
+        ];
       stop = [
         "-${ipCmd} link del ${eSA uniqueServiceInterface}"
       ];
