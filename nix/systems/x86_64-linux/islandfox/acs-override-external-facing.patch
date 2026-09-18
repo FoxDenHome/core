@@ -1,0 +1,28 @@
+PCI: pcie_acs_override: let id: entries opt in past external_facing
+
+The zen ACS override refuses to touch any device that is untrusted or
+external_facing, which excludes everything behind a Thunderbolt/USB4
+tunnel -- the AMD tunnel root ports are marked external_facing by ACPI
+and pci_set_untrusted() propagates untrusted to every device enumerated
+below them. On islandfox that puts the USB4 tunnel port, both Alpine
+Ridge bridges, the ConnectX-4 Lx PF and all of its VFs in one IOMMU
+group, so no VF can be handed to a guest.
+
+Check the explicit id: list before that bail so a named vendor:device
+can opt in, while downstream/multifunction keep refusing external ports.
+
+--- a/drivers/pci/quirks.c
++++ b/drivers/pci/quirks.c
+@@ -5172,6 +5172,12 @@
+ 	if (!pci_is_pcie(dev) || dev->acs_cap)
+ 		return -ENOTTY;
+ 
++	/* Explicit id: entries opt in, external-facing or not */
++	for (i = 0; i < max_acs_id; i++)
++		if (acs_on_ids[i].vendor == dev->vendor &&
++		    acs_on_ids[i].device == dev->device)
++			return 1;
++
+ 	if (dev->untrusted || dev->external_facing)
+ 		return -ENOTTY;
+ 
