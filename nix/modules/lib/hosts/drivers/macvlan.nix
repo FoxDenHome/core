@@ -27,10 +27,12 @@ in
         map (iface: {
           name = "${iface.driver.macvlan.root}.${toString iface.driver.macvlan.vlan}";
           value = {
-            name = "${iface.driver.macvlan.root}.${toString iface.driver.macvlan.vlan}";
-            kind = "vlan";
+            netdevConfig = {
+              Name = "${iface.driver.macvlan.root}.${toString iface.driver.macvlan.vlan}";
+              Kind = "vlan";
+            };
             vlanConfig = {
-              id = iface.driver.macvlan.vlan;
+              Id = iface.driver.macvlan.vlan;
             };
           };
         }) interfaces
