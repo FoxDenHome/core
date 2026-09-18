@@ -47,8 +47,8 @@ in
     {
       start = [
         "-${ipCmd} link del ${eSA uniqueServiceInterface}"
-        "${ipCmd} link add link ${interface.driver.maclvan.root} name ${eSA uniqueServiceInterface} type macvlan mode bridge"
-        "${ipCmd} link set dev ${eSA uniqueServiceInterface} mtu ${toString interface.driver.maclvan.mtu}"
+        "${ipCmd} link add link ${interface.driver.macvlan.root} name ${eSA uniqueServiceInterface} type macvlan mode bridge"
+        "${ipCmd} link set dev ${eSA uniqueServiceInterface} mtu ${toString interface.driver.macvlan.mtu}"
       ];
       stop = [
         "-${ipCmd} link del ${eSA uniqueServiceInterface}"
