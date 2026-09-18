@@ -184,7 +184,6 @@
         "/var/lib/nixos"
         "/var/lib/systemd/coredump"
         "/var/lib/systemd/pstore"
-        "/var/lib/systemd/random-seed"
         "/var/lib/systemd/timers"
         "/var/lib/systemd/timesync"
         "/var/cache/fwupd"
