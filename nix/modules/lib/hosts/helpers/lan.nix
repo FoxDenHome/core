@@ -50,6 +50,10 @@ in
             bridge = ifcfg.interface;
           }
           // commonConfig;
+          macvlan = {
+            root = ifcfg.interface;
+          }
+          // commonConfig;
         };
         routes = mkRoutes vlan;
       } cfg;
