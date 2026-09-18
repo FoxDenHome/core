@@ -17,6 +17,7 @@ in
         fqdns = [ "rmfakecloud.foxden.network" ];
         dynDns = true;
       };
+      driver.name = "macvlan";
       webservice.enable = true;
       addresses = [
         "10.2.11.37/16"
