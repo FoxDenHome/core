@@ -12,11 +12,11 @@
       );
     in
     {
-      pikvm-rack = mkIntf {
+      kvm-rack = mkIntf {
         dns = {
-          fqdns = [ "pikvm-rack.foxden.network" ];
+          fqdns = [ "kvm-rack.foxden.network" ];
         };
-        mac = "D8:3A:DD:A3:82:A8";
+        mac = "00:15:9D:03:3D:82";
         addresses = [
           "10.1.13.2/16"
         ];
