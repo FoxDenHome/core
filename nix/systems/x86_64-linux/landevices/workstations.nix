@@ -20,13 +20,8 @@
           fqdns = [ "capefox.foxden.network" ];
         };
         mac = "7c:e7:12:81:29:9b";
-        dhcpv6 = {
-          duid = "0x000100012d6265636c7e67bcff75";
-          iaid = 0;
-        };
         addresses = [
           "10.2.10.3/16"
-          "fd2c:f4cb:63be:2::a03/64"
         ];
       });
       capefox-wired = {
@@ -63,13 +58,8 @@
           fqdns = [ "fennec.foxden.network" ];
         };
         mac = "08:C0:EB:62:43:18";
-        dhcpv6 = {
-          duid = "0x0004f480d71b42f7092a0657194834b9505d";
-          iaid = 910610530;
-        };
         addresses = [
           "10.2.10.1/16"
-          "fd2c:f4cb:63be:2::a01/64"
         ];
       });
       wizzy-desktop = mkIntf {
