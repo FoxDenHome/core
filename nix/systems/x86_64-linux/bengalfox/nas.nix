@@ -265,7 +265,14 @@ in
         ];
         # The root netns already has a default route and RA handling of its
         # own via br-default; a second set on this interface would fight it.
-        routes = [ ];
+        routes = [
+          {
+            Destination = "10.2.0.0/16";
+          }
+          {
+            Destination = "fd2c:f4cb:63be:2::/64";
+          }
+        ];
         sysctls = {
           "net.ipv6.conf.INTERFACE.accept_ra" = "0";
         };
