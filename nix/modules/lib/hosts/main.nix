@@ -38,7 +38,6 @@ let
     + (if route.Gateway != null then " via ${eSA route.Gateway}" else "")
     + " dev ${eSA dev}"
     + (if route.GatewayOnLink == true then " onlink" else "")
-    + (if route.PreferredSource != null then " src ${eSA route.PreferredSource}" else "")
     + (if route.Table != null then " table ${eSA (toString route.Table)}" else "")
   );
 
@@ -257,10 +256,6 @@ in
                 gateway has to come earlier in the list than the route
                 using it.
               '';
-            };
-            PreferredSource = lib.mkOption {
-              type = nullOr foxDenLib.types.ipWithoutCidr;
-              default = null;
             };
           };
         };

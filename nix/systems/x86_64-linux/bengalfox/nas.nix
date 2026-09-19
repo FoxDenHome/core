@@ -293,26 +293,29 @@ in
         # need - in a table only this interface's own source addresses can
         # select. The on-link routes come first: the kernel resolves each
         # Gateway against this same table (see the Table option).
+        #
+        # No prefsrc on any of them: the rules below are what steers traffic
+        # here, and they match on source, so anything reaching this table
+        # already has the right one. Asking for it explicitly would only
+        # add a failure mode - the kernel rejects a prefsrc that is still
+        # tentative, so the IPv6 ones lose a race with DAD on the address
+        # this unit adds a few commands earlier.
         routes = [
           {
             Destination = "10.2.0.0/16";
             Table = smbTable;
-            PreferredSource = smbV4;
           }
           {
             Gateway = "10.2.0.1";
             Table = smbTable;
-            PreferredSource = smbV4;
           }
           {
             Destination = "fd2c:f4cb:63be:2::/64";
             Table = smbTable;
-            PreferredSource = smbV6;
           }
           {
             Gateway = "fd2c:f4cb:63be:2::1";
             Table = smbTable;
-            PreferredSource = smbV6;
           }
         ];
         # ksmbd's sockets are the only thing on this machine that ever
