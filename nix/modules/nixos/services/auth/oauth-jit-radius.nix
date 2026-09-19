@@ -37,8 +37,8 @@ let
         subnets = [
           "10.1.13.2/32"
         ];
-        secret = "$\{RADIUS_SECRET_KVMRACK}";
-        mapper = "";
+        secret = "$\{RADIUS_SECRET_TRIPPLITE}";
+        mapper = "tripplite";
       }
     ];
     radius = {
