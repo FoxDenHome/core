@@ -258,6 +258,11 @@ in
             source = "10.0.0.0/8";
             port = 445;
           }
+          {
+            protocol = "tcp";
+            source = "fd2c:f4cb:63be::/60";
+            port = 445;
+          }
         ];
         addresses = [
           "10.2.11.16/32"
@@ -265,14 +270,7 @@ in
         ];
         # The root netns already has a default route and RA handling of its
         # own via br-default; a second set on this interface would fight it.
-        routes = [
-          {
-            Destination = "10.2.0.0/16";
-          }
-          {
-            Destination = "fd2c:f4cb:63be:2::/64";
-          }
-        ];
+        routes = [ ];
         sysctls = {
           "net.ipv6.conf.INTERFACE.accept_ra" = "0";
         };
