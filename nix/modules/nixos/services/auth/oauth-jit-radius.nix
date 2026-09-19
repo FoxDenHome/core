@@ -33,6 +33,13 @@ let
         secret = "$\{RADIUS_SECRET_CYBERPOWER}";
         mapper = "cyberpower";
       }
+      {
+        subnets = [
+          "10.1.13.2/32"
+        ];
+        secret = "$\{RADIUS_SECRET_KVMRACK}";
+        mapper = "";
+      }
     ];
     radius = {
       password_expiry = "1h";
