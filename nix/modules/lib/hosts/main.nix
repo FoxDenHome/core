@@ -135,17 +135,6 @@ in
               type = nullOr str;
               default = null;
             };
-            dhcpv6 = {
-              disable = lib.mkEnableOption "Device manually manages its IPv6";
-              duid = lib.mkOption {
-                type = nullOr str;
-                default = null;
-              };
-              iaid = lib.mkOption {
-                type = nullOr ints.u32;
-                default = null;
-              };
-            };
             webservice = {
               enable = lib.mkOption {
                 type = bool;

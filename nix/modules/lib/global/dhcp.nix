@@ -32,21 +32,21 @@ let
         if ipv4 != "" && ipv6 != "" then
           [
             {
-              inherit (iface) mac dhcpv6;
+              inherit (iface) mac;
               inherit name ipv4 ipv6;
             }
           ]
         else if ipv4 != "" then
           [
             {
-              inherit (iface) mac dhcpv6;
+              inherit (iface) mac;
               inherit name ipv4;
             }
           ]
         else if ipv6 != "" then
           [
             {
-              inherit (iface) mac dhcpv6;
+              inherit (iface) mac;
               inherit name ipv6;
             }
           ]
