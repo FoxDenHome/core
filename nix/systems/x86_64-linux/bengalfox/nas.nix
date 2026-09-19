@@ -3,6 +3,12 @@ let
   mkVlanHost = config.lib.foxDenSys.mkVlanHost;
   # nas-smb is in the root netns, so its interface is one of this machine's.
   smbInterface = foxDenLib.hosts.getInterfaceName config "nas-smb";
+  smbV4 = "10.2.11.16";
+  smbV6 = "fd2c:f4cb:63be:2::b10";
+  # Everything nas-smb can reach lives here instead of in main, so the root
+  # netns never selects this interface for its own traffic. Arbitrary, just
+  # not one of the reserved ids in rt_tables.
+  smbTable = 2016;
 in
 {
   fileSystems."/mnt/zhdd/nas/torrent" = {
@@ -161,20 +167,20 @@ in
     # only the router's forward chain.
     interfaces.${smbInterface}.allowedTCPPorts = [ 445 ];
 
-    # br-default carries the machine's other 10.2.0.0/16 address and wins
-    # the route lookup for the whole subnet, so replies to nas-smb leave
-    # through it - which makes strict reverse path filtering drop every
-    # packet arriving on nas-smb's interface. Check that one interface
-    # loosely instead: the source still has to be routable, just not back
-    # out the interface it came in on.
+    # Belt and braces: nas-smb's own routing table does now send replies
+    # back out its interface, so strict reverse path filtering passes on
+    # its own - but only while that table and its rules are intact. Check
+    # this one interface loosely regardless: the source still has to be
+    # routable, just not back out the interface it came in on.
     extraReversePathFilterRules = ''
       iifname "${smbInterface}" fib saddr . mark oif exists accept
     '';
   };
 
-  # Both br-default and nas-smb hold a 10.2.0.0/16 address on the same L2,
-  # and with the default arp_ignore either of them would answer ARP for the
-  # other's address - which would send SMB traffic down the wrong link.
+  # ens1f0np0 and the nas-smb VF hung off it both hold a 10.2.0.0/16
+  # address on the same L2, and with the default arp_ignore either of them
+  # would answer ARP for the other's address - which would send SMB traffic
+  # down the wrong link.
   boot.kernel.sysctl = {
     "net.ipv4.conf.all.arp_ignore" = 1;
     "net.ipv4.conf.all.arp_announce" = 2;
@@ -269,11 +275,59 @@ in
             port = 445;
           }
         ];
+        # Host routes on purpose. This machine's own address covers the
+        # same subnet on ens1f0np0, and an on-link route for it here would
+        # be a second, equal-length candidate in main for all of
+        # 10.2.0.0/16 - so the root netns' own traffic would sometimes
+        # leave through this VF.
         addresses = [
-          "10.2.11.16/32"
-          "fd2c:f4cb:63be:2::b10/128"
+          "${smbV4}/32"
+          "${smbV6}/128"
         ];
-        routes = [ ];
+        # But ksmbd cannot work with no route at all: create_socket() in
+        # fs/smb/server/transport_tcp.c binds its listener with
+        # SO_BINDTODEVICE, and accepted connections inherit that, so every
+        # reply's route lookup is pinned to oif = this interface and fails
+        # outright when nothing here reaches the client. Hence a full set
+        # of routes - including a default, which is what off-subnet clients
+        # need - in a table only this interface's own source addresses can
+        # select. The on-link routes come first: the kernel resolves each
+        # Gateway against this same table (see the Table option).
+        routes = [
+          {
+            Destination = "10.2.0.0/16";
+            Table = smbTable;
+            PreferredSource = smbV4;
+          }
+          {
+            Gateway = "10.2.0.1";
+            Table = smbTable;
+            PreferredSource = smbV4;
+          }
+          {
+            Destination = "fd2c:f4cb:63be:2::/64";
+            Table = smbTable;
+            PreferredSource = smbV6;
+          }
+          {
+            Gateway = "fd2c:f4cb:63be:2::1";
+            Table = smbTable;
+            PreferredSource = smbV6;
+          }
+        ];
+        # ksmbd's sockets are the only thing on this machine that ever
+        # sends from these addresses, so this is what scopes the table
+        # above to it.
+        routingPolicyRules = [
+          {
+            From = "${smbV4}/32";
+            Table = smbTable;
+          }
+          {
+            From = "${smbV6}/128";
+            Table = smbTable;
+          }
+        ];
         sysctls = {
           "net.ipv6.conf.INTERFACE.accept_ra" = "0";
         };

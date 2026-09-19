@@ -27,12 +27,32 @@ let
   );
 
   # ipCmd is whatever runs ip in the interface's own netns.
+  #
+  # dev is always named, gateway or not: a route in a Table of its own has
+  # no other way to say which link it leaves by, and for a route in main it
+  # only spells out the interface the route is attached to anyway.
   renderRoute = (
     ipCmd: dev: route:
     "${ipCmd} route add "
     + (if route.Destination != null then eSA route.Destination else "default")
-    + (if route.Gateway != null then " via ${eSA route.Gateway}" else " dev ${eSA dev}")
+    + (if route.Gateway != null then " via ${eSA route.Gateway}" else "")
+    + " dev ${eSA dev}"
     + (if route.GatewayOnLink == true then " onlink" else "")
+    + (if route.PreferredSource != null then " src ${eSA route.PreferredSource}" else "")
+    + (if route.Table != null then " table ${eSA (toString route.Table)}" else "")
+  );
+
+  # Rules are netns wide rather than attached to a device, so they survive a
+  # link bounce and have to be removed by hand on stop. The family comes
+  # from the address rather than being left to ip's own guess: v4 and v6
+  # rules are separate tables of rules entirely, and landing in the wrong
+  # one fails silently.
+  renderRule = (
+    ipCmd: op: rule:
+    "${ipCmd} -${if util.isIPv6 rule.From then "6" else "4"} rule ${op}"
+    + " from ${eSA rule.From}"
+    + " lookup ${eSA (toString rule.Table)}"
+    + " priority ${toString rule.Priority}"
   );
 
   # The interface name mkHooks (below) actually renames the host's
@@ -176,6 +196,16 @@ in
               type = nullOr (listOf routeType);
               default = [ ];
             };
+            routingPolicyRules = lib.mkOption {
+              type = listOf routingPolicyRuleType;
+              default = [ ];
+              description = ''
+                Policy routing rules to install in this interface's netns.
+                Only useful together with routes carrying a `Table`: the
+                pair is how an interface gets routes nothing else in the
+                netns can select.
+              '';
+            };
             sysctls = lib.mkOption {
               type = attrsOf str;
               default = { };
@@ -210,6 +240,44 @@ in
             GatewayOnLink = lib.mkOption {
               type = bool;
               default = false;
+            };
+            Table = lib.mkOption {
+              type = nullOr (either ints.unsigned str);
+              default = null;
+              description = ''
+                Install the route in this table rather than main, where it
+                is reachable only through a matching
+                {option}`routingPolicyRules` entry - so it never competes
+                with the rest of the netns for a destination.
+
+                The kernel resolves a `Gateway` for such a route against
+                this same table (fib_check_nh_v4_gw() in
+                net/ipv4/fib_semantics.c, ip6_route_check_nh() in
+                net/ipv6/route.c), so the on-link route covering the
+                gateway has to come earlier in the list than the route
+                using it.
+              '';
+            };
+            PreferredSource = lib.mkOption {
+              type = nullOr foxDenLib.types.ipWithoutCidr;
+              default = null;
+            };
+          };
+        };
+
+      routingPolicyRuleType =
+        with lib.types;
+        submodule {
+          options = {
+            From = lib.mkOption {
+              type = foxDenLib.types.ip;
+            };
+            Table = lib.mkOption {
+              type = either ints.unsigned str;
+            };
+            Priority = lib.mkOption {
+              type = ints.unsigned;
+              default = 100;
             };
           };
         };
@@ -587,12 +655,22 @@ in
                             ++ [
                               "${ipInNsCmd} link set ${eSA inNsServiceInterface} up"
                             ]
-                            ++ (map (renderRoute ipInNsCmd inNsServiceInterface) interface.routes);
+                            ++ (map (renderRoute ipInNsCmd inNsServiceInterface) interface.routes)
+                            # Deleted first: a rule is not tied to the link,
+                            # so a restart that could not run ExecStop would
+                            # otherwise stack a second copy of it.
+                            ++ (lib.concatMap (rule: [
+                              "-${renderRule ipInNsCmd "del" rule}"
+                              (renderRule ipInNsCmd "add" rule)
+                            ]) interface.routingPolicyRules);
 
                           stop =
+                            # Nothing removes these with the link, and in the
+                            # root netns no netns teardown gets them either.
+                            (map (rule: "-${renderRule ipInNsCmd "del" rule}") interface.routingPolicyRules)
                             # No netns gets torn down here, so the addresses
                             # have to be removed explicitly.
-                            (lib.lists.optional inRootNetns "-${ipInNsCmd} addr flush dev ${eSA inNsServiceInterface}")
+                            ++ (lib.lists.optional inRootNetns "-${ipInNsCmd} addr flush dev ${eSA inNsServiceInterface}")
                             ++ [
                               "-${ipInNsCmd} link set ${eSA inNsServiceInterface} down"
                             ]
