@@ -240,6 +240,11 @@ in
           source = "10.0.0.0/8";
           port = 445;
         }
+        {
+          protocol = "tcp";
+          source = "fd2c:f4cb:63be::/60";
+          port = 445;
+        }
       ];
       webservice.enable = true;
       addresses = [
