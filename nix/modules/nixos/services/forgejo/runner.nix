@@ -170,11 +170,6 @@ in
         inherit svcConfig pkgs config;
       }).config
       {
-        foxDen.services.forgejo-runner.labels = [
-          "ubuntu-24.04"
-          "ubuntu-26.04"
-        ];
-
         users.users.forgejo-runner = {
           isSystemUser = true;
           group = "forgejo-runner";
