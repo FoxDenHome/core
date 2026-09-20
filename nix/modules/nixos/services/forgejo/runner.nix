@@ -95,8 +95,8 @@ let
       report_interval = "1s";
       labels = builtins.concatLists (
         map (
-          label:
-          map (image: "${image}-${label}:docker://git.foxden.network/foxden/runner-image:${image}") images
+          suffix:
+          map (image: "${image}${suffix}:docker://git.foxden.network/foxden/runner-image:${image}") images
         ) suffixes
       );
     };
