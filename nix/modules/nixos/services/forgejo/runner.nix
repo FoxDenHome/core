@@ -22,6 +22,12 @@ let
   services = foxDenLib.services;
   svcConfig = config.foxDen.services.forgejo-runner;
 
+  suffixes = [ "" ] ++ map (label: "${label}-") svcConfig.labels;
+  images = [
+    "ubuntu-24.04"
+    "ubuntu-26.04"
+  ];
+
   mkDir = (
     dir: {
       directory = dir;
@@ -90,11 +96,8 @@ let
       labels = builtins.concatLists (
         map (
           label:
-          map (os: "${os}-${label}:docker://git.foxden.network/foxden/runner-image:${os}") [
-            "ubuntu-24.04"
-            "ubuntu-26.04"
-          ]
-        ) svcConfig.labels
+          map (image: "${image}-${label}:docker://git.foxden.network/foxden/runner-image:${image}") images
+        ) suffixes
       );
     };
     cache = {
