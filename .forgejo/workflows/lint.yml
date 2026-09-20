@@ -15,7 +15,7 @@ concurrency:
 
 jobs:
   lint:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     steps:
       - uses: https://data.forgejo.org/actions/checkout@v7
       - uses: https://github.com/astral-sh/setup-uv@v10.1.0
