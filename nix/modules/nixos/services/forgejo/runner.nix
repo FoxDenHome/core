@@ -22,7 +22,7 @@ let
   services = foxDenLib.services;
   svcConfig = config.foxDen.services.forgejo-runner;
 
-  suffixes = [ "" ] ++ map (label: "${label}-") svcConfig.labels;
+  suffixes = [ "" ] ++ map (label: "-${label}") svcConfig.labels;
   images = [
     "ubuntu-24.04"
     "ubuntu-26.04"
