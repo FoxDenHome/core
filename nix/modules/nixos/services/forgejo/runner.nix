@@ -87,9 +87,15 @@ let
       fetch_timeout = "5s";
       fetch_interval = "2s";
       report_interval = "1s";
-      labels = map (
-        label: "${label}:docker://git.foxden.network/foxden/runner-image:ubuntu24"
-      ) svcConfig.labels;
+      labels = builtins.concatLists (
+        map (
+          label:
+          map (os: "${os}-${label}:docker://git.foxden.network/foxden/runner-image:${os}") [
+            "ubuntu-24.04"
+            "ubuntu-26.04"
+          ]
+        ) svcConfig.labels
+      );
     };
     cache = {
       enabled = true;
@@ -130,8 +136,8 @@ in
     labels = lib.mkOption {
       type = lib.types.listOf lib.types.str;
       default = [ ];
-      defaultText = "[ \"ubunutu-24.04\" ]";
-      description = "The label(s) to use for the runner.";
+      defaultText = "[ ]";
+      description = "The extra sub label(s) to use for the runner.";
     };
   }
   // services.mkOptions {
@@ -164,7 +170,10 @@ in
         inherit svcConfig pkgs config;
       }).config
       {
-        foxDen.services.forgejo-runner.labels = [ "ubuntu-24.04" ];
+        foxDen.services.forgejo-runner.labels = [
+          "ubuntu-24.04"
+          "ubuntu-26.04"
+        ];
 
         users.users.forgejo-runner = {
           isSystemUser = true;
@@ -236,7 +245,7 @@ in
           {
             serviceConfig = {
               Type = "oneshot";
-              ExecStart = "${pkgs.podman}/bin/podman system prune --all --force --volumes --filter until=${builtins.toString (7 * 24)}h";
+              ExecStart = "${pkgs.podman}/bin/podman system prune --all --force --volumes --filter until=${toString (7 * 24)}h";
               Restart = "no";
               RemainAfterExit = false;
               Nice = 5;
