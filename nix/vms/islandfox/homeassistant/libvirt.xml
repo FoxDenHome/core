@@ -82,9 +82,6 @@
     <interface type='direct'>
       <source dev='ens1np0' mode='bridge'/>
       <mac address='52:54:00:e9:7e:50'/>
-      <vlan>
-        <tag id='0' nativeMode='untagged' />
-      </vlan>
       <model type='virtio'/>
       <address type='pci' domain='0x0000' bus='0x06' slot='0x00' function='0x0'/>
     </interface>
