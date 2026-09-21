@@ -4,6 +4,4 @@ cd "$(dirname "$0")"
 
 cd nix && nix flake update && cd ..
 ./nix/modules/nixos/services/games/factorio/enhance-mod-list.py
-./mikrotik/files/tftp/update.sh
-./nix/pxeimage.sh ~/nas/share/apps/pxe/nixos
 cd mikrotik && ./configure.py && cd ..
