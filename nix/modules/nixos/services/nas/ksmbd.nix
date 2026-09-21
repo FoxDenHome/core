@@ -300,6 +300,7 @@ in
         # catia/fruit macOS setup or fruit:* tuning to configure here.
         foxDen.services.ksmbd.settings.global = {
           "workgroup" = "WORKGROUP";
+          "server string" = "FoxDen kSMBd";
           "guest account" = "smbguest";
           "map to guest" = "never";
           "server min protocol" = "SMB2_10";
