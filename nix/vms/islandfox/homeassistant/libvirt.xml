@@ -79,8 +79,8 @@
     <controller type='virtio-serial' index='0'>
       <address type='pci' domain='0x0000' bus='0x01' slot='0x00' function='0x0'/>
     </controller>
-    <interface type='macvlan'>
-      <source interface="ens1np0"/>
+    <interface type='direct'>
+      <source dev='ens1np0' mode='bridge'/>
       <mac address='52:54:00:e9:7e:50'/>
       <vlan>
         <tag id='0' nativeMode='untagged' />
