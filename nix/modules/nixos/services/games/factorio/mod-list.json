@@ -145,9 +145,9 @@
         {
             "name": "LogisticTrainNetwork",
             "enabled": true,
-            "sha1": "8d75aefcf09f7f75a5c3cfb039c0600f365129f0",
-            "url": "https://mods.factorio.com/download/LogisticTrainNetwork/6a7932ccba3d9abcd7654581",
-            "version": "3.1.0"
+            "sha1": "aadb2ff74b0336e0af69555536b8f4b7fe6bb1be",
+            "url": "https://mods.factorio.com/download/LogisticTrainNetwork/6aa2f9e1538e80e36dedff83",
+            "version": "3.2.1"
         },
         {
             "name": "LtnManager",
