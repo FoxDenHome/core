@@ -53,6 +53,10 @@ in
       }) vlanIfaces;
     };
 
+  # The macvlan (and the VLAN device under it, where there is one) hangs off
+  # the root link, so nothing here can be created before that link exists.
+  rootDevices = interface: [ interface.driver.macvlan.root ];
+
   hooks = (
     {
       ipCmd,

@@ -60,6 +60,10 @@ in
       );
     };
 
+  # The host side of the veth is enslaved to this bridge, so it has to be
+  # there before the pair is worth creating.
+  rootDevices = interface: [ interface.driver.bridge.bridge ];
+
   hooks = (
     {
       ipCmd,

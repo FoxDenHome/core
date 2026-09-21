@@ -29,6 +29,9 @@ in
       config.systemd = { };
     };
 
+  # VFs are carved out of the PF, which has to have been enumerated first.
+  rootDevices = interface: [ interface.driver.sriov.root ];
+
   hooks = (
     {
       pkgs,

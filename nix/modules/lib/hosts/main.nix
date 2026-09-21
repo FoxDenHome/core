@@ -83,6 +83,7 @@ in
     {
       config,
       pkgs,
+      utils,
       foxDenLib,
       ...
     }:
@@ -674,13 +675,31 @@ in
                       name = (lib.strings.removeSuffix ".service" host.unit);
                       value =
                         let
-                          ifaceHooks = map mkHooks (lib.filter (iface: iface.host.name == host.name) interfaces);
+                          hostInterfaces = lib.filter (iface: iface.host.name == host.name) interfaces;
+                          ifaceHooks = map mkHooks hostInterfaces;
                           getHook = sub: lib.flatten (map (cfg: cfg.${sub}) ifaceHooks);
+
+                          # Every link this host's interfaces hang off of. Hot
+                          # plugged NICs (thunderbolt, most of all) are only
+                          # enumerated well after network-pre.target, and
+                          # latching onto one that is not there yet leaves the
+                          # whole netns dead until it is restarted by hand, so
+                          # wait for each of their device units first.
+                          rootDeviceUnits = map (dev: "sys-subsystem-net-devices-${utils.escapeSystemdPath dev}.device") (
+                            lib.lists.unique (
+                              lib.concatMap (iface: foxDenLib.hosts.drivers.${iface.driver.name}.rootDevices iface) hostInterfaces
+                            )
+                          );
                         in
                         {
                           description =
                             if inRootNetns then "Root netns interfaces of host ${host.name}" else "NetNS ${host.namespace}";
-                          after = [ "network-pre.target" ];
+                          # Wants rather than requires: a root link that never
+                          # turns up stalls this for the device job timeout and
+                          # then lets the unit run anyway, which is what it did
+                          # before any of this waiting existed.
+                          wants = rootDeviceUnits;
+                          after = [ "network-pre.target" ] ++ rootDeviceUnits;
                           restartTriggers = [ (builtins.concatStringsSep " " host.nameservers) ];
 
                           serviceConfig = {

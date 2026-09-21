@@ -6,6 +6,8 @@
     {
       config.systemd = { };
     };
+  rootDevices = _: [ ];
+
   hooks =
     { ... }:
     {
