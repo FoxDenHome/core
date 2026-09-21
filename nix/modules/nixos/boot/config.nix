@@ -53,7 +53,7 @@ in
           "aarch64-linux"
         ];
       };
-      kernelPackages = lib.mkDefault pkgs.linuxPackages_latest;
+      kernelPackages = lib.mkDefault pkgs.linuxPackages_zen;
       kernelParams = [
         "iommu=pt"
         "intel_iommu=on"

@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ config, ... }:
 {
   # These are set when you reinstall the system
   # Change them to "false" for first boot, before secrets exist
@@ -12,25 +12,13 @@
   imports = [ ../../../profiles/server.nix ];
   hardware.enableRedistributableFirmware = true;
   hardware.cpu.amd.updateMicrocode = true;
-  boot = {
-    # 1022:14ef = AMD USB4/TB tunnel ports, 8086:15da = Alpine Ridge bridges.
-    # Needed to split the ConnectX-4 VFs out of the Thunderbolt IOMMU group.
-    kernelParams = [ "pcie_acs_override=id:1022:14ef,id:8086:15da" ];
-    kernelModules = [
-      "kvm-amd"
-      "mlx5_core"
-      "mlx5_en"
-      "r8169"
-      "rdma_cm"
-    ];
-    kernelPackages = pkgs.linuxPackages_zen;
-    kernelPatches = [
-      {
-        name = "acs-override-external-facing";
-        patch = ./acs-override-external-facing.patch;
-      }
-    ];
-  };
+  boot.kernelModules = [
+    "kvm-amd"
+    "mlx5_core"
+    "mlx5_en"
+    "r8169"
+    "rdma_cm"
+  ];
   foxDen.amdgpu.enable = true;
   services.hardware.bolt.enable = true;
   powerManagement.cpuFreqGovernor = "performance";
