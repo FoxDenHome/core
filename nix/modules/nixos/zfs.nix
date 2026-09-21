@@ -38,14 +38,12 @@ in
   config = lib.mkIf config.foxDen.zfs.enable {
     # services.cockpit.plugins = [ pkgs.cockpit-zfs ]; # TODO: Currently broken
     boot = {
-      # TODO: Keep these values reasonably up to date [kernelPackages / zfs.package]
       zfs = {
         devNodes = "/dev/disk/by-path";
         package = pkgs.zfs_2_4;
         forceImportRoot = false;
       };
       supportedFilesystems = [ "zfs" ];
-      kernelPackages = pkgs.linuxPackages_7_2;
     };
     environment.systemPackages = with pkgs; [
       mbuffer
