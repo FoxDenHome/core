@@ -39,6 +39,11 @@ in
   };
   #boot.initrd.systemd.network.networks."30-${ifcfg.interface}" = config.systemd.network.networks."30-${ifcfg.interface}";
 
+  foxDen.servicesptp = {
+    enable = true;
+    interface = ifcfg.interface;
+  };
+
   foxDen.hosts.hosts = {
     bengalfox = {
       ssh = true;
