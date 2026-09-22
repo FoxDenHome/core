@@ -3,10 +3,12 @@
   pkgs,
   lib,
   config,
+  utils,
   ...
 }:
 let
   svcConfig = config.foxDen.services.ptp;
+  netdev = "sys-subsystem-net-devices-${utils.escapeSystemdPath svcConfig.interface}.device";
 in
 {
   options.foxDen.services.ptp = {
@@ -22,6 +24,9 @@ in
     services.timesyncd.enable = lib.mkForce false;
 
     systemd.services.ptp4l = {
+      after = [ netdev ];
+      wants = [ netdev ];
+
       serviceConfig = {
         Type = "simple";
         ExecStart = [ "${pkgs.linuxptp}/bin/ptp4l -f /etc/linuxptp/ptp4l.conf -i ${svcConfig.interface}" ];
@@ -31,7 +36,11 @@ in
     };
 
     systemd.services.phc2sys = {
-      after = [ "ptp4l.service" ];
+      after = [
+        "ptp4l.service"
+        netdev
+      ];
+      wants = [ netdev ];
       requires = [ "ptp4l.service" ];
 
       serviceConfig = {
