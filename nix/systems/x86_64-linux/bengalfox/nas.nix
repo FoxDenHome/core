@@ -173,15 +173,6 @@ in
     '';
   };
 
-  # ens1f0np0 and the nas-smb VF hung off it both hold a 10.2.0.0/16
-  # address on the same L2, and with the default arp_ignore either of them
-  # would answer ARP for the other's address - which would send SMB traffic
-  # down the wrong link.
-  boot.kernel.sysctl = {
-    "net.ipv4.conf.all.arp_ignore" = 1;
-    "net.ipv4.conf.all.arp_announce" = 2;
-  };
-
   foxDen.hosts.hosts = {
     deluge =
       (mkVlanHost 2 {

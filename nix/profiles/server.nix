@@ -16,6 +16,10 @@
     "emergency.target"
   ];
   boot.loader.grub.splashImage = null;
+  boot.kernel.sysctl = {
+    "net.ipv4.conf.all.arp_ignore" = 1;
+    "net.ipv4.conf.all.arp_announce" = 2;
+  };
 
   hardware.rasdaemon.enable = true;
 
