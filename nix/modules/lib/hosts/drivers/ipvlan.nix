@@ -32,9 +32,9 @@ in
   build =
     { interfaces, ... }:
     let
-      # Keyed by the link the macvlans hang off of: the shared VLAN device,
+      # Keyed by the link the ipvlans hang off of: the shared VLAN device,
       # or the root itself for hosts on its PVID.
-      parentIfaces = lib.lists.groupBy mkVlanIface (map (iface: iface.driver.macvlan) interfaces);
+      parentIfaces = lib.lists.groupBy mkVlanIface (map (iface: iface.driver.ipvlan) interfaces);
       parentMtus = lib.attrsets.mapAttrs (
         _: cfgs: lib.lists.unique (map (cfg: cfg.mtu) cfgs)
       ) parentIfaces;
@@ -48,7 +48,7 @@ in
       vlanIfaces = lib.attrsets.filterAttrs (_: cfgs: !(isPvid (lib.head cfgs))) parentIfaces;
     in
     assert lib.asserts.assertMsg (mismatched == { }) (
-      "macvlan hosts on the same link must share one MTU, got: "
+      "ipvlan hosts on the same link must share one MTU, got: "
       + lib.concatStringsSep "; " (
         lib.attrsets.mapAttrsToList (
           parent: mtus: "${parent}: ${lib.concatMapStringsSep ", " toString mtus}"
@@ -57,7 +57,7 @@ in
     );
     {
       config.systemd.network.networks = lib.attrsets.mapAttrs' (vlanIface: cfgs: {
-        name = "50-macvlan-${vlanIface}";
+        name = "50-ipvlan-${vlanIface}";
         value = {
           name = vlanIface;
           networkConfig = {
@@ -72,9 +72,9 @@ in
       }) vlanIfaces;
     };
 
-  # The macvlan (and the VLAN device under it, where there is one) hangs off
+  # The ipvlan (and the VLAN device under it, where there is one) hangs off
   # the root link, so nothing here can be created before that link exists.
-  rootDevices = interface: [ interface.driver.macvlan.root ];
+  rootDevices = interface: [ interface.driver.ipvlan.root ];
 
   hooks = (
     {
@@ -85,13 +85,13 @@ in
       ...
     }:
     let
-      cfg = interface.driver.macvlan;
+      cfg = interface.driver.ipvlan;
       vlanIface = mkVlanIface cfg;
 
       # The root link's device unit shows up as soon as the link exists, but
       # its MTU is only raised once networkd gets around to configuring it.
-      # Until then neither the VLAN device nor the macvlan can take our MTU.
-      waitMtuScript = pkgs.writeShellScript "wait-macvlan-mtu.sh" ''
+      # Until then neither the VLAN device nor the ipvlan can take our MTU.
+      waitMtuScript = pkgs.writeShellScript "wait-ipvlan-mtu.sh" ''
         set -euo pipefail
         mtu_file="/sys/class/net/$1/mtu"
         maxtries=600
@@ -116,12 +116,14 @@ in
       ])
       ++ [
         "-${ipCmd} link del ${eSA uniqueServiceInterface}"
-        "${ipCmd} link add link ${eSA vlanIface} name ${eSA uniqueServiceInterface} type macvlan mode bridge"
+        "${ipCmd} link add link ${eSA vlanIface} name ${eSA uniqueServiceInterface} type ipvlan mode l2 bridge"
         "${ipCmd} link set dev ${eSA uniqueServiceInterface} mtu ${toString cfg.mtu}"
       ];
       stop = [
         "-${ipCmd} link del ${eSA uniqueServiceInterface}"
       ];
+      # ipvlans always carry their parent's MAC and refuse to take another.
+      setMac = [ ];
     }
   );
 }
