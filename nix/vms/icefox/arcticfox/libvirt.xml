@@ -149,10 +149,13 @@
       <target dir='backup'/>
       <address type='pci' domain='0x0000' bus='0x07' slot='0x00' function='0x0'/>
     </filesystem>
-    <interface type='bridge'>
+    <interface type='hostdev' managed='yes'>
+      <driver name='vfio'/>
       <mac address='02:00:00:6d:d5:fc'/>
-      <source bridge='br-default'/>
-      <model type='virtio'/>
+      <vlan>
+        <tag id='0' nativeMode='untagged' />
+      </vlan>
+      <source interface='ens1np0'/>
       <address type='pci' domain='0x0000' bus='0x01' slot='0x00' function='0x0'/>
     </interface>
     <serial type='pty'>

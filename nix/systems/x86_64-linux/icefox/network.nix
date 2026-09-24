@@ -1,8 +1,10 @@
 {
   config,
   lib,
+  pkgs,
   foxDenLib,
   firewall,
+  utils,
   ...
 }:
 let
@@ -39,16 +41,8 @@ let
     ];
     mac = "3c:ec:ef:78:c1:66";
     mtu = 1500;
-    interface = "br-default";
+    interface = "eno1np0";
     phyIface = "eno1np0";
-  };
-  ifcfg-routed = {
-    addresses = [
-      "2607:5300:60:7065::1:1/112"
-    ];
-    interface = "br-routed";
-    mtu = 1500;
-    mac = config.lib.foxDen.mkHashMac "000002";
   };
 
   mkMinHost = (
@@ -62,9 +56,10 @@ let
         addresses = lib.filter (ip: !(foxDenLib.util.isPrivateIP ip)) iface.addresses;
         webservice.enable = false;
         driver = {
-          name = "bridge";
-          bridge = {
-            bridge = ifcfg.interface;
+          name = "ipvlan";
+          ipvlan = {
+            root = ifcfg.interface;
+            rootPvid = 0;
             vlan = 0;
             mtu = ifcfg.mtu;
           };
@@ -102,9 +97,7 @@ let
 in
 {
   lib.foxDenSys = {
-    mainIPs = map foxDenLib.util.removeIPCidr (
-      ifcfg-foxden.addresses ++ ifcfg.addresses ++ ifcfg-routed.addresses
-    );
+    mainIPs = map foxDenLib.util.removeIPCidr (ifcfg-foxden.addresses ++ ifcfg.addresses);
     inherit mkMinHost;
     mkV6Host =
       iface:
@@ -119,10 +112,6 @@ in
                 Gateway = "2607:5300:60:7065::1:1";
               }
             ];
-            driver.bridge = {
-              bridge = lib.mkForce ifcfg-routed.interface;
-              mtu = ifcfg-routed.mtu;
-            };
           };
           interfaces.foxden.routes = [
             {
@@ -135,7 +124,7 @@ in
   };
 
   foxDen.services.kanidm.externalIPs = lib.filter (ip: !(foxDenLib.util.isPrivateIP ip)) (
-    map foxDenLib.util.removeIPCidr (ifcfg-routed.addresses ++ ifcfg.addresses)
+    map foxDenLib.util.removeIPCidr ifcfg.addresses
   );
   foxDen.hosts.index = 3;
   foxDen.hosts.gateway = "icefox";
@@ -144,7 +133,6 @@ in
   virtualisation.libvirtd.allowedBridges = [
     ifcfg.interface
     ifcfg-foxden.interface
-    ifcfg-routed.interface
   ];
 
   # We don't firewall on servers, so only use port forward type rules
@@ -187,30 +175,6 @@ in
     "net.ipv6.conf.default.forwarding" = "1";
   };
 
-  systemd.network.netdevs."${ifcfg.interface}" = {
-    netdevConfig = {
-      Name = ifcfg.interface;
-      Kind = "bridge";
-      MACAddress = ifcfg.mac;
-    };
-  };
-
-  systemd.network.netdevs."${ifcfg-routed.interface}" = {
-    netdevConfig = {
-      Name = ifcfg-routed.interface;
-      Kind = "bridge";
-      MACAddress = ifcfg-routed.mac;
-    };
-  };
-
-  systemd.network.netdevs."${ifcfg-foxden.interface}" = {
-    netdevConfig = {
-      Name = ifcfg-foxden.interface;
-      Kind = "bridge";
-      MACAddress = ifcfg-foxden.mac;
-    };
-  };
-
   systemd.network.networks."30-${ifcfg.interface}" = {
     name = ifcfg.interface;
     routes = [
@@ -229,52 +193,35 @@ in
     dns = ifcfg.nameservers;
 
     networkConfig = {
-      IPv4Forwarding = true;
-      IPv6Forwarding = true;
-      IPv6ProxyNDP = true;
-      IPv6ProxyNDPAddress = lib.naturalSort (
-        lib.flatten (
-          map
-            (
-              host:
-              map foxDenLib.util.removeIPCidr (
-                lib.lists.filter foxDenLib.util.isIPv6 host.interfaces.default.addresses
-              )
-            )
-            (
-              lib.lists.filter (
-                host:
-                (lib.attrsets.hasAttr "default" host.interfaces)
-                && host.interfaces.default.driver.name == "bridge"
-                && host.interfaces.default.driver.bridge.bridge == ifcfg-routed.interface
-              ) (lib.attrValues config.foxDen.hosts.hosts)
-            )
-        )
-      );
-
       DHCP = "no";
       IPv6AcceptRA = false;
+      IPv4Forwarding = true;
+      IPv6Forwarding = true;
     };
 
     linkConfig = {
       MTUBytes = ifcfg.mtu;
     };
   };
-  boot.initrd.systemd.network.networks."30-${ifcfg.phyIface}" =
-    config.systemd.network.networks."30-${ifcfg.interface}"
-    // {
-      name = ifcfg.phyIface;
-    };
+  boot.initrd.systemd.network.networks."30-${ifcfg.interface}" =
+    config.systemd.network.networks."30-${ifcfg.interface}";
 
+  systemd.network.netdevs."${ifcfg-foxden.interface}" = {
+    netdevConfig = {
+      Name = ifcfg-foxden.interface;
+      Kind = "bridge";
+      MACAddress = ifcfg-foxden.mac;
+    };
+  };
   systemd.network.networks."30-${ifcfg-foxden.interface}" = {
     name = ifcfg-foxden.interface;
     address = ifcfg-foxden.bridgeAddresses;
 
     networkConfig = {
-      IPv4Forwarding = true;
-      IPv6Forwarding = true;
       DHCP = "no";
       IPv6AcceptRA = false;
+      IPv4Forwarding = true;
+      IPv6Forwarding = true;
     };
 
     linkConfig = {
@@ -282,26 +229,22 @@ in
     };
   };
 
-  systemd.network.networks."30-${ifcfg-routed.interface}" = {
-    name = ifcfg-routed.interface;
-    address = ifcfg-routed.addresses;
+  systemd.services."sriov-init-${ifcfg.interface}" =
+    let
+      netdev = "sys-subsystem-net-devices-${utils.escapeSystemdPath ifcfg.interface}.device";
+    in
+    {
+      after = [ netdev ];
+      wants = [ netdev ];
 
-    networkConfig = {
-      IPv4Forwarding = false;
-      IPv6Forwarding = true;
-      DHCP = "no";
-      IPv6AcceptRA = false;
+      serviceConfig = {
+        Type = "oneshot";
+        ExecStart = "${pkgs.coreutils}/bin/echo 1 > /sys/class/net/${ifcfg.interface}/device/sriov_numvfs";
+        Restart = "no";
+      };
+
+      wantedBy = [ "multi-user.target" ];
     };
-
-    linkConfig = {
-      MTUBytes = ifcfg-routed.mtu;
-    };
-  };
-
-  systemd.network.networks."40-${ifcfg.interface}-root" = {
-    name = ifcfg.phyIface;
-    bridge = [ ifcfg.interface ];
-  };
 
   foxDen.services = {
     wireguard.${ifcfg-foxden.phyIface} = config.lib.foxDen.sops.mkIfAvailable {
@@ -379,7 +322,6 @@ in
         ssh = true;
         interfaces.default = mkIntf ifcfg;
         interfaces.foxden = mkIntf ifcfg-foxden;
-        interfaces.routed = mkIntf ifcfg-routed;
         interfaces.foxden-bridge = {
           driver.name = "null";
           mac = null;
