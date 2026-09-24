@@ -238,6 +238,8 @@ in
       after = [ netdev ];
       wants = [ netdev ];
 
+      before = [ "libvirtd.service" ];
+
       serviceConfig = {
         Type = "oneshot";
         ExecStart = [
