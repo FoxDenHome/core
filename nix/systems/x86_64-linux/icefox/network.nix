@@ -239,6 +239,10 @@ in
       wants = [ netdev ];
 
       before = [ "libvirtd.service" ];
+      wantedBy = [
+        "multi-user.target"
+        "libvirtd.service"
+      ];
 
       serviceConfig = {
         Type = "oneshot";
@@ -247,8 +251,6 @@ in
         ];
         Restart = "no";
       };
-
-      wantedBy = [ "multi-user.target" ];
     };
 
   foxDen.services = {
