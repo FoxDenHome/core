@@ -61,16 +61,37 @@ in
     {
       ipCmd,
       interface,
+      pkgs,
       uniqueServiceInterface,
       ...
     }:
     let
       cfg = interface.driver.macvlan;
       vlanIface = mkVlanIface cfg;
+
+      # The root link's device unit shows up as soon as the link exists, but
+      # its MTU is only raised once networkd gets around to configuring it.
+      # Until then neither the VLAN device nor the macvlan can take our MTU.
+      waitMtuScript = pkgs.writeShellScript "wait-macvlan-mtu.sh" ''
+        set -euo pipefail
+        mtu_file="/sys/class/net/$1/mtu"
+        maxtries=600
+        while [ "$(${pkgs.coreutils}/bin/cat "$mtu_file" 2>/dev/null || echo 0)" -lt "$2" ]; do
+          maxtries=$((maxtries - 1))
+          if [ $maxtries -le 0 ]; then
+            echo "Timeout waiting for $1 to reach MTU $2" >&2
+            exit 1
+          fi
+          ${pkgs.coreutils}/bin/sleep 0.1
+        done
+      '';
     in
     {
       start =
-        (lib.lists.optionals (!(isPvid cfg)) [
+        [
+          "${waitMtuScript} ${eSA cfg.root} ${toString cfg.mtu}"
+        ]
+        ++ (lib.lists.optionals (!(isPvid cfg)) [
           "-${ipCmd} link add link ${eSA cfg.root} name ${eSA vlanIface} type vlan id ${toString cfg.vlan}"
           "${ipCmd} link set dev ${eSA vlanIface} mtu ${toString cfg.mtu} addrgenmode none up"
           "-${ipCmd} addr flush dev ${eSA vlanIface}"
