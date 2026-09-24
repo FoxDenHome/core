@@ -1,4 +1,9 @@
-{ config, foxDenLib, ... }:
+{
+  config,
+  pkgs,
+  foxDenLib,
+  ...
+}:
 let
   mkVlanHost = config.lib.foxDenSys.mkVlanHost;
   # nas-smb is in the root netns, so its interface is one of this machine's.
@@ -28,6 +33,10 @@ in
       "nofail"
     ];
   };
+
+  environment.systemPackages = [
+    pkgs.yt-dlp
+  ];
 
   foxDen.services = config.lib.foxDen.sops.mkIfAvailable {
     wireguard."wg-deluge" = {
