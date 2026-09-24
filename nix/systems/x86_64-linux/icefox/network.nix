@@ -42,15 +42,6 @@ let
     interface = "br-default";
     phyIface = "eno1np0";
   };
-  ifcfg-vrack = {
-    addresses = [
-      "2604:2dc0:500:b00::3/56"
-    ];
-    interface = "br-vrack";
-    mtu = 1500;
-    mac = "3c:ec:ef:78:c1:67";
-    phyIface = "eno2np1";
-  };
   ifcfg-routed = {
     addresses = [
       "2607:5300:60:7065::1:1/112"
@@ -112,7 +103,7 @@ in
 {
   lib.foxDenSys = {
     mainIPs = map foxDenLib.util.removeIPCidr (
-      ifcfg-foxden.addresses ++ ifcfg.addresses ++ ifcfg-routed.addresses ++ ifcfg-vrack.addresses
+      ifcfg-foxden.addresses ++ ifcfg.addresses ++ ifcfg-routed.addresses
     );
     inherit mkMinHost;
     mkV6Host =
@@ -204,14 +195,6 @@ in
     };
   };
 
-  systemd.network.netdevs."${ifcfg-vrack.interface}" = {
-    netdevConfig = {
-      Name = ifcfg-vrack.interface;
-      Kind = "bridge";
-      MACAddress = ifcfg-vrack.mac;
-    };
-  };
-
   systemd.network.netdevs."${ifcfg-routed.interface}" = {
     netdevConfig = {
       Name = ifcfg-routed.interface;
@@ -283,22 +266,6 @@ in
       name = ifcfg.phyIface;
     };
 
-  systemd.network.networks."30-${ifcfg-vrack.interface}" = {
-    name = ifcfg-vrack.interface;
-    address = ifcfg-vrack.addresses;
-
-    networkConfig = {
-      IPv4Forwarding = false;
-      IPv6Forwarding = false;
-      DHCP = "no";
-      IPv6AcceptRA = false;
-    };
-
-    linkConfig = {
-      MTUBytes = ifcfg-vrack.mtu;
-    };
-  };
-
   systemd.network.networks."30-${ifcfg-foxden.interface}" = {
     name = ifcfg-foxden.interface;
     address = ifcfg-foxden.bridgeAddresses;
@@ -334,11 +301,6 @@ in
   systemd.network.networks."40-${ifcfg.interface}-root" = {
     name = ifcfg.phyIface;
     bridge = [ ifcfg.interface ];
-  };
-
-  systemd.network.networks."40-${ifcfg-vrack.interface}-root" = {
-    name = ifcfg-vrack.phyIface;
-    bridge = [ ifcfg-vrack.interface ];
   };
 
   foxDen.services = {
