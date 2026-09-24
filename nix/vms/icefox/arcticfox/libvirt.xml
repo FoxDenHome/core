@@ -155,7 +155,9 @@
       <vlan>
         <tag id='0' nativeMode='untagged' />
       </vlan>
-      <source interface='ens1np0'/>
+      <source>
+        <address type='pci' domain='0x0000' bus='0xb5' slot='0x02' function='0x0'/>
+      </source>
       <address type='pci' domain='0x0000' bus='0x01' slot='0x00' function='0x0'/>
     </interface>
     <serial type='pty'>
