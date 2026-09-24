@@ -109,7 +109,7 @@ in
             routes = [
               {
                 Destination = "::/0";
-                Gateway = "2607:5300:60:7065::1:1";
+                Gateway = "2607:5300:60:70ff:ff:ff:ff:ff";
               }
             ];
           };
