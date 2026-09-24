@@ -46,9 +46,17 @@ in
             IPv6AcceptRA = false;
             LinkLocalAddressing = "no";
           };
-          linkConfig = {
-            MTUBytes = lib.lists.foldl' (mtu: cfg: lib.trivial.max mtu cfg.mtu) 0 cfgs;
-          };
+          # Every host's start hook sets the shared VLAN device to its own
+          # MTU, so they have to agree or whoever starts last wins.
+          linkConfig =
+            let
+              mtus = lib.lists.unique (map (cfg: cfg.mtu) cfgs);
+            in
+            assert lib.asserts.assertMsg (lib.length mtus == 1)
+              "macvlan hosts on ${vlanIface} must share one MTU, got: ${lib.concatMapStringsSep ", " toString mtus}";
+            {
+              MTUBytes = lib.head mtus;
+            };
         };
       }) vlanIfaces;
     };
