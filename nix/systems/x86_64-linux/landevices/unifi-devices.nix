@@ -259,7 +259,7 @@
         dns = {
           fqdns = [ "switch-rack.foxden.network" ];
         };
-        mac = "D8:B3:70:1E:9E:3A";
+        mac = "74:fa:29:8a:c2:c3";
         addresses = [
           "10.1.10.12/16"
         ];
