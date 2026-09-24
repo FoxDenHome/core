@@ -243,7 +243,7 @@ in
       serviceConfig = {
         Type = "oneshot";
         ExecStart = [
-          "${pkgs.bash}/bin/bash 'echo 1 > /sys/class/net/${ifcfg.interface}/device/sriov_numvfs'"
+          "${pkgs.bash}/bin/bash -c 'echo 1 > /sys/class/net/${ifcfg.interface}/device/sriov_numvfs'"
         ];
         Restart = "no";
       };
