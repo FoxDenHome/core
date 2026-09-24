@@ -32,10 +32,27 @@ in
   build =
     { interfaces, ... }:
     let
-      vlanIfaces = lib.lists.groupBy mkVlanIface (
-        lib.lists.filter (cfg: !(isPvid cfg)) (map (iface: iface.driver.macvlan) interfaces)
-      );
+      # Keyed by the link the macvlans hang off of: the shared VLAN device,
+      # or the root itself for hosts on its PVID.
+      parentIfaces = lib.lists.groupBy mkVlanIface (map (iface: iface.driver.macvlan) interfaces);
+      parentMtus = lib.attrsets.mapAttrs (_: cfgs: lib.lists.unique (map (cfg: cfg.mtu) cfgs)) parentIfaces;
+
+      # Every host's start hook sets the shared VLAN device to its own MTU,
+      # so they have to agree or whoever starts last wins. The root is not
+      # ours to size, but its hosts disagreeing is the same mistake, and a
+      # single value is at least easy to check against it.
+      mismatched = lib.attrsets.filterAttrs (_: mtus: lib.length mtus != 1) parentMtus;
+
+      vlanIfaces = lib.attrsets.filterAttrs (_: cfgs: !(isPvid (lib.head cfgs))) parentIfaces;
     in
+    assert lib.asserts.assertMsg (mismatched == { }) (
+      "macvlan hosts on the same link must share one MTU, got: "
+      + lib.concatStringsSep "; " (
+        lib.attrsets.mapAttrsToList (
+          parent: mtus: "${parent}: ${lib.concatMapStringsSep ", " toString mtus}"
+        ) mismatched
+      )
+    );
     {
       config.systemd.network.networks = lib.attrsets.mapAttrs' (vlanIface: cfgs: {
         name = "50-macvlan-${vlanIface}";
@@ -46,17 +63,9 @@ in
             IPv6AcceptRA = false;
             LinkLocalAddressing = "no";
           };
-          # Every host's start hook sets the shared VLAN device to its own
-          # MTU, so they have to agree or whoever starts last wins.
-          linkConfig =
-            let
-              mtus = lib.lists.unique (map (cfg: cfg.mtu) cfgs);
-            in
-            assert lib.asserts.assertMsg (lib.length mtus == 1)
-              "macvlan hosts on ${vlanIface} must share one MTU, got: ${lib.concatMapStringsSep ", " toString mtus}";
-            {
-              MTUBytes = lib.head mtus;
-            };
+          linkConfig = {
+            MTUBytes = lib.head parentMtus.${vlanIface};
+          };
         };
       }) vlanIfaces;
     };
