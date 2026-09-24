@@ -557,6 +557,14 @@ in
           ) (lib.attrsets.attrsToList foxDenLib.hosts.drivers))
           ++ [
             {
+              # Policy rules are netns wide, so networkd would count the ones
+              # a root netns host adds as foreign and drop them whenever it
+              # (re)configures any link, leaving nothing to put them back.
+              network.config.networkConfig.ManageForeignRoutingPolicyRules = lib.mkIf (lib.any (
+                iface: !iface.host.netns && iface.routingPolicyRules != [ ]
+              ) interfaces) false;
+            }
+            {
               # Configure each host's NetNS
               services = (
                 lib.attrsets.listToAttrs (
