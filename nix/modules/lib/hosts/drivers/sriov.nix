@@ -146,11 +146,17 @@ in
       '';
     in
     {
+      # VFs outlive the service (unlike veths or macvlans), so whatever
+      # addresses a previous run left on one would otherwise stick around.
       start = [
         "${pkgs.util-linux}/bin/flock -x /run/foxden-sriov.lock '${allocSriovScript}' '${root}'"
+        "-${ipCmd} addr flush dev ${eSA uniqueServiceInterface}"
         "${ipCmd} link set dev ${eSA uniqueServiceInterface} mtu ${toString interface.driver.sriov.mtu}"
       ];
-      stop = nixpkgs.lib.lists.optional (
+      stop = [
+        "-${ipInNsCmd} addr flush dev ${eSA uniqueServiceInterface}"
+      ]
+      ++ nixpkgs.lib.lists.optional (
         host.namespace != null
       ) "-${ipInNsCmd} link set ${eSA uniqueServiceInterface} netns 1";
     }
