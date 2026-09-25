@@ -418,8 +418,7 @@ in
       # Hosts should never route, even if the root netns does
       isForwardingSysctl =
         n:
-        n == "net.ipv4.ip_forward"
-        || builtins.match "net\\.ipv[46]\\.conf\\.[^.]+\\.forwarding" n != null;
+        n == "net.ipv4.ip_forward" || builtins.match "net\\.ipv[46]\\.conf\\.[^.]+\\.forwarding" n != null;
       networkSysctls = lib.attrsets.filterAttrs (
         n: v:
         ((lib.strings.hasPrefix "net.ipv4." n) || (lib.strings.hasPrefix "net.ipv6." n))
