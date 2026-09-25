@@ -43,6 +43,7 @@ in
             location ~ \.cache\. {
               ${headerConfig}
               add_header Cache-Control "public, max-age=31536000, immutable" always;
+              root /web;
             }
             add_header Cache-Control "no-cache" always;
 
