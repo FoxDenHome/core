@@ -33,6 +33,19 @@ index 68c34bb4..59d99c24 100755
  dependencies {
      implementation 'com.google.gwt:gwt-user:2.9.0'
      implementation 'com.google.gwt:gwt-dev:2.9.0'
+diff --git a/src/com/lushprojects/circuitjs1/client/CirSim.java b/src/com/lushprojects/circuitjs1/client/CirSim.java
+index 0addecf6..3152b918 100644
+--- a/src/com/lushprojects/circuitjs1/client/CirSim.java
++++ b/src/com/lushprojects/circuitjs1/client/CirSim.java
+@@ -957,7 +957,7 @@ public CirSim() {
+ 	    noEditing = !qp.getBooleanValue("editable", true);
+ 	    mouseWheelEdit = qp.getBooleanValue("mouseWheelEdit", getOptionFromStorage("mouseWheelEdit", true));
+ 	    useWeightedPriority = getOptionFromStorage("weightedPriority", false);
+-	    showElectronicsCircuits = getOptionFromStorage("showElectronicsCircuits", false);
++	    showElectronicsCircuits = getOptionFromStorage("showElectronicsCircuits", true);
+ 	    enableCacheBustedUrls = getOptionFromStorage("enableCacheBustedUrls", true);
+ 	    tableRenderCacheEnabled = getOptionFromStorage("tableRenderCacheEnabled", true);
+ 	    equationTableNewtonJacobianEnabled = getOptionFromStorage("equationTableNewtonJacobianEnabled", false);
 diff --git a/war/circuitjs.html b/war/circuitjs.html
 index c7631600..63c5337a 100644
 --- a/war/circuitjs.html

@@ -1,24 +1,4 @@
 ### setuplist.txt first line must be a comment
-+Economics
-econ_BOMD.txt BOMD 
-econ_BOMDwithGovt.txt BOMD with Government 
-econ_BOMDGovtFurtherBond.txt BOMD with Government & Further Bond Operations
-econ_BOMDSimple.txt Simple BOMD 
-econ_KeenMinskyGodley01.txt Keen Minsky Godley 01
-econ_KeenMinskyGodley02.txt Keen Minsky Godley 02
--
-+Basics
-ohms.txt Ohm's Law
-resistors.txt Resistors
-cap.txt Capacitor
-induct.txt Inductor
-lrc.txt LRC Circuit
-voltdivide.txt Voltage Divider
-pot.txt Potentiometer
-potdivide.txt Potentiometer Divider
-thevenin.txt Thevenin's Theorem
-norton.txt Norton's Theorem
--
 +A/C Circuits
 capac.txt Capacitor
 inductac.txt Inductor
@@ -443,16 +423,5 @@ triacdimmer.txt DIAC/TRIAC Dimmer
 ujtosc.txt Unijunction Oscillator
 3motor.txt 3-Phase Motor
 latchingrelay.txt Latching Relay
--
-+Debug
-1debug.txt Debug 1
-1dbg_LRC+Table.txt Dbg LRC+Table
-1dbg_CTM&GodleyTest.txt CTM & Godley Test
-1dbg_percent_meter_test.txt Percent Meter Test
-1deb_ODE.txt Predator Prey ODE Test
-1deb_ODE2.txt Predator Prey ODE Test 2
-1debugcopy3.txt Debug 3
-1debugcopy5.txt Debug 5
->startup.txt Startup
 -
 blank.txt Blank Circuit
