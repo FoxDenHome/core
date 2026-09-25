@@ -168,10 +168,27 @@ in
         '';
         family = "ip";
       };
+
+      # IPv6 forwarding is only force-enabled on the foxden interfaces (see sysctls below)
+      # This additionally restricts forwarding to exactly the wg-foxden <-> br-foxden paths
+      forward6 = {
+        content = ''
+          chain forward {
+            type filter hook forward priority filter; policy drop;
+            iifname "${ifcfg-foxden.phyIface}" oifname "${ifcfg-foxden.interface}" accept
+            iifname "${ifcfg-foxden.interface}" oifname "${ifcfg-foxden.phyIface}" accept
+          }
+        '';
+        family = "ip6";
+      };
     };
 
   boot.kernel.sysctl = {
     "net.ipv4.ip_forward" = "1";
+    # Global IPv6 forwarding stays off, only forward packets received on the foxden interfaces
+    # Applied by systemd-sysctl via udev when the interfaces appear
+    "net.ipv6.conf.${ifcfg-foxden.phyIface}.force_forwarding" = "1";
+    "net.ipv6.conf.${ifcfg-foxden.interface}.force_forwarding" = "1";
   };
 
   systemd.network.networks."30-${ifcfg.interface}" = {
