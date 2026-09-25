@@ -6,7 +6,6 @@ visual-studio-code-bin
 fw-ectool-git
 uhubctl
 kanidm
-https://git.foxden.network/FoxDenAUR/mkinitcpio-sd-pcr8lock-hook
 rpiusbboot
 openlinkhub-bin
 openterface_qt
