@@ -131,10 +131,7 @@ in
   foxDen.hosts.gateway = "icefox";
   foxDen.hosts.hostingProvider = "ovh";
 
-  virtualisation.libvirtd.allowedBridges = [
-    ifcfg.interface
-    ifcfg-foxden.interface
-  ];
+  virtualisation.libvirtd.allowedBridges = [ ifcfg-foxden.interface ];
 
   # We don't firewall on servers, so only use port forward type rules
   networking.nftables.tables =
