@@ -172,8 +172,6 @@ in
 
   boot.kernel.sysctl = {
     "net.ipv4.ip_forward" = "1";
-    "net.ipv6.conf.all.forwarding" = "1";
-    "net.ipv6.conf.default.forwarding" = "1";
   };
 
   systemd.network.networks."30-${ifcfg.interface}" = {
@@ -197,7 +195,6 @@ in
       DHCP = "no";
       IPv6AcceptRA = false;
       IPv4Forwarding = true;
-      IPv6Forwarding = true;
     };
 
     linkConfig = {
@@ -222,7 +219,6 @@ in
       DHCP = "no";
       IPv6AcceptRA = false;
       IPv4Forwarding = true;
-      IPv6Forwarding = true;
     };
 
     linkConfig = {
