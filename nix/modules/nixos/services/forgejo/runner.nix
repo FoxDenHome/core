@@ -11,6 +11,7 @@ let
     catatonit
     cni-plugins
     coreutils
+    findutils
     git
     gnugrep
     gnused
@@ -197,7 +198,7 @@ in
           path = packages;
 
           after = [ "podman-forgejo-runner.service" ];
-          wants = [ "podman-forgejo-runner.service" ];
+          requires = [ "podman-forgejo-runner.service" ];
 
           serviceConfig = {
             ExecStart = "${pkgs.forgejo-runner}/bin/forgejo-runner daemon --config /var/lib/forgejo-runner/config.yml";
@@ -264,6 +265,10 @@ in
             serviceConfig = {
               Type = "exec";
               ExecStartPre = [
+                # Runtime state outlives the service's netns, so stale
+                # aardvark-dns configs break DNS after a restart. Wiping it
+                # makes podman refresh as if after a reboot.
+                "-${pkgs.findutils}/bin/find /run/user -mindepth 1 -delete"
                 "${pkgs.podman}/bin/podman --log-level=info system migrate"
                 "-${pkgs.podman}/bin/podman container prune --force"
                 "-${pkgs.podman}/bin/podman network prune --force"
@@ -271,8 +276,11 @@ in
               ExecStart = "${pkgs.podman}/bin/podman --log-level=info system service --time=0 unix:///var/lib/forgejo-runner/podman.sock";
               ExecStop = "${pkgs.podman}/bin/podman stop --all --time 30";
               Nice = 5;
-              TimeoutStopSec = "30s";
+              TimeoutStopSec = "60s";
             };
+
+            # Restarting the runner orphans its job containers and networks
+            partOf = [ "forgejo-runner.service" ];
 
             wantedBy = [ "multi-user.target" ];
           }
