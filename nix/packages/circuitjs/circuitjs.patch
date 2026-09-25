@@ -1,5 +1,5 @@
 diff --git a/build.gradle b/build.gradle
-index 68c34bb4..59d99c24 100755
+index 68c34bb..59d99c2 100755
 --- a/build.gradle
 +++ b/build.gradle
 @@ -21,9 +21,6 @@
@@ -34,9 +34,22 @@ index 68c34bb4..59d99c24 100755
      implementation 'com.google.gwt:gwt-user:2.9.0'
      implementation 'com.google.gwt:gwt-dev:2.9.0'
 diff --git a/src/com/lushprojects/circuitjs1/client/CirSim.java b/src/com/lushprojects/circuitjs1/client/CirSim.java
-index 0addecf6..3152b918 100644
+index 0addecf..4209b17 100644
 --- a/src/com/lushprojects/circuitjs1/client/CirSim.java
 +++ b/src/com/lushprojects/circuitjs1/client/CirSim.java
+@@ -170,9 +170,9 @@ MouseOutHandler, MouseWheelHandler {
+     CheckboxMenuItem weightedPriorityCheckItem;
+     
+     enum ToolbarType { ELECTRONICS, ECONOMICS }
+-    ToolbarType currentToolbarType = ToolbarType.ECONOMICS;
+-    String voltageUnitSymbol = "$"; // Custom voltage unit symbol ($ for economics default)
+-    String timeUnitSymbol = "yr"; // Custom time unit symbol (yr for economics default)
++    ToolbarType currentToolbarType = ToolbarType.ELECTRONICS;
++    String voltageUnitSymbol = "V"; // Custom voltage unit symbol (V for electronics default)
++    String timeUnitSymbol = "s"; // Custom time unit symbol (s for electronics default)
+ 	int infoViewerUpdateIntervalMs = 100; // InfoViewer live update throttling interval
+     boolean useWeightedPriority = false; // Weighted priority for Asset/Equity columns
+     String modelInfoContent = null; // Markdown info content from @info block in SFCR files
 @@ -957,7 +957,7 @@ public CirSim() {
  	    noEditing = !qp.getBooleanValue("editable", true);
  	    mouseWheelEdit = qp.getBooleanValue("mouseWheelEdit", getOptionFromStorage("mouseWheelEdit", true));
@@ -46,8 +59,17 @@ index 0addecf6..3152b918 100644
  	    enableCacheBustedUrls = getOptionFromStorage("enableCacheBustedUrls", true);
  	    tableRenderCacheEnabled = getOptionFromStorage("tableRenderCacheEnabled", true);
  	    equationTableNewtonJacobianEnabled = getOptionFromStorage("equationTableNewtonJacobianEnabled", false);
+@@ -1249,7 +1249,7 @@ public CirSim() {
+ 	DOM.appendChild(layoutPanel.getElement(), topPanelCheckbox);
+ 	DOM.appendChild(layoutPanel.getElement(), topPanelCheckboxLabel);	
+ 
+-	toolbar = new EconomicsToolbar();
++	toolbar = new ElectronicsToolbar();
+ 	toolbar.setEuroResistors(euroSetting);
+ 	if (!hideMenu)
+ 	    layoutPanel.addNorth(menuBar, MENUBARHEIGHT);
 diff --git a/war/circuitjs.html b/war/circuitjs.html
-index c7631600..63c5337a 100644
+index c763160..63c5337 100644
 --- a/war/circuitjs.html
 +++ b/war/circuitjs.html
 @@ -1,14 +1,14 @@
@@ -81,7 +103,7 @@ index c7631600..63c5337a 100644
  
    <script language="javascript" src="lz-string.min.js"></script>
 diff --git a/war/manifest.json b/war/manifest.json
-index f8a79dc6..793107e7 100644
+index f8a79dc..793107e 100644
 --- a/war/manifest.json
 +++ b/war/manifest.json
 @@ -1,19 +1,19 @@
@@ -108,7 +130,7 @@ index f8a79dc6..793107e7 100644
        "type": "image/png"
      }
 diff --git a/war/service-worker.js b/war/service-worker.js
-index b7af0a81..fd473a28 100644
+index b7af0a8..fd473a2 100644
 --- a/war/service-worker.js
 +++ b/war/service-worker.js
 @@ -1,23 +1,23 @@
