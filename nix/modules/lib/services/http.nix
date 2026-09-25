@@ -489,7 +489,7 @@ in
         proxy_set_header X-Http-Version $server_protocol;
       '';
 
-      headerConfig = ''
+      securityHeaderConfig = ''
         add_header X-Content-Type-Options "nosniff" always;
         add_header X-Frame-Options "DENY" always;
       ''
@@ -509,12 +509,19 @@ in
           ""
       );
 
+      # Defaults to no-cache unless upstream sent its own Cache-Control, see $foxden_cache_control
+      headerConfig = ''
+        ${securityHeaderConfig}
+        add_header Cache-Control $foxden_cache_control always;
+      '';
+
       configFuncData = {
         inherit
           anubisConfig
           baseWebConfig
           defaultTarget
           headerConfig
+          securityHeaderConfig
           package
           proxyConfig
           proxyConfigNoHost
@@ -697,6 +704,12 @@ in
                   map $http_upgrade $connection_upgrade {
                     default upgrade;
                     "" "";
+                  }
+
+                  # Without Cache-Control, browsers heuristically cache based on Last-Modified (1970 in the Nix store)
+                  map $upstream_http_cache_control $foxden_cache_control {
+                    default "";
+                    "" "no-cache";
                   }
 
                   acme_shared_zone zone=ngx_acme_shared:64k;

@@ -68,14 +68,19 @@ in
           index index.php index.htm index.html;
         '';
         extraConfig =
-          { package, headerConfig, ... }:
+          {
+            package,
+            headerConfig,
+            securityHeaderConfig,
+            ...
+          }:
           ''
             root /var/www/darksignsonline;
             location = /game {
               return 308 /game/;
             }
             location /game/ {
-              ${headerConfig}
+              ${securityHeaderConfig}
               add_header Cross-Origin-Opener-Policy "same-origin" always;
               add_header Cross-Origin-Embedder-Policy "require-corp" always;
               add_header Cache-Control "public, max-age=31536000, immutable" always;
@@ -84,13 +89,11 @@ in
               ${headerConfig}
               add_header Cross-Origin-Opener-Policy "same-origin" always;
               add_header Cross-Origin-Embedder-Policy "require-corp" always;
-              add_header Cache-Control "no-cache" always;
             }
             location = /game/ {
               ${headerConfig}
               add_header Cross-Origin-Opener-Policy "same-origin" always;
               add_header Cross-Origin-Embedder-Policy "require-corp" always;
-              add_header Cache-Control "no-cache" always;
             }
             location ~ ^/(api/)?[a-z0-9_]+\.php$ {
               fastcgi_index index.php;

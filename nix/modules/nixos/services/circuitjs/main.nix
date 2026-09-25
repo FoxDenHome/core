@@ -38,14 +38,13 @@ in
             env FOXCAVES_API_KEY;
           '';
         extraConfig =
-          { headerConfig, ... }:
+          { securityHeaderConfig, ... }:
           ''
             location ~ \.cache\. {
-              ${headerConfig}
+              ${securityHeaderConfig}
               add_header Cache-Control "public, max-age=31536000, immutable" always;
               root /web;
             }
-            add_header Cache-Control "no-cache" always;
 
             location = / {
               return 307 $scheme://$http_host/circuitjs.html;
