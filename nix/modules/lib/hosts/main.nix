@@ -26,11 +26,8 @@ let
     config: rawName: (lib.lists.head (lib.attrsets.attrValues (getByName config rawName).interfaces))
   );
 
-  # ipCmd is whatever runs ip in the interface's own netns.
-  #
-  # dev is always named, gateway or not: a route in a Table of its own has
-  # no other way to say which link it leaves by, and for a route in main it
-  # only spells out the interface the route is attached to anyway.
+  # ipCmd runs ip in the interface's netns. dev is always given, since a
+  # route in its own Table has no other way to name its link.
   renderRoute = (
     ipCmd: dev: route:
     "${ipCmd} route add "
@@ -41,11 +38,8 @@ let
     + (if route.Table != null then " table ${eSA (toString route.Table)}" else "")
   );
 
-  # Rules are netns wide rather than attached to a device, so they survive a
-  # link bounce and have to be removed by hand on stop. The family comes
-  # from the address rather than being left to ip's own guess: v4 and v6
-  # rules are separate tables of rules entirely, and landing in the wrong
-  # one fails silently.
+  # Rules are netns wide, so they must be removed on stop. The family is
+  # explicit because a rule added to the wrong one fails silently.
   renderRule = (
     ipCmd: op: rule:
     "${ipCmd} -${if util.isIPv6 rule.From then "6" else "4"} rule ${op}"
@@ -54,10 +48,8 @@ let
     + " priority ${toString rule.Priority}"
   );
 
-  # The interface name mkHooks (below) actually renames the host's
-  # primary interface to once it's set up - "host${suffix}", unless
-  # nameOverride is set. Kept in sync with mapIfaces/mkHooks by hand since
-  # suffix is otherwise only computed inside nixosModule.
+  # The name mkHooks renames the primary interface to: "host${suffix}" or
+  # nameOverride. Must be kept in sync with mapIfaces/mkHooks by hand.
   getInterfaceName = (
     config: rawName:
     let
@@ -577,9 +569,8 @@ in
           ) (lib.attrsets.attrsToList foxDenLib.hosts.drivers))
           ++ [
             {
-              # Policy rules are netns wide, so networkd would count the ones
-              # a root netns host adds as foreign and drop them whenever it
-              # (re)configures any link, leaving nothing to put them back.
+              # Otherwise networkd drops rules added by root netns hosts as
+              # foreign whenever it reconfigures a link.
               network.config.networkConfig.ManageForeignRoutingPolicyRules = lib.mkIf (lib.any (
                 iface: !iface.host.netns && iface.routingPolicyRules != [ ]
               ) interfaces) false;
@@ -622,9 +613,8 @@ in
                           };
                           hooks = ifaceDriver.hooks driverRunParams;
 
-                          # The defaults are netns wide, so in the root netns
-                          # they would reconfigure the whole machine - such a
-                          # host only gets what it asks for itself.
+                          # Defaults are netns wide, so skip them in the root
+                          # netns rather than reconfigure the whole machine.
                           sysctlsRaw = lib.filterAttrs (name: value: value != null) (
                             (if inRootNetns then { } else config.foxDen.hosts.defaultSysctls) // interface.sysctls
                           );
@@ -669,9 +659,8 @@ in
                               "${ipInNsCmd} link set ${eSA inNsServiceInterface} up"
                             ]
                             ++ (map (renderRoute ipInNsCmd inNsServiceInterface) interface.routes)
-                            # Deleted first: a rule is not tied to the link,
-                            # so a restart that could not run ExecStop would
-                            # otherwise stack a second copy of it.
+                            # Deleted first so a restart without ExecStop
+                            # doesn't add a duplicate.
                             ++ (lib.concatMap (rule: [
                               "-${renderRule ipInNsCmd "del" rule}"
                               (renderRule ipInNsCmd "add" rule)
@@ -707,12 +696,8 @@ in
                           ifaceHooks = map mkHooks hostInterfaces;
                           getHook = sub: lib.flatten (map (cfg: cfg.${sub}) ifaceHooks);
 
-                          # Every link this host's interfaces hang off of. Hot
-                          # plugged NICs (thunderbolt, most of all) are only
-                          # enumerated well after network-pre.target, and
-                          # latching onto one that is not there yet leaves the
-                          # whole netns dead until it is restarted by hand, so
-                          # wait for each of their device units first.
+                          # Hotplugged NICs (e.g. thunderbolt) can appear well
+                          # after network-pre.target, so wait for every root link.
                           rootDeviceUnits = map (dev: "sys-subsystem-net-devices-${utils.escapeSystemdPath dev}.device") (
                             lib.lists.unique (
                               lib.concatMap (iface: foxDenLib.hosts.drivers.${iface.driver.name}.rootDevices iface) hostInterfaces
@@ -722,10 +707,8 @@ in
                         {
                           description =
                             if inRootNetns then "Root netns interfaces of host ${host.name}" else "NetNS ${host.namespace}";
-                          # Wants rather than requires: a root link that never
-                          # turns up stalls this for the device job timeout and
-                          # then lets the unit run anyway, which is what it did
-                          # before any of this waiting existed.
+                          # Wants, not requires: a missing link only delays
+                          # startup until the device job times out.
                           wants = rootDeviceUnits;
                           after = [ "network-pre.target" ] ++ rootDeviceUnits;
                           restartTriggers = [ (builtins.concatStringsSep " " host.nameservers) ];

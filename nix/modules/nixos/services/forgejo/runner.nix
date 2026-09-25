@@ -68,10 +68,8 @@ let
       WorkingDirectory = "/var/lib/forgejo-runner";
       StateDirectory = "forgejo-runner";
 
-      # memfd_create breaks specifically when used with qemu-binfmt in d-in-d
-      # not sure exactly why, but other procs get ENOENT
-      # we just block the syscall for now, the only consumer is alpine 3.23's apk
-      # which takes this gracefully
+      # memfd_create yields ENOENT under qemu-binfmt in d-in-d; block it.
+      # Only alpine 3.23's apk uses it, and it falls back gracefully.
       SystemCallFilter = [ "~memfd_create" ];
       SystemCallErrorNumber = "EPERM";
     };

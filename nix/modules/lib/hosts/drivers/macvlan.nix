@@ -39,10 +39,8 @@ in
         _: cfgs: lib.lists.unique (map (cfg: cfg.mtu) cfgs)
       ) parentIfaces;
 
-      # Every host's start hook sets the shared VLAN device to its own MTU,
-      # so they have to agree or whoever starts last wins. The root is not
-      # ours to size, but its hosts disagreeing is the same mistake, and a
-      # single value is at least easy to check against it.
+      # Each host's start hook sets the parent's MTU, so all hosts on a
+      # parent must agree or the last one to start wins.
       mismatched = lib.attrsets.filterAttrs (_: mtus: lib.length mtus != 1) parentMtus;
 
       vlanIfaces = lib.attrsets.filterAttrs (_: cfgs: !(isPvid (lib.head cfgs))) parentIfaces;
@@ -88,9 +86,8 @@ in
       cfg = interface.driver.macvlan;
       vlanIface = mkVlanIface cfg;
 
-      # The root link's device unit shows up as soon as the link exists, but
-      # its MTU is only raised once networkd gets around to configuring it.
-      # Until then neither the VLAN device nor the macvlan can take our MTU.
+      # The root's device unit appears before networkd raises its MTU, and
+      # children can't exceed it until then.
       waitMtuScript = pkgs.writeShellScript "wait-macvlan-mtu.sh" ''
         set -euo pipefail
         mtu_file="/sys/class/net/$1/mtu"

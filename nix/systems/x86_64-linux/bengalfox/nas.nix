@@ -10,9 +10,7 @@ let
   smbInterface = foxDenLib.hosts.getInterfaceName config "nas-smb";
   smbV4 = "10.2.11.16";
   smbV6 = "fd2c:f4cb:63be:2::b10";
-  # Everything nas-smb can reach lives here instead of in main, so the root
-  # netns never selects this interface for its own traffic. Arbitrary, just
-  # not one of the reserved ids in rt_tables.
+  # Keeps nas-smb's routes out of main so the root netns never uses them.
   smbTable = 2016;
 in
 {
@@ -118,12 +116,8 @@ in
         "/mnt/zhdd/nas"
         "/mnt/zhdd/nashome"
       ];
-      # ksmbd has no equivalent to Samba's [homes] auto-share (no
-      # per-user path substitution at all - confirmed unsupported
-      # upstream, see
-      # https://github.com/cifsd-team/ksmbd-tools/issues/327), so each
-      # home directory is a static share restricted to its owner
-      # instead.
+      # ksmbd has no [homes] equivalent, so one share per user
+      # (https://github.com/cifsd-team/ksmbd-tools/issues/327).
       settings =
         builtins.listToAttrs (
           map
@@ -172,11 +166,7 @@ in
     # only the router's forward chain.
     interfaces.${smbInterface}.allowedTCPPorts = [ 445 ];
 
-    # Belt and braces: nas-smb's own routing table does now send replies
-    # back out its interface, so strict reverse path filtering passes on
-    # its own - but only while that table and its rules are intact. Check
-    # this one interface loosely regardless: the source still has to be
-    # routable, just not back out the interface it came in on.
+    # Loose rpfilter on nas-smb, in case its routing table goes missing.
     extraReversePathFilterRules = ''
       iifname "${smbInterface}" fib saddr . mark oif exists accept
     '';
@@ -271,31 +261,16 @@ in
             port = 445;
           }
         ];
-        # Host routes on purpose. This machine's own address covers the
-        # same subnet on ens1f0np0, and an on-link route for it here would
-        # be a second, equal-length candidate in main for all of
-        # 10.2.0.0/16 - so the root netns' own traffic would sometimes
-        # leave through this VF.
+        # Host routes, so main doesn't get a second 10.2.0.0/16 route
+        # competing with ens1f0np0.
         addresses = [
           "${smbV4}/32"
           "${smbV6}/128"
         ];
-        # But ksmbd cannot work with no route at all: create_socket() in
-        # fs/smb/server/transport_tcp.c binds its listener with
-        # SO_BINDTODEVICE, and accepted connections inherit that, so every
-        # reply's route lookup is pinned to oif = this interface and fails
-        # outright when nothing here reaches the client. Hence a full set
-        # of routes - including a default, which is what off-subnet clients
-        # need - in a table only this interface's own source addresses can
-        # select. The on-link routes come first: the kernel resolves each
-        # Gateway against this same table (see the Table option).
-        #
-        # No prefsrc on any of them: the rules below are what steers traffic
-        # here, and they match on source, so anything reaching this table
-        # already has the right one. Asking for it explicitly would only
-        # add a failure mode - the kernel rejects a prefsrc that is still
-        # tentative, so the IPv6 ones lose a race with DAD on the address
-        # this unit adds a few commands earlier.
+        # ksmbd binds with SO_BINDTODEVICE, so replies need routes via this
+        # interface. They live in smbTable, selected by source address.
+        # On-link routes come first so the gateways resolve. No prefsrc: it
+        # would race IPv6 DAD, and the rules already match on source.
         routes = [
           {
             Destination = "10.2.0.0/16";
@@ -314,9 +289,6 @@ in
             Table = smbTable;
           }
         ];
-        # ksmbd's sockets are the only thing on this machine that ever
-        # sends from these addresses, so this is what scopes the table
-        # above to it.
         routingPolicyRules = [
           {
             From = "${smbV4}/32";

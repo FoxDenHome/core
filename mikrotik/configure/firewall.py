@@ -654,7 +654,6 @@ def refresh_firewall() -> None:
                 attribs=attribs,
             )
         )
-        # /{family}/firewall/{rule["table"]}/add
 
     firewall_rules = DEFAULT_RULES_HEAD + firewall_rules + DEFAULT_RULES_TAIL
     for rule in firewall_rules:

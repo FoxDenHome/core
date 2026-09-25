@@ -27,9 +27,7 @@ let
       imageFileObj =
         if svcConfig.oAuth.imageFile != null then
           {
-            # Interpolation is the only good way to resolve the path here
-            # builtins.toString does not create the /nix/store copy
-            # thus causing a re-deploy for every single git push
+            # Interpolation copies to the store; toString would redeploy on every push
             imageFile = "${svcConfig.oAuth.imageFile}";
           }
         else
