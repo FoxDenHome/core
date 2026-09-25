@@ -402,8 +402,29 @@ in
           [ ]
       );
 
+      # Skip sysctls for specific root netns interfaces (e.g. net.ipv6.conf.wg0.*),
+      # those interfaces do not exist inside the host netns
+      isRootIfaceSysctl =
+        n:
+        let
+          m = builtins.match "net\\.ipv[46]\\.(conf|neigh)\\.([^.]+)\\..*" n;
+        in
+        m != null
+        && !(lib.elem (lib.elemAt m 1) [
+          "all"
+          "default"
+          "INTERFACE"
+        ]);
+      # Hosts should never route, even if the root netns does
+      isForwardingSysctl =
+        n:
+        n == "net.ipv4.ip_forward"
+        || builtins.match "net\\.ipv[46]\\.conf\\.[^.]+\\.forwarding" n != null;
       networkSysctls = lib.attrsets.filterAttrs (
-        n: v: (lib.strings.hasPrefix "net.ipv4." n) || (lib.strings.hasPrefix "net.ipv6." n)
+        n: v:
+        ((lib.strings.hasPrefix "net.ipv4." n) || (lib.strings.hasPrefix "net.ipv6." n))
+        && !(isRootIfaceSysctl n)
+        && !(isForwardingSysctl n)
       ) config.boot.kernel.sysctl;
     in
     {
