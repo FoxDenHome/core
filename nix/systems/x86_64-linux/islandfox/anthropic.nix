@@ -18,6 +18,7 @@
     present = true;
     public = false;
     displayName = "Anthropic (Claude)";
+    imageFile = ../../../files/icons/claude.svg;
     basicSecretFile = config.sops.secrets."anthropic-oauth-secret".path;
     originUrl = "https://auth.workos.com/sso/oidc/DCfxCoVBEWVpWzYmzPI21m3zu/callback";
     originLanding = "https://claude.ai";
