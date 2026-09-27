@@ -10,7 +10,7 @@
       horizon = "*";
     }
   ];
-  services.kanidm.systems.oauth2.anthropic = config.lib.foxDen.sops.mkIfAvailable {
+  services.kanidm.provision.systems.oauth2.anthropic = config.lib.foxDen.sops.mkIfAvailable {
     present = true;
     public = false;
     displayName = "Anthropic (Claude)";
