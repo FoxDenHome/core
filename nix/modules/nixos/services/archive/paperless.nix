@@ -104,8 +104,8 @@ in
                 };
               };
               PAPERLESS_SOCIAL_AUTO_SIGNUP = true;
-              PAPERLESS_DISABLE_REGULAR_LOGIN = true;
-              PAPERLESS_REDIRECT_LOGIN_TO_SSO = true;
+              #PAPERLESS_DISABLE_REGULAR_LOGIN = true;
+              #PAPERLESS_REDIRECT_LOGIN_TO_SSO = true;
             };
           };
 
