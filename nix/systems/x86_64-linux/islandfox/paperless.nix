@@ -4,23 +4,23 @@ let
 in
 {
   foxDen.services = config.lib.foxDen.sops.mkIfAvailable {
-    donetick = {
+    paperless = {
       enable = true;
       tls.enable = true;
-      host = "donetick";
+      host = "paperless";
       oAuth = {
         enable = true;
-        clientId = "donetick";
-        displayName = "tasks (Donetick)";
+        clientId = "paperless";
+        displayName = "Paperless(-ngx)";
       };
     };
   };
 
   foxDen.hosts.hosts = {
-    donetick = mkVlanHost 2 {
+    paperless = mkVlanHost 2 {
       dns = {
         fqdns = [
-          "tasks.foxden.network"
+          "paperless.foxden.network"
         ];
         dynDns = true;
       };
