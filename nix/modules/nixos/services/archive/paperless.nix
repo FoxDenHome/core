@@ -53,9 +53,12 @@ in
           foxDen.services.paperless.oAuth.overrideService = true;
           foxDen.services.kanidm.oauth2 = lib.mkIf svcConfig.oAuth.enable {
             ${svcConfig.oAuth.clientId} = (
-              services.http.mkOauthConfig {
+              (services.http.mkOauthConfig {
                 inherit svcConfig config;
                 oAuthCallbackUrl = "/accounts/oidc/kanidm/login/callback/";
+              })
+              // {
+                preferShortUsername = true;
               }
             );
           };
