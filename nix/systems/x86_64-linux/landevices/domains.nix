@@ -33,4 +33,13 @@
       email = null;
     };
   };
+  config.foxDen.dns.records = [
+    {
+      fqdn = "foxden.network";
+      type = "TXT";
+      ttl = 3600;
+      value = "anthropic-domain-verification-6kmvr0=LAbewwKo7TUTgHkmwEu5HSvOT";
+      horizon = "*";
+    }
+  ];
 }
