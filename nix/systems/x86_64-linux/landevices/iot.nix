@@ -111,5 +111,23 @@
           "10.1.11.3/16"
         ];
       };
+      washing-machine = mkIntf {
+        dns = {
+          fqdns = [ "washing-machine.foxden.network" ];
+        };
+        mac = "88:57:1D:85:70:9A";
+        addresses = [
+          "10.2.12.5/16"
+        ];
+      };
+      dryer = mkIntf {
+        dns = {
+          fqdns = [ "dryer.foxden.network" ];
+        };
+        mac = "88:57:1D:85:70:A1";
+        addresses = [
+          "10.2.12.6/16"
+        ];
+      };
     };
 }
