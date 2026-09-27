@@ -1,6 +1,10 @@
 { config, ... }:
 {
-  sops.secrets."anthropic-oauth-secret" = config.lib.foxDen.sops.mkIfAvailable { };
+  sops.secrets."anthropic-oauth-secret" = config.lib.foxDen.sops.mkIfAvailable {
+    mode = "0400";
+    owner = "kanidm";
+    group = "kanidm";
+  };
   foxDen.dns.records = [
     {
       fqdn = "foxden.network";
