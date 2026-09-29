@@ -47,9 +47,8 @@ in
             EnvironmentFile = config.lib.foxDen.sops.mkIfAvailable config.sops.secrets.spaceage-api.path;
 
             Type = "exec";
+            ExecStartPre = "${pkgs.space_age_api}/bin/space_age_api migrate";
             ExecStart = "${pkgs.space_age_api}/bin/space_age_api start";
-            ExecStop = "${pkgs.space_age_api}/bin/space_age_api stop";
-            ExecReload = "${pkgs.space_age_api}/bin/space_age_api restart";
           };
 
           wantedBy = [ "multi-user.target" ];
