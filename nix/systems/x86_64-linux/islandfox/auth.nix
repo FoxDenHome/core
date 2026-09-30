@@ -20,6 +20,16 @@ in
         imageFile = ../../../files/icons/radius.svg;
       };
     };
+    kerberos = {
+      enable = true;
+      host = "kerberos";
+      tls.enable = true;
+      oAuth = {
+        enable = true;
+        clientId = "krb5-sync";
+        displayName = "Kerberos Sync";
+      };
+    };
   };
 
   foxDen.hosts.hosts = {
@@ -57,6 +67,18 @@ in
       addresses = [
         "10.2.11.11/16"
         "fd2c:f4cb:63be:2::b0b/64"
+      ];
+    };
+    kerberos = mkVlanHost 2 {
+      dns = {
+        fqdns = [ "kerberos.foxden.network" ];
+        # Public records for ACME; only the web UI is reachable from outside.
+        dynDns = true;
+      };
+      webservice.enable = true;
+      addresses = [
+        "10.2.11.38/16"
+        "fd2c:f4cb:63be:2::b26/64"
       ];
     };
   };

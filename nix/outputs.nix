@@ -99,6 +99,7 @@ let
   dhcp = foxDenLib.global.dhcp.make nixosConfigurations;
   firewall = foxDenLib.global.firewall.make nixosConfigurations;
   kanidm = foxDenLib.global.kanidm.mkConfig nixosConfigurations;
+  kerberos = foxDenLib.global.kerberos.mkConfig nixosConfigurations;
   sshHostDnsNames = foxDenLib.global.ssh.sshHostDnsNames nixosConfigurations;
 
   mkSystemConfig = system: {
@@ -111,6 +112,7 @@ let
           dhcp
           firewall
           kanidm
+          kerberos
           dns
           ipReverses
           foxIngress

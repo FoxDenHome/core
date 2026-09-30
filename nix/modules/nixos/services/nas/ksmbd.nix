@@ -8,6 +8,33 @@
 let
   services = foxDenLib.services;
   svcConfig = config.foxDen.services.ksmbd;
+  krbCfg = config.foxDen.kerberos;
+
+  # The 7.2 kernel added session_expiry to the SPNEGO response, which
+  # ksmbd-tools doesn't send yet, so the kernel rejects every krb5 session
+  # setup. The patch adds it, and lets one keytab serve several hostnames.
+  # nixpkgs' withKerberos only adds the library; meson still needs the flag.
+  ksmbdTools =
+    if svcConfig.kerberos.enable then
+      (pkgs.ksmbd-tools.override { withKerberos = true; }).overrideAttrs (old: {
+        patches = (old.patches or [ ]) ++ [ ./ksmbd-krb5.patch ];
+        mesonFlags = (old.mesonFlags or [ ]) ++ [ "-Dkrb5=enabled" ];
+      })
+    else
+      pkgs.ksmbd-tools;
+
+  keytabName = "ksmbd-${config.networking.hostName}";
+  keytab = krbCfg.keytabs.${keytabName};
+  # One cifs/ principal per name clients may connect by.
+  smbFQDNs = lib.unique (
+    lib.concatMap (
+      host:
+      lib.concatMap (iface: iface.dns.fqdns) (
+        lib.attrValues (foxDenLib.hosts.getByName config host).interfaces
+      )
+    ) ([ svcConfig.host ] ++ svcConfig.extraHosts)
+  );
+  servicePrincipal = "cifs/${lib.head smbFQDNs}@${krbCfg.realm}";
 
   stateDir = "/var/lib/ksmbd";
   pwddbPath = "${stateDir}/ksmbdpwd.db";
@@ -67,6 +94,7 @@ let
   # Has to stay under the unit's TimeoutStartSec, which ExecStartPre counts
   # against.
   nssTimeout = 60;
+  kdcTimeout = 20;
 
   # A data file rather than part of waitForNss, so new users don't change
   # ksmbd.service and force a restart.
@@ -113,6 +141,35 @@ let
       done
       # Better than leaving SMB down entirely.
       echo "giving up after ${toString nssTimeout}s; shares for the names above will deny access until ksmbd is reloaded" >&2
+    '';
+  };
+
+  # mountd abort()s at startup if it can't get a ticket for its own
+  # principal, which would take SMB down with the KDC. Check first and fall
+  # back to NTLM only for this run.
+  checkKdc = pkgs.writeShellApplication {
+    name = "ksmbd-check-kdc";
+    runtimeInputs = [
+      pkgs.coreutils
+      pkgs.gnused
+      pkgs.krb5
+    ];
+    text = ''
+      conf=${inner confPath}
+      support=no
+      deadline=$(( $(date +%s) + ${toString kdcTimeout} ))
+      while :; do
+        if kinit -k -t ${keytab.path} -c MEMORY: ${servicePrincipal}; then
+          support=yes
+          break
+        fi
+        if [ "$(date +%s)" -ge "$deadline" ]; then
+          echo "cannot get a ticket for ${servicePrincipal}; starting without Kerberos" >&2
+          break
+        fi
+        sleep 2
+      done
+      sed -i -E "s/^(kerberos support = ).*/\1$support/" "$conf"
     '';
   };
 
@@ -236,6 +293,13 @@ in
         default = { };
         description = "ksmbd.conf sections, shaped like services.samba.settings";
       };
+      kerberos.enable = lib.mkEnableOption ''
+        Kerberos (krb5) authentication, next to NTLM.
+
+        Builds a keytab with a cifs/ principal for every FQDN of the SMB
+        hosts, from the sops secret krb5-keytab-ksmbd-<hostname>, which the
+        KDC host needs too. Users still need a pwddb entry: ksmbd only maps
+        principals to pwddb users, with the realm stripped'';
     }
   );
 
@@ -281,7 +345,7 @@ in
         };
 
         environment.systemPackages = [
-          pkgs.ksmbd-tools
+          ksmbdTools
         ];
 
         # Holds everything share-specific, so share changes reload ksmbd
@@ -320,15 +384,18 @@ in
           # See globalConf.
           restartTriggers = [ globalConf ];
           serviceConfig = {
-            ExecStartPre = "${waitForNss}/bin/ksmbd-wait-for-nss";
+            ExecStartPre = [
+              "${waitForNss}/bin/ksmbd-wait-for-nss"
+            ]
+            ++ lib.optional svcConfig.kerberos.enable (lib.getExe checkKdc);
             # The kernel only sends IPC to a mountd in the root netns;
             # listeners are placed by bounceInterface instead.
             NetworkNamespacePath = lib.mkForce null;
             # Netlink needs CAP_NET_ADMIN in the init user namespace.
             PrivateUsers = lib.mkForce false;
-            ExecStart = "${pkgs.ksmbd-tools}/bin/ksmbd.mountd --nodetach --config=${inner confPath} --pwddb=${pwddbPath}";
-            ExecReload = "${pkgs.ksmbd-tools}/bin/ksmbd.control --reload";
-            ExecStop = "${pkgs.ksmbd-tools}/bin/ksmbd.control --shutdown";
+            ExecStart = "${ksmbdTools}/bin/ksmbd.mountd --nodetach --config=${inner confPath} --pwddb=${pwddbPath}";
+            ExecReload = "${ksmbdTools}/bin/ksmbd.control --reload";
+            ExecStop = "${ksmbdTools}/bin/ksmbd.control --shutdown";
             # /run is shared between Exec* lines so ksmbd.control can find
             # the hardcoded /run/ksmbd.lock. A directory, since mountd
             # renames onto the lock file.
@@ -370,6 +437,28 @@ in
           ];
         };
       }
+      (lib.mkIf svcConfig.kerberos.enable {
+        foxDen.kerberos = {
+          enable = true;
+          keytabs.${keytabName}.principals = map (fqdn: "cifs/${fqdn}") smbFQDNs;
+        };
+
+        foxDen.services.ksmbd.settings.global = {
+          # Toggled per start by checkKdc.
+          "kerberos support" = "yes";
+          "kerberos service name" = servicePrincipal;
+          "kerberos keytab file" = "FILE:${keytab.path}";
+        };
+
+        systemd.services.ksmbd = {
+          # Not requires: without a keytab, checkKdc falls back to NTLM.
+          wants = [ keytab.unit ];
+          after = [ keytab.unit ];
+          # Replay cache; the default /var/tmp isn't in the chroot.
+          environment.KRB5RCACHEDIR = stateDir;
+          serviceConfig.BindReadOnlyPaths = [ keytab.path ] ++ services.mkEtcPaths [ "krb5.conf" ];
+        };
+      })
     ]
   );
 }
