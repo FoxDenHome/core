@@ -41,23 +41,25 @@ type Network struct {
 }
 
 type Status struct {
-	PublicKey      string    `json:"public_key"`
-	Provisioned    bool      `json:"provisioned"`
-	ProvisionError string    `json:"provision_error,omitempty"`
-	PeerName       string    `json:"peer_name,omitempty"`
-	Addresses      []string  `json:"addresses,omitempty"`
-	Enabled        bool      `json:"enabled"`
-	Mode           string    `json:"mode"`
-	Networks       []Network `json:"networks"`
-	Location       string    `json:"location"`
-	Tunnel         string    `json:"tunnel"`
-	Backend        string    `json:"backend,omitempty"`
-	Interface      string    `json:"interface,omitempty"`
-	Endpoint       string    `json:"endpoint,omitempty"`
-	LastHandshake  time.Time `json:"last_handshake,omitzero"`
-	RxBytes        int64     `json:"rx_bytes"`
-	TxBytes        int64     `json:"tx_bytes"`
-	Error          string    `json:"error,omitempty"`
+	PublicKey      string `json:"public_key"`
+	Provisioned    bool   `json:"provisioned"`
+	ProvisionError string `json:"provision_error,omitempty"`
+	// LastCheck is when provisioning was last fetched.
+	LastCheck     time.Time `json:"last_check,omitzero"`
+	PeerName      string    `json:"peer_name,omitempty"`
+	Addresses     []string  `json:"addresses,omitempty"`
+	Enabled       bool      `json:"enabled"`
+	Mode          string    `json:"mode"`
+	Networks      []Network `json:"networks"`
+	Location      string    `json:"location"`
+	Tunnel        string    `json:"tunnel"`
+	Backend       string    `json:"backend,omitempty"`
+	Interface     string    `json:"interface,omitempty"`
+	Endpoint      string    `json:"endpoint,omitempty"`
+	LastHandshake time.Time `json:"last_handshake,omitzero"`
+	RxBytes       int64     `json:"rx_bytes"`
+	TxBytes       int64     `json:"tx_bytes"`
+	Error         string    `json:"error,omitempty"`
 }
 
 // SettingsUpdate changes only the fields that are set.
@@ -73,7 +75,6 @@ type Client struct {
 
 func NewClient(socket string) *Client {
 	return &Client{http: &http.Client{
-		Timeout: 10 * time.Second,
 		Transport: &http.Transport{
 			DialContext: func(ctx context.Context, _, _ string) (net.Conn, error) {
 				var d net.Dialer
@@ -83,7 +84,9 @@ func NewClient(socket string) *Client {
 	}}
 }
 
-func (c *Client) do(method, path string, body any) (*Status, error) {
+func (c *Client) do(method, path string, body any, timeout time.Duration) (*Status, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+	defer cancel()
 	var r io.Reader
 	if body != nil {
 		b, err := json.Marshal(body)
@@ -92,7 +95,7 @@ func (c *Client) do(method, path string, body any) (*Status, error) {
 		}
 		r = bytes.NewReader(b)
 	}
-	req, err := http.NewRequest(method, "http://foxden-vpnd"+path, r)
+	req, err := http.NewRequestWithContext(ctx, method, "http://foxden-vpnd"+path, r)
 	if err != nil {
 		return nil, err
 	}
@@ -113,13 +116,14 @@ func (c *Client) do(method, path string, body any) (*Status, error) {
 }
 
 func (c *Client) Status() (*Status, error) {
-	return c.do(http.MethodGet, "/v1/status", nil)
+	return c.do(http.MethodGet, "/v1/status", nil, 10*time.Second)
 }
 
 func (c *Client) Update(u SettingsUpdate) (*Status, error) {
-	return c.do(http.MethodPost, "/v1/settings", u)
+	return c.do(http.MethodPost, "/v1/settings", u, 10*time.Second)
 }
 
+// Refresh makes the daemon fetch provisioning now and waits for the result.
 func (c *Client) Refresh() (*Status, error) {
-	return c.do(http.MethodPost, "/v1/refresh", nil)
+	return c.do(http.MethodPost, "/v1/refresh", nil, 45*time.Second)
 }

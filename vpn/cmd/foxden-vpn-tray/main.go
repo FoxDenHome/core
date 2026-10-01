@@ -6,7 +6,6 @@ package main
 import (
 	"errors"
 	"flag"
-	"fmt"
 	"log"
 	"net/url"
 	"os"
@@ -14,6 +13,7 @@ import (
 	"regexp"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"fyne.io/systray"
@@ -29,16 +29,20 @@ type tray struct {
 	mStatus, mDetail, mAddr       *systray.MenuItem
 	mEnabled, mSplit, mFull       *systray.MenuItem
 	mNetworks                     *systray.MenuItem
+	mNetPlaceholder               *systray.MenuItem
 	mRegister, mShowKey, mCopyKey *systray.MenuItem
 	mRefresh                      *systray.MenuItem
 	mQuit                         *systray.MenuItem
 	nets                          map[string]*systray.MenuItem
 	netOrder                      []string
 
-	mu       sync.Mutex
-	last     *api.Status
-	poll     chan struct{}
-	announce sync.Once
+	ui         *ui
+	renderMu   sync.Mutex
+	mu         sync.Mutex
+	last       *api.Status
+	refreshing atomic.Bool
+	poll       chan struct{}
+	announce   sync.Once
 }
 
 func main() {
@@ -50,14 +54,15 @@ func main() {
 		client:    api.NewClient(*socket),
 		portalURL: *portal,
 		nets:      map[string]*systray.MenuItem{},
+		ui:        newUI(),
 		poll:      make(chan struct{}, 1),
 	}
 	systray.Run(t.onReady, func() {})
 }
 
 func (t *tray) onReady() {
-	setIcon(iconOff)
-	systray.SetTooltip(appName)
+	t.ui.setIcon(iconOff)
+	t.ui.setTooltip(appName)
 
 	t.mStatus = systray.AddMenuItem(appName, "")
 	t.mStatus.Disable()
@@ -73,6 +78,10 @@ func (t *tray) onReady() {
 	t.mSplit = systray.AddMenuItemCheckbox("Split Tunnel (on demand)", "Only FoxDen networks go through the VPN", false)
 	t.mFull = systray.AddMenuItemCheckbox("Full Tunnel", "All traffic goes through the VPN", false)
 	t.mNetworks = systray.AddMenuItem("Networks", "Which FoxDen networks to route in split tunnel mode")
+	// The submenu must have a child from the start: KDE does not turn an item
+	// that was first shown without children into a submenu later.
+	t.mNetPlaceholder = t.mNetworks.AddSubMenuItem("Available once registered", "")
+	t.mNetPlaceholder.Disable()
 	systray.AddSeparator()
 
 	t.mRegister = systray.AddMenuItem("Register This Device…", "Open the FoxDen VPN portal to add this device")
@@ -115,11 +124,7 @@ func (t *tray) onReady() {
 	}()
 	go func() {
 		for range t.mRefresh.ClickedCh {
-			if st, err := t.client.Refresh(); err == nil {
-				t.render(st, nil)
-			}
-			// The daemon fetches asynchronously; look again shortly.
-			time.AfterFunc(3*time.Second, t.pollNow)
+			t.refresh()
 		}
 	}()
 	go func() {
@@ -175,68 +180,56 @@ func (t *tray) onClick(item *systray.MenuItem, build func(*api.Status) api.Setti
 	}()
 }
 
-func setIcon(i iconSet) {
-	systray.SetTemplateIcon(i.template, i.regular)
-}
-
-func setCheck(item *systray.MenuItem, v bool) {
-	if v {
-		item.Check()
-	} else {
-		item.Uncheck()
-	}
-}
-
-func setLine(item *systray.MenuItem, text string) {
-	if text == "" {
-		item.Hide()
-		return
-	}
-	item.SetTitle(text)
-	item.Show()
-}
-
 func (t *tray) render(st *api.Status, err error) {
+	t.renderMu.Lock()
+	defer t.renderMu.Unlock()
 	t.mu.Lock()
 	t.last = st
 	t.mu.Unlock()
 
 	if err != nil || st == nil {
-		setIcon(iconAttention)
-		t.mStatus.SetTitle("VPN service not running")
-		setLine(t.mDetail, "")
-		setLine(t.mAddr, "")
+		t.ui.setIcon(iconAttention)
+		t.ui.title(t.mStatus, "VPN service not running")
+		t.ui.line(t.mDetail, "")
+		t.ui.line(t.mAddr, "")
 		for _, m := range []*systray.MenuItem{t.mEnabled, t.mSplit, t.mFull, t.mNetworks, t.mRegister, t.mShowKey, t.mCopyKey, t.mRefresh} {
-			m.Disable()
+			t.ui.enable(m, false)
 		}
-		systray.SetTooltip(appName + ": service not running")
+		t.ui.setTooltip(appName + ": service not running")
 		return
 	}
-	for _, m := range []*systray.MenuItem{t.mEnabled, t.mSplit, t.mFull, t.mRegister, t.mShowKey, t.mCopyKey, t.mRefresh} {
-		m.Enable()
+	for _, m := range []*systray.MenuItem{t.mEnabled, t.mSplit, t.mFull, t.mRegister, t.mShowKey, t.mCopyKey} {
+		t.ui.enable(m, true)
+	}
+	if t.refreshing.Load() {
+		t.ui.title(t.mRefresh, "Refreshing…")
+		t.ui.enable(t.mRefresh, false)
+	} else {
+		t.ui.title(t.mRefresh, "Refresh Configuration")
+		t.ui.enable(t.mRefresh, true)
 	}
 	if st.Provisioned {
-		t.mRegister.SetTitle("Manage Devices…")
+		t.ui.title(t.mRegister, "Manage Devices…")
 	} else {
-		t.mRegister.SetTitle("Register This Device…")
+		t.ui.title(t.mRegister, "Register This Device…")
 	}
 
 	full := st.Mode == api.ModeFull
-	setCheck(t.mEnabled, st.Enabled)
-	setCheck(t.mSplit, !full)
-	setCheck(t.mFull, full)
+	t.ui.check(t.mEnabled, st.Enabled)
+	t.ui.check(t.mSplit, !full)
+	t.ui.check(t.mFull, full)
 	t.renderNetworks(st, full)
 
-	title, detail, icon := describe(st)
-	t.mStatus.SetTitle(title)
-	setLine(t.mDetail, detail)
+	title, detail, icon := describe(st, t.refreshing.Load())
+	t.ui.title(t.mStatus, title)
+	t.ui.line(t.mDetail, detail)
 	if len(st.Addresses) > 0 {
-		setLine(t.mAddr, strings.Join(st.Addresses, ", "))
+		t.ui.line(t.mAddr, strings.Join(st.Addresses, ", "))
 	} else {
-		setLine(t.mAddr, "")
+		t.ui.line(t.mAddr, "")
 	}
-	setIcon(icon)
-	systray.SetTooltip(appName + ": " + title)
+	t.ui.setIcon(icon)
+	t.ui.setTooltip(appName + ": " + title)
 
 	if !st.Provisioned {
 		t.announce.Do(func() {
@@ -248,16 +241,21 @@ func (t *tray) render(st *api.Status, err error) {
 	}
 }
 
-func describe(st *api.Status) (title, detail string, icon iconSet) {
+func describe(st *api.Status, refreshing bool) (title, detail string, icon iconSet) {
 	mode := "split tunnel"
 	if st.Mode == api.ModeFull {
 		mode = "full tunnel"
 	}
 	switch {
+	case !st.Provisioned && refreshing:
+		return "Checking registration…", "", iconAttention
 	case !st.Provisioned:
 		detail = "Register this device in the VPN portal"
 		if st.ProvisionError != "" && !strings.Contains(st.ProvisionError, "not registered") {
 			detail = st.ProvisionError
+		}
+		if !st.LastCheck.IsZero() {
+			detail += " · checked at " + clock(st.LastCheck)
 		}
 		return "Waiting for approval", detail, iconAttention
 	case !st.Enabled:
@@ -271,7 +269,7 @@ func describe(st *api.Status) (title, detail string, icon iconSet) {
 	case api.TunnelConnected:
 		detail = st.Endpoint
 		if !st.LastHandshake.IsZero() {
-			detail += fmt.Sprintf(" · handshake %s ago", time.Since(st.LastHandshake).Round(time.Second))
+			detail += " · handshake at " + clock(st.LastHandshake)
 		}
 		return "Connected (" + mode + ")", detail, iconConnected
 	case api.TunnelIdle:
@@ -280,6 +278,45 @@ func describe(st *api.Status) (title, detail string, icon iconSet) {
 		return "Connecting…", st.Endpoint, iconIdle
 	default:
 		return "Not connected", st.Error, iconAttention
+	}
+}
+
+// clock renders a time for menu text. Absolute times keep the text stable
+// between polls; "12s ago" would change, and so rebuild the menu, every time.
+func clock(at time.Time) string {
+	return at.Local().Format("15:04")
+}
+
+// refresh asks the daemon to fetch its configuration now, shows that it is
+// working, and reports the outcome.
+func (t *tray) refresh() {
+	if !t.refreshing.CompareAndSwap(false, true) {
+		return
+	}
+	before := t.status()
+	t.render(before, nil)
+
+	st, err := t.client.Refresh()
+	t.refreshing.Store(false)
+	if err != nil {
+		t.render(t.status(), nil)
+		notify(appName, "Refresh failed: "+err.Error())
+		return
+	}
+	t.render(st, nil)
+
+	switch {
+	case st.Provisioned && (before == nil || !before.Provisioned):
+		notify(appName, "Registered as \""+st.PeerName+"\". Configuration loaded.")
+	case st.Provisioned && st.ProvisionError != "":
+		notify(appName, "Could not refresh, using the saved configuration: "+st.ProvisionError)
+	case st.Provisioned:
+		notify(appName, "Configuration is up to date.")
+	case st.ProvisionError != "" && !strings.Contains(st.ProvisionError, "not registered"):
+		notify(appName, "Could not check registration: "+st.ProvisionError)
+	default:
+		notify(appName, "This device is not registered yet. If you just added it in the portal, "+
+			"it can take a minute to show up. It keeps checking every 30 seconds.")
 	}
 }
 
@@ -303,23 +340,29 @@ func (t *tray) renderNetworks(st *api.Status, full bool) {
 				return api.SettingsUpdate{Network: map[string]bool{name: enabled}}
 			})
 		}
-		item.Show()
-		setCheck(item, n.Enabled)
+		t.ui.show(item, true)
+		t.ui.check(item, n.Enabled)
 		if full {
-			item.Disable()
+			t.ui.enable(item, false)
 		} else {
-			item.Enable()
+			t.ui.enable(item, true)
 		}
 	}
 	for _, name := range t.netOrder {
 		if !seen[name] {
-			t.nets[name].Hide()
+			t.ui.show(t.nets[name], false)
 		}
 	}
 	if len(st.Networks) == 0 {
-		t.mNetworks.Disable()
+		t.ui.show(t.mNetPlaceholder, true)
 	} else {
-		t.mNetworks.Enable()
+		t.ui.show(t.mNetPlaceholder, false)
+	}
+	t.ui.enable(t.mNetworks, true)
+	if full {
+		t.ui.title(t.mNetworks, "Networks (split tunnel only)")
+	} else {
+		t.ui.title(t.mNetworks, "Networks")
 	}
 }
 

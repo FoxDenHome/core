@@ -44,7 +44,7 @@ Only changes need Kanidm. As an admin breakglass, you can still add a peer on th
 
 ## Client behaviour
 
-- **First start** generates a key in the state directory (`/var/lib/foxden-vpn`, or `/Library/Application Support/FoxDen VPN`). The tray then offers **Register This Device…**, which opens the portal with the device's name and public key filled in. **Show Public Key…** and **Copy Public Key** are there too. Until it is registered, the daemon polls for its blob every minute.
+- **First start** generates a key in the state directory (`/var/lib/foxden-vpn`, or `/Library/Application Support/FoxDen VPN`). The tray then offers **Register This Device…**, which opens the portal with the device's name and public key filled in. **Show Public Key…** and **Copy Public Key** are there too. Until it is registered, the daemon checks for its blob every 30s. **Refresh Configuration** checks immediately, shows "Refreshing…" while it runs, and reports the result as a notification.
 - **LAN or WAN.** The laptop counts as at home only when both of these hold:
   - it has an address in a FoxDen VLAN
   - that VLAN's own resolver (for example `10.2.0.53`) answers `vpn.foxden.network` with an internal address

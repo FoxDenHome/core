@@ -26,7 +26,8 @@ const (
 	locationInterval   = 30 * time.Second
 	resolveInterval    = 60 * time.Second
 	provisionInterval  = time.Hour
-	unprovisionedRetry = time.Minute
+	unprovisionedRetry = 30 * time.Second
+	refreshWait        = 30 * time.Second
 	provisionErrRetry  = 5 * time.Minute
 	// A session is live while its last handshake is younger than WireGuard's
 	// REJECT_AFTER_TIME.
@@ -57,7 +58,10 @@ type Daemon struct {
 	prov       *provision.Config
 	provErr    error
 	forceFetch bool
-	nextFetch  time.Time
+	lastFetch  time.Time
+	// refreshWaiters are closed when the forced fetch they asked for is done.
+	refreshWaiters []chan struct{}
+	nextFetch      time.Time
 
 	location     string
 	fp           string
@@ -138,8 +142,15 @@ func (d *Daemon) tick(ctx context.Context) {
 	settings := d.settings
 	force := d.forceFetch
 	d.forceFetch = false
+	waiters := d.refreshWaiters
+	d.refreshWaiters = nil
 	prov := d.prov
 	d.mu.Unlock()
+	defer func() {
+		for _, w := range waiters {
+			close(w)
+		}
+	}()
 
 	// Provisioning. Slow network calls run without the lock held; only this
 	// goroutine writes these fields.
@@ -162,6 +173,8 @@ func (d *Daemon) tick(ctx context.Context) {
 				log.Printf("peer was removed from the server")
 				provChanged = true
 				_ = saveProvision(d.opts.StateDir, nil)
+			} else if !errors.Is(d.provErr, provision.ErrNotProvisioned) {
+				log.Printf("not registered yet, checking every %s", unprovisionedRetry)
 			}
 			prov = nil
 			d.nextFetch = now.Add(unprovisionedRetry)
@@ -175,6 +188,7 @@ func (d *Daemon) tick(ctx context.Context) {
 		}
 		d.mu.Lock()
 		d.prov, d.provErr = prov, err
+		d.lastFetch = time.Now()
 		d.mu.Unlock()
 	}
 
@@ -379,6 +393,7 @@ func (d *Daemon) Status() api.Status {
 	if d.provErr != nil {
 		st.ProvisionError = d.provErr.Error()
 	}
+	st.LastCheck = d.lastFetch
 	if d.lastErr != nil {
 		st.Error = d.lastErr.Error()
 	}
@@ -440,10 +455,19 @@ func (d *Daemon) Update(u api.SettingsUpdate) (api.Status, error) {
 	return d.Status(), nil
 }
 
-func (d *Daemon) Refresh() api.Status {
+// Refresh fetches provisioning now and returns once that fetch is done (or
+// after refreshWait), so the caller sees its outcome.
+func (d *Daemon) Refresh(ctx context.Context) api.Status {
+	done := make(chan struct{})
 	d.mu.Lock()
 	d.forceFetch = true
+	d.refreshWaiters = append(d.refreshWaiters, done)
 	d.mu.Unlock()
 	d.poke()
+	select {
+	case <-done:
+	case <-time.After(refreshWait):
+	case <-ctx.Done():
+	}
 	return d.Status()
 }

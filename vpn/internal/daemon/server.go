@@ -58,7 +58,7 @@ func (d *Daemon) Serve(ctx context.Context, socket, group string) error {
 		writeJSON(w, st)
 	})
 	mux.HandleFunc("POST /v1/refresh", func(w http.ResponseWriter, r *http.Request) {
-		writeJSON(w, d.Refresh())
+		writeJSON(w, d.Refresh(r.Context()))
 	})
 
 	srv := &http.Server{Handler: mux}
