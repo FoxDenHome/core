@@ -6,38 +6,42 @@ from configure.util import NIX_DIR, ROUTERS, format_mtik_duration
 
 INTERNAL_RECORDS: dict[str, Any] | None = None
 
-FIXED_RECORDS = [
-    {"type": "NXDOMAIN", "name": zone, "match-subdomain": "true"}
-    for zone in [
-        "lunapixel.gg",
-        "playstation.net",
-        "playstation.com",
-        "playstation.org",
-        "scea.com",
-        "sie-rd.com",
-        "sonyentertainmentnetwork.com",
+FIXED_RECORDS = (
+    [
+        {"type": "NXDOMAIN", "name": zone, "match-subdomain": "true"}
+        for zone in [
+            "lunapixel.gg",
+            "playstation.net",
+            "playstation.com",
+            "playstation.org",
+            "scea.com",
+            "sie-rd.com",
+            "sonyentertainmentnetwork.com",
+        ]
     ]
-] + [
-    {
-        "type": "FWD",
-        "name": cfg[0],
-        "match-subdomain": "true",
-        "forward-to": cfg[1],
-    }
-    for cfg in [
-        ("check.getflix.com.au", "getflix"),
-        ("check.getflix.com", "getflix"),
-        ("zattoo.com", "getflix"),
-        ("zahs.tv", "getflix"),
-        ("cghmn", "cghmn"),
-        ("retro", "cghmn"),
+    + [
+        {
+            "type": "FWD",
+            "name": cfg[0],
+            "match-subdomain": "true",
+            "forward-to": cfg[1],
+        }
+        for cfg in [
+            ("check.getflix.com.au", "getflix"),
+            ("check.getflix.com", "getflix"),
+            ("zattoo.com", "getflix"),
+            ("zahs.tv", "getflix"),
+            ("cghmn", "cghmn"),
+            ("retro", "cghmn"),
+        ]
     ]
-] + [
-    { "type": "AAAA", "name": zone, "match-subdomain": "true", "address": "::ffff"}
-    for zone in [
-        "googlevideo.com",
+    + [
+        {"type": "AAAA", "name": zone, "match-subdomain": "true", "address": "::ffff"}
+        for zone in [
+            "googlevideo.com",
+        ]
     ]
-]
+)
 
 FIXED_FORWARDERS = [
     {
