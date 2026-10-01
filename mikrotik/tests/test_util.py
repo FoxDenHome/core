@@ -1,6 +1,7 @@
 import unittest
 
 from configure.util import (
+    MTikRouter,
     format_mtik_bool,
     format_mtik_duration,
     format_weird_mtik_ip,
@@ -55,6 +56,17 @@ class TestUtil(unittest.TestCase):
             get_ipv4_netname("192.168.1.1")
         with self.assertRaises(ValueError):
             get_ipv4_netname("100.68.42.1")
+
+    def test_connection_requires_ensure_user(self) -> None:
+        router = MTikRouter(
+            host="router.example",
+            horizon="internal",
+            vrrp_priority_online=1,
+            vrrp_priority_offline=0,
+            dyndns_suffix_ipv6="::1",
+        )
+        with self.assertRaises(RuntimeError):
+            router.connection()
 
 
 if __name__ == "__main__":

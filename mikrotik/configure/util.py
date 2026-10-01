@@ -50,6 +50,10 @@ class MTikRouter:
 
     def connection(self) -> RouterOsApiPool:
         if self._connection_cache is None:
+            if self._password is None:
+                raise RuntimeError(
+                    f"ensure_user() must be called before connecting to {self.host}"
+                )
             pool = RouterOsApiPool(
                 self.host,
                 username=self._username,

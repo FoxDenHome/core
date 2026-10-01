@@ -69,6 +69,7 @@ def make_dyndns_script(router: MTikRouter) -> None:
             match = re.match(r"^(\s*)# SPECIAL HOSTS #", line)
             assert match is not None
             indent = match.group(1)
+            found_special_hosts = True
             host = hosts[router.host]
             outlines += [
                 f'{indent}$dyndnsUpdate host="{router.host}" key="{host["key"]}" priv6addr="{router.dyndns_suffix_ipv6}" ip6addr=$ip6addr ipaddr=$ipaddr\n',

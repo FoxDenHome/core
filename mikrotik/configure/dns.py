@@ -79,7 +79,7 @@ def find_record(name: str, rectype: str) -> dict | None:
     return None
 
 
-def mtik_process(record_raw: dict[str, Any]) -> dict[str, Any]:
+def mtik_process(record_raw: dict[str, Any]) -> list[dict[str, Any]]:
     rec_type = record_raw["type"].upper()
     records = MTIK_RECORD_TYPE_HANDLERS[rec_type](record_raw)
 
@@ -96,7 +96,7 @@ def mtik_process(record_raw: dict[str, Any]) -> dict[str, Any]:
     return records
 
 
-def handle_alias(raw_record: dict[str, Any]) -> list[dict[str, Any] | None]:
+def handle_alias(raw_record: dict[str, Any]) -> list[dict[str, Any]]:
     records = [
         find_record(raw_record["value"], "A"),
         find_record(raw_record["value"], "AAAA"),
@@ -110,7 +110,7 @@ def handle_alias(raw_record: dict[str, Any]) -> list[dict[str, Any] | None]:
     if results:
         return results
 
-    return {"type": "CNAME", "cname": raw_record["value"].removesuffix(".")}
+    return [{"type": "CNAME", "cname": raw_record["value"].removesuffix(".")}]
 
 
 def remap_ipv6(private: str, public: str) -> str:

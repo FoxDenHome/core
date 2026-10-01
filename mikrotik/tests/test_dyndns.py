@@ -89,7 +89,6 @@ class TestDyndns(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             self.make_with_template("# HOSTS #\n# HOSTS #\n")
 
-    @unittest.expectedFailure  # make_dyndns_script never sets found_special_hosts
     def test_duplicate_special_hosts_errors(self) -> None:
         with self.assertRaises(RuntimeError):
             self.make_with_template("# HOSTS #\n# SPECIAL HOSTS #\n# SPECIAL HOSTS #\n")
