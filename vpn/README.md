@@ -66,6 +66,10 @@ Only changes need Kanidm. As an admin breakglass, you can still add a peer on th
 
 `foxden-vpnd status` dumps the daemon state. `foxden-vpnd pubkey` prints the key.
 
+**Services:** besides the VPN, the daemon can install and keep up to date extra FoxDen services, chosen per device under **Services** in the tray. The choice is device state, kept in the daemon's settings. A service starts out unmanaged and is not touched, even if it was installed by hand; ticking it installs or takes it over, and unticking it removes it. Every download is pinned by sha256 in `internal/services`, and nothing unpinned is ever installed. For now the pins are updated by hand; later they will be replaced by signed release manifests.
+
+- **shutdownd** (Linux): lets the UPS monitor shut the machine down on power loss. It uses the same paths as shutdownd's own `install.sh`, so a manual install is taken over in place. Its private key (`/etc/shutdownd/cert.pem`) is kept at 0600, and removal keeps `/etc/shutdownd`, so the machine keeps its identity. The caller's certificate is pinned in `internal/services/shutdownd-server.pem`; while that file is empty, an existing `/etc/shutdownd/server.pem` is used, and installing on a machine without one is refused.
+
 **Updates:** the daemon reports a build ID, a hash of its executable. When the tray sees it change, it checks whether its own binary on disk changed too. If so, it re-executes itself, so after an install every running tray picks up the new version. Any updater, including a future self-updater, only has to replace the binaries and then restart the daemon. The tray re-executes through the path it was started from, so on Nix it follows the profile symlink to the new store path.
 
 ## Install

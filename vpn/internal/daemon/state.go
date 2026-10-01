@@ -18,6 +18,9 @@ type Settings struct {
 	Enabled          bool     `json:"enabled"`
 	Mode             string   `json:"mode"`
 	DisabledNetworks []string `json:"disabled_networks"`
+	// Services the user enabled (true) or disabled (false); absent ones are
+	// left alone.
+	Services map[string]bool `json:"services,omitempty"`
 }
 
 func defaultSettings() Settings {

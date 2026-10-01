@@ -36,6 +36,8 @@ type tray struct {
 	mQuit                         *systray.MenuItem
 	nets                          map[string]*systray.MenuItem
 	netOrder                      []string
+	mServices, mSvcPlaceholder    *systray.MenuItem
+	svcs                          map[string]*systray.MenuItem
 
 	ui         *ui
 	renderMu   sync.Mutex
@@ -55,6 +57,7 @@ func main() {
 		client:    api.NewClient(*socket),
 		portalURL: *portal,
 		nets:      map[string]*systray.MenuItem{},
+		svcs:      map[string]*systray.MenuItem{},
 		ui:        newUI(),
 		poll:      make(chan struct{}, 1),
 	}
@@ -83,6 +86,9 @@ func (t *tray) onReady() {
 	// that was first shown without children into a submenu later.
 	t.mNetPlaceholder = t.mNetworks.AddSubMenuItem("Available once registered", "")
 	t.mNetPlaceholder.Disable()
+	t.mServices = systray.AddMenuItem("Services", "Extra FoxDen services this device runs and keeps up to date")
+	t.mSvcPlaceholder = t.mServices.AddSubMenuItem("Loading…", "") // see mNetPlaceholder
+	t.mSvcPlaceholder.Disable()
 	systray.AddSeparator()
 
 	t.mRegister = systray.AddMenuItem("Register This Device…", "Open the FoxDen VPN portal to add this device")
@@ -197,13 +203,13 @@ func (t *tray) render(st *api.Status, err error) {
 		t.ui.title(t.mStatus, "VPN service not running")
 		t.ui.line(t.mDetail, "")
 		t.ui.line(t.mAddr, "")
-		for _, m := range []*systray.MenuItem{t.mEnabled, t.mSplit, t.mFull, t.mNetworks, t.mRegister, t.mShowKey, t.mCopyKey, t.mRefresh} {
+		for _, m := range []*systray.MenuItem{t.mEnabled, t.mSplit, t.mFull, t.mNetworks, t.mServices, t.mRegister, t.mShowKey, t.mCopyKey, t.mRefresh} {
 			t.ui.enable(m, false)
 		}
 		t.ui.setTooltip(appName + ": service not running")
 		return
 	}
-	for _, m := range []*systray.MenuItem{t.mEnabled, t.mSplit, t.mFull, t.mRegister, t.mShowKey, t.mCopyKey} {
+	for _, m := range []*systray.MenuItem{t.mEnabled, t.mSplit, t.mFull, t.mServices, t.mRegister, t.mShowKey, t.mCopyKey} {
 		t.ui.enable(m, true)
 	}
 	if t.refreshing.Load() {
@@ -224,6 +230,7 @@ func (t *tray) render(st *api.Status, err error) {
 	t.ui.check(t.mSplit, !full)
 	t.ui.check(t.mFull, full)
 	t.renderNetworks(st, full && st.Location != api.LocationLAN) // always split at home
+	t.renderServices(st)
 
 	title, detail, icon := describe(st, t.refreshing.Load())
 	t.ui.title(t.mStatus, title)
@@ -375,6 +382,76 @@ func (t *tray) renderNetworks(st *api.Status, full bool) {
 	} else {
 		t.ui.title(t.mNetworks, "Networks")
 	}
+}
+
+// serviceTitle puts a service's state into its menu title.
+func serviceTitle(s api.Service) string {
+	var state string
+	switch s.State {
+	case api.ServiceRunning:
+		state = s.Detail
+	case api.ServiceNotInstalled:
+		state = "off"
+	case api.ServiceUnmanaged:
+		state = "installed manually, tick to manage"
+	case api.ServiceUnsupported:
+		state = s.Detail
+	case api.ServiceError:
+		state = "error: " + s.Detail
+		if len(state) > 70 {
+			state = state[:69] + "…"
+		}
+	default:
+		state = "checking…"
+	}
+	return s.Name + " (" + state + ")"
+}
+
+func (t *tray) renderServices(st *api.Status) {
+	for _, s := range st.Services {
+		item, ok := t.svcs[s.Name]
+		if !ok {
+			name := s.Name
+			item = t.mServices.AddSubMenuItemCheckbox(name, s.Description, false)
+			t.svcs[name] = item
+			go func() {
+				for range item.ClickedCh {
+					t.toggleService(name)
+				}
+			}()
+		}
+		t.ui.title(item, serviceTitle(s))
+		t.ui.check(item, s.Wanted != nil && *s.Wanted)
+		t.ui.enable(item, s.State != api.ServiceUnsupported)
+		t.ui.show(item, true)
+	}
+	t.ui.show(t.mSvcPlaceholder, len(st.Services) == 0)
+}
+
+func (t *tray) toggleService(name string) {
+	st := t.status()
+	if st == nil {
+		return
+	}
+	var svc *api.Service
+	for i := range st.Services {
+		if st.Services[i].Name == name {
+			svc = &st.Services[i]
+		}
+	}
+	if svc == nil {
+		return
+	}
+	enable := svc.Wanted == nil || !*svc.Wanted
+	if !enable && !ask(appName, "Remove "+name+" from this device?\n\n"+svc.Description, "Remove") {
+		return
+	}
+	nst, err := t.client.Update(api.SettingsUpdate{Services: map[string]bool{name: enable}})
+	if err != nil {
+		notify(appName, err.Error())
+		return
+	}
+	t.render(nst, nil)
 }
 
 func (t *tray) showKey() {

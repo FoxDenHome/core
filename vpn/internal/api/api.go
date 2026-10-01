@@ -66,6 +66,27 @@ type Status struct {
 	RxBytes       int64     `json:"rx_bytes"`
 	TxBytes       int64     `json:"tx_bytes"`
 	Error         string    `json:"error,omitempty"`
+	Services      []Service `json:"services,omitempty"`
+}
+
+const (
+	ServicePending      = "pending"
+	ServiceUnsupported  = "unsupported"
+	ServiceNotInstalled = "not-installed"
+	ServiceUnmanaged    = "unmanaged" // installed by hand, not touched
+	ServiceRunning      = "running"
+	ServiceError        = "error"
+)
+
+// Service is an auxiliary service the daemon can install and keep updated.
+type Service struct {
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	Version     string `json:"version,omitempty"`
+	// Wanted is nil while the service is unmanaged.
+	Wanted *bool  `json:"wanted,omitempty"`
+	State  string `json:"state"`
+	Detail string `json:"detail,omitempty"`
 }
 
 // SettingsUpdate changes only the fields that are set.
@@ -73,6 +94,8 @@ type SettingsUpdate struct {
 	Enabled *bool           `json:"enabled,omitempty"`
 	Mode    *string         `json:"mode,omitempty"`
 	Network map[string]bool `json:"network,omitempty"`
+	// Services enables or disables (uninstalls) auxiliary services by name.
+	Services map[string]bool `json:"services,omitempty"`
 }
 
 type Client struct {

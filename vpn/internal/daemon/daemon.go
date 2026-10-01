@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"maps"
 	"net/netip"
 	"os"
 	"reflect"
@@ -18,6 +19,7 @@ import (
 	"github.com/FoxDenHome/core/vpn/internal/api"
 	"github.com/FoxDenHome/core/vpn/internal/buildid"
 	"github.com/FoxDenHome/core/vpn/internal/provision"
+	"github.com/FoxDenHome/core/vpn/internal/services"
 	"github.com/FoxDenHome/core/vpn/internal/tunnel"
 	"golang.zx2c4.com/wireguard/wgctrl/wgtypes"
 )
@@ -49,10 +51,11 @@ type Options struct {
 }
 
 type Daemon struct {
-	opts Options
-	key  wgtypes.Key
-	tun  *tunnel.Tunnel
-	wake chan struct{}
+	opts     Options
+	key      wgtypes.Key
+	tun      *tunnel.Tunnel
+	services *services.Manager
+	wake     chan struct{}
 
 	mu         sync.Mutex
 	settings   Settings
@@ -96,12 +99,16 @@ func New(opts Options) (*Daemon, error) {
 	}
 	log.Printf("build %s, public key: %s", buildid.Self(), key.PublicKey())
 
+	settings := loadSettings(opts.StateDir)
+	svc := services.NewManager(opts.StateDir)
+	svc.SetWanted(settings.Services)
 	return &Daemon{
 		opts:     opts,
 		key:      key,
 		tun:      tunnel.New(opts.Tunnel),
+		services: svc,
 		wake:     make(chan struct{}, 1),
-		settings: loadSettings(opts.StateDir),
+		settings: settings,
 		prov:     loadProvision(opts.StateDir),
 		location: api.LocationUnknown,
 		state:    api.TunnelDown,
@@ -119,6 +126,7 @@ func (d *Daemon) poke() {
 
 func (d *Daemon) Run(ctx context.Context) error {
 	tunnel.CleanupStale(d.opts.Tunnel)
+	go d.services.Run(ctx)
 	defer func() {
 		if err := d.tun.Close(); err != nil {
 			log.Printf("tearing down tunnel: %v", err)
@@ -400,6 +408,7 @@ func (d *Daemon) Status() api.Status {
 	defer d.mu.Unlock()
 
 	st := api.Status{
+		Services:     d.services.Status(),
 		Build:        buildid.Self(),
 		HomeNetworks: d.homeNets,
 		PublicKey:    d.key.PublicKey().String(),
@@ -445,6 +454,7 @@ func (d *Daemon) Update(u api.SettingsUpdate) (api.Status, error) {
 	d.mu.Lock()
 	s := d.settings
 	s.DisabledNetworks = slices.Clone(s.DisabledNetworks)
+	s.Services = maps.Clone(s.Services)
 	if u.Enabled != nil {
 		s.Enabled = *u.Enabled
 	}
@@ -461,6 +471,16 @@ func (d *Daemon) Update(u api.SettingsUpdate) (api.Status, error) {
 			s.DisabledNetworks = append(s.DisabledNetworks, name)
 		}
 	}
+	for name, enabled := range u.Services {
+		if !services.Known(name) {
+			d.mu.Unlock()
+			return api.Status{}, fmt.Errorf("unknown service %q", name)
+		}
+		if s.Services == nil {
+			s.Services = map[string]bool{}
+		}
+		s.Services[name] = enabled
+	}
 	slices.Sort(s.DisabledNetworks)
 	err := saveSettings(d.opts.StateDir, s)
 	if err == nil {
@@ -469,6 +489,9 @@ func (d *Daemon) Update(u api.SettingsUpdate) (api.Status, error) {
 	d.mu.Unlock()
 	if err != nil {
 		return api.Status{}, err
+	}
+	if u.Services != nil {
+		d.services.SetWanted(s.Services)
 	}
 	d.poke()
 	return d.Status(), nil
