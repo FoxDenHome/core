@@ -20,6 +20,16 @@ in
         imageFile = ../../../files/icons/radius.svg;
       };
     };
+    vpn-portal = {
+      enable = true;
+      host = "portal";
+      tls.enable = true;
+      oAuth = {
+        enable = true;
+        clientId = "portal";
+        displayName = "FoxDen portal";
+      };
+    };
   };
 
   foxDen.hosts.hosts = {
@@ -57,6 +67,17 @@ in
       addresses = [
         "10.2.11.11/16"
         "fd2c:f4cb:63be:2::b0b/64"
+      ];
+    };
+    portal = mkVlanHost 2 {
+      dns = {
+        fqdns = [ "portal.foxden.network" ];
+        dynDns = true;
+      };
+      webservice.enable = true;
+      addresses = [
+        "10.2.11.40/16"
+        "fd2c:f4cb:63be:2::b28/64"
       ];
     };
   };

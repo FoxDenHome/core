@@ -1,0 +1,15 @@
+[Unit]
+Description=FoxDen VPN
+Wants=network-online.target
+After=network-online.target systemd-resolved.service
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/foxden-vpnd
+Restart=on-failure
+RestartSec=5
+StateDirectory=foxden-vpn
+StateDirectoryMode=0700
+
+[Install]
+WantedBy=multi-user.target

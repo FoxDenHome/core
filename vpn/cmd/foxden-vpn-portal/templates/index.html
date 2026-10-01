@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FoxDen VPN</title>
+<style>
+:root {
+  --bg: #f6f7f9; --card: #fff; --fg: #1d2127; --muted: #616a75; --line: #dde1e6;
+  --accent: #1d7fc4; --accent-fg: #fff; --ok-bg: #e6f4ea; --ok-fg: #1e6b34; --err-bg: #fdecea; --err-fg: #a12622;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #15181c; --card: #1e2227; --fg: #e6e9ed; --muted: #9aa3ad; --line: #2e343b;
+    --accent: #3daee9; --accent-fg: #0b1620; --ok-bg: #173323; --ok-fg: #8fd6a5; --err-bg: #3a1a19; --err-fg: #f2a19c;
+  }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--fg); font: 15px/1.5 system-ui, sans-serif; }
+main { max-width: 760px; margin: 0 auto; padding: 24px 16px 48px; }
+header { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 20px; }
+h1 { font-size: 22px; margin: 0; }
+h2 { font-size: 16px; margin: 0 0 12px; }
+.who { color: var(--muted); display: flex; gap: 8px; align-items: baseline; }
+section { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 18px; margin-bottom: 16px; }
+.flash { border-radius: 8px; padding: 10px 14px; margin-bottom: 16px; }
+.flash.ok { background: var(--ok-bg); color: var(--ok-fg); }
+.flash.err { background: var(--err-bg); color: var(--err-fg); }
+table { width: 100%; border-collapse: collapse; }
+th, td { text-align: left; padding: 8px 6px; border-top: 1px solid var(--line); vertical-align: top; }
+th { color: var(--muted); font-weight: 500; font-size: 13px; border-top: 0; }
+code { font: 13px ui-monospace, monospace; word-break: break-all; }
+.muted { color: var(--muted); }
+label { display: block; font-weight: 500; margin: 10px 0 4px; }
+input[type=text] { width: 100%; padding: 8px 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); color: var(--fg); font: inherit; }
+input.key { font-family: ui-monospace, monospace; font-size: 13px; }
+button { font: inherit; border-radius: 6px; padding: 7px 14px; cursor: pointer; border: 1px solid var(--line); background: transparent; color: var(--fg); }
+button.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-fg); margin-top: 14px; }
+button.link { border: 0; padding: 0; color: var(--muted); text-decoration: underline; }
+.hint { color: var(--muted); font-size: 13px; margin: 4px 0 0; }
+@media (max-width: 560px) { .hide-sm { display: none; } }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>FoxDen VPN</h1>
+    <form class="who" method="post" action="/logout">
+      <span>{{.User}}</span>
+      <button class="link" type="submit">Log out</button>
+    </form>
+  </header>
+
+  {{with .Message}}<div class="flash ok">{{.}}</div>{{end}}
+  {{with .Error}}<div class="flash err">{{.}}</div>{{end}}
+
+  <section>
+    <h2>Your devices</h2>
+    {{if .Devices}}
+    <table>
+      <tr><th>Name</th><th>Addresses</th><th class="hide-sm">Last handshake</th><th></th></tr>
+      {{range .Devices}}
+      <tr>
+        <td>{{.Name}}{{if .Disabled}} <span class="muted">(disabled)</span>{{end}}<br><code class="muted">{{.PublicKey}}</code></td>
+        <td>{{range .Addresses}}<code>{{.}}</code><br>{{end}}</td>
+        <td class="hide-sm">{{if .LastHandshake}}{{.LastHandshake}} ago{{else}}<span class="muted">never</span>{{end}}</td>
+        <td>
+          <form method="post" action="/devices/delete">
+            <input type="hidden" name="csrf" value="{{$.CSRF}}">
+            <input type="hidden" name="name" value="{{.Name}}">
+            <button type="submit">Remove</button>
+          </form>
+        </td>
+      </tr>
+      {{end}}
+    </table>
+    {{else}}
+    <p class="muted">No devices yet.</p>
+    {{end}}
+  </section>
+
+  <section>
+    <h2>Add or replace a device</h2>
+    <form method="post" action="/devices">
+      <input type="hidden" name="csrf" value="{{.CSRF}}">
+      <label for="name">Device name</label>
+      <input type="text" id="name" name="name" value="{{.Name}}" required pattern="[a-z0-9][a-z0-9\-]{0,30}" autocomplete="off">
+      <p class="hint">Using the name of an existing device replaces its key and keeps its addresses.</p>
+      <label for="pubkey">Public key</label>
+      <input class="key" type="text" id="pubkey" name="pubkey" value="{{.Key}}" required autocomplete="off" spellcheck="false">
+      <p class="hint">Shown by the FoxDen VPN tray icon under “Show Public Key…”.</p>
+      <button class="primary" type="submit">Save device</button>
+    </form>
+  </section>
+</main>
+</body>
+</html>

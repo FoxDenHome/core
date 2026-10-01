@@ -16,6 +16,11 @@ resource "fastly_service_vcl" "cdn_foxden" {
   dictionary {
     name = "static_root"
   }
+
+  # Items are owned by foxden-vpn-portal (VPN provisioning blobs), not terraform
+  dictionary {
+    name = "vpn_peers"
+  }
 }
 
 locals {

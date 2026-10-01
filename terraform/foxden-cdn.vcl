@@ -5,6 +5,15 @@ sub vcl_recv {
   unset req.http.resp-meta;
   unset req.http.resp-tmp;
 
+  # VPN provisioning blobs, managed by foxden-vpn-portal
+  if (req.url.path ~ "^/vpn/peers/") {
+    set req.http.resp-body = table.lookup(vpn_peers, req.url.path);
+    if (req.http.resp-body) {
+      set req.http.resp-meta:content-type = "application/octet-stream";
+      error 200;
+    }
+  }
+
   set req.http.resp-body = table.lookup(static_root, req.url.path);
   if (req.http.resp-body) {
     set req.http.resp-meta = table.lookup(static_root, req.url.path + ".meta");
