@@ -1,3 +1,4 @@
+from bisect import bisect_left
 from dataclasses import dataclass, field
 from json import load as json_load
 from subprocess import check_output
@@ -524,64 +525,110 @@ DEFAULT_RULES_TAIL: list[FirewallRule] = [
 ]
 
 
+def _rule_matches(current_rule: dict[str, Any], rule: FirewallRule) -> bool:
+    all_keys = set(current_rule.keys()).union(set(rule.attribs.keys()))
+    for match_key in all_keys:
+        if (
+            match_key in rule.ignoreChanges
+            or match_key in IGNORE_CHANGES
+            or match_key[0] == "."
+        ):
+            continue
+
+        if current_rule.get(match_key, "") != rule.attribs.get(match_key, ""):
+            return False
+    return True
+
+
+def _longest_increasing_subsequence(values: list[int]) -> set[int]:
+    # Returns the indices (into values) of one longest strictly increasing subsequence
+    tails: list[int] = []
+    prev: list[int] = [-1] * len(values)
+    for i, value in enumerate(values):
+        pos = bisect_left(tails, value, key=lambda t: values[t])
+        if pos > 0:
+            prev[i] = tails[pos - 1]
+        if pos == len(tails):
+            tails.append(i)
+        else:
+            tails[pos] = i
+
+    result: set[int] = set()
+    i = tails[-1] if tails else -1
+    while i >= 0:
+        result.add(i)
+        i = prev[i]
+    return result
+
+
+def _sync_firewall_table(
+    api_rule: Any, deployed: list[dict[str, Any]], rules: list[FirewallRule]
+) -> None:
+    # Pair each wanted rule with an identical deployed rule (if any)
+    unmatched = list(range(len(deployed)))
+    matches: list[int | None] = []
+    for rule in rules:
+        match = next((i for i in unmatched if _rule_matches(deployed[i], rule)), None)
+        if match is not None:
+            unmatched.remove(match)
+        matches.append(match)
+
+    # Matched rules already in correct relative order stay where they are
+    matched = [(pos, match) for pos, match in enumerate(matches) if match is not None]
+    stable = {
+        matched[i][0]
+        for i in _longest_increasing_subsequence([match for _, match in matched])
+    }
+
+    # Every other rule is placed right before the next stable rule (or at the end)
+    anchors: list[str | None] = [None] * len(rules)
+    anchor: str | None = None
+    for pos in reversed(range(len(rules))):
+        anchors[pos] = anchor
+        match = matches[pos]
+        if pos in stable and match is not None:
+            anchor = deployed[match]["id"]
+
+    for pos, rule in enumerate(rules):
+        if pos in stable:
+            continue
+        anchor = anchors[pos]
+        match = matches[pos]
+        if match is None:
+            print("Adding firewall rule", rule.attribs)
+            if anchor is None:
+                api_rule.add(**rule.attribs)
+            else:
+                api_rule.add(**rule.attribs, **{"place-before": anchor})
+        else:
+            print("Moving firewall rule", rule.attribs)
+            move_args = {"numbers": deployed[match]["id"]}
+            if anchor is not None:
+                move_args["destination"] = anchor
+            api_rule.call("move", move_args)
+
+    for i in unmatched:
+        print("Removing extra firewall rule", deployed[i])
+        api_rule.remove(id=deployed[i]["id"])
+
+
 def refresh_firewall_router(
     firewall_rules: list[FirewallRule], router: MTikRouter
 ) -> None:
     print(f"## {router.host}")
     connection = router.connection()
     api = connection.get_api()
-    resources: dict[str, Any] = {}
-    sent_rule_counts: dict[str, int] = {}
-    deployed_rules: dict[str, list[dict[str, Any]]] = {}
+    table_rules: dict[str, list[FirewallRule]] = {}
 
     for rule in firewall_rules:
         for family in rule.families:
             key = f"/{family}/firewall/{rule.table}"
-            if key not in resources:
-                resources[key] = api.get_resource(f"/{family}/firewall/{rule.table}")
-                deployed_rules[key] = resources[key].get(
-                    dynamic=format_mtik_bool(False)
-                )
-                sent_rule_counts[key] = 0
+            table_rules.setdefault(key, []).append(rule)
 
-            api_rule = resources[key]
-            if sent_rule_counts[key] < len(deployed_rules[key]):
-                current_rule = deployed_rules[key][sent_rule_counts[key]]
-
-                all_keys = set(current_rule.keys()).union(set(rule.attribs.keys()))
-
-                for match_key in all_keys:
-                    if (
-                        match_key in rule.ignoreChanges
-                        or match_key in IGNORE_CHANGES
-                        or match_key[0] == "."
-                    ):
-                        continue
-
-                    if current_rule.get(match_key, "") == rule.attribs.get(
-                        match_key, ""
-                    ):
-                        continue
-
-                    attribs = {
-                        **rule.attribs,
-                        "place-before": current_rule["id"],
-                    }
-                    print("Updating firewall rule", rule.attribs)
-                    api_rule.add(**attribs)
-                    api_rule.remove(id=current_rule["id"])
-                    break
-            else:
-                print("Adding new firewall rule", rule.attribs)
-                api_rule.add(**rule.attribs)
-            sent_rule_counts[key] += 1
-
-    for key, count in sent_rule_counts.items():
-        api_rule = resources[key]
-        delete_rules = deployed_rules[key][count:]
-        for dr in delete_rules:
-            print("Removing extra firewall rule", dr)
-            api_rule.remove(id=dr["id"])
+    for key, rules in table_rules.items():
+        api_rule = api.get_resource(key)
+        deployed = api_rule.get(dynamic=format_mtik_bool(False))
+        _sync_firewall_table(api_rule, deployed, rules)
 
 
 def refresh_firewall() -> None:
