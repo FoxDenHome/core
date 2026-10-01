@@ -151,8 +151,12 @@ func (t *tray) pollNow() {
 func (t *tray) pollLoop() {
 	tk := time.NewTicker(2 * time.Second)
 	defer tk.Stop()
+	upd := newUpdater()
 	for {
 		st, err := t.client.Status()
+		if err == nil {
+			upd.check(st)
+		}
 		t.render(st, err)
 		select {
 		case <-tk.C:

@@ -65,6 +65,8 @@ Only changes need Kanidm. As an admin breakglass, you can still add a peer on th
 
 `foxden-vpnd status` dumps the daemon state. `foxden-vpnd pubkey` prints the key.
 
+**Updates:** the daemon reports a build ID, a hash of its executable. When the tray sees it change, it checks whether its own binary on disk changed too. If so, it re-executes itself, so after an install every running tray picks up the new version. Any updater, including a future self-updater, only has to replace the binaries and then restart the daemon. The tray re-executes through the path it was started from, so on Nix it follows the profile symlink to the new store path.
+
 ## Install
 
 Linux (systemd; members of `wheel` may control the daemon):

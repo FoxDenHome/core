@@ -16,6 +16,7 @@ import (
 	"time"
 
 	"github.com/FoxDenHome/core/vpn/internal/api"
+	"github.com/FoxDenHome/core/vpn/internal/buildid"
 	"github.com/FoxDenHome/core/vpn/internal/provision"
 	"github.com/FoxDenHome/core/vpn/internal/tunnel"
 	"golang.zx2c4.com/wireguard/wgctrl/wgtypes"
@@ -91,7 +92,7 @@ func New(opts Options) (*Daemon, error) {
 	if created {
 		log.Printf("generated new device key")
 	}
-	log.Printf("public key: %s", key.PublicKey())
+	log.Printf("build %s, public key: %s", buildid.Self(), key.PublicKey())
 
 	return &Daemon{
 		opts:     opts,
@@ -383,6 +384,7 @@ func (d *Daemon) Status() api.Status {
 	defer d.mu.Unlock()
 
 	st := api.Status{
+		Build:     buildid.Self(),
 		PublicKey: d.key.PublicKey().String(),
 		Enabled:   d.settings.Enabled,
 		Mode:      d.settings.Mode,

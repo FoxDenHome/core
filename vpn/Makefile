@@ -17,7 +17,9 @@ install-linux: all
 	install -Dm644 packaging/linux/foxden-vpnd.service /etc/systemd/system/foxden-vpnd.service
 	install -Dm644 packaging/linux/foxden-vpn-tray.desktop /etc/xdg/autostart/foxden-vpn-tray.desktop
 	systemctl daemon-reload
-	systemctl enable --now foxden-vpnd
+	systemctl enable foxden-vpnd
+	# Restart even if running: a new daemon build makes running trays update too.
+	systemctl restart foxden-vpnd
 
 # macOS: build on a Mac (the tray needs cgo against AppKit). Universal binaries.
 macos:
