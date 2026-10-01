@@ -88,7 +88,7 @@ Nix: `pkgs.foxden-vpn` (`nix/packages/foxden-vpn`) contains all three binaries.
 
    ```
    /user group add name=vpn-portal policy=api,read,write,sensitive
-   /user add name=vpn-portal group=vpn-portal address=10.2.11.38/32,fd2c:f4cb:63be:2::b26/128 password=...
+   /user add name=vpn-portal group=vpn-portal address=10.2.11.40/32,fd2c:f4cb:63be:2::b28/128 password=...
    ```
 
 3. **Secrets:** add a `foxden-vpn-portal` entry to `nix/secrets/islandfox.yaml`, in EnvironmentFile format:
@@ -99,7 +99,7 @@ Nix: `pkgs.foxden-vpn` (`nix/packages/foxden-vpn`) contains all three binaries.
    SESSION_SECRET=...     # any long random string; if unset, sessions reset on restart
    ```
 
-4. Deploy islandfox. The portal is `vpn-portal.foxden.network` (`nix/systems/x86_64-linux/islandfox/vpn-portal.nix`). Login is limited to Kanidm's `login-users` (option `oAuthGroup`).
+4. Deploy islandfox. The portal is `portal.foxden.network` (host `portal` in `nix/systems/x86_64-linux/islandfox/auth.nix`, Kanidm client `portal`). Login is limited to Kanidm's `login-users` (option `oAuthGroup`).
 
 ### Existing peers
 

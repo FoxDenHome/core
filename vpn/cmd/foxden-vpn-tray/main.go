@@ -43,7 +43,7 @@ type tray struct {
 
 func main() {
 	socket := flag.String("socket", api.DefaultSocket, "foxden-vpnd control socket")
-	portal := flag.String("portal-url", "https://vpn-portal.foxden.network/", "device management portal")
+	portal := flag.String("portal-url", "https://portal.foxden.network/", "device management portal")
 	flag.Parse()
 
 	t := &tray{
