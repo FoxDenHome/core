@@ -84,21 +84,39 @@ func lookup(ctx context.Context, r *net.Resolver, host string, timeout time.Dura
 	return ips
 }
 
+// home describes where we are.
+type home struct {
+	Location string
+	// Networks are the FoxDen networks we are directly attached to (at home
+	// only). Their traffic stays off the tunnel.
+	Networks []string
+	// Endpoints are the internal addresses of the VPN endpoint, as the home
+	// resolver gave them (at home only).
+	Endpoints []netip.Addr
+}
+
 // detectLocation decides whether we are on a FoxDen LAN. We only count as home
 // if we hold an address in one of the FoxDen networks *and* that network's own
 // resolver gives the internal answer for the VPN endpoint, so a random hotel
 // that happens to use the same RFC1918 range does not fool us.
-func detectLocation(ctx context.Context, prov *provision.Config, addrs []localAddr) string {
+func detectLocation(ctx context.Context, prov *provision.Config, addrs []localAddr) home {
 	if len(addrs) == 0 {
-		return api.LocationOffline
+		return home{Location: api.LocationOffline}
 	}
 	if prov == nil {
-		return api.LocationUnknown
+		return home{Location: api.LocationUnknown}
 	}
+	h := home{Location: api.LocationWAN}
 	for _, n := range prov.Networks {
 		for _, a := range addrs {
 			if !slices.ContainsFunc(n.Prefixes, func(p netip.Prefix) bool { return p.Contains(a.addr) }) {
 				continue
+			}
+			if !slices.Contains(h.Networks, n.Name) {
+				h.Networks = append(h.Networks, n.Name)
+			}
+			if len(h.Endpoints) > 0 {
+				continue // already confirmed
 			}
 			for _, dns := range n.DNS {
 				if dns.Is4() != a.addr.Is4() {
@@ -106,14 +124,32 @@ func detectLocation(ctx context.Context, prov *provision.Config, addrs []localAd
 				}
 				server := netip.AddrPortFrom(dns, 53)
 				for _, ip := range queryDNS(ctx, server, a.iface, prov.Server.Host, 1500*time.Millisecond) {
-					if prov.IsInternal(ip) {
-						return api.LocationLAN
+					if prov.IsInternal(ip) && !slices.Contains(h.Endpoints, ip) {
+						h.Endpoints = append(h.Endpoints, ip)
 					}
+				}
+				if len(h.Endpoints) > 0 {
+					break
 				}
 			}
 		}
 	}
-	return api.LocationWAN
+	if len(h.Endpoints) == 0 {
+		// Not home: overlapping addresses elsewhere say nothing about VLANs.
+		return home{Location: api.LocationWAN}
+	}
+	h.Location = api.LocationLAN
+	slices.SortStableFunc(h.Endpoints, func(a, b netip.Addr) int { // IPv4 first
+		switch {
+		case a.Is4() == b.Is4():
+			return 0
+		case a.Is4():
+			return -1
+		default:
+			return 1
+		}
+	})
+	return h
 }
 
 // resolveEndpoint returns the public endpoint candidates, best first. Internal

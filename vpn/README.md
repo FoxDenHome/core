@@ -49,12 +49,13 @@ Only changes need Kanidm. As an admin breakglass, you can still add a peer on th
   - it has an address in a FoxDen VLAN
   - that VLAN's own resolver (for example `10.2.0.53`) answers `vpn.foxden.network` with an internal address
 
-  The query is bound to the physical interface and bypasses `/etc/hosts`, so a hotel that also uses `10.2.x.x` can't fool it. At home the tunnel is fully down. Detection reruns on every change of network attachment (polled every 2s) and every 30s.
-- **Endpoint tracking.** `vpn.foxden.network` is re-resolved every 60s and on every network change. Internal answers are dropped: the tunnel's own split DNS returns those. If only internal answers come back, public resolvers are tried, and the last good endpoint is kept. IPv4 candidates come first. If a handshake fails for 20s while traffic is waiting, the client rotates to the next candidate and re-resolves.
+  The query is bound to the physical interface and bypasses `/etc/hosts`, so a hotel that also uses `10.2.x.x` can't fool it. Detection reruns on every change of network attachment (polled every 2s) and every 30s.
+- **At home the tunnel stays up.** The other VLANs, such as the BMCs on mgmt, are only reachable through it, so they are limited to registered devices. The VLAN you are plugged into is reached directly and never tunneled; the tray marks it "you are here". At home the tunnel always runs as split, even with Full Tunnel selected, and uses the internal endpoint the home resolver returned (`10.2.1.1`). That endpoint may lie in a tunneled VLAN, for example when you are on mgmt; the tunnel's own packets bypass the tunnel either way.
+- **Endpoint tracking.** Away from home, `vpn.foxden.network` is re-resolved every 60s and on every network change. Internal answers are dropped: the tunnel's own split DNS returns those. If only internal answers come back, public resolvers are tried, and the last good endpoint is kept. IPv4 candidates come first. If a handshake fails for 20s while traffic is waiting, the client rotates to the next candidate and re-resolves.
 - **Split tunnel** is the default. It routes only the VPN subnet and the enabled VLANs, over IPv4 and IPv6 (ULA and public prefixes), and sets per-domain DNS: `foxden.network` plus the reverse zones. It is on demand: there is no keepalive, so WireGuard only handshakes when traffic needs it. After `-idle-timeout` (5m) without traffic, the session is dropped completely, and the next packet brings it back.
 - **Full tunnel** routes `0.0.0.0/0` and `::/0` and sends all DNS through the tunnel, with a 25s keepalive.
-  - Linux uses wg-quick-style fwmark policy routing.
-  - macOS uses /1 routes plus a host route for the endpoint via the physical gateway.
+  - Linux uses wg-quick-style fwmark policy routing (split mode does too, so the tunnel never carries its own packets).
+  - macOS uses /1 routes plus a host route for the endpoint via the physical gateway. Split mode adds the same host route whenever the endpoint is inside a tunneled prefix.
 - **Networks.** Each VLAN can be toggled for split mode under **Networks**. All are on by default.
 - **Backends.**
   - Linux: kernel WireGuard via netlink, falling back to embedded wireguard-go if the module is missing.

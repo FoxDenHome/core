@@ -114,15 +114,18 @@ func (t *Tunnel) setRoutes(cfg Config) error {
 	}
 	idx := l.Attrs().Index
 
-	var want []netlink.Route
+	// Both modes route through RouteTable behind the fwmark rules: the tunnel's
+	// own (marked) packets never re-enter it, even when the endpoint lies in a
+	// routed prefix (at home it is the router's LAN address), and anything
+	// more specific than a default route in main, like the directly attached
+	// network, still wins.
+	routes := cfg.Routes
 	if cfg.FullTunnel {
-		for _, p := range FullTunnelRoutes {
-			want = append(want, netlink.Route{LinkIndex: idx, Dst: ptr(prefixToIPNet(p)), Table: RouteTable})
-		}
-	} else {
-		for _, p := range cfg.Routes {
-			want = append(want, netlink.Route{LinkIndex: idx, Dst: ptr(prefixToIPNet(p)), Table: unix.RT_TABLE_MAIN})
-		}
+		routes = FullTunnelRoutes
+	}
+	var want []netlink.Route
+	for _, p := range routes {
+		want = append(want, netlink.Route{LinkIndex: idx, Dst: ptr(prefixToIPNet(p)), Table: RouteTable})
 	}
 
 	for _, old := range t.plat.routes {
@@ -136,12 +139,7 @@ func (t *Tunnel) setRoutes(cfg Config) error {
 		}
 	}
 	t.plat.routes = want
-
-	if cfg.FullTunnel {
-		return t.addRules()
-	}
-	t.delRules()
-	return nil
+	return t.addRules()
 }
 
 func containsRoute(rs []netlink.Route, r netlink.Route) bool {

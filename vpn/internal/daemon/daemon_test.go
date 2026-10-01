@@ -43,7 +43,7 @@ func testDaemon() *Daemon {
 
 func TestBuildConfigSplit(t *testing.T) {
 	d := testDaemon()
-	cfg, err := d.buildConfig(Settings{Mode: api.ModeSplit, DisabledNetworks: []string{"mgmt"}}, testProv(t))
+	cfg, err := d.buildConfig(Settings{Mode: api.ModeSplit, DisabledNetworks: []string{"mgmt"}}, testProv(t), api.LocationWAN, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -58,7 +58,7 @@ func TestBuildConfigSplit(t *testing.T) {
 
 func TestBuildConfigFull(t *testing.T) {
 	d := testDaemon()
-	cfg, err := d.buildConfig(Settings{Mode: api.ModeFull}, testProv(t))
+	cfg, err := d.buildConfig(Settings{Mode: api.ModeFull}, testProv(t), api.LocationWAN, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -67,27 +67,49 @@ func TestBuildConfigFull(t *testing.T) {
 	}
 }
 
-func TestBuildConfigNeverRoutesEndpoint(t *testing.T) {
+func TestBuildConfigAtHome(t *testing.T) {
 	d := testDaemon()
-	d.candidates = []netip.AddrPort{netip.MustParseAddrPort("[2a0e:7d44:f069:a02::1]:13231")}
-	cfg, err := d.buildConfig(Settings{Mode: api.ModeSplit}, testProv(t))
+	// At home in lan, with the endpoint being the router's lan address.
+	d.candidates = []netip.AddrPort{netip.MustParseAddrPort("10.2.1.1:13231")}
+	for _, mode := range []string{api.ModeSplit, api.ModeFull} {
+		cfg, err := d.buildConfig(Settings{Mode: mode}, testProv(t), api.LocationLAN, []string{"lan"})
+		if err != nil {
+			t.Fatal(err)
+		}
+		if cfg.FullTunnel || cfg.Keepalive != 0 {
+			t.Fatalf("%s: at home the tunnel must be split and on demand", mode)
+		}
+		// The current VLAN (lan) is direct, every other one goes through the tunnel.
+		want := pfx("10.1.0.0/16", "10.100.0.0/16", "fd2c:f4cb:63be::a64:0/112", "fd2c:f4cb:63be:1::/64")
+		if !slices.Equal(cfg.Routes, want) {
+			t.Fatalf("%s: routes = %v, want %v", mode, cfg.Routes, want)
+		}
+	}
+}
+
+func TestBuildConfigKeepsEndpointPrefix(t *testing.T) {
+	d := testDaemon()
+	// At home in mgmt, the endpoint is in lan, which still goes through the
+	// tunnel: the tunnel's own packets bypass it, so nothing is dropped.
+	d.candidates = []netip.AddrPort{netip.MustParseAddrPort("10.2.1.1:13231")}
+	cfg, err := d.buildConfig(Settings{Mode: api.ModeSplit}, testProv(t), api.LocationLAN, []string{"mgmt"})
 	if err != nil {
 		t.Fatal(err)
 	}
-	if slices.Contains(cfg.Routes, netip.MustParsePrefix("2a0e:7d44:f069:a02::/64")) {
-		t.Fatalf("endpoint's prefix is routed into the tunnel: %v", cfg.Routes)
+	if !slices.Contains(cfg.Routes, netip.MustParsePrefix("10.2.0.0/16")) {
+		t.Fatalf("lan must stay routed: %v", cfg.Routes)
 	}
 }
 
 func TestDetectLocation(t *testing.T) {
 	prov := testProv(t)
 	ctx := context.Background()
-	if got := detectLocation(ctx, prov, nil); got != api.LocationOffline {
-		t.Fatalf("no addresses: got %s", got)
+	if got := detectLocation(ctx, prov, nil); got.Location != api.LocationOffline {
+		t.Fatalf("no addresses: got %+v", got)
 	}
 	// Holding a FoxDen-looking address without a FoxDen resolver is not home.
 	addrs := []localAddr{{iface: "lo", addr: netip.MustParseAddr("10.2.5.5")}}
-	if got := detectLocation(ctx, prov, addrs); got != api.LocationWAN {
-		t.Fatalf("got %s", got)
+	if got := detectLocation(ctx, prov, addrs); got.Location != api.LocationWAN || got.Networks != nil {
+		t.Fatalf("got %+v", got)
 	}
 }

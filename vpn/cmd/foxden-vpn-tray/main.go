@@ -11,6 +11,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"slices"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -222,7 +223,7 @@ func (t *tray) render(st *api.Status, err error) {
 	t.ui.check(t.mEnabled, st.Enabled)
 	t.ui.check(t.mSplit, !full)
 	t.ui.check(t.mFull, full)
-	t.renderNetworks(st, full)
+	t.renderNetworks(st, full && st.Location != api.LocationLAN) // always split at home
 
 	title, detail, icon := describe(st, t.refreshing.Load())
 	t.ui.title(t.mStatus, title)
@@ -247,7 +248,10 @@ func (t *tray) render(st *api.Status, err error) {
 
 func describe(st *api.Status, refreshing bool) (title, detail string, icon iconSet) {
 	mode := "split tunnel"
-	if st.Mode == api.ModeFull {
+	switch {
+	case st.Location == api.LocationLAN:
+		mode = "at home" // always split at home
+	case st.Mode == api.ModeFull:
 		mode = "full tunnel"
 	}
 	switch {
@@ -264,8 +268,6 @@ func describe(st *api.Status, refreshing bool) (title, detail string, icon iconS
 		return "Waiting for approval", detail, iconAttention
 	case !st.Enabled:
 		return "Disabled", "", iconOff
-	case st.Location == api.LocationLAN:
-		return "At home (direct)", "", iconLAN
 	case st.Location == api.LocationOffline && st.Tunnel == api.TunnelDown:
 		return "Offline", "", iconOff
 	}
@@ -277,6 +279,9 @@ func describe(st *api.Status, refreshing bool) (title, detail string, icon iconS
 		}
 		return "Connected (" + mode + ")", detail, iconConnected
 	case api.TunnelIdle:
+		if st.Location == api.LocationLAN {
+			return "Ready (at home, on demand)", "", iconLAN
+		}
 		return "Ready (" + mode + ", on demand)", "", iconIdle
 	case api.TunnelConnecting:
 		return "Connecting…", st.Endpoint, iconIdle
@@ -344,13 +349,15 @@ func (t *tray) renderNetworks(st *api.Status, full bool) {
 				return api.SettingsUpdate{Network: map[string]bool{name: enabled}}
 			})
 		}
+		here := slices.Contains(st.HomeNetworks, n.Name)
+		if here {
+			t.ui.title(item, n.Name+" (you are here: direct)")
+		} else {
+			t.ui.title(item, n.Name)
+		}
 		t.ui.show(item, true)
 		t.ui.check(item, n.Enabled)
-		if full {
-			t.ui.enable(item, false)
-		} else {
-			t.ui.enable(item, true)
-		}
+		t.ui.enable(item, !full && !here)
 	}
 	for _, name := range t.netOrder {
 		if !seen[name] {

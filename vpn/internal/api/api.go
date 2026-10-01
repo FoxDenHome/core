@@ -48,13 +48,16 @@ type Status struct {
 	Provisioned    bool   `json:"provisioned"`
 	ProvisionError string `json:"provision_error,omitempty"`
 	// LastCheck is when provisioning was last fetched.
-	LastCheck     time.Time `json:"last_check,omitzero"`
-	PeerName      string    `json:"peer_name,omitempty"`
-	Addresses     []string  `json:"addresses,omitempty"`
-	Enabled       bool      `json:"enabled"`
-	Mode          string    `json:"mode"`
-	Networks      []Network `json:"networks"`
-	Location      string    `json:"location"`
+	LastCheck time.Time `json:"last_check,omitzero"`
+	PeerName  string    `json:"peer_name,omitempty"`
+	Addresses []string  `json:"addresses,omitempty"`
+	Enabled   bool      `json:"enabled"`
+	Mode      string    `json:"mode"`
+	Networks  []Network `json:"networks"`
+	Location  string    `json:"location"`
+	// HomeNetworks are the networks we are attached to at home; they are
+	// reached directly, not through the tunnel.
+	HomeNetworks  []string  `json:"home_networks,omitempty"`
 	Tunnel        string    `json:"tunnel"`
 	Backend       string    `json:"backend,omitempty"`
 	Interface     string    `json:"interface,omitempty"`

@@ -65,6 +65,8 @@ type Daemon struct {
 	nextFetch      time.Time
 
 	location     string
+	homeNets     []string
+	homeEPs      []netip.Addr
 	fp           string
 	nextLocation time.Time
 
@@ -199,11 +201,20 @@ func (d *Daemon) tick(ctx context.Context) {
 	netChanged := fp != d.fp
 	location := d.location
 	if netChanged || provChanged || force || now.After(d.nextLocation) {
-		location = detectLocation(ctx, prov, addrs)
+		h := detectLocation(ctx, prov, addrs)
+		location = h.Location
 		d.nextLocation = now.Add(locationInterval)
-		if location != d.location {
-			log.Printf("location: %s", location)
+		if location != d.location || !slices.Equal(h.Networks, d.homeNets) {
+			if location == api.LocationLAN {
+				log.Printf("location: lan, attached to %v (not tunneled), endpoint %v", h.Networks, h.Endpoints)
+			} else {
+				log.Printf("location: %s", location)
+			}
 		}
+		if location != d.location || !slices.Equal(h.Endpoints, d.homeEPs) {
+			d.nextResolve = time.Time{} // the endpoint depends on where we are
+		}
+		d.homeNets, d.homeEPs = h.Networks, h.Endpoints
 	}
 	if netChanged {
 		d.fp = fp
@@ -213,13 +224,23 @@ func (d *Daemon) tick(ctx context.Context) {
 		}
 	}
 
+	// At home the tunnel stays up too: the other VLANs are only reachable
+	// through it, which is what keeps them limited to registered devices.
 	want := settings.Enabled && prov != nil &&
-		(location == api.LocationWAN || (location == api.LocationOffline && d.tun.Up()))
+		(location == api.LocationWAN || location == api.LocationLAN ||
+			(location == api.LocationOffline && d.tun.Up()))
 
 	var applyErr error
 	if want {
 		if force || now.After(d.nextResolve) {
-			c := resolveEndpoint(ctx, prov, addrs)
+			var c []netip.AddrPort
+			if location == api.LocationLAN {
+				for _, ip := range d.homeEPs {
+					c = append(c, netip.AddrPortFrom(ip, prov.Server.Port))
+				}
+			} else {
+				c = resolveEndpoint(ctx, prov, addrs)
+			}
 			if len(c) > 0 {
 				if !slices.Equal(c, d.candidates) {
 					log.Printf("endpoint candidates: %v", c)
@@ -231,7 +252,7 @@ func (d *Daemon) tick(ctx context.Context) {
 				d.nextResolve = now.Add(10 * time.Second)
 			}
 		}
-		cfg, err := d.buildConfig(settings, prov)
+		cfg, err := d.buildConfig(settings, prov, location, d.homeNets)
 		if err == nil && (netChanged || d.lastCfg == nil || !d.tun.Up() || !reflect.DeepEqual(*d.lastCfg, cfg)) {
 			err = d.tun.Apply(cfg, netChanged)
 			if err == nil {
@@ -327,7 +348,7 @@ func (d *Daemon) updateActivity(now time.Time, settings Settings, want bool) str
 	}
 }
 
-func (d *Daemon) buildConfig(s Settings, prov *provision.Config) (tunnel.Config, error) {
+func (d *Daemon) buildConfig(s Settings, prov *provision.Config, location string, homeNets []string) (tunnel.Config, error) {
 	peer, err := wgtypes.ParseKey(prov.Server.PublicKey)
 	if err != nil {
 		return tunnel.Config{}, err
@@ -337,7 +358,8 @@ func (d *Daemon) buildConfig(s Settings, prov *provision.Config) (tunnel.Config,
 		PeerKey:    peer,
 		MTU:        prov.MTU,
 		Addresses:  prov.Addresses,
-		FullTunnel: s.Mode == api.ModeFull,
+		// Full tunnel is for away from home; at home it is always split.
+		FullTunnel: s.Mode == api.ModeFull && location != api.LocationLAN,
 		DNSServers: prov.DNS.Servers,
 		DNSDomains: prov.DNS.Domains,
 	}
@@ -357,25 +379,19 @@ func (d *Daemon) buildConfig(s Settings, prov *provision.Config) (tunnel.Config,
 	if cfg.FullTunnel {
 		cfg.Routes = tunnel.FullTunnelRoutes
 		cfg.Keepalive = fullKeepalive
-	} else {
-		routes := slices.Clone(prov.VPNPrefixes)
-		for _, n := range prov.Networks {
-			if !slices.Contains(s.DisabledNetworks, n.Name) {
-				routes = append(routes, n.Prefixes...)
-			}
-		}
-		// Never route the endpoint into its own tunnel.
-		ep := cfg.Endpoint.Addr().Unmap()
-		routes = slices.DeleteFunc(routes, func(p netip.Prefix) bool {
-			if cfg.Endpoint.IsValid() && p.Contains(ep) {
-				log.Printf("not routing %s: it contains the endpoint", p)
-				return true
-			}
-			return false
-		})
-		slices.SortFunc(routes, func(a, b netip.Prefix) int { return a.Addr().Compare(b.Addr()) })
-		cfg.Routes = slices.Compact(routes)
+		return cfg, nil
 	}
+	// The endpoint may sit inside a routed prefix (at home it is the router's
+	// LAN address); the tunnel keeps its own packets out of itself.
+	routes := slices.Clone(prov.VPNPrefixes)
+	for _, n := range prov.Networks {
+		if slices.Contains(s.DisabledNetworks, n.Name) || slices.Contains(homeNets, n.Name) {
+			continue // the network we are on is reached directly
+		}
+		routes = append(routes, n.Prefixes...)
+	}
+	slices.SortFunc(routes, func(a, b netip.Prefix) int { return a.Addr().Compare(b.Addr()) })
+	cfg.Routes = slices.Compact(routes)
 	return cfg, nil
 }
 
@@ -384,13 +400,14 @@ func (d *Daemon) Status() api.Status {
 	defer d.mu.Unlock()
 
 	st := api.Status{
-		Build:     buildid.Self(),
-		PublicKey: d.key.PublicKey().String(),
-		Enabled:   d.settings.Enabled,
-		Mode:      d.settings.Mode,
-		Location:  d.location,
-		Tunnel:    d.state,
-		Networks:  []api.Network{},
+		Build:        buildid.Self(),
+		HomeNetworks: d.homeNets,
+		PublicKey:    d.key.PublicKey().String(),
+		Enabled:      d.settings.Enabled,
+		Mode:         d.settings.Mode,
+		Location:     d.location,
+		Tunnel:       d.state,
+		Networks:     []api.Network{},
 	}
 	if d.provErr != nil {
 		st.ProvisionError = d.provErr.Error()

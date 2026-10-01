@@ -11,6 +11,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"slices"
 	"strings"
 )
 
@@ -110,11 +111,12 @@ func (t *Tunnel) setRoutes(cfg Config) error {
 	}
 	t.plat.routes = append([]netip.Prefix(nil), want...)
 
-	// In full tunnel mode the endpoint must keep going via the physical
-	// default gateway, which changes as the laptop roams.
+	// If the endpoint lies inside a tunneled prefix (always in full tunnel
+	// mode; at home it is the router's LAN address), it must keep going via
+	// the physical default gateway, which changes as the laptop roams.
 	var bypass *bypassRoute
-	if cfg.FullTunnel && cfg.Endpoint.IsValid() {
-		ep := cfg.Endpoint.Addr().Unmap()
+	ep := cfg.Endpoint.Addr().Unmap()
+	if cfg.Endpoint.IsValid() && slices.ContainsFunc(want, func(p netip.Prefix) bool { return p.Contains(ep) }) {
 		gw, iface, err := defaultGateway(ep.Is4())
 		if err != nil {
 			log.Printf("tunnel: no physical default route for endpoint bypass: %v", err)
