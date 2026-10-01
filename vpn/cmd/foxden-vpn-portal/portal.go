@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"html/template"
 	"log"
+	"net"
 	"net/http"
 	"net/url"
 	"regexp"
@@ -60,6 +61,44 @@ type portal struct {
 
 	// mu serializes changes, so two requests never pick the same address.
 	mu sync.Mutex
+
+	// status holds the latest sync outcome per peer public key. It is only in
+	// memory: after a restart it is pending until the first reconcile.
+	statusMu sync.Mutex
+	status   map[string]peerStatus
+}
+
+// targetStatus is where one sync target stands for one peer.
+type targetStatus struct {
+	Target string
+	OK     bool
+	Detail string
+}
+
+type peerStatus struct {
+	Targets []targetStatus
+	At      time.Time
+}
+
+func (s peerStatus) OK() bool {
+	for _, t := range s.Targets {
+		if !t.OK {
+			return false
+		}
+	}
+	return true
+}
+
+// targetName shortens a router address to its host label, e.g. "router-backup".
+func targetName(r routeros.Router) string {
+	host := r.Address
+	if h, _, err := net.SplitHostPort(host); err == nil {
+		host = h
+	}
+	if label, _, ok := strings.Cut(host, "."); ok && net.ParseIP(host) == nil {
+		return label
+	}
+	return host
 }
 
 func (p *portal) setupOIDC(ctx context.Context) error {
@@ -208,6 +247,25 @@ type deviceView struct {
 	Addresses     []string
 	LastHandshake string
 	Disabled      bool
+	// Sync is nil while no reconcile has covered this device yet.
+	Sync    []targetStatus
+	SyncOK  bool
+	SyncAge string
+}
+
+// ago renders a short "how long ago" for the status tooltip.
+func ago(t time.Time) string {
+	d := time.Since(t)
+	switch {
+	case d < 10*time.Second:
+		return "just now"
+	case d < time.Minute:
+		return fmt.Sprintf("%ds ago", int(d.Seconds()))
+	case d < time.Hour:
+		return fmt.Sprintf("%dm ago", int(d.Minutes()))
+	default:
+		return fmt.Sprintf("%dh ago", int(d.Hours()))
+	}
 }
 
 func (p *portal) index(w http.ResponseWriter, r *http.Request) {
@@ -235,6 +293,9 @@ func (p *portal) index(w http.ResponseWriter, r *http.Request) {
 			v := deviceView{Name: peer.Device(), PublicKey: peer.PublicKey, LastHandshake: peer.LastHandshake, Disabled: peer.Disabled}
 			for _, a := range peer.Addresses {
 				v.Addresses = append(v.Addresses, a.Addr().String())
+			}
+			if st, ok := p.peerStatus(peer.PublicKey); ok {
+				v.Sync, v.SyncOK, v.SyncAge = st.Targets, st.OK(), ago(st.At)
 			}
 			devices = append(devices, v)
 			if v.PublicKey == data["Key"] && data["Name"] == "" {
@@ -359,48 +420,113 @@ func (p *portal) reconcileLoop(ctx context.Context, interval time.Duration) {
 }
 
 // syncFrom mirrors the primary's peers to the other routers and publishes
-// provisioning for all of them.
+// provisioning for all of them, recording the outcome per peer.
 func (p *portal) syncFrom(ctx context.Context, primary registry.API) error {
 	snap, err := registry.Read(ctx, primary, p.cfg.VPN)
 	if err != nil {
 		return err
 	}
+	results := map[string][]targetStatus{}
+	record := func(key string, target string, err error, okDetail string) {
+		ts := targetStatus{Target: target, OK: err == nil, Detail: okDetail}
+		if err != nil {
+			ts.Detail = err.Error()
+		}
+		results[key] = append(results[key], ts)
+	}
+	for _, peer := range snap.Peers {
+		record(peer.PublicKey, targetName(p.cfg.Routers[0]), nil, "source of truth")
+	}
+
 	var errs []error
 	for _, r := range p.cfg.Routers[1:] {
+		name := targetName(r)
+		var perPeer map[string]error
 		c, err := p.dial(ctx, r)
-		if err != nil {
-			errs = append(errs, err)
-			continue
+		if err == nil {
+			perPeer, err = registry.Mirror(ctx, c, p.cfg.VPN, snap)
+			c.Close()
 		}
-		if err := registry.Mirror(ctx, c, p.cfg.VPN, snap); err != nil {
+		if err != nil {
 			errs = append(errs, fmt.Errorf("%s: %w", r.Address, err))
 		}
-		c.Close()
+		for _, peer := range snap.Peers {
+			perr, done := perPeer[peer.PublicKey]
+			switch {
+			case perr != nil:
+				errs = append(errs, fmt.Errorf("%s: %s: %w", r.Address, peer.Name, perr))
+				record(peer.PublicKey, name, perr, "")
+			case !done && err != nil:
+				record(peer.PublicKey, name, err, "")
+			default:
+				record(peer.PublicKey, name, nil, "in sync")
+			}
+		}
 	}
-	errs = append(errs, p.publish(ctx, snap))
+
+	perPeer, err := p.publish(ctx, snap)
+	if err != nil {
+		errs = append(errs, err)
+	}
+	for _, peer := range snap.Peers {
+		ts, ok := perPeer[peer.PublicKey]
+		if !ok {
+			ts = targetStatus{OK: false, Detail: "not published"}
+			if err != nil {
+				ts.Detail = err.Error()
+			}
+		}
+		ts.Target = "Fastly"
+		if !ts.OK {
+			errs = append(errs, fmt.Errorf("fastly: %s: %s", peer.Name, ts.Detail))
+		}
+		results[peer.PublicKey] = append(results[peer.PublicKey], ts)
+	}
+
+	now := time.Now()
+	status := make(map[string]peerStatus, len(results))
+	for key, targets := range results {
+		status[key] = peerStatus{Targets: targets, At: now}
+	}
+	p.statusMu.Lock()
+	p.status = status
+	p.statusMu.Unlock()
 	return errors.Join(errs...)
 }
 
+func (p *portal) peerStatus(key string) (peerStatus, bool) {
+	p.statusMu.Lock()
+	defer p.statusMu.Unlock()
+	s, ok := p.status[key]
+	return s, ok
+}
+
 // publish makes the CDN dictionary hold exactly one current blob per peer.
-func (p *portal) publish(ctx context.Context, snap *registry.Snapshot) error {
+// It returns the outcome per peer public key, plus any error not tied to one.
+func (p *portal) publish(ctx context.Context, snap *registry.Snapshot) (map[string]targetStatus, error) {
 	if p.dict == nil {
-		return nil
+		return nil, errors.New("not configured (FASTLY_API_TOKEN is not set)")
 	}
 	serverKey, err := wgtypes.ParseKey(snap.Server["private-key"])
 	if err != nil {
-		return fmt.Errorf("reading %s private key (does the API user have the sensitive policy?): %w", p.cfg.VPN.Interface, err)
+		return nil, fmt.Errorf("reading %s private key (does the API user have the sensitive policy?): %w", p.cfg.VPN.Interface, err)
 	}
 	items, err := p.dict.Items(ctx)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	var errs []error
+	results := map[string]targetStatus{}
 	wanted := map[string]bool{}
 	for _, peer := range snap.Peers {
 		cfg := snap.Config(peer, p.cfg.VPN)
 		pub, err := wgtypes.ParseKey(peer.PublicKey)
-		if cfg == nil || err != nil {
+		if err != nil {
+			results[peer.PublicKey] = targetStatus{Detail: "invalid public key"}
+			continue
+		}
+		if cfg == nil {
+			results[peer.PublicKey] = targetStatus{OK: true, Detail: "nothing to publish (disabled or no address)"}
 			continue
 		}
 		key := p.cfg.Fastly.KeyPrefix + provision.BlobName(pub)
@@ -409,7 +535,9 @@ func (p *portal) publish(ctx context.Context, snap *registry.Snapshot) error {
 		if cur, ok := items[key]; ok {
 			if blob, err := base64.StdEncoding.DecodeString(cur); err == nil {
 				if old, err := provision.OpenAsServer(blob, serverKey, pub); err == nil && sameJSON(old, cfg) {
-					continue // sealing is randomized, so compare contents
+					// Sealing is randomized, so compare contents.
+					results[peer.PublicKey] = targetStatus{OK: true, Detail: "published"}
+					continue
 				}
 			}
 		}
@@ -418,21 +546,24 @@ func (p *portal) publish(ctx context.Context, snap *registry.Snapshot) error {
 			err = p.dict.Put(ctx, key, base64.StdEncoding.EncodeToString(blob))
 		}
 		if err != nil {
-			errs = append(errs, fmt.Errorf("publishing %s: %w", peer.Name, err))
+			results[peer.PublicKey] = targetStatus{Detail: err.Error()}
 			continue
 		}
+		results[peer.PublicKey] = targetStatus{OK: true, Detail: "published"}
 		log.Printf("published provisioning for %s", peer.Name)
 	}
+
+	var errs []error
 	for key := range items {
 		if strings.HasPrefix(key, p.cfg.Fastly.KeyPrefix) && !wanted[key] {
 			if err := p.dict.Delete(ctx, key); err != nil {
-				errs = append(errs, err)
+				errs = append(errs, fmt.Errorf("withdrawing %s: %w", key, err))
 			} else {
 				log.Printf("withdrew provisioning %s", key)
 			}
 		}
 	}
-	return errors.Join(errs...)
+	return results, errors.Join(errs...)
 }
 
 func sameJSON(a, b any) bool {

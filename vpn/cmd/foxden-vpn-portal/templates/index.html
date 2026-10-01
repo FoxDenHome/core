@@ -8,11 +8,13 @@
 :root {
   --bg: #f6f7f9; --card: #fff; --fg: #1d2127; --muted: #616a75; --line: #dde1e6;
   --accent: #1d7fc4; --accent-fg: #fff; --ok-bg: #e6f4ea; --ok-fg: #1e6b34; --err-bg: #fdecea; --err-fg: #a12622;
+  --good: #1e8e3e; --bad: #d93025;
 }
 @media (prefers-color-scheme: dark) {
   :root {
     --bg: #15181c; --card: #1e2227; --fg: #e6e9ed; --muted: #9aa3ad; --line: #2e343b;
     --accent: #3daee9; --accent-fg: #0b1620; --ok-bg: #173323; --ok-fg: #8fd6a5; --err-bg: #3a1a19; --err-fg: #f2a19c;
+    --good: #5bc77a; --bad: #f2766b;
   }
 }
 * { box-sizing: border-box; }
@@ -38,10 +40,29 @@ button { font: inherit; border-radius: 6px; padding: 7px 14px; cursor: pointer; 
 button.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-fg); margin-top: 14px; }
 button.link { border: 0; padding: 0; color: var(--muted); text-decoration: underline; }
 .hint { color: var(--muted); font-size: 13px; margin: 4px 0 0; }
+.name { display: flex; align-items: center; gap: 8px; }
+.sync { position: relative; display: inline-flex; flex: none; outline: none; cursor: default; }
+.sync svg { width: 18px; height: 18px; display: block; }
+.sync:focus-visible svg { border-radius: 50%; box-shadow: 0 0 0 2px var(--accent); }
+.ok { color: var(--good); }
+.bad { color: var(--bad); }
+.pending { color: var(--muted); }
+.tip { display: none; position: absolute; left: -6px; top: calc(100% + 8px); z-index: 10; width: max-content; max-width: min(340px, calc(100vw - 48px));
+  background: var(--card); color: var(--fg); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px;
+  box-shadow: 0 6px 20px rgb(0 0 0 / 0.18); font-size: 13px; line-height: 1.4; }
+.sync:hover .tip, .sync:focus .tip, .sync:focus-within .tip { display: block; }
+.tip .row { display: grid; grid-template-columns: 14px auto 1fr; gap: 6px; align-items: start; padding: 2px 0; }
+.tip .row svg { width: 14px; height: 14px; margin-top: 2px; }
+.tip b { font-weight: 600; }
+.tip .detail { color: var(--muted); overflow-wrap: anywhere; }
+.tip .when { display: block; color: var(--muted); border-top: 1px solid var(--line); margin-top: 6px; padding-top: 6px; }
 @media (max-width: 560px) { .hide-sm { display: none; } }
 </style>
 </head>
 <body>
+{{define "icon-ok"}}<svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="9" fill="currentColor"/><path d="M5.8 10.4l2.8 2.8 5.6-6" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>{{end}}
+{{define "icon-bad"}}<svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="9" fill="currentColor"/><path d="M10 5.2v6" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/><circle cx="10" cy="14.6" r="1.4" fill="#fff"/></svg>{{end}}
+{{define "icon-pending"}}<svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="8" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="3 2.3"/></svg>{{end}}
 <main>
   <header>
     <h1>FoxDen VPN</h1>
@@ -61,7 +82,26 @@ button.link { border: 0; padding: 0; color: var(--muted); text-decoration: under
       <tr><th>Name</th><th>Addresses</th><th class="hide-sm">Last handshake</th><th></th></tr>
       {{range .Devices}}
       <tr>
-        <td>{{.Name}}{{if .Disabled}} <span class="muted">(disabled)</span>{{end}}<br><code class="muted">{{.PublicKey}}</code></td>
+        <td>
+          <div class="name">
+            {{if .Sync}}
+            <span class="sync {{if .SyncOK}}ok{{else}}bad{{end}}" tabindex="0" aria-label="Sync status: {{if .SyncOK}}everything done{{else}}something is wrong{{end}}">
+              {{if .SyncOK}}{{template "icon-ok"}}{{else}}{{template "icon-bad"}}{{end}}
+              <span class="tip" role="tooltip">
+                {{range .Sync}}<span class="row {{if .OK}}ok{{else}}bad{{end}}">{{if .OK}}{{template "icon-ok"}}{{else}}{{template "icon-bad"}}{{end}}<b>{{.Target}}</b><span class="detail">{{.Detail}}</span></span>{{end}}
+                <span class="when">Checked {{.SyncAge}}</span>
+              </span>
+            </span>
+            {{else}}
+            <span class="sync pending" tabindex="0" aria-label="Sync status: not checked yet">
+              {{template "icon-pending"}}
+              <span class="tip" role="tooltip">Not checked yet. The portal syncs every few minutes.</span>
+            </span>
+            {{end}}
+            <span>{{.Name}}{{if .Disabled}} <span class="muted">(disabled)</span>{{end}}</span>
+          </div>
+          <code class="muted">{{.PublicKey}}</code>
+        </td>
         <td>{{range .Addresses}}<code>{{.}}</code><br>{{end}}</td>
         <td class="hide-sm">{{if .LastHandshake}}{{.LastHandshake}} ago{{else}}<span class="muted">never</span>{{end}}</td>
         <td>

@@ -2,6 +2,7 @@ package registry
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/netip"
 	"slices"
@@ -174,7 +175,7 @@ func TestMirror(t *testing.T) {
 		".id": "*51", "interface": "wg-s2s", "name": "icefox", "public-key": key(),
 	})
 
-	if err := Mirror(context.Background(), backup, settings(), snap); err != nil {
+	if err := mirror(context.Background(), backup, settings(), snap); err != nil {
 		t.Fatal(err)
 	}
 	var names []string
@@ -191,10 +192,78 @@ func TestMirror(t *testing.T) {
 		}
 	}
 	before := len(backup.Ops)
-	if err := Mirror(context.Background(), backup, settings(), snap); err != nil {
+	if err := mirror(context.Background(), backup, settings(), snap); err != nil {
 		t.Fatal(err)
 	}
 	if len(backup.Ops) != before {
 		t.Fatalf("second mirror was not a no-op: %v", backup.Ops[before:])
 	}
+}
+
+// Replacing a device's key keeps its name, so the backup row must be updated in
+// place; adding it first collides with the old row's name.
+func TestMirrorKeyReplaced(t *testing.T) {
+	primary, backup := registrytest.New(), registrytest.New()
+	if err := upsert(t, primary, "dori", "fennec", key()); err != nil {
+		t.Fatal(err)
+	}
+	if err := mirror(context.Background(), backup, settings(), read(t, primary)); err != nil {
+		t.Fatal(err)
+	}
+	newKey := key()
+	if err := upsert(t, primary, "dori", "fennec", newKey); err != nil {
+		t.Fatal(err)
+	}
+	backup.Ops = nil
+	if err := mirror(context.Background(), backup, settings(), read(t, primary)); err != nil {
+		t.Fatal(err)
+	}
+	rows := backup.Tables["/interface/wireguard/peers"]
+	if len(rows) != 1 || rows[0]["public-key"] != newKey || !slices.Equal(backup.Ops, []string{"set"}) {
+		t.Fatalf("backup = %v, ops = %v", rows, backup.Ops)
+	}
+}
+
+// A key moving from one peer name to another must not trip over itself either.
+func TestMirrorKeySwap(t *testing.T) {
+	primary, backup := registrytest.New(), registrytest.New()
+	k1, k2 := key(), key()
+	for _, d := range []struct{ dev, k string }{{"a", k1}, {"b", k2}} {
+		if err := upsert(t, primary, "dori", d.dev, d.k); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if err := mirror(context.Background(), backup, settings(), read(t, primary)); err != nil {
+		t.Fatal(err)
+	}
+	// Remove "a" and give its key to a new device "c" on the primary.
+	snap := read(t, primary)
+	if err := Remove(context.Background(), primary, snap.ByName("dori-a").ID); err != nil {
+		t.Fatal(err)
+	}
+	if err := upsert(t, primary, "dori", "c", k1); err != nil {
+		t.Fatal(err)
+	}
+	if err := mirror(context.Background(), backup, settings(), read(t, primary)); err != nil {
+		t.Fatal(err)
+	}
+	var got []string
+	for _, r := range backup.Tables["/interface/wireguard/peers"] {
+		got = append(got, r["name"]+"="+r["public-key"])
+	}
+	slices.Sort(got)
+	want := []string{"dori-b=" + k2, "dori-c=" + k1}
+	if !slices.Equal(got, want) {
+		t.Fatalf("backup = %v, want %v", got, want)
+	}
+}
+
+// mirror is Mirror with all errors folded into one.
+func mirror(ctx context.Context, c API, set Settings, primary *Snapshot) error {
+	results, err := Mirror(ctx, c, set, primary)
+	errs := []error{err}
+	for _, e := range results {
+		errs = append(errs, e)
+	}
+	return errors.Join(errs...)
 }

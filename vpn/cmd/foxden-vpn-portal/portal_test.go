@@ -4,7 +4,9 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"html"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -32,7 +34,7 @@ func (f *fakeFastly) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	p := r.URL.Path
 	switch {
 	case strings.HasSuffix(p, "/details"):
-		_, _ = w.Write([]byte(`{"active_version": 3}`))
+		_, _ = w.Write([]byte(`{"id": "svc", "active_version": {"number": 3, "active": true}}`))
 	case strings.Contains(p, "/version/3/dictionary/vpn_peers"):
 		_, _ = w.Write([]byte(`{"id": "dict1"}`))
 	case strings.HasSuffix(p, "/dictionary/dict1/items"):
@@ -153,7 +155,7 @@ func TestRegisterOverwriteDelete(t *testing.T) {
 	dev1, _ := wgtypes.GeneratePrivateKey()
 
 	resp := h.post(c, "/devices", url.Values{"csrf": {csrf}, "name": {"laptop"}, "pubkey": {dev1.PublicKey().String()}})
-	if msg, errMsg := flash(resp); errMsg != "" || !strings.Contains(msg, "10.100.10.1/32") {
+	if msg, errMsg := flash(resp); errMsg != "" || !strings.Contains(msg, "10.100.10.1/32") || strings.Contains(msg, "could not be updated") {
 		t.Fatalf("register: msg=%q err=%q", msg, errMsg)
 	}
 	cfg := h.blobFor(dev1)
@@ -172,6 +174,9 @@ func TestRegisterOverwriteDelete(t *testing.T) {
 	}
 	if h.blobFor(dev1) != nil {
 		t.Fatal("old key's provisioning is still published")
+	}
+	if rows := h.backup.Tables["/interface/wireguard/peers"]; len(rows) != 1 || rows[0]["public-key"] != dev2.PublicKey().String() {
+		t.Fatalf("backup router did not get the new key: %v", rows)
 	}
 	if cfg := h.blobFor(dev2); cfg == nil || cfg.Addresses[0].String() != "10.100.10.1/32" {
 		t.Fatalf("overwrite did not keep the address: %+v", cfg)
@@ -241,5 +246,79 @@ func TestIndexPrefillsFromTray(t *testing.T) {
 	page := html.UnescapeString(body.String())
 	if !strings.Contains(page, `value="laptop"`) || !strings.Contains(page, `value="`+key.PublicKey().String()+`"`) {
 		t.Fatalf("form not prefilled: %s", page)
+	}
+}
+
+// failingRouter rejects every write, like a router-backup that is out of reach
+// for changes.
+type failingRouter struct{ *registrytest.Router }
+
+func (f failingRouter) Add(context.Context, string, routeros.Row) error {
+	return errors.New("failure: simulated")
+}
+
+func TestSyncStatus(t *testing.T) {
+	h := newHarness(t)
+	c, csrf := h.client("dori")
+	dev, _ := wgtypes.GeneratePrivateKey()
+	key := dev.PublicKey().String()
+
+	if _, ok := h.p.peerStatus(key); ok {
+		t.Fatal("status before any sync")
+	}
+	h.post(c, "/devices", url.Values{"csrf": {csrf}, "name": {"laptop"}, "pubkey": {key}})
+	st, ok := h.p.peerStatus(key)
+	if !ok || !st.OK() {
+		t.Fatalf("status after register: %+v", st)
+	}
+	var names []string
+	for _, ts := range st.Targets {
+		names = append(names, ts.Target)
+	}
+	if strings.Join(names, ",") != "primary,backup,Fastly" {
+		t.Fatalf("targets = %v", names)
+	}
+
+	// Backup refuses writes: only its entry turns bad, and the page says so.
+	backup := h.backup
+	h.p.dial = func(_ context.Context, r routeros.Router) (conn, error) {
+		if r.Address == "primary" {
+			return h.primary, nil
+		}
+		return failingRouter{backup}, nil
+	}
+	dev2, _ := wgtypes.GeneratePrivateKey()
+	h.post(c, "/devices", url.Values{"csrf": {csrf}, "name": {"phone"}, "pubkey": {dev2.PublicKey().String()}})
+	st, _ = h.p.peerStatus(dev2.PublicKey().String())
+	if st.OK() || st.Targets[0].OK != true || st.Targets[1].OK || !strings.Contains(st.Targets[1].Detail, "simulated") || !st.Targets[2].OK {
+		t.Fatalf("status with failing backup: %+v", st)
+	}
+	if st, _ := h.p.peerStatus(key); !st.OK() {
+		t.Fatalf("unaffected device turned bad: %+v", st)
+	}
+
+	resp, err := c.Get(h.srv.URL + "/")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer resp.Body.Close()
+	body, _ := io.ReadAll(resp.Body)
+	page := html.UnescapeString(string(body))
+	if !strings.Contains(page, "Sync status: everything done") || !strings.Contains(page, "Sync status: something is wrong") ||
+		!strings.Contains(page, "failure: simulated") {
+		t.Fatal("status icons not rendered")
+	}
+}
+
+func TestTargetName(t *testing.T) {
+	for in, want := range map[string]string{
+		"router.foxden.network:8728":        "router",
+		"router-backup.foxden.network:8728": "router-backup",
+		"10.2.1.1:8728":                     "10.2.1.1",
+		"[fd2c:f4cb:63be:2::101]:8728":      "fd2c:f4cb:63be:2::101",
+	} {
+		if got := targetName(routeros.Router{Address: in}); got != want {
+			t.Errorf("targetName(%q) = %q, want %q", in, got, want)
+		}
 	}
 }

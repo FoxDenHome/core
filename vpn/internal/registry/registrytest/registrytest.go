@@ -3,6 +3,7 @@ package registrytest
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"slices"
 
@@ -57,7 +58,29 @@ func (f *Router) Print(_ context.Context, path string, q routeros.Row) ([]router
 	return out, nil
 }
 
+// conflict mimics RouterOS refusing duplicate peer names and keys.
+func (f *Router) conflict(path, id string, a routeros.Row) error {
+	if path != "/interface/wireguard/peers" {
+		return nil
+	}
+	for _, r := range f.Tables[path] {
+		if r[".id"] == id {
+			continue
+		}
+		if n, ok := a["name"]; ok && r["name"] == n {
+			return errors.New("failure: entry with this name already exists")
+		}
+		if k, ok := a["public-key"]; ok && r["public-key"] == k && r["interface"] == a["interface"] {
+			return errors.New("failure: peer with this public key already exists")
+		}
+	}
+	return nil
+}
+
 func (f *Router) Add(_ context.Context, path string, a routeros.Row) error {
+	if err := f.conflict(path, "", a); err != nil {
+		return err
+	}
 	r := routeros.Row{".id": fmt.Sprintf("*%X", f.NextID)}
 	f.NextID++
 	for k, v := range a {
@@ -76,6 +99,9 @@ func (f *Router) Set(_ context.Context, path, id string, a routeros.Row) error {
 	i := f.find(path, id)
 	if i < 0 {
 		return fmt.Errorf("no such item %s", id)
+	}
+	if err := f.conflict(path, id, a); err != nil {
+		return err
 	}
 	for k, v := range a {
 		f.Tables[path][i][k] = v

@@ -68,15 +68,20 @@ func (d *Dictionary) resolve(ctx context.Context) (string, error) {
 		return d.id, nil
 	}
 	var svc struct {
-		ActiveVersion int `json:"active_version"`
+		ActiveVersion struct {
+			Number int `json:"number"`
+		} `json:"active_version"`
 	}
 	if err := d.do(ctx, http.MethodGet, "/service/"+d.ServiceID+"/details", nil, &svc); err != nil {
 		return "", err
 	}
+	if svc.ActiveVersion.Number == 0 {
+		return "", fmt.Errorf("fastly service %s has no active version", d.ServiceID)
+	}
 	var dict struct {
 		ID string `json:"id"`
 	}
-	path := fmt.Sprintf("/service/%s/version/%d/dictionary/%s", d.ServiceID, svc.ActiveVersion, url.PathEscape(d.Name))
+	path := fmt.Sprintf("/service/%s/version/%d/dictionary/%s", d.ServiceID, svc.ActiveVersion.Number, url.PathEscape(d.Name))
 	if err := d.do(ctx, http.MethodGet, path, nil, &dict); err != nil {
 		return "", err
 	}

@@ -305,41 +305,77 @@ func (s *Snapshot) Upsert(set Settings, owner, device, key string) (id string, a
 // SyncFields are mirrored from the primary router to the others.
 var SyncFields = []string{"name", "comment", "public-key", "preshared-key", "allowed-address", "responder", "disabled"}
 
-// Mirror makes c's peers on the interface match primary.
-func Mirror(ctx context.Context, c API, set Settings, primary *Snapshot) error {
+// Mirror makes c's peers on the interface match primary. Rows are matched by
+// name first (unique in RouterOS, and stable when a device's key is replaced),
+// then by public key (stable when a peer is renamed). Strays are removed
+// before anything is added so names and keys are free again.
+//
+// It returns the outcome for each primary peer, keyed by public key, plus any
+// error not tied to one of them.
+func Mirror(ctx context.Context, c API, set Settings, primary *Snapshot) (map[string]error, error) {
 	rows, err := c.Print(ctx, pathPeers, routeros.Row{"interface": set.Interface})
 	if err != nil {
-		return err
+		return nil, err
 	}
-	have := map[string]routeros.Row{}
+	byName, byKey := map[string]routeros.Row{}, map[string]routeros.Row{}
 	for _, r := range rows {
-		have[r["public-key"]] = r
+		byName[r["name"]] = r
+		byKey[r["public-key"]] = r
 	}
-	var errs []error
+	matched := map[string]bool{}
+	type update struct {
+		key  string
+		cur  routeros.Row // nil: add
+		want routeros.Row
+	}
+	var updates []update
 	for _, p := range primary.Peers {
-		cur, ok := have[p.PublicKey]
-		delete(have, p.PublicKey)
+		cur := byName[p.Name]
+		if cur == nil || matched[cur[".id"]] {
+			cur = byKey[p.PublicKey]
+		}
+		if cur != nil && matched[cur[".id"]] {
+			cur = nil
+		}
+		if cur != nil {
+			matched[cur[".id"]] = true
+		}
 		// Fields the primary lacks are cleared, unless the backup lacks them too
 		// (older RouterOS may not know e.g. responder).
 		want := routeros.Row{}
 		for _, f := range SyncFields {
 			v, inPrimary := p.raw[f]
-			if _, inCur := cur[f]; inPrimary || (ok && inCur) {
+			if _, inCur := cur[f]; inPrimary || inCur {
 				want[f] = v
 			}
 		}
-		switch {
-		case !ok:
-			want["interface"] = set.Interface
-			errs = append(errs, c.Add(ctx, pathPeers, want))
-		case slices.ContainsFunc(SyncFields, func(f string) bool { return cur[f] != want[f] }):
-			errs = append(errs, c.Set(ctx, pathPeers, cur[".id"], want))
+		updates = append(updates, update{p.PublicKey, cur, want})
+	}
+
+	var errs []error
+	for _, r := range rows {
+		if !matched[r[".id"]] {
+			if err := c.Remove(ctx, pathPeers, r[".id"]); err != nil {
+				errs = append(errs, fmt.Errorf("removing stray peer %s: %w", r["name"], err))
+			}
 		}
 	}
-	for _, stray := range have {
-		errs = append(errs, c.Remove(ctx, pathPeers, stray[".id"]))
+	results := map[string]error{}
+	for _, u := range updates {
+		if u.cur != nil {
+			results[u.key] = nil
+			if slices.ContainsFunc(SyncFields, func(f string) bool { return u.cur[f] != u.want[f] }) {
+				results[u.key] = c.Set(ctx, pathPeers, u.cur[".id"], u.want)
+			}
+		}
 	}
-	return errors.Join(errs...)
+	for _, u := range updates {
+		if u.cur == nil {
+			u.want["interface"] = set.Interface
+			results[u.key] = c.Add(ctx, pathPeers, u.want)
+		}
+	}
+	return results, errors.Join(errs...)
 }
 
 func Apply(ctx context.Context, c API, id string, attrs routeros.Row) error {
@@ -351,13 +387,4 @@ func Apply(ctx context.Context, c API, id string, attrs routeros.Row) error {
 
 func Remove(ctx context.Context, c API, id string) error {
 	return c.Remove(ctx, pathPeers, id)
-}
-
-// FindByKey looks a peer's id up on a router where ids differ from the primary.
-func FindByKey(ctx context.Context, c API, set Settings, key string) (string, error) {
-	rows, err := c.Print(ctx, pathPeers, routeros.Row{"interface": set.Interface, "public-key": key})
-	if err != nil || len(rows) == 0 {
-		return "", err
-	}
-	return rows[0][".id"], nil
 }
