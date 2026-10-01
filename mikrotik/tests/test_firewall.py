@@ -1,95 +1,7 @@
 import unittest
-from contextlib import redirect_stdout
-from io import StringIO
 
 from configure.firewall import FirewallRule, refresh_firewall_router
-
-
-class FakeResource:
-    """Simulates an ordered RouterOS firewall table."""
-
-    def __init__(self, rules: list[dict[str, str]]) -> None:
-        self._next_id = 1
-        self.rules: list[dict[str, str]] = []
-        for rule in rules:
-            self.rules.append({"id": self._new_id(), **rule})
-        self.ops: list[tuple[str, ...]] = []
-
-    def _new_id(self) -> str:
-        rid = f"*{self._next_id:X}"
-        self._next_id += 1
-        return rid
-
-    def _index(self, rid: str) -> int:
-        for i, rule in enumerate(self.rules):
-            if rule["id"] == rid:
-                return i
-        raise KeyError(rid)
-
-    def get(self, **query: str) -> list[dict[str, str]]:
-        assert query == {"dynamic": "false"}
-        return [dict(rule) for rule in self.rules]
-
-    def add(self, **attribs: str) -> None:
-        place_before = attribs.pop("place-before", None)
-        rule = {"id": self._new_id(), **attribs}
-        if place_before is None:
-            self.rules.append(rule)
-        else:
-            self.rules.insert(self._index(place_before), rule)
-        self.ops.append(("add", rule["id"]))
-
-    def remove(self, id: str) -> None:
-        del self.rules[self._index(id)]
-        self.ops.append(("remove", id))
-
-    def call(self, command: str, arguments: dict[str, str]) -> None:
-        assert command == "move", command
-        rule = self.rules.pop(self._index(arguments["numbers"]))
-        destination = arguments.get("destination")
-        if destination is None:
-            self.rules.append(rule)
-        else:
-            self.rules.insert(self._index(destination), rule)
-        self.ops.append(("move", arguments["numbers"]))
-
-    def attribs(self) -> list[dict[str, str]]:
-        return [{k: v for k, v in rule.items() if k != "id"} for rule in self.rules]
-
-    def ids(self) -> list[str]:
-        return [rule["id"] for rule in self.rules]
-
-    def count(self, op: str) -> int:
-        return sum(1 for o in self.ops if o[0] == op)
-
-
-class FakeApi:
-    def __init__(self, resources: dict[str, FakeResource]) -> None:
-        self.resources = resources
-
-    def get_resource(self, path: str) -> FakeResource:
-        if path not in self.resources:
-            self.resources[path] = FakeResource([])
-        return self.resources[path]
-
-
-class FakeConnection:
-    def __init__(self, api: FakeApi) -> None:
-        self.api = api
-
-    def get_api(self) -> FakeApi:
-        return self.api
-
-
-class FakeRouter:
-    host = "fake-router"
-
-    def __init__(self, resources: dict[str, FakeResource]) -> None:
-        self._connection = FakeConnection(FakeApi(resources))
-
-    def connection(self) -> FakeConnection:
-        return self._connection
-
+from tests.fakes import FakeResource, FakeRouter, quiet
 
 FILTER = "/ip/firewall/filter"
 
@@ -112,8 +24,7 @@ def rule(
 
 def run(desired: list[FirewallRule], deployed: dict[str, list[dict[str, str]]]):
     resources = {key: FakeResource(rules) for key, rules in deployed.items()}
-    with redirect_stdout(StringIO()):
-        refresh_firewall_router(desired, FakeRouter(resources))  # type: ignore[arg-type]
+    quiet(refresh_firewall_router, desired, FakeRouter(resources))
     return resources
 
 
