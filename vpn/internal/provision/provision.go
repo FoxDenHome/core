@@ -100,16 +100,9 @@ func BlobName(pub wgtypes.Key) string {
 }
 
 func Open(blob []byte, priv wgtypes.Key, serverPub wgtypes.Key) (*Config, error) {
-	if len(blob) < 24+box.Overhead {
-		return nil, errors.New("provisioning blob too short")
-	}
-	var nonce [24]byte
-	copy(nonce[:], blob[:24])
-	pk := [32]byte(serverPub)
-	sk := [32]byte(priv)
-	plain, ok := box.Open(nil, blob[24:], &nonce, &pk, &sk)
-	if !ok {
-		return nil, errors.New("provisioning blob failed authentication (wrong server key?)")
+	plain, err := openRaw(blob, priv, serverPub)
+	if err != nil {
+		return nil, err
 	}
 	var cfg Config
 	if err := json.Unmarshal(plain, &cfg); err != nil {
@@ -119,6 +112,22 @@ func Open(blob []byte, priv wgtypes.Key, serverPub wgtypes.Key) (*Config, error)
 		return nil, err
 	}
 	return &cfg, nil
+}
+
+// openRaw opens nonce(24) || box from peer to priv.
+func openRaw(blob []byte, priv wgtypes.Key, peerPub wgtypes.Key) ([]byte, error) {
+	if len(blob) < 24+box.Overhead {
+		return nil, errors.New("sealed data too short")
+	}
+	var nonce [24]byte
+	copy(nonce[:], blob[:24])
+	pk := [32]byte(peerPub)
+	sk := [32]byte(priv)
+	plain, ok := box.Open(nil, blob[24:], &nonce, &pk, &sk)
+	if !ok {
+		return nil, errors.New("sealed data failed authentication (wrong server key?)")
+	}
+	return plain, nil
 }
 
 func Fetch(ctx context.Context, baseURL string, priv wgtypes.Key, serverPub wgtypes.Key) (*Config, error) {
@@ -154,6 +163,10 @@ func Seal(cfg *Config, server wgtypes.Key, peer wgtypes.Key) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
+	return sealRaw(plain, server, peer)
+}
+
+func sealRaw(plain []byte, server wgtypes.Key, peer wgtypes.Key) ([]byte, error) {
 	var nonce [24]byte
 	if _, err := rand.Read(nonce[:]); err != nil {
 		return nil, err

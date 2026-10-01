@@ -44,7 +44,11 @@ Only changes need Kanidm. As an admin breakglass, you can still add a peer on th
 
 ## Client behaviour
 
-- **First start** generates a key in the state directory (`/var/lib/foxden-vpn`, or `/Library/Application Support/FoxDen VPN`). The tray then offers **Register This Device…**, which opens the portal with the device's name and public key filled in. **Show Public Key…** and **Copy Public Key** are there too. Until it is registered, the daemon checks for its blob every 30s. **Refresh Configuration** checks immediately, shows "Refreshing…" while it runs, and reports the result as a notification.
+- **First start** generates a key in the state directory (`/var/lib/foxden-vpn`, or `/Library/Application Support/FoxDen VPN`). The tray then offers **Log In and Register…**: you log in to the portal with Kanidm, pick which of your devices this is (or name a new one), and the device configures itself right away, without waiting for the CDN. Once registered, the tray offers:
+  - **Register as a Different Device…**, to fix a misclick: the key moves to the device you pick, and the entry it came from is removed.
+  - **Regenerate Key…**, which makes a new key and registers it as the same device. The old key keeps working until the portal has accepted the new one.
+
+  The portal changes nothing until the device proves it holds the key. It redirects to a one-shot listener of the tray on `127.0.0.1` with a short-lived signed token and a challenge sealed to the key. The daemon opens the challenge and only then does the portal register the key, returning the device's sealed configuration. A link carrying someone else's key therefore cannot register it: the challenge lands on your machine, which cannot open it. **Show Public Key…** and **Copy Public Key** remain for registering by hand. Until a device is registered, the daemon checks for its blob every 30s. **Refresh Configuration** checks immediately, shows "Refreshing…" while it runs, and reports the result as a notification.
 - **LAN or WAN.** The laptop counts as at home only when both of these hold:
   - it has an address in a FoxDen VLAN
   - that VLAN's own resolver (for example `10.2.0.53`) answers `vpn.foxden.network` with an internal address

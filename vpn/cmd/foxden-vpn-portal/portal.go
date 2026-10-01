@@ -126,6 +126,9 @@ func (p *portal) routes() http.Handler {
 	mux.HandleFunc("GET /{$}", p.index)
 	mux.HandleFunc("POST /devices", p.withSession(p.upsertDevice))
 	mux.HandleFunc("POST /devices/delete", p.withSession(p.deleteDevice))
+	mux.HandleFunc("GET /enroll", p.enrollPage)
+	mux.HandleFunc("POST /enroll", p.withSession(p.enrollSubmit))
+	mux.HandleFunc("POST /api/enroll/complete", p.enrollComplete)
 	mux.HandleFunc("GET /login", p.login)
 	mux.HandleFunc("GET /oauth2/callback", p.callback)
 	mux.HandleFunc("POST /logout", func(w http.ResponseWriter, r *http.Request) {

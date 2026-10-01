@@ -7,7 +7,6 @@ import (
 	"errors"
 	"flag"
 	"log"
-	"net/url"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -32,6 +31,7 @@ type tray struct {
 	mNetworks                     *systray.MenuItem
 	mNetPlaceholder               *systray.MenuItem
 	mRegister, mShowKey, mCopyKey *systray.MenuItem
+	mReregister, mRegenerate      *systray.MenuItem
 	mRefresh                      *systray.MenuItem
 	mQuit                         *systray.MenuItem
 	nets                          map[string]*systray.MenuItem
@@ -91,7 +91,9 @@ func (t *tray) onReady() {
 	t.mSvcPlaceholder.Disable()
 	systray.AddSeparator()
 
-	t.mRegister = systray.AddMenuItem("Register This Device…", "Open the FoxDen VPN portal to add this device")
+	t.mRegister = systray.AddMenuItem("Log In and Register…", "Log in to the FoxDen portal and register this device")
+	t.mReregister = systray.AddMenuItem("Register as a Different Device…", "Pick again which device this is")
+	t.mRegenerate = systray.AddMenuItem("Regenerate Key…", "Replace this device's key with a new one")
 	t.mShowKey = systray.AddMenuItem("Show Public Key…", "")
 	t.mCopyKey = systray.AddMenuItem("Copy Public Key", "")
 	t.mRefresh = systray.AddMenuItem("Refresh Configuration", "Re-fetch this device's configuration now")
@@ -112,7 +114,23 @@ func (t *tray) onReady() {
 	})
 	go func() {
 		for range t.mRegister.ClickedCh {
-			t.openPortal()
+			if st := t.status(); st != nil && st.Provisioned {
+				t.openPortal()
+			} else {
+				t.enroll(false, "")
+			}
+		}
+	}()
+	go func() {
+		for range t.mReregister.ClickedCh {
+			t.enroll(false, "")
+		}
+	}()
+	go func() {
+		for range t.mRegenerate.ClickedCh {
+			if st := t.status(); st != nil {
+				t.regenerateKey(st)
+			}
 		}
 	}()
 	go func() {
@@ -203,13 +221,13 @@ func (t *tray) render(st *api.Status, err error) {
 		t.ui.title(t.mStatus, "VPN service not running")
 		t.ui.line(t.mDetail, "")
 		t.ui.line(t.mAddr, "")
-		for _, m := range []*systray.MenuItem{t.mEnabled, t.mSplit, t.mFull, t.mNetworks, t.mServices, t.mRegister, t.mShowKey, t.mCopyKey, t.mRefresh} {
+		for _, m := range []*systray.MenuItem{t.mEnabled, t.mSplit, t.mFull, t.mNetworks, t.mServices, t.mRegister, t.mReregister, t.mRegenerate, t.mShowKey, t.mCopyKey, t.mRefresh} {
 			t.ui.enable(m, false)
 		}
 		t.ui.setTooltip(appName + ": service not running")
 		return
 	}
-	for _, m := range []*systray.MenuItem{t.mEnabled, t.mSplit, t.mFull, t.mServices, t.mRegister, t.mShowKey, t.mCopyKey} {
+	for _, m := range []*systray.MenuItem{t.mEnabled, t.mSplit, t.mFull, t.mServices, t.mRegister, t.mReregister, t.mRegenerate, t.mShowKey, t.mCopyKey} {
 		t.ui.enable(m, true)
 	}
 	if t.refreshing.Load() {
@@ -221,8 +239,12 @@ func (t *tray) render(st *api.Status, err error) {
 	}
 	if st.Provisioned {
 		t.ui.title(t.mRegister, "Manage Devices…")
+		t.ui.show(t.mReregister, true)
+		t.ui.show(t.mRegenerate, true)
 	} else {
-		t.ui.title(t.mRegister, "Register This Device…")
+		t.ui.title(t.mRegister, "Log In and Register…")
+		t.ui.show(t.mReregister, false)
+		t.ui.show(t.mRegenerate, false)
 	}
 
 	full := st.Mode == api.ModeFull
@@ -265,7 +287,7 @@ func describe(st *api.Status, refreshing bool) (title, detail string, icon iconS
 	case !st.Provisioned && refreshing:
 		return "Checking registration…", "", iconAttention
 	case !st.Provisioned:
-		detail = "Register this device in the VPN portal"
+		detail = "Log in to register this device"
 		if st.ProvisionError != "" && !strings.Contains(st.ProvisionError, "not registered") {
 			detail = st.ProvisionError
 		}
@@ -472,9 +494,9 @@ func (t *tray) showKey() {
 
 func (t *tray) firstRun() {
 	msg := "This device is not registered with FoxDen VPN yet.\n\n" +
-		"Log in to the VPN portal to add it. It connects by itself once registered."
-	if ask(appName, msg, "Open Portal") {
-		t.openPortal()
+		"Log in to register it. It connects by itself once registered."
+	if ask(appName, msg, "Log In") {
+		t.enroll(false, "")
 	}
 }
 
@@ -492,19 +514,7 @@ func deviceName() string {
 }
 
 func (t *tray) openPortal() {
-	st := t.status()
-	if st == nil {
-		return
-	}
-	u, err := url.Parse(t.portalURL)
-	if err != nil {
-		notify(appName, err.Error())
-		return
-	}
-	if !st.Provisioned {
-		u.RawQuery = url.Values{"name": {deviceName()}, "pubkey": {st.PublicKey}}.Encode()
-	}
-	if err := openURL(u.String()); err != nil {
+	if err := openURL(t.portal()); err != nil {
 		notify(appName, err.Error())
 	}
 }

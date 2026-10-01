@@ -88,3 +88,23 @@ func TestOpenRejectsFutureVersion(t *testing.T) {
 		t.Fatal("unknown version was accepted")
 	}
 }
+
+func TestChallenge(t *testing.T) {
+	server, peer := keys(t)
+	sealed, secret, err := NewChallenge(server, peer.PublicKey())
+	if err != nil {
+		t.Fatal(err)
+	}
+	got, err := AnswerChallenge(sealed, peer, server.PublicKey())
+	if err != nil || string(got) != string(secret) {
+		t.Fatalf("answer = %x, %v", got, err)
+	}
+	other, _ := wgtypes.GeneratePrivateKey()
+	if _, err := AnswerChallenge(sealed, other, server.PublicKey()); err == nil {
+		t.Fatal("a different key answered the challenge")
+	}
+	// A provisioning blob sealed to the device is not a challenge.
+	if _, err := AnswerChallenge(seal(t, sample(server), server, peer), peer, server.PublicKey()); err == nil {
+		t.Fatal("answered a provisioning blob as a challenge")
+	}
+}

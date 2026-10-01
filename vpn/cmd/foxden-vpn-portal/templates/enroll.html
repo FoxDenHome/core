@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Register device · FoxDen VPN</title>
+{{template "style"}}
+<style>
+.choices { display: grid; gap: 8px; margin: 12px 0 4px; }
+.choice { display: flex; align-items: flex-start; gap: 10px; border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; cursor: pointer; }
+.choice:has(input:checked) { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.choice input[type=radio] { margin-top: 4px; }
+.choice .what { font-weight: 500; }
+.choice .sub { color: var(--muted); font-size: 13px; }
+.choice input[type=text] { margin-top: 6px; }
+.keyline { color: var(--muted); font-size: 13px; overflow-wrap: anywhere; }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Register this device</h1>
+    <form class="who" method="post" action="/logout">
+      <span>{{.User}}</span>
+      <button class="link" type="submit">Log out</button>
+    </form>
+  </header>
+
+  {{with .Error}}<div class="flash err">{{.}}</div>{{end}}
+
+  <section>
+    <form method="post" action="/enroll">
+      <input type="hidden" name="csrf" value="{{.CSRF}}">
+      <input type="hidden" name="pubkey" value="{{.Key}}">
+      <input type="hidden" name="callback" value="{{.Callback}}">
+      <input type="hidden" name="state" value="{{.State}}">
+      <h2>Which device is this?</h2>
+      <div class="choices">
+        {{range .Devices}}
+        <label class="choice">
+          <input type="radio" name="device" value="{{.Name}}" {{if .Selected}}checked{{end}}>
+          <span>
+            <span class="what">{{if .IsThis}}Keep as {{.Name}}{{else}}Replace {{.Name}}{{end}}</span><br>
+            <span class="sub">{{if .IsThis}}already registered with this key{{else}}keeps {{.Address}}; the old key stops working{{end}}</span>
+          </span>
+        </label>
+        {{end}}
+        <label class="choice">
+          <input type="radio" name="device" value="" {{if .NewSelected}}checked{{end}}>
+          <span style="flex: 1">
+            <span class="what">New device</span><br>
+            <input type="text" name="new_name" value="{{.NewName}}" pattern="[a-z0-9][a-z0-9\-]{0,30}" autocomplete="off" aria-label="New device name">
+          </span>
+        </label>
+      </div>
+      <p class="keyline">Key <code>{{.Key}}</code>. Only continue if you started this from the FoxDen VPN app on the device you are registering.</p>
+      <button class="primary" type="submit">Continue in the app</button>
+    </form>
+  </section>
+</main>
+</body>
+</html>

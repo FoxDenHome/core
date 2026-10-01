@@ -267,3 +267,55 @@ func mirror(ctx context.Context, c API, set Settings, primary *Snapshot) error {
 	}
 	return errors.Join(errs...)
 }
+
+func enroll(t *testing.T, f *registrytest.Router, owner, device, k string) error {
+	t.Helper()
+	ctx := context.Background()
+	removeID, id, attrs, err := read(t, f).Enroll(settings(), owner, device, k)
+	if err != nil {
+		return err
+	}
+	if removeID != "" {
+		if err := Remove(ctx, f, removeID); err != nil {
+			return err
+		}
+	}
+	return Apply(ctx, f, id, attrs)
+}
+
+func TestEnrollMovesOwnKey(t *testing.T) {
+	f := registrytest.New()
+	laptop, desktop := key(), key()
+	if err := upsert(t, f, "dori", "laptop", laptop); err != nil {
+		t.Fatal(err)
+	}
+	if err := upsert(t, f, "dori", "desktop", desktop); err != nil {
+		t.Fatal(err)
+	}
+	// The desktop was misregistered as the laptop: its key replaced the
+	// laptop's. Re-registering it as the desktop moves the key back.
+	if err := enroll(t, f, "dori", "laptop", desktop); err != nil {
+		t.Fatal(err)
+	}
+	if err := enroll(t, f, "dori", "desktop", desktop); err != nil {
+		t.Fatal(err)
+	}
+	snap := read(t, f)
+	if snap.ByName("dori-desktop") == nil || snap.ByName("dori-desktop").PublicKey != desktop {
+		t.Fatalf("desktop: %+v", snap.ByName("dori-desktop"))
+	}
+	if snap.ByName("dori-laptop") != nil {
+		t.Fatal("the entry the key moved away from must be gone, not left with a stale key")
+	}
+
+	// A new device name works the same way, and others' keys still never move.
+	if err := enroll(t, f, "dori", "pc", desktop); err != nil {
+		t.Fatal(err)
+	}
+	if read(t, f).ByName("dori-desktop") != nil || read(t, f).ByName("dori-pc") == nil {
+		t.Fatal("key did not move to the new device")
+	}
+	if err := enroll(t, f, "wizzy", "laptop", desktop); err == nil || !strings.Contains(err.Error(), "someone else") {
+		t.Fatalf("moved another user's key: %v", err)
+	}
+}

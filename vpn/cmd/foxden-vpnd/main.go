@@ -49,6 +49,7 @@ func main() {
 		socket       = flag.String("socket", api.DefaultSocket, "control socket path")
 		group        = flag.String("socket-group", defaultGroup(), "group allowed to use the control socket")
 		provisionURL = flag.String("provision-url", "https://cdn.foxden.network/vpn/peers", "base URL of provisioning blobs")
+		portalURL    = flag.String("portal-url", "https://portal.foxden.network/", "device registration portal")
 		serverKey    = flag.String("server-key", defaultServerKey, "WireGuard public key of the VPN server")
 		ifname       = flag.String("interface", "foxden0", "interface name (Linux only; macOS assigns utunN)")
 		userspace    = flag.Bool("userspace", false, "always use wireguard-go, even if kernel WireGuard is available")
@@ -88,6 +89,7 @@ func main() {
 	d, err := daemon.New(daemon.Options{
 		StateDir:     *stateDir,
 		ProvisionURL: *provisionURL,
+		PortalURL:    *portalURL,
 		ServerKey:    sk,
 		Tunnel:       tunnel.Options{Name: *ifname, ForceUserspace: *userspace},
 		IdleTimeout:  *idle,

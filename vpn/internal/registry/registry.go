@@ -302,6 +302,29 @@ func (s *Snapshot) Upsert(set Settings, owner, device, key string) (id string, a
 	}, nil
 }
 
+// Enroll is Upsert for a device that proved it holds key. If the key is on
+// another of the owner's devices, it moves there: that entry is removed
+// (removeID), which is how a misclicked registration is fixed. The caller
+// removes first, then applies, since RouterOS refuses duplicate keys.
+func (s *Snapshot) Enroll(set Settings, owner, device, key string) (removeID, id string, attrs routeros.Row, err error) {
+	name := PeerName(owner, device)
+	other := s.ByKey(key)
+	if other == nil || other.Name == name {
+		id, attrs, err = s.Upsert(set, owner, device, key)
+		return "", id, attrs, err
+	}
+	if other.Owner != owner {
+		return "", "", nil, errors.New("this key is already registered to someone else")
+	}
+	rest := *s
+	rest.Peers = slices.DeleteFunc(slices.Clone(s.Peers), func(p Peer) bool { return p.ID == other.ID })
+	id, attrs, err = rest.Upsert(set, owner, device, key)
+	if err != nil {
+		return "", "", nil, err
+	}
+	return other.ID, id, attrs, nil
+}
+
 // SyncFields are mirrored from the primary router to the others.
 var SyncFields = []string{"name", "comment", "public-key", "preshared-key", "allowed-address", "responder", "disabled"}
 

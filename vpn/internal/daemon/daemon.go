@@ -31,6 +31,7 @@ const (
 	provisionInterval  = time.Hour
 	unprovisionedRetry = 30 * time.Second
 	refreshWait        = 30 * time.Second
+	enrollGrace        = 10 * time.Minute
 	provisionErrRetry  = 5 * time.Minute
 	// A session is live while its last handshake is younger than WireGuard's
 	// REJECT_AFTER_TIME.
@@ -43,6 +44,7 @@ const (
 type Options struct {
 	StateDir     string
 	ProvisionURL string
+	PortalURL    string
 	ServerKey    wgtypes.Key
 	Tunnel       tunnel.Options
 	// IdleTimeout is how long a split tunnel may sit without traffic before
@@ -52,7 +54,7 @@ type Options struct {
 
 type Daemon struct {
 	opts     Options
-	key      wgtypes.Key
+	key      wgtypes.Key // guarded by mu: enrollment can replace it
 	tun      *tunnel.Tunnel
 	services *services.Manager
 	wake     chan struct{}
@@ -66,6 +68,14 @@ type Daemon struct {
 	// refreshWaiters are closed when the forced fetch they asked for is done.
 	refreshWaiters []chan struct{}
 	nextFetch      time.Time
+	// pendingKey is a regenerated key not yet accepted by the portal.
+	pendingKey *wgtypes.Key
+	// enrolledAt is when the portal last handed us our configuration
+	// directly; until the CDN has it, 404s from there are ignored.
+	enrolledAt time.Time
+	// provGen changes whenever enrollment installs a configuration, so a
+	// fetch that started before it does not overwrite it.
+	provGen int
 
 	location     string
 	homeNets     []string
@@ -103,19 +113,30 @@ func New(opts Options) (*Daemon, error) {
 	svc := services.NewManager(opts.StateDir)
 	svc.SetWanted(settings.Services)
 	return &Daemon{
-		opts:     opts,
-		key:      key,
-		tun:      tunnel.New(opts.Tunnel),
-		services: svc,
-		wake:     make(chan struct{}, 1),
-		settings: settings,
-		prov:     loadProvision(opts.StateDir),
-		location: api.LocationUnknown,
-		state:    api.TunnelDown,
+		opts:       opts,
+		key:        key,
+		tun:        tunnel.New(opts.Tunnel),
+		services:   svc,
+		wake:       make(chan struct{}, 1),
+		settings:   settings,
+		pendingKey: loadPendingKey(opts.StateDir),
+		prov:       loadProvision(opts.StateDir),
+		location:   api.LocationUnknown,
+		state:      api.TunnelDown,
 	}, nil
 }
 
-func (d *Daemon) PublicKey() wgtypes.Key { return d.key.PublicKey() }
+func (d *Daemon) PublicKey() wgtypes.Key {
+	d.mu.Lock()
+	defer d.mu.Unlock()
+	return d.key.PublicKey()
+}
+
+func (d *Daemon) privateKey() wgtypes.Key {
+	d.mu.Lock()
+	defer d.mu.Unlock()
+	return d.key
+}
 
 func (d *Daemon) poke() {
 	select {
@@ -156,6 +177,9 @@ func (d *Daemon) tick(ctx context.Context) {
 	waiters := d.refreshWaiters
 	d.refreshWaiters = nil
 	prov := d.prov
+	key := d.key
+	gen := d.provGen
+	enrolledAt := d.enrolledAt
 	d.mu.Unlock()
 	defer func() {
 		for _, w := range waiters {
@@ -163,11 +187,11 @@ func (d *Daemon) tick(ctx context.Context) {
 		}
 	}()
 
-	// Provisioning. Slow network calls run without the lock held; only this
-	// goroutine writes these fields.
+	// Provisioning. Slow network calls run without the lock held. Besides this
+	// goroutine only enrollment writes prov, and it bumps provGen to win.
 	provChanged := false
 	if force || now.After(d.nextFetch) {
-		cfg, err := provision.Fetch(ctx, d.opts.ProvisionURL, d.key, d.opts.ServerKey)
+		cfg, err := provision.Fetch(ctx, d.opts.ProvisionURL, key, d.opts.ServerKey)
 		switch {
 		case err == nil:
 			if !reflect.DeepEqual(cfg, prov) {
@@ -179,6 +203,10 @@ func (d *Daemon) tick(ctx context.Context) {
 			}
 			prov = cfg
 			d.nextFetch = now.Add(provisionInterval)
+		case errors.Is(err, provision.ErrNotProvisioned) && prov != nil && now.Sub(enrolledAt) < enrollGrace:
+			// Just enrolled: the CDN has not caught up with the portal yet.
+			err = nil
+			d.nextFetch = now.Add(unprovisionedRetry)
 		case errors.Is(err, provision.ErrNotProvisioned):
 			if prov != nil {
 				log.Printf("peer was removed from the server")
@@ -198,7 +226,11 @@ func (d *Daemon) tick(ctx context.Context) {
 			}
 		}
 		d.mu.Lock()
-		d.prov, d.provErr = prov, err
+		if d.provGen == gen {
+			d.prov, d.provErr = prov, err
+		} else {
+			prov, provChanged = d.prov, true // enrolled meanwhile; that wins
+		}
 		d.lastFetch = time.Now()
 		d.mu.Unlock()
 	}
@@ -362,7 +394,7 @@ func (d *Daemon) buildConfig(s Settings, prov *provision.Config, location string
 		return tunnel.Config{}, err
 	}
 	cfg := tunnel.Config{
-		PrivateKey: d.key,
+		PrivateKey: d.privateKey(),
 		PeerKey:    peer,
 		MTU:        prov.MTU,
 		Addresses:  prov.Addresses,
@@ -412,6 +444,7 @@ func (d *Daemon) Status() api.Status {
 		Build:        buildid.Self(),
 		HomeNetworks: d.homeNets,
 		PublicKey:    d.key.PublicKey().String(),
+		PortalURL:    d.opts.PortalURL,
 		Enabled:      d.settings.Enabled,
 		Mode:         d.settings.Mode,
 		Location:     d.location,

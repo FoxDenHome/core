@@ -4,60 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>FoxDen VPN</title>
-<style>
-:root {
-  --bg: #f6f7f9; --card: #fff; --fg: #1d2127; --muted: #616a75; --line: #dde1e6;
-  --accent: #1d7fc4; --accent-fg: #fff; --ok-bg: #e6f4ea; --ok-fg: #1e6b34; --err-bg: #fdecea; --err-fg: #a12622;
-  --good: #1e8e3e; --bad: #d93025;
-}
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #15181c; --card: #1e2227; --fg: #e6e9ed; --muted: #9aa3ad; --line: #2e343b;
-    --accent: #3daee9; --accent-fg: #0b1620; --ok-bg: #173323; --ok-fg: #8fd6a5; --err-bg: #3a1a19; --err-fg: #f2a19c;
-    --good: #5bc77a; --bad: #f2766b;
-  }
-}
-* { box-sizing: border-box; }
-body { margin: 0; background: var(--bg); color: var(--fg); font: 15px/1.5 system-ui, sans-serif; }
-main { max-width: 760px; margin: 0 auto; padding: 24px 16px 48px; }
-header { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 20px; }
-h1 { font-size: 22px; margin: 0; }
-h2 { font-size: 16px; margin: 0 0 12px; }
-.who { color: var(--muted); display: flex; gap: 8px; align-items: baseline; }
-section { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 18px; margin-bottom: 16px; }
-.flash { border-radius: 8px; padding: 10px 14px; margin-bottom: 16px; }
-.flash.ok { background: var(--ok-bg); color: var(--ok-fg); }
-.flash.err { background: var(--err-bg); color: var(--err-fg); }
-table { width: 100%; border-collapse: collapse; }
-th, td { text-align: left; padding: 8px 6px; border-top: 1px solid var(--line); vertical-align: top; }
-th { color: var(--muted); font-weight: 500; font-size: 13px; border-top: 0; }
-code { font: 13px ui-monospace, monospace; word-break: break-all; }
-.muted { color: var(--muted); }
-label { display: block; font-weight: 500; margin: 10px 0 4px; }
-input[type=text] { width: 100%; padding: 8px 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); color: var(--fg); font: inherit; }
-input.key { font-family: ui-monospace, monospace; font-size: 13px; }
-button { font: inherit; border-radius: 6px; padding: 7px 14px; cursor: pointer; border: 1px solid var(--line); background: transparent; color: var(--fg); }
-button.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-fg); margin-top: 14px; }
-button.link { border: 0; padding: 0; color: var(--muted); text-decoration: underline; }
-.hint { color: var(--muted); font-size: 13px; margin: 4px 0 0; }
-.name { display: flex; align-items: center; gap: 8px; }
-.sync { position: relative; display: inline-flex; flex: none; outline: none; cursor: default; }
-.sync svg { width: 18px; height: 18px; display: block; }
-.sync:focus-visible svg { border-radius: 50%; box-shadow: 0 0 0 2px var(--accent); }
-.ok { color: var(--good); }
-.bad { color: var(--bad); }
-.pending { color: var(--muted); }
-.tip { display: none; position: absolute; left: -6px; top: calc(100% + 8px); z-index: 10; width: max-content; max-width: min(340px, calc(100vw - 48px));
-  background: var(--card); color: var(--fg); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px;
-  box-shadow: 0 6px 20px rgb(0 0 0 / 0.18); font-size: 13px; line-height: 1.4; }
-.sync:hover .tip, .sync:focus .tip, .sync:focus-within .tip { display: block; }
-.tip .row { display: grid; grid-template-columns: 14px auto 1fr; gap: 6px; align-items: start; padding: 2px 0; }
-.tip .row svg { width: 14px; height: 14px; margin-top: 2px; }
-.tip b { font-weight: 600; }
-.tip .detail { color: var(--muted); overflow-wrap: anywhere; }
-.tip .when { display: block; color: var(--muted); border-top: 1px solid var(--line); margin-top: 6px; padding-top: 6px; }
-@media (max-width: 560px) { .hide-sm { display: none; } }
-</style>
+{{template "style"}}
 </head>
 <body>
 {{define "icon-ok"}}<svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="9" fill="currentColor"/><path d="M5.8 10.4l2.8 2.8 5.6-6" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>{{end}}

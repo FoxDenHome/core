@@ -67,6 +67,8 @@ type Status struct {
 	TxBytes       int64     `json:"tx_bytes"`
 	Error         string    `json:"error,omitempty"`
 	Services      []Service `json:"services,omitempty"`
+	// PortalURL is where devices are registered and managed.
+	PortalURL string `json:"portal_url,omitempty"`
 }
 
 const (
@@ -87,6 +89,26 @@ type Service struct {
 	Wanted *bool  `json:"wanted,omitempty"`
 	State  string `json:"state"`
 	Detail string `json:"detail,omitempty"`
+}
+
+// EnrollStart is the key to register, from POST /v1/enroll/start.
+type EnrollStart struct {
+	PublicKey string `json:"public_key"`
+	// Replace is the peer this enrollment should replace by default (the
+	// device itself when regenerating its key).
+	Replace string `json:"replace,omitempty"`
+}
+
+type EnrollStartRequest struct {
+	// Regenerate enrolls a new key; the current one stays active until the
+	// portal has accepted the new one.
+	Regenerate bool `json:"regenerate"`
+}
+
+// EnrollCompleteRequest carries what the portal redirected to the tray.
+type EnrollCompleteRequest struct {
+	Token     string `json:"token"`
+	Challenge string `json:"challenge"`
 }
 
 // SettingsUpdate changes only the fields that are set.
@@ -114,34 +136,38 @@ func NewClient(socket string) *Client {
 }
 
 func (c *Client) do(method, path string, body any, timeout time.Duration) (*Status, error) {
+	var st Status
+	if err := c.call(method, path, body, timeout, &st); err != nil {
+		return nil, err
+	}
+	return &st, nil
+}
+
+func (c *Client) call(method, path string, body any, timeout time.Duration, out any) error {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 	var r io.Reader
 	if body != nil {
 		b, err := json.Marshal(body)
 		if err != nil {
-			return nil, err
+			return err
 		}
 		r = bytes.NewReader(b)
 	}
 	req, err := http.NewRequestWithContext(ctx, method, "http://foxden-vpnd"+path, r)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	resp, err := c.http.Do(req)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
 		msg, _ := io.ReadAll(io.LimitReader(resp.Body, 4096))
-		return nil, fmt.Errorf("%s: %s", resp.Status, bytes.TrimSpace(msg))
+		return fmt.Errorf("%s", bytes.TrimSpace(msg))
 	}
-	var st Status
-	if err := json.NewDecoder(resp.Body).Decode(&st); err != nil {
-		return nil, err
-	}
-	return &st, nil
+	return json.NewDecoder(resp.Body).Decode(out)
 }
 
 func (c *Client) Status() (*Status, error) {
@@ -155,4 +181,22 @@ func (c *Client) Update(u SettingsUpdate) (*Status, error) {
 // Refresh makes the daemon fetch provisioning now and waits for the result.
 func (c *Client) Refresh() (*Status, error) {
 	return c.do(http.MethodPost, "/v1/refresh", nil, 45*time.Second)
+}
+
+func (c *Client) EnrollStart(regenerate bool) (*EnrollStart, error) {
+	var out EnrollStart
+	if err := c.call(http.MethodPost, "/v1/enroll/start", EnrollStartRequest{Regenerate: regenerate}, 10*time.Second, &out); err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+// EnrollComplete hands the portal's redirect to the daemon, which proves it
+// holds the key and installs the configuration the portal returns.
+func (c *Client) EnrollComplete(token, challenge string) (*Status, error) {
+	var st Status
+	if err := c.call(http.MethodPost, "/v1/enroll/complete", EnrollCompleteRequest{Token: token, Challenge: challenge}, 90*time.Second, &st); err != nil {
+		return nil, err
+	}
+	return &st, nil
 }

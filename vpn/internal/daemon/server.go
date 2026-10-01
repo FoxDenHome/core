@@ -60,6 +60,31 @@ func (d *Daemon) Serve(ctx context.Context, socket, group string) error {
 	mux.HandleFunc("POST /v1/refresh", func(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, d.Refresh(r.Context()))
 	})
+	mux.HandleFunc("POST /v1/enroll/start", func(w http.ResponseWriter, r *http.Request) {
+		var req api.EnrollStartRequest
+		if err := json.NewDecoder(http.MaxBytesReader(w, r.Body, 1<<16)).Decode(&req); err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		st, err := d.EnrollStart(req.Regenerate)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		writeJSON(w, st)
+	})
+	mux.HandleFunc("POST /v1/enroll/complete", func(w http.ResponseWriter, r *http.Request) {
+		var req api.EnrollCompleteRequest
+		if err := json.NewDecoder(http.MaxBytesReader(w, r.Body, 1<<16)).Decode(&req); err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		if err := d.EnrollComplete(r.Context(), req.Token, req.Challenge); err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		writeJSON(w, d.Status())
+	})
 
 	srv := &http.Server{Handler: mux}
 	go func() {
