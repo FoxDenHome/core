@@ -54,11 +54,11 @@ func newKerberos(t *tray) *kerberos {
 	return &kerberos{t: t, dir: dir, sysConf: "/etc/krb5.conf", kinit: runKinit, klistOK: klistHas, kick: make(chan struct{}, 1)}
 }
 
-func (k *kerberos) menu() {
-	parent := systray.AddMenuItem("Kerberos (SMB)", "Kerberos tickets for the NAS, from this device's registration")
-	k.mStatus = parent.AddSubMenuItem("Checking…", "")
+// menu adds the ticket status and renewal to parent (the NAS Shares menu).
+func (k *kerberos) menu(parent *systray.MenuItem) {
+	k.mStatus = parent.AddSubMenuItem("Checking…", "Kerberos ticket for the NAS, from this device's registration")
 	k.mStatus.Disable()
-	k.mRenew = parent.AddSubMenuItem("Get New Ticket", "")
+	k.mRenew = parent.AddSubMenuItem("Get New Kerberos Ticket", "")
 	go func() {
 		for range k.mRenew.ClickedCh {
 			k.mu.Lock()

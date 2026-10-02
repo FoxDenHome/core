@@ -32,6 +32,7 @@ type tray struct {
 	mNetPlaceholder               *systray.MenuItem
 	mRegister, mShowKey, mCopyKey *systray.MenuItem
 	mReregister, mRegenerate      *systray.MenuItem
+	mDevice, mManage              *systray.MenuItem
 	mRefresh                      *systray.MenuItem
 	mQuit                         *systray.MenuItem
 	nets                          map[string]*systray.MenuItem
@@ -94,16 +95,20 @@ func (t *tray) onReady() {
 	t.mServices = systray.AddMenuItem("Services", "Extra FoxDen services this device runs and keeps up to date")
 	t.mSvcPlaceholder = t.mServices.AddSubMenuItem("Loading…", "") // see mNetPlaceholder
 	t.mSvcPlaceholder.Disable()
-	t.krb.menu()
-	t.shares.menu()
+	t.shares.menu() // with the Kerberos ticket in it
 	systray.AddSeparator()
 
+	// Only until registered; after that it is "Manage Devices…" below.
 	t.mRegister = systray.AddMenuItem("Log In and Register…", "Log in to the FoxDen portal and register this device")
-	t.mReregister = systray.AddMenuItem("Register as a Different Device…", "Pick again which device this is")
-	t.mRegenerate = systray.AddMenuItem("Regenerate Key…", "Replace this device's key with a new one")
-	t.mShowKey = systray.AddMenuItem("Show Public Key…", "")
-	t.mCopyKey = systray.AddMenuItem("Copy Public Key", "")
-	t.mRefresh = systray.AddMenuItem("Refresh Configuration", "Re-fetch this device's configuration now")
+	// Rarely needed, so kept out of the way.
+	t.mDevice = systray.AddMenuItem("Device", "Registration, key and configuration of this device")
+	t.mManage = t.mDevice.AddSubMenuItem("Manage Devices…", "Open the FoxDen portal")
+	t.mReregister = t.mDevice.AddSubMenuItem("Register as a Different Device…", "Pick again which device this is")
+	t.mRegenerate = t.mDevice.AddSubMenuItem("Regenerate Key…", "Replace this device's key with a new one")
+	t.mDevice.AddSeparator()
+	t.mShowKey = t.mDevice.AddSubMenuItem("Show Public Key…", "")
+	t.mCopyKey = t.mDevice.AddSubMenuItem("Copy Public Key", "")
+	t.mRefresh = t.mDevice.AddSubMenuItem("Refresh Configuration", "Re-fetch this device's configuration now")
 	systray.AddSeparator()
 	t.mQuit = systray.AddMenuItem("Quit", "Quit the applet (the VPN service keeps running)")
 
@@ -121,11 +126,12 @@ func (t *tray) onReady() {
 	})
 	go func() {
 		for range t.mRegister.ClickedCh {
-			if st := t.status(); st != nil && st.Provisioned {
-				t.openPortal()
-			} else {
-				t.enroll(false, "")
-			}
+			t.enroll(false, "")
+		}
+	}()
+	go func() {
+		for range t.mManage.ClickedCh {
+			t.openPortal()
 		}
 	}()
 	go func() {
@@ -234,13 +240,13 @@ func (t *tray) render(st *api.Status, err error) {
 		t.ui.title(t.mStatus, "VPN service not running")
 		t.ui.line(t.mDetail, "")
 		t.ui.line(t.mAddr, "")
-		for _, m := range []*systray.MenuItem{t.mEnabled, t.mSplit, t.mFull, t.mNetworks, t.mServices, t.mRegister, t.mReregister, t.mRegenerate, t.mShowKey, t.mCopyKey, t.mRefresh} {
+		for _, m := range []*systray.MenuItem{t.mEnabled, t.mSplit, t.mFull, t.mNetworks, t.mServices, t.mRegister, t.mDevice} {
 			t.ui.enable(m, false)
 		}
 		t.ui.setTooltip(appName + ": service not running")
 		return
 	}
-	for _, m := range []*systray.MenuItem{t.mEnabled, t.mSplit, t.mFull, t.mServices, t.mRegister, t.mReregister, t.mRegenerate, t.mShowKey, t.mCopyKey} {
+	for _, m := range []*systray.MenuItem{t.mEnabled, t.mSplit, t.mFull, t.mServices, t.mRegister, t.mDevice} {
 		t.ui.enable(m, true)
 	}
 	if t.refreshing.Load() {
@@ -250,15 +256,10 @@ func (t *tray) render(st *api.Status, err error) {
 		t.ui.title(t.mRefresh, "Refresh Configuration")
 		t.ui.enable(t.mRefresh, true)
 	}
-	if st.Provisioned {
-		t.ui.title(t.mRegister, "Manage Devices…")
-		t.ui.show(t.mReregister, true)
-		t.ui.show(t.mRegenerate, true)
-	} else {
-		t.ui.title(t.mRegister, "Log In and Register…")
-		t.ui.show(t.mReregister, false)
-		t.ui.show(t.mRegenerate, false)
-	}
+	t.ui.show(t.mRegister, !st.Provisioned)
+	t.ui.show(t.mManage, st.Provisioned)
+	t.ui.show(t.mReregister, st.Provisioned)
+	t.ui.show(t.mRegenerate, st.Provisioned)
 
 	full := st.Mode == api.ModeFull
 	t.ui.check(t.mEnabled, st.Enabled)

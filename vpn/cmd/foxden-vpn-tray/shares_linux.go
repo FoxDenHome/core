@@ -14,9 +14,10 @@ import (
 	"github.com/FoxDenHome/core/vpn/internal/api"
 )
 
-// Shares: a toggle per SMB share the device's owner may mount. The first
-// toggle asks for a folder; after that it only mounts and unmounts. The
-// folders and toggles are this user's, kept in ~/.config/foxden-vpn.
+// Shares: a submenu per SMB share the device's owner may mount, with a
+// "Mounted" toggle, the folder and its state, Open Folder and Change Folder.
+// The first mount asks for a folder; after that the toggle only mounts and
+// unmounts. Folders and toggles are this user's, kept in ~/.config/foxden-vpn.
 
 const (
 	sharesInterval = time.Minute
@@ -24,8 +25,13 @@ const (
 )
 
 type shareState struct {
-	Path    string `json:"path"`
-	Enabled bool   `json:"enabled"`
+	Path string `json:"path"`
+	// AutoMount mounts the share when the tray starts (at login); opt-in.
+	AutoMount bool `json:"automount"`
+	// Enabled keeps the share mounted for this session, remounting it after
+	// network changes or a new ticket. At start it is AutoMount, or whether
+	// the share is still mounted (the tray restarted after an update).
+	Enabled bool `json:"-"`
 }
 
 type shares struct {
@@ -38,14 +44,14 @@ type shares struct {
 	progress func(title, message string) note
 	kick     chan struct{}
 
-	mParent, mPlaceholder, mChange, mChangePlaceholder *systray.MenuItem
+	mParent, mPlaceholder *systray.MenuItem
 
 	mu      sync.Mutex
 	state   map[string]shareState
 	mounted map[string]api.Mount // by path
 	errs    map[string]string    // last background error per share
-	toggles map[string]*systray.MenuItem
-	changes map[string]*systray.MenuItem
+	items   map[string]*shareItem
+	started bool // Enabled has been set from AutoMount and the mounts
 }
 
 func newShares(t *tray) *shares {
@@ -56,7 +62,7 @@ func newShares(t *tray) *shares {
 	s := &shares{
 		t: t, file: filepath.Join(dir, "foxden-vpn", "mounts.json"), pick: pickFolder, progress: notifyProgress,
 		kick: make(chan struct{}, 1), state: map[string]shareState{}, mounted: map[string]api.Mount{},
-		errs: map[string]string{}, toggles: map[string]*systray.MenuItem{}, changes: map[string]*systray.MenuItem{},
+		errs: map[string]string{}, items: map[string]*shareItem{},
 	}
 	s.load()
 	return s
@@ -64,9 +70,10 @@ func newShares(t *tray) *shares {
 
 func (s *shares) load() {
 	b, err := os.ReadFile(s.file)
-	if err == nil {
-		_ = json.Unmarshal(b, &s.state)
+	if err != nil {
+		return
 	}
+	_ = json.Unmarshal(b, &s.state)
 }
 
 func (s *shares) save() error {
@@ -82,10 +89,13 @@ func (s *shares) save() error {
 
 func (s *shares) menu() {
 	s.mParent = systray.AddMenuItem("NAS Shares", "Mount your FoxDen SMB shares")
-	// Submenus need a child from the start (see mNetPlaceholder).
+	// The ticket comes first: items can only be appended, and the shares
+	// arrive with the configuration. This also gives the submenu a child
+	// from the start (see mNetPlaceholder).
+	s.t.krb.menu(s.mParent)
+	s.mParent.AddSeparator()
 	s.mPlaceholder = s.mParent.AddSubMenuItem("Available once registered", "")
 	s.mPlaceholder.Disable()
-	// "Change Folder" is added below the toggles once shares are known.
 }
 
 func (s *shares) poke() {
@@ -145,6 +155,16 @@ func (s *shares) reconcile() {
 		return
 	}
 	s.refresh()
+	s.mu.Lock()
+	if !s.started {
+		s.started = true
+		for name, cur := range s.state {
+			_, mounted := s.mounted[cur.Path]
+			cur.Enabled = cur.AutoMount || (cur.Path != "" && mounted)
+			s.state[name] = cur
+		}
+	}
+	s.mu.Unlock()
 	for _, sh := range st.Shares {
 		s.mu.Lock()
 		cur, mounted := s.state[sh.Name], false
@@ -209,66 +229,79 @@ func (s *shares) render() {
 	defer s.mu.Unlock()
 	ui := s.t.ui
 	for _, sh := range st.Shares {
-		name := sh.Name
-		if _, ok := s.toggles[name]; ok {
-			continue
+		if _, ok := s.items[sh.Name]; !ok {
+			s.items[sh.Name] = s.addItem(sh)
 		}
-		item := s.mParent.AddSubMenuItemCheckbox(shareLabel(sh), sh.Comment, false)
-		s.toggles[name] = item
-		go func() {
-			for range item.ClickedCh {
-				s.toggle(name)
-			}
-		}()
-	}
-	if s.mChange == nil && len(st.Shares) > 0 {
-		// Gets its first child right away, so KDE sees a submenu (see
-		// mNetPlaceholder).
-		s.mChange = s.mParent.AddSubMenuItem("Change Folder", "Mount a share somewhere else")
-		s.mChangePlaceholder = s.mChange.AddSubMenuItem("No folders chosen yet", "")
-		s.mChangePlaceholder.Disable()
 	}
 	for _, sh := range st.Shares {
-		name := sh.Name
-		if _, ok := s.changes[name]; ok || s.mChange == nil {
-			continue
-		}
-		change := s.mChange.AddSubMenuItem(shareLabel(sh)+"…", "")
-		s.changes[name] = change
-		go func() {
-			for range change.ClickedCh {
-				s.changeFolder(name)
-			}
-		}()
-	}
-	for _, sh := range st.Shares {
-		name := sh.Name
-		item := s.toggles[name]
-		cur := s.state[name]
+		it := s.items[sh.Name]
+		cur := s.state[sh.Name]
 		m, mounted := s.mounted[cur.Path]
-		title := shareLabel(sh)
+		title, info := shareLabel(sh), ""
 		switch {
 		case mounted:
-			title += " (" + homeShort(cur.Path) + ", " + m.Transport + ")"
-		case cur.Enabled && s.errs[name] != "":
-			title += " (error: " + truncate(s.errs[name], 60) + ")"
+			title += " (" + m.Transport + ")"
+			info = homeShort(cur.Path)
+		case cur.Enabled && s.errs[sh.Name] != "":
+			title += " (error)"
+			info = "Error: " + truncate(s.errs[sh.Name], 70)
 		case cur.Enabled:
 			title += " (mounting…)"
+			info = "Mounting at " + homeShort(cur.Path) + "…"
+		case cur.Path != "":
+			info = homeShort(cur.Path) + " (not mounted)"
 		}
-		ui.title(item, title)
-		ui.check(item, cur.Enabled)
-		ui.show(item, true)
-		ui.show(s.changes[name], cur.Path != "")
+		ui.title(it.parent, title)
+		ui.show(it.parent, true)
+		ui.check(it.mount, s.checked(sh.Name))
+		ui.check(it.auto, cur.AutoMount)
+		ui.line(it.info, info)
+		ui.show(it.open, mounted)
+		if cur.Path == "" {
+			ui.title(it.change, "Choose Folder…")
+		} else {
+			ui.title(it.change, "Change Folder…")
+		}
 	}
 	ui.show(s.mPlaceholder, len(st.Shares) == 0)
-	if s.mChange != nil {
-		anyPath := false
-		for _, sh := range st.Shares {
-			anyPath = anyPath || s.state[sh.Name].Path != ""
-		}
-		ui.show(s.mChange, anyPath)
-		ui.show(s.mChangePlaceholder, !anyPath)
+}
+
+// shareItem is one share's submenu.
+type shareItem struct {
+	parent, mount, auto, info, open, change *systray.MenuItem
+}
+
+// addItem adds a share's submenu, all children at once so KDE sees a
+// submenu (see mNetPlaceholder).
+func (s *shares) addItem(sh api.Share) *shareItem {
+	name := sh.Name
+	it := &shareItem{parent: s.mParent.AddSubMenuItem(shareLabel(sh), sh.Comment)}
+	it.mount = it.parent.AddSubMenuItemCheckbox("Mounted", "Mount this share now", false)
+	it.auto = it.parent.AddSubMenuItemCheckbox("Automount", "Mount this share at every login", false)
+	it.info = it.parent.AddSubMenuItem("", "")
+	it.info.Disable()
+	it.info.Hide()
+	it.open = it.parent.AddSubMenuItem("Open Folder", "")
+	it.change = it.parent.AddSubMenuItem("Change Folder…", "Mount this share somewhere else")
+	on := func(m *systray.MenuItem, f func()) {
+		go func() {
+			for range m.ClickedCh {
+				f()
+			}
+		}()
 	}
+	on(it.mount, func() { s.toggle(name) })
+	on(it.auto, func() { s.toggleAuto(name) })
+	on(it.change, func() { s.changeFolder(name) })
+	on(it.open, func() {
+		s.mu.Lock()
+		p := s.state[name].Path
+		s.mu.Unlock()
+		if err := openURL(p); err != nil {
+			notify(sharesTitle, err.Error())
+		}
+	})
+	return it
 }
 
 // choose asks where to mount name. A folder that is not empty gets a
@@ -288,11 +321,19 @@ func (s *shares) choose(name, current string) (string, error) {
 	return filepath.Clean(dir), nil
 }
 
+// checked is what the Mounted box shows: mounted, or about to be. A share
+// whose mount failed shows unchecked, so a click retries. Needs s.mu.
+func (s *shares) checked(name string) bool {
+	cur := s.state[name]
+	_, mounted := s.mounted[cur.Path]
+	return (cur.Path != "" && mounted) || (cur.Enabled && s.errs[name] == "")
+}
+
 func (s *shares) toggle(name string) {
 	s.mu.Lock()
-	cur := s.state[name]
+	cur, on := s.state[name], s.checked(name)
 	s.mu.Unlock()
-	if cur.Enabled {
+	if on {
 		if cur.Path != "" {
 			if err := s.unmountShowing(name, cur.Path); err != nil {
 				s.poke()
@@ -324,6 +365,35 @@ func (s *shares) toggle(name string) {
 		notify(appName, err.Error())
 	}
 	s.refresh()
+	s.render()
+}
+
+// toggleAuto changes whether the share is mounted at login. It does not
+// mount or unmount now; a share without a folder gets one first.
+func (s *shares) toggleAuto(name string) {
+	s.mu.Lock()
+	cur := s.state[name]
+	s.mu.Unlock()
+	if !cur.AutoMount && cur.Path == "" {
+		p, err := s.choose(name, "")
+		if err != nil {
+			notify(appName, err.Error())
+			return
+		}
+		if p == "" {
+			return // cancelled
+		}
+		cur.Path = p
+	}
+	s.mu.Lock()
+	latest := s.state[name] // keep a mount state that changed meanwhile
+	latest.Path, latest.AutoMount = cur.Path, !cur.AutoMount
+	s.state[name] = latest
+	err := s.save()
+	s.mu.Unlock()
+	if err != nil {
+		notify(appName, err.Error())
+	}
 	s.render()
 }
 

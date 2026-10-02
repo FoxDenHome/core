@@ -137,7 +137,13 @@ func TestSharesToggleAndRemount(t *testing.T) {
 		t.Fatalf("toggle on again: %v", f.log)
 	}
 
-	// After a reboot nothing is mounted; the saved state brings it back.
+	// Mounting does not opt into Automount.
+	if s.state["share"].AutoMount {
+		t.Fatalf("automount turned on by mounting: %+v", s.state)
+	}
+	s.toggleAuto("share")
+
+	// After a reboot nothing is mounted; Automount brings it back.
 	f.mounts = map[string]string{}
 	s2 := newTestShares(t, f, cfg, &picks)
 	s2.progress = notes.progress
@@ -166,5 +172,64 @@ func TestSharesToggleAndRemount(t *testing.T) {
 	}
 	if fi, err := os.Stat(cfg); err != nil || fi.Mode().Perm() != 0o600 {
 		t.Fatalf("state file: %v %v", fi, err)
+	}
+}
+
+func TestSharesAutoMount(t *testing.T) {
+	home := t.TempDir()
+	cfg := filepath.Join(t.TempDir(), "mounts.json")
+	shareDir, doriDir := filepath.Join(home, "share"), filepath.Join(home, "dori")
+	// A file from before Automount: "enabled" is not opting in.
+	old := `{"share": {"path": "` + shareDir + `", "enabled": true, "automount": true}, "dori": {"path": "` + doriDir + `", "enabled": true}}`
+	if err := os.WriteFile(cfg, []byte(old), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	f := &fakeMounts{mounts: map[string]string{}}
+	var picks []string
+	s := newTestShares(t, f, cfg, &picks)
+	s.progress = (&fakeNotes{}).progress
+	if !s.state["share"].AutoMount || s.state["dori"].AutoMount {
+		t.Fatalf("loaded state: %+v", s.state)
+	}
+	s.reconcile()
+	if !slices.Equal(f.log, []string{"mount share " + shareDir}) {
+		t.Fatalf("login mounts: %v", f.log)
+	}
+
+	// Automount only changes the setting; it does not mount now.
+	s.toggleAuto("dori")
+	if !s.state["dori"].AutoMount || len(f.log) != 1 {
+		t.Fatalf("automount on: %v %+v", f.log, s.state)
+	}
+	// Unticking Automount keeps the current mount.
+	s.toggleAuto("share")
+	if s.state["share"].AutoMount || !s.state["share"].Enabled || len(f.log) != 1 {
+		t.Fatalf("automount off: %v %+v", f.log, s.state)
+	}
+
+	// The tray restarts (an update) while share is still mounted: it stays
+	// enabled and is remounted if it drops, though Automount is off.
+	s2 := newTestShares(t, f, cfg, &picks)
+	s2.progress = s.progress
+	s2.reconcile()
+	if !s2.state["share"].Enabled {
+		t.Fatalf("still-mounted share after restart: %+v", s2.state)
+	}
+	if f.log[len(f.log)-1] != "mount dori "+doriDir {
+		t.Fatalf("automount share after restart: %v", f.log)
+	}
+
+	// After a reboot nothing is mounted: only Automount shares come back.
+	f.mounts = map[string]string{}
+	n := len(f.log)
+	s3 := newTestShares(t, f, cfg, &picks)
+	s3.reconcile()
+	if !slices.Equal(f.log[n:], []string{"mount dori " + doriDir}) {
+		t.Fatalf("after reboot: %v", f.log[n:])
+	}
+	var saved map[string]map[string]any
+	b, _ := os.ReadFile(cfg)
+	if json.Unmarshal(b, &saved) != nil || saved["share"]["automount"] != false || saved["share"]["enabled"] != nil {
+		t.Fatalf("saved: %s", b)
 	}
 }

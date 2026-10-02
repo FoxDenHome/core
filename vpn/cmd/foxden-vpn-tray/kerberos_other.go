@@ -6,6 +6,5 @@ package main
 type kerberos struct{}
 
 func newKerberos(*tray) *kerberos { return nil }
-func (*kerberos) menu()           {}
 func (*kerberos) run()            {}
 func (*kerberos) poke()           {}
