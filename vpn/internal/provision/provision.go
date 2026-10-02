@@ -51,6 +51,17 @@ type Network struct {
 	DNS []netip.Addr `json:"dns,omitempty"`
 }
 
+// Share is an SMB share the device's owner may mount.
+type Share struct {
+	Name    string `json:"name"`
+	Comment string `json:"comment,omitempty"`
+	// Host serves SMB over TCP; RDMAHost (optional) also over SMB Direct.
+	Host     string `json:"host"`
+	RDMAHost string `json:"rdma_host,omitempty"`
+	// Home marks a share private to the owner.
+	Home bool `json:"home,omitempty"`
+}
+
 type Config struct {
 	Version   int            `json:"version"`
 	Name      string         `json:"name"`
@@ -63,6 +74,7 @@ type Config struct {
 	// InternalPrefixes are what the home DNS answers vpn.foxden.network with.
 	InternalPrefixes []netip.Prefix `json:"internal_prefixes"`
 	Networks         []Network      `json:"networks"`
+	Shares           []Share        `json:"shares,omitempty"`
 }
 
 func (c *Config) IsInternal(a netip.Addr) bool {

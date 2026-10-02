@@ -1,0 +1,57 @@
+--- a/include/linux/ksmbd_server.h
++++ b/include/linux/ksmbd_server.h
+@@ -171,6 +171,7 @@
+ 	struct ksmbd_login_response	login_response;
+ 	__u16	session_key_len;
+ 	__u16	spnego_blob_len;
++	__u64	session_expiry;	/* Kerberos ticket expiry, epoch seconds */
+ 	__u8	payload[];
+ };
+ 
+--- a/include/management/spnego.h
++++ b/include/management/spnego.h
+@@ -14,6 +14,7 @@
+ 	char		*sess_key;
+ 	unsigned int	key_len;
+ 	char		*user_name;
++	unsigned long long	session_expiry;
+ };
+ 
+ struct ksmbd_spnego_authen_request;
+--- a/mountd/worker.c
++++ b/mountd/worker.c
+@@ -157,6 +157,7 @@
+ 	}
+ 
+ 	resp->session_key_len = auth_out.key_len;
++	resp->session_expiry = auth_out.session_expiry;
+ 	memcpy(resp->payload, auth_out.sess_key, auth_out.key_len);
+ 	resp->spnego_blob_len = auth_out.blob_len;
+ 	memcpy(resp->payload + auth_out.key_len, auth_out.spnego_blob,
+--- a/tools/management/spnego_krb5.c
++++ b/tools/management/spnego_krb5.c
+@@ -211,8 +211,12 @@
+ 
+ 	packet.length = in_len;
+ 	packet.data = (krb5_pointer)in_blob;
++	/*
++	 * Accept any service principal in the keytab, so one server can be
++	 * reached under several hostnames (one cifs/ key each).
++	 */
+ 	krb_retval = krb5_rd_req(krb5_ctx->context, &auth_context, &packet,
+-				krb5_ctx->creds.client, krb5_ctx->keytab,
++				NULL, krb5_ctx->keytab,
+ 				NULL, &ticket);
+ 	if (krb_retval) {
+ 		char *name;
+@@ -294,6 +298,10 @@
+ 	}
+ 	memcpy(auth_out->sess_key, KRB5_KEY_DATA(session_key), KRB5_KEY_LENGTH(session_key));
+ 	auth_out->key_len = KRB5_KEY_LENGTH(session_key);
++#ifndef HAVE_KRB5_KEYBLOCK_KEYVALUE
++	/* MIT: krb5_timestamp is signed 32-bit, treat as unsigned past 2038 */
++	auth_out->session_expiry = (uint32_t)ticket->enc_part2->times.endtime;
++#endif
+ 
+ 	if (spnego_encode(ap_rep.data, ap_rep.length,
+ 			mech_ctx->oid, mech_ctx->oid_len,

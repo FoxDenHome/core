@@ -60,6 +60,19 @@ func (d *Daemon) Serve(ctx context.Context, socket, group string) error {
 	mux.HandleFunc("POST /v1/refresh", func(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, d.Refresh(r.Context()))
 	})
+	mux.HandleFunc("POST /v1/kerberos/cert", func(w http.ResponseWriter, r *http.Request) {
+		var req api.KerberosCertRequest
+		if err := json.NewDecoder(http.MaxBytesReader(w, r.Body, 1<<16)).Decode(&req); err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		cert, err := d.KerberosCert(r.Context(), req.PublicKey)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadGateway)
+			return
+		}
+		writeJSON(w, cert)
+	})
 	mux.HandleFunc("POST /v1/enroll/start", func(w http.ResponseWriter, r *http.Request) {
 		var req api.EnrollStartRequest
 		if err := json.NewDecoder(http.MaxBytesReader(w, r.Body, 1<<16)).Decode(&req); err != nil {
@@ -86,7 +99,8 @@ func (d *Daemon) Serve(ctx context.Context, socket, group string) error {
 		writeJSON(w, d.Status())
 	})
 
-	srv := &http.Server{Handler: mux}
+	d.mountHandlers(mux)
+	srv := &http.Server{Handler: mux, ConnContext: withPeer}
 	go func() {
 		<-ctx.Done()
 		_ = srv.Close()

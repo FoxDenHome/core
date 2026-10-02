@@ -110,6 +110,7 @@ in
       # "interfaces" comment in ksmbd.nix), which is what nas-smb is for.
       host = "nas-smb";
       smbDirect = true;
+      kerberos.enable = true;
       # Legacy, non-RDMA clients keep reaching SMB on the nas host itself.
       extraHosts = [ "nas" ];
       sharePaths = [

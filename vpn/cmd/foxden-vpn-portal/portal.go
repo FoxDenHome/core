@@ -20,6 +20,7 @@ import (
 	"time"
 
 	"github.com/FoxDenHome/core/vpn/internal/fastly"
+	"github.com/FoxDenHome/core/vpn/internal/pkinit"
 	"github.com/FoxDenHome/core/vpn/internal/provision"
 	"github.com/FoxDenHome/core/vpn/internal/registry"
 	"github.com/FoxDenHome/core/vpn/internal/routeros"
@@ -54,6 +55,8 @@ type portal struct {
 	dial    func(context.Context, routeros.Router) (conn, error)
 	cookies *signer
 	dict    *fastly.Dictionary
+	ca      *pkinit.CA // nil: no Kerberos certificates
+	caTTL   time.Duration
 
 	oidcMu   sync.Mutex
 	oauth    *oauth2.Config
@@ -129,6 +132,8 @@ func (p *portal) routes() http.Handler {
 	mux.HandleFunc("GET /enroll", p.enrollPage)
 	mux.HandleFunc("POST /enroll", p.withSession(p.enrollSubmit))
 	mux.HandleFunc("POST /api/enroll/complete", p.enrollComplete)
+	mux.HandleFunc("POST /api/device/challenge", p.deviceChallenge)
+	mux.HandleFunc("POST /api/kerberos/cert", p.kerberosCert)
 	mux.HandleFunc("GET /login", p.login)
 	mux.HandleFunc("GET /oauth2/callback", p.callback)
 	mux.HandleFunc("POST /logout", func(w http.ResponseWriter, r *http.Request) {

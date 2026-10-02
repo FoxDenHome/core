@@ -70,6 +70,28 @@ Only changes need Kanidm. As an admin breakglass, you can still add a peer on th
 
 `foxden-vpnd status` dumps the daemon state. `foxden-vpnd pubkey` prints the key.
 
+**Kerberos (Linux):** once registered, the tray keeps a Kerberos ticket for the device's owner (`user@FOXDEN.NETWORK`) in the desktop session's default credential cache, so SMB works without a password: Dolphin/gvfs `smb://nas.foxden.network`, or `mount.cifs -o sec=krb5`.
+- **How the ticket is obtained:** PKINIT. The tray has its own key in `~/.local/share/foxden-vpn/`. The daemon proves the device to the portal with its WireGuard key, using the same sealed challenge as enrollment, and the portal signs a 24h client certificate for the owner the router has on record. `kinit` then runs with that certificate.
+- **Revocation:** removing or replacing a device in the portal stops new certificates, and the last one expires within a day.
+- **Renewal:** tickets renew every 18h, and "Get New Ticket" in the **Kerberos (SMB)** submenu renews immediately.
+- **Requirements:** `kinit` from krb5. The KDC is found through the `_kerberos` SRV records, so the device needs the VPN or the LAN.
+- **Trust setup:** the KDC (`services/auth/kerberos.nix`) trusts the PKINIT CA in `nix/files/kerberos/pkinit-ca.pem`. The CA key lives in sops for the portal only. The KDC's own certificate is `pkinit-kdc.pem`, with its key in sops for the KDC.
+
+**NAS shares (Linux):** the **NAS Shares** submenu has a toggle for each SMB share the device's owner may use: the public `share`, plus their own home share. The list comes from the NAS's ksmbd config, through the portal, inside the device's sealed configuration.
+- **Toggling:** the first toggle asks for a folder. If the folder isn't empty, the share goes into a subfolder named after it. After that it's an on/off toggle, and **Change Folder** moves a share.
+- **Re-mounting:** enabled shares are mounted again at login, every minute while missing, and after each new Kerberos ticket. The folders and toggles live in `~/.config/foxden-vpn/mounts.json`.
+- **How it mounts:** the daemon mounts as root with `sec=krb5,cruid=<you>`, so the kernel's `cifs.upcall` uses your Kerberos ticket. You need `cifs-utils`.
+  - It mounts only onto an empty folder you own, without symlinks, and identifies you by the control socket's peer credentials.
+  - It only unmounts CIFS mounts made for your uid.
+  - Mounts are always `nosuid,nodev`, and home shares get private modes.
+- **Mount options, best first:** SMB 3.1.1, then
+  1. SMB Direct with multichannel
+  2. SMB Direct
+  3. TCP with multichannel
+  4. plain TCP
+
+  SMB Direct is only tried at home, with an `ACTIVE` RDMA port, against the NAS's RDMA host. The menu shows which transport won.
+
 **Services:** besides the VPN, the daemon can install and keep up to date extra FoxDen services, chosen per device under **Services** in the tray. The choice is device state, kept in the daemon's settings. A service starts out unmanaged and is not touched, even if it was installed by hand; ticking it installs or takes it over, and unticking it removes it. Every download is pinned by sha256 in `internal/services`, and nothing unpinned is ever installed. For now the pins are updated by hand; later they will be replaced by signed release manifests.
 
 - **shutdownd** (Linux): lets the UPS monitor shut the machine down on power loss. It uses the same paths as shutdownd's own `install.sh`, so a manual install is taken over in place. Its private key (`/etc/shutdownd/cert.pem`) is kept at 0600, and removal keeps `/etc/shutdownd`, so the machine keeps its identity. The caller's certificate is pinned in `internal/services/shutdownd-server.pem`; while that file is empty, an existing `/etc/shutdownd/server.pem` is used, and installing on a machine without one is refused.

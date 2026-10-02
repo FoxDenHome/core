@@ -69,6 +69,8 @@ type Status struct {
 	Services      []Service `json:"services,omitempty"`
 	// PortalURL is where devices are registered and managed.
 	PortalURL string `json:"portal_url,omitempty"`
+	// Shares the owner may mount.
+	Shares []Share `json:"shares,omitempty"`
 }
 
 const (
@@ -109,6 +111,39 @@ type EnrollStartRequest struct {
 type EnrollCompleteRequest struct {
 	Token     string `json:"token"`
 	Challenge string `json:"challenge"`
+}
+
+// KerberosCertRequest asks for a PKINIT certificate for the device owner.
+type KerberosCertRequest struct {
+	// PublicKey is the session's PKINIT key (PKIX DER, base64).
+	PublicKey string `json:"public_key"`
+}
+
+// KerberosCert is a PKINIT client certificate for the device owner.
+type KerberosCert struct {
+	Principal   string    `json:"principal"`
+	Certificate string    `json:"certificate"`
+	CA          string    `json:"ca"`
+	Expires     time.Time `json:"expires"`
+}
+
+// Share is an SMB share the device's owner may mount.
+type Share struct {
+	Name    string `json:"name"`
+	Comment string `json:"comment,omitempty"`
+	Home    bool   `json:"home,omitempty"`
+}
+
+// Mount is one of the caller's SMB mounts.
+type Mount struct {
+	Source    string `json:"source"`
+	Path      string `json:"path"`
+	Transport string `json:"transport"`
+}
+
+type MountRequest struct {
+	Share string `json:"share,omitempty"`
+	Path  string `json:"path"`
 }
 
 // SettingsUpdate changes only the fields that are set.
@@ -199,4 +234,31 @@ func (c *Client) EnrollComplete(token, challenge string) (*Status, error) {
 		return nil, err
 	}
 	return &st, nil
+}
+
+func (c *Client) KerberosCert(publicKey string) (*KerberosCert, error) {
+	var out KerberosCert
+	if err := c.call(http.MethodPost, "/v1/kerberos/cert", KerberosCertRequest{PublicKey: publicKey}, 90*time.Second, &out); err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+func (c *Client) Mounts() ([]Mount, error) {
+	var out []Mount
+	err := c.call(http.MethodGet, "/v1/mounts", nil, 10*time.Second, &out)
+	return out, err
+}
+
+func (c *Client) Mount(share, path string) (*Mount, error) {
+	var out Mount
+	if err := c.call(http.MethodPost, "/v1/mounts", MountRequest{Share: share, Path: path}, 3*time.Minute, &out); err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+func (c *Client) Unmount(path string) error {
+	var out struct{}
+	return c.call(http.MethodPost, "/v1/mounts/unmount", MountRequest{Path: path}, 30*time.Second, &out)
 }

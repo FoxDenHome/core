@@ -37,8 +37,33 @@ import (
 
 const enrollTTL = 5 * time.Minute
 
+const (
+	purposeEnroll = "enroll"
+	purposePKINIT = "pkinit"
+)
+
+// checkAnswer verifies a token for purpose and the device's answer to the
+// challenge it carries.
+func (p *portal) checkAnswer(token, answerB64, purpose string) (*enrollToken, error) {
+	tok, err := p.parseToken(token)
+	if err != nil {
+		return nil, err
+	}
+	if tok.Purpose != purpose {
+		return nil, errors.New("token is not for this request")
+	}
+	answer, err := base64.StdEncoding.DecodeString(answerB64)
+	sum := sha256.Sum256(answer)
+	if err != nil || subtle.ConstantTimeCompare([]byte(hex.EncodeToString(sum[:])), []byte(tok.Challenge)) != 1 {
+		return nil, errors.New("wrong challenge answer")
+	}
+	return tok, nil
+}
+
 // enrollToken is what POST /enroll hands to the device, signed by the portal.
 type enrollToken struct {
+	// Purpose keeps a token for one endpoint from being used at another.
+	Purpose   string    `json:"p"`
 	User      string    `json:"u"`
 	Key       string    `json:"k"`
 	Device    string    `json:"d"`
@@ -183,7 +208,7 @@ func (p *portal) enrollSubmit(w http.ResponseWriter, r *http.Request, s *session
 	}
 	sum := sha256.Sum256(secret)
 	token, err := p.signToken(enrollToken{
-		User: s.User, Key: key, Device: device,
+		Purpose: purposeEnroll, User: s.User, Key: key, Device: device,
 		Challenge: hex.EncodeToString(sum[:]), Expires: time.Now().Add(enrollTTL),
 	})
 	if err != nil {
@@ -222,15 +247,9 @@ func (p *portal) enrollComplete(w http.ResponseWriter, r *http.Request) {
 		writeEnrollJSON(w, http.StatusBadRequest, enrollCompleteResponse{Error: "bad request"})
 		return
 	}
-	tok, err := p.parseToken(req.Token)
+	tok, err := p.checkAnswer(req.Token, req.Answer, purposeEnroll)
 	if err != nil {
 		writeEnrollJSON(w, http.StatusForbidden, enrollCompleteResponse{Error: err.Error()})
-		return
-	}
-	answer, err := base64.StdEncoding.DecodeString(req.Answer)
-	sum := sha256.Sum256(answer)
-	if err != nil || subtle.ConstantTimeCompare([]byte(hex.EncodeToString(sum[:])), []byte(tok.Challenge)) != 1 {
-		writeEnrollJSON(w, http.StatusForbidden, enrollCompleteResponse{Error: "wrong challenge answer"})
 		return
 	}
 

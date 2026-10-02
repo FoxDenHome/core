@@ -45,6 +45,38 @@ type Settings struct {
 	// Networks are the VLAN names offered to clients, in display order. Each
 	// maps to interface vlan-<name>, with resolvers on vrrp-<name>-dns(6).
 	Networks []string `json:"networks"`
+	// SMB lists file servers; devices get the shares meant for their owner.
+	SMB []SMBServer `json:"smb"`
+}
+
+// SMBServer is foxDen.services.ksmbd.clients from the NAS's config.
+type SMBServer struct {
+	Host     string     `json:"host"`
+	RDMAHost string     `json:"rdmaHost"`
+	Shares   []SMBShare `json:"shares"`
+}
+
+type SMBShare struct {
+	Name    string   `json:"name"`
+	Comment string   `json:"comment"`
+	Users   []string `json:"users"` // empty: everyone
+}
+
+// sharesFor lists the shares owner may mount.
+func (set Settings) sharesFor(owner string) []provision.Share {
+	var out []provision.Share
+	for _, srv := range set.SMB {
+		for _, sh := range srv.Shares {
+			if len(sh.Users) > 0 && !slices.Contains(sh.Users, owner) {
+				continue
+			}
+			out = append(out, provision.Share{
+				Name: sh.Name, Comment: sh.Comment, Host: srv.Host, RDMAHost: srv.RDMAHost,
+				Home: len(sh.Users) == 1 && sh.Users[0] == owner,
+			})
+		}
+	}
+	return out
 }
 
 type Peer struct {
@@ -251,6 +283,7 @@ func (s *Snapshot) Config(p Peer, set Settings) *provision.Config {
 			Port:         uint16(port),
 		},
 		DNS:              provision.DNS{Servers: hosts(vpn), Domains: set.DNSDomains},
+		Shares:           set.sharesFor(p.Owner),
 		VPNPrefixes:      collapse(vpn),
 		InternalPrefixes: set.InternalPrefixes,
 	}

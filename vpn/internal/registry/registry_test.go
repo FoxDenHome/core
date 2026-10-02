@@ -319,3 +319,32 @@ func TestEnrollMovesOwnKey(t *testing.T) {
 		t.Fatalf("moved another user's key: %v", err)
 	}
 }
+
+func TestSharesPerOwner(t *testing.T) {
+	set := settings()
+	set.SMB = []SMBServer{{Host: "nas.foxden.network", RDMAHost: "nas-smb.foxden.network", Shares: []SMBShare{
+		{Name: "doridian", Users: []string{"doridian"}},
+		{Name: "wizzy", Users: []string{"wizzy"}},
+		{Name: "share", Comment: "NAS share"},
+	}}}
+	f := registrytest.New()
+	if err := upsert(t, f, "doridian", "fennec", key()); err != nil {
+		t.Fatal(err)
+	}
+	adminPeer(f, "old", 9)
+	snap := read(t, f)
+	names := func(p *Peer) (out []string) {
+		for _, s := range snap.Config(*p, set).Shares {
+			out = append(out, fmt.Sprintf("%s@%s/%s home=%v", s.Name, s.Host, s.RDMAHost, s.Home))
+		}
+		return
+	}
+	got := names(snap.ByName("doridian-fennec"))
+	want := []string{"doridian@nas.foxden.network/nas-smb.foxden.network home=true", "share@nas.foxden.network/nas-smb.foxden.network home=false"}
+	if !slices.Equal(got, want) {
+		t.Fatalf("owner's shares = %v", got)
+	}
+	if got := names(snap.ByName("old")); !slices.Equal(got, []string{"share@nas.foxden.network/nas-smb.foxden.network home=false"}) {
+		t.Fatalf("ownerless peer's shares = %v", got)
+	}
+}

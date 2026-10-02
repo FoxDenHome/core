@@ -186,8 +186,10 @@ let
 
           auth_request_set $user $upstream_http_x_auth_request_user;
           auth_request_set $email $upstream_http_x_auth_request_email;
+          auth_request_set $preferred_username $upstream_http_x_auth_request_preferred_username;
           proxy_set_header X-User $user;
           proxy_set_header X-Email $email;
+          proxy_set_header X-Preferred-Username $preferred_username;
           ${handler}
         }
       ''

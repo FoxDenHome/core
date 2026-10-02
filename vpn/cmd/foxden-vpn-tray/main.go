@@ -40,6 +40,9 @@ type tray struct {
 	svcs                          map[string]*systray.MenuItem
 
 	ui         *ui
+	krb        *kerberos // nil where unsupported
+	shares     *shares   // nil where unsupported
+	wasProv    atomic.Bool
 	renderMu   sync.Mutex
 	mu         sync.Mutex
 	last       *api.Status
@@ -61,6 +64,8 @@ func main() {
 		ui:        newUI(),
 		poll:      make(chan struct{}, 1),
 	}
+	t.krb = newKerberos(t)
+	t.shares = newShares(t)
 	systray.Run(t.onReady, func() {})
 }
 
@@ -89,6 +94,8 @@ func (t *tray) onReady() {
 	t.mServices = systray.AddMenuItem("Services", "Extra FoxDen services this device runs and keeps up to date")
 	t.mSvcPlaceholder = t.mServices.AddSubMenuItem("Loading…", "") // see mNetPlaceholder
 	t.mSvcPlaceholder.Disable()
+	t.krb.menu()
+	t.shares.menu()
 	systray.AddSeparator()
 
 	t.mRegister = systray.AddMenuItem("Log In and Register…", "Log in to the FoxDen portal and register this device")
@@ -158,6 +165,8 @@ func (t *tray) onReady() {
 	}()
 
 	go t.pollLoop()
+	go t.krb.run()
+	go t.shares.run()
 }
 
 func (t *tray) status() *api.Status {
@@ -215,6 +224,10 @@ func (t *tray) render(st *api.Status, err error) {
 	t.mu.Lock()
 	t.last = st
 	t.mu.Unlock()
+	if st != nil && !t.wasProv.Swap(st.Provisioned) && st.Provisioned {
+		t.krb.poke() // just registered, or the first status after start
+		t.shares.poke()
+	}
 
 	if err != nil || st == nil {
 		t.ui.setIcon(iconAttention)

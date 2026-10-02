@@ -30,6 +30,16 @@ in
         displayName = "FoxDen portal";
       };
     };
+    kerberos = {
+      enable = true;
+      host = "kerberos";
+      tls.enable = true;
+      oAuth = {
+        enable = true;
+        clientId = "krb5-sync";
+        displayName = "Kerberos Sync";
+      };
+    };
   };
 
   foxDen.hosts.hosts = {
@@ -78,6 +88,18 @@ in
       addresses = [
         "10.2.11.40/16"
         "fd2c:f4cb:63be:2::b28/64"
+      ];
+    };
+    kerberos = mkVlanHost 2 {
+      dns = {
+        fqdns = [ "kerberos.foxden.network" ];
+        # Public records for ACME; only the web UI is reachable from outside.
+        dynDns = true;
+      };
+      webservice.enable = true;
+      addresses = [
+        "10.2.11.41/16"
+        "fd2c:f4cb:63be:2::b29/64"
       ];
     };
   };

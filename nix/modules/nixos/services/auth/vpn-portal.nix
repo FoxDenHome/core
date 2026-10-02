@@ -3,6 +3,7 @@
   pkgs,
   lib,
   config,
+  kerberos,
   ...
 }:
 let
@@ -13,6 +14,7 @@ let
   hostName = services.getFirstFQDN config svcConfig;
   proto = if svcConfig.tls.enable then "https" else "http";
   port = 1446;
+  pkinitCaKeySecret = "foxden-vpn-portal-pkinit-ca";
 
   configFile = pkgs.writers.writeJSON "config.json" {
     listen = "127.0.0.1:${toString port}";
@@ -29,6 +31,15 @@ let
     fastly = {
       service_id = svcConfig.fastlyServiceId;
       dictionary = "vpn_peers";
+    };
+    # Shares are handed to devices with their configuration.
+    vpn.smb = kerberos.smbServers;
+    # Kerberos client certificates for registered devices' owners (PKINIT).
+    pkinit = {
+      realm = config.foxDen.kerberos.realm;
+      ca_cert = "${../../../../files/kerberos/pkinit-ca.pem}";
+      ca_key = lib.optionalString config.foxDen.sops.available "/run/credentials/foxden-vpn-portal.service/pkinit-ca-key";
+      validity = "24h";
     };
   };
 in
@@ -73,6 +84,7 @@ in
 
         # ROUTEROS_PASSWORD, FASTLY_API_TOKEN, SESSION_SECRET
         sops.secrets.foxden-vpn-portal = config.lib.foxDen.sops.mkIfAvailable { };
+        sops.secrets.${pkinitCaKeySecret} = config.lib.foxDen.sops.mkIfAvailable { };
 
         foxDen.services.kanidm.oauth2 = lib.mkIf svcConfig.oAuth.enable {
           ${svcConfig.oAuth.clientId} =
@@ -96,6 +108,9 @@ in
               "${configFile}:/etc/foxden-vpn-portal/config.json"
             ];
             EnvironmentFile = config.lib.foxDen.sops.mkIfAvailable config.sops.secrets.foxden-vpn-portal.path;
+            LoadCredential = config.lib.foxDen.sops.mkIfAvailable "pkinit-ca-key:${
+              config.sops.secrets.${pkinitCaKeySecret}.path
+            }";
             Type = "simple";
             ExecStart = [ "${pkgs.foxden-vpn}/bin/foxden-vpn-portal" ];
             Restart = "always";

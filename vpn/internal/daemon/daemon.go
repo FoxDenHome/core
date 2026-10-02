@@ -18,6 +18,7 @@ import (
 
 	"github.com/FoxDenHome/core/vpn/internal/api"
 	"github.com/FoxDenHome/core/vpn/internal/buildid"
+	"github.com/FoxDenHome/core/vpn/internal/mounts"
 	"github.com/FoxDenHome/core/vpn/internal/provision"
 	"github.com/FoxDenHome/core/vpn/internal/services"
 	"github.com/FoxDenHome/core/vpn/internal/tunnel"
@@ -57,6 +58,7 @@ type Daemon struct {
 	key      wgtypes.Key // guarded by mu: enrollment can replace it
 	tun      *tunnel.Tunnel
 	services *services.Manager
+	mounter  mounts.Mounter
 	wake     chan struct{}
 
 	mu         sync.Mutex
@@ -463,6 +465,9 @@ func (d *Daemon) Status() api.Status {
 		st.PeerName = p.Name
 		for _, a := range p.Addresses {
 			st.Addresses = append(st.Addresses, a.Addr().String())
+		}
+		for _, sh := range p.Shares {
+			st.Shares = append(st.Shares, api.Share{Name: sh.Name, Comment: sh.Comment, Home: sh.Home})
 		}
 		for _, n := range p.Networks {
 			an := api.Network{Name: n.Name, Enabled: !slices.Contains(d.settings.DisabledNetworks, n.Name)}

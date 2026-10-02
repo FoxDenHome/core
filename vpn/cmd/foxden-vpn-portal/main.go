@@ -41,6 +41,13 @@ type Config struct {
 	} `json:"fastly"`
 	VPN               registry.Settings `json:"vpn"`
 	ReconcileInterval string            `json:"reconcile_interval"`
+	// PKINIT issues Kerberos client certificates to registered devices.
+	PKINIT struct {
+		Realm    string `json:"realm"`
+		CACert   string `json:"ca_cert"`
+		CAKey    string `json:"ca_key"` // empty disables issuing
+		Validity string `json:"validity"`
+	} `json:"pkinit"`
 }
 
 func defaultConfig() Config {
@@ -49,6 +56,8 @@ func defaultConfig() Config {
 	c.Fastly.Dictionary = "vpn_peers"
 	c.Fastly.KeyPrefix = "/vpn/peers/"
 	c.ReconcileInterval = "5m"
+	c.PKINIT.Realm = "FOXDEN.NETWORK"
+	c.PKINIT.Validity = "24h"
 	c.VPN = registry.Settings{
 		Interface:        "wg-vpn",
 		Pool:             netip.MustParsePrefix("10.100.10.0/24"),
@@ -105,6 +114,11 @@ func main() {
 		p.dict = &fastly.Dictionary{Token: token, ServiceID: cfg.Fastly.ServiceID, Name: cfg.Fastly.Dictionary}
 	} else {
 		log.Print("FASTLY_API_TOKEN not set: provisioning will not be published")
+	}
+	if cfg.PKINIT.CAKey != "" {
+		if err := p.loadPKINIT(); err != nil {
+			log.Fatalf("pkinit: %v", err)
+		}
 	}
 	if err := p.setupOIDC(ctx); err != nil {
 		// Kanidm being down must not stop the reconcile loop.
