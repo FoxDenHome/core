@@ -65,18 +65,6 @@ in
             };
           };
         };
-
-        environment.persistence."/nix/persist/tuwunel" = {
-          hideMounts = true;
-          directories = [
-            {
-              directory = "/var/lib/tuwunel";
-              user = config.services.matrix-tuwunel.user;
-              group = config.services.matrix-tuwunel.group;
-              mode = "u=rwx,g=,o=";
-            }
-          ];
-        };
       }
     ]
   );
