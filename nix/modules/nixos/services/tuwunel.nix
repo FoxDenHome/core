@@ -8,10 +8,15 @@
 let
   services = foxDenLib.services;
   svcConfig = config.foxDen.services.tuwunel;
-  hostName = services.getFirstFQDN config svcConfig;
 in
 {
-  options.foxDen.services.tuwunel = services.http.mkOptions {
+  options.foxDen.services.tuwunel = {
+    serverName = lib.mkOption {
+      type = lib.types.str;
+      description = "Matrix server name";
+    };
+  }
+  // services.http.mkOptions {
     name = "Tuwunel Matrix";
   };
 
@@ -47,7 +52,7 @@ in
             global = {
               address = [ "127.0.0.1" ];
               port = 6167;
-              server_name = hostName;
+              server_name = svcConfig.serverName;
               identity_provider = [
                 {
                   brand = "Kanidm";
