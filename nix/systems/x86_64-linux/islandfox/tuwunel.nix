@@ -4,7 +4,7 @@ let
 in
 {
   foxDen.services = config.lib.foxDen.sops.mkIfAvailable {
-    matrix = {
+    tuwunel = {
       enable = true;
       host = "matrix";
       serverName = "foxden.network";
