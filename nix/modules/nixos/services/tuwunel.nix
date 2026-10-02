@@ -1,0 +1,78 @@
+{
+  foxDenLib,
+  pkgs,
+  lib,
+  config,
+  ...
+}:
+let
+  services = foxDenLib.services;
+  svcConfig = config.foxDen.services.tuwunel;
+  hostName = services.getFirstFQDN config svcConfig;
+in
+{
+  options.foxDen.services.tuwunel = services.http.mkOptions {
+    name = "Tuwunel Matrix";
+  };
+
+  config = lib.mkIf svcConfig.enable (
+    lib.mkMerge [
+      (services.make {
+        name = "tuwunel";
+        inherit svcConfig pkgs config;
+      }).config
+      (services.http.make {
+        inherit svcConfig pkgs config;
+        name = "http-tuwunel";
+        target = "proxy_pass http://127.0.0.1:6167;";
+      }).config
+      {
+        foxDen.services.paperless.oAuth.overrideService = true;
+        foxDen.services.kanidm.oauth2 = lib.mkIf svcConfig.oAuth.enable {
+          ${svcConfig.oAuth.clientId} = (
+            (services.http.mkOauthConfig {
+              inherit svcConfig config;
+              oAuthCallbackUrl = "/_matrix/client/unstable/login/sso/callback/${svcConfig.oAuth.clientId}";
+            })
+            // {
+              preferShortUsername = true;
+            }
+          );
+        };
+
+        services.matrix-tuwunel = {
+          enable = true;
+          stateDirectory = "tuwunel";
+          settings = {
+            global = {
+              address = [ "127.0.0.1" ];
+              port = 6167;
+              server_name = hostName;
+              identity_provider = [
+                {
+                  brand = "Kanidm";
+                  client_id = svcConfig.oAuth.clientId;
+                  client_secret = svcConfig.oAuth.clientId;
+                  issuer_url = "https://auth.foxden.network/oauth2/openid/${svcConfig.oAuth.clientId}";
+                  default = true;
+                }
+              ];
+            };
+          };
+        };
+
+        environment.persistence."/nix/persist/tuwunel" = {
+          hideMounts = true;
+          directories = [
+            {
+              directory = "/var/lib/tuwunel";
+              user = config.services.matrix-tuwunel.user;
+              group = config.services.matrix-tuwunel.group;
+              mode = "u=rwx,g=,o=";
+            }
+          ];
+        };
+      }
+    ]
+  );
+}

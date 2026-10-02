@@ -50,7 +50,6 @@ in
         fqdns = [
           "xmpp.foxden.network"
           "upload.xmpp.foxden.network"
-          "foxden.network"
         ];
       };
       firewall.portForwards = [
