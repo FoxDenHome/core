@@ -100,6 +100,7 @@ in
         systemd.services.foxden-vpn-portal = {
           confinement.packages = [
             pkgs.foxden-vpn
+            configFile # and the files it names, like the PKINIT CA
           ];
 
           serviceConfig = {
