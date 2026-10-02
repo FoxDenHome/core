@@ -8,6 +8,8 @@
 let
   services = foxDenLib.services;
   svcConfig = config.foxDen.services.tuwunel;
+  hostName = services.getFirstFQDN config svcConfig;
+  proto = if svcConfig.tls.enable then "https" else "http";
 in
 {
   options.foxDen.services.tuwunel = {
@@ -53,6 +55,10 @@ in
               address = [ "127.0.0.1" ];
               port = [ 6167 ];
               server_name = svcConfig.serverName;
+              well_known = {
+                client = "${proto}://${hostName}";
+                server = "${hostName}:443";
+              };
               identity_provider = [
                 {
                   brand = "Kanidm";

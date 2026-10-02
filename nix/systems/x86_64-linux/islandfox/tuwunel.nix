@@ -4,24 +4,24 @@ let
 in
 {
   foxDen.services = config.lib.foxDen.sops.mkIfAvailable {
-    tuwunel = {
+    matrix = {
       enable = true;
-      host = "tuwunel";
+      host = "matrix";
       serverName = "foxden.network";
       tls.enable = true;
       oAuth = {
         enable = true;
-        clientId = "tuwunel";
-        displayName = "Tuwunel (Matrix)";
+        clientId = "matrix";
+        displayName = "Matrix (Tuwunel)";
       };
     };
   };
 
   foxDen.hosts.hosts = {
-    tuwunel = mkVlanHost 2 {
+    matrix = mkVlanHost 2 {
       dns = {
         fqdns = [
-          "tuwunel.foxden.network"
+          "matrix.foxden.network"
           "foxden.network"
         ];
         dynDns = true;
