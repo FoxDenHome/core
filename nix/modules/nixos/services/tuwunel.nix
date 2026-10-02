@@ -65,6 +65,14 @@ in
             };
           };
         };
+
+        systemd.services.tuwunel = {
+          serviceConfig = {
+            BindReadOnlyPaths = [
+              config.systemd.services.tuwunel.environment.TUWUNEL_CONFIG
+            ];
+          };
+        };
       }
     ]
   );
