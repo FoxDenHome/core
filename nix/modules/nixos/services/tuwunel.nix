@@ -32,6 +32,14 @@ in
         inherit svcConfig pkgs config;
         name = "http-tuwunel";
         target = "proxy_pass http://127.0.0.1:6167;";
+        extraConfig =
+          { ... }:
+          ''
+            location = /.well-known/matrix/client {
+              add_header Content-Type "application/json";
+              return 200 '{"m.homeserver":{"base_url":"https://matrix.foxden.network/"}}';
+            }
+          '';
       }).config
       {
         foxDen.services.paperless.oAuth.overrideService = true;
