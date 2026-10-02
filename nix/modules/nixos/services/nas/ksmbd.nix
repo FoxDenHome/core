@@ -488,9 +488,9 @@ in
       }
       {
         foxDen.services.ksmbd.clients = {
-          # Legacy clients use the extra hosts; SMB Direct needs the main
-          # host (root netns).
-          host = lib.head (hostFQDNs (lib.head (svcConfig.extraHosts ++ [ svcConfig.host ])));
+          # The main host, for TCP too; the extra hosts are only for legacy
+          # clients that were set up with them.
+          host = lib.head (hostFQDNs svcConfig.host);
           rdmaHost = if svcConfig.smbDirect then lib.head (hostFQDNs svcConfig.host) else null;
           shares = lib.mapAttrsToList (name: share: {
             inherit name;

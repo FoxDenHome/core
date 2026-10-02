@@ -43,7 +43,9 @@ type attempt struct {
 
 // attempts lists option sets, best first: SMB Direct with multichannel,
 // SMB Direct, TCP with multichannel, plain TCP. The first that mounts wins.
-func attempts(req Request, u User, rdma bool) []attempt {
+// SMB Direct is tried only with rdmaIP, the RDMA host's IPv4 address: ksmbd
+// listens for RDMA on IPv4 only, and the kernel would otherwise pick IPv6.
+func attempts(req Request, u User, rdmaIP string) []attempt {
 	base := []string{
 		"vers=3.1.1",
 		"sec=krb5",
@@ -63,10 +65,11 @@ func attempts(req Request, u User, rdma bool) []attempt {
 	multichannel := []string{"multichannel", "max_channels=4"}
 
 	var out []attempt
-	if rdma && req.Share.RDMAHost != "" {
+	if rdmaIP != "" && req.Share.RDMAHost != "" {
+		ip := "ip=" + rdmaIP
 		out = append(out,
-			attempt{req.Share.RDMAHost, with(append([]string{"rdma"}, multichannel...)...), "SMB Direct, multichannel"},
-			attempt{req.Share.RDMAHost, with("rdma"), "SMB Direct"},
+			attempt{req.Share.RDMAHost, with(append([]string{"rdma", ip}, multichannel...)...), "SMB Direct, multichannel"},
+			attempt{req.Share.RDMAHost, with("rdma", ip), "SMB Direct"},
 		)
 	}
 	return append(out,

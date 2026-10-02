@@ -6,10 +6,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
+	"net"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"sync"
 	"syscall"
 	"time"
 
@@ -27,6 +30,12 @@ type Linux struct {
 	MountInfo string
 	// RDMADevices is /sys/class/infiniband.
 	RDMADevices string
+	// Resolve4 finds a host's IPv4 address; replaced in tests.
+	Resolve4 func(ctx context.Context, host string) (string, error)
+
+	// mu serializes mounts, so two requests for one folder cannot both pass
+	// checkTarget and stack mounts.
+	mu sync.Mutex
 }
 
 func New() *Linux {
@@ -34,7 +43,21 @@ func New() *Linux {
 		MountCIFS: runMountCIFS,
 		UnmountFn: func(p string) error { return unix.Unmount(p, 0) },
 		MountInfo: "/proc/self/mountinfo", RDMADevices: "/sys/class/infiniband",
+		Resolve4: resolve4,
 	}
+}
+
+func resolve4(ctx context.Context, host string) (string, error) {
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+	ips, err := net.DefaultResolver.LookupNetIP(ctx, "ip4", host)
+	if err != nil {
+		return "", err
+	}
+	if len(ips) == 0 {
+		return "", fmt.Errorf("%s has no IPv4 address", host)
+	}
+	return ips[0].String(), nil
 }
 
 func runMountCIFS(ctx context.Context, source, path string, options []string) error {
@@ -104,16 +127,27 @@ func (l *Linux) Mount(ctx context.Context, u User, req Request) (Mount, error) {
 	if !validShareName(req.Share.Name) || req.Share.Host == "" {
 		return Mount{}, errors.New("invalid share")
 	}
+	l.mu.Lock()
+	defer l.mu.Unlock()
 	if err := l.checkTarget(u, req.Path); err != nil {
 		return Mount{}, err
 	}
+	var rdmaIP string
+	if req.AtHome && req.Share.RDMAHost != "" && l.RDMAActive() {
+		ip, err := l.Resolve4(ctx, req.Share.RDMAHost)
+		if err != nil {
+			log.Printf("SMB Direct to %s: %v", req.Share.RDMAHost, err)
+		}
+		rdmaIP = ip
+	}
 	var errs []string
-	for _, a := range attempts(req, u, req.AtHome && l.RDMAActive()) {
+	for _, a := range attempts(req, u, rdmaIP) {
 		src := source(a.host, req.Share.Name)
 		err := l.MountCIFS(ctx, src, req.Path, a.options)
 		if err == nil {
 			return Mount{Source: src, Path: req.Path, Transport: a.transport}, nil
 		}
+		log.Printf("mounting %s with %s: %v", src, a.transport, err)
 		errs = append(errs, a.transport+": "+err.Error())
 		if ctx.Err() != nil {
 			break
@@ -205,6 +239,8 @@ func (l *Linux) List(u User) ([]Mount, error) {
 }
 
 func (l *Linux) Unmount(u User, path string) error {
+	l.mu.Lock()
+	defer l.mu.Unlock()
 	e, err := l.lookup(path)
 	if err != nil {
 		return err

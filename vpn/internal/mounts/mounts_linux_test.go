@@ -8,7 +8,9 @@ import (
 	"path/filepath"
 	"slices"
 	"strings"
+	"sync"
 	"testing"
+	"time"
 
 	"github.com/FoxDenHome/core/vpn/internal/provision"
 )
@@ -34,6 +36,7 @@ func fakeLinux(t *testing.T, rdmaPort string) (*Linux, *[]string) {
 		UnmountFn:   func(string) error { return nil },
 		MountInfo:   filepath.Join(dir, "mountinfo"),
 		RDMADevices: filepath.Join(dir, "ib"),
+		Resolve4:    func(context.Context, string) (string, error) { return "10.2.11.16", nil },
 	}, &calls
 }
 
@@ -48,7 +51,11 @@ func target(t *testing.T) string {
 
 func TestAttemptOrder(t *testing.T) {
 	got := func(rdma bool, s provision.Share) (out []string) {
-		for _, a := range attempts(Request{Share: s}, me, rdma) {
+		ip := ""
+		if rdma {
+			ip = "10.2.11.16"
+		}
+		for _, a := range attempts(Request{Share: s}, me, ip) {
 			out = append(out, a.host+" "+a.transport)
 		}
 		return
@@ -67,7 +74,10 @@ func TestAttemptOrder(t *testing.T) {
 	if g := got(true, noRDMAHost); len(g) != 2 {
 		t.Fatalf("server without SMB Direct: %v", g)
 	}
-	opts := strings.Join(attempts(Request{Share: provision.Share{Name: "dori", Host: "h", Home: true}}, me, false)[0].options, ",")
+	if o := strings.Join(attempts(Request{Share: share}, me, "10.2.11.16")[0].options, ","); !strings.Contains(o, ",rdma,ip=10.2.11.16,") {
+		t.Fatalf("SMB Direct options %q do not pin IPv4", o)
+	}
+	opts := strings.Join(attempts(Request{Share: provision.Share{Name: "dori", Host: "h", Home: true}}, me, "")[0].options, ",")
 	for _, want := range []string{"sec=krb5", fmt.Sprintf("cruid=%d", me.UID), "nosuid", "nodev", "file_mode=0600", "dir_mode=0700", "vers=3.1.1"} {
 		if !strings.Contains(","+opts+",", ","+want+",") {
 			t.Errorf("home share options %q lack %s", opts, want)
@@ -79,14 +89,19 @@ func TestMountPicksRDMAOnlyAtHomeWithActivePort(t *testing.T) {
 	for _, c := range []struct {
 		port   string
 		atHome bool
+		noIPv4 bool
 		want   string
 	}{
-		{"4: ACTIVE", true, "//nas-smb.foxden.network/share"},
-		{"4: ACTIVE", false, "//nas.foxden.network/share"},
-		{"1: DOWN", true, "//nas.foxden.network/share"},
-		{"", true, "//nas.foxden.network/share"},
+		{"4: ACTIVE", true, false, "//nas-smb.foxden.network/share"},
+		{"4: ACTIVE", false, false, "//nas.foxden.network/share"},
+		{"4: ACTIVE", true, true, "//nas.foxden.network/share"},
+		{"1: DOWN", true, false, "//nas.foxden.network/share"},
+		{"", true, false, "//nas.foxden.network/share"},
 	} {
 		l, calls := fakeLinux(t, c.port)
+		if c.noIPv4 {
+			l.Resolve4 = func(context.Context, string) (string, error) { return "", errors.New("no A record") }
+		}
 		m, err := l.Mount(context.Background(), me, Request{Share: share, Path: target(t), AtHome: c.atHome})
 		if err != nil || m.Source != c.want || !strings.HasPrefix((*calls)[0], c.want+" ") {
 			t.Errorf("port %q home %v: %+v %v %v", c.port, c.atHome, m, err, *calls)
@@ -112,6 +127,40 @@ func TestMountFallsBack(t *testing.T) {
 	}
 	if _, err := l.Mount(context.Background(), me, Request{Share: share, Path: target(t), AtHome: true}); err == nil || !strings.Contains(err.Error(), "TCP: mount error(13)") {
 		t.Fatalf("all failing: %v", err)
+	}
+}
+
+// TestConcurrentMountsDoNotStack: a toggle and a reconcile asking at once
+// must not both mount onto the same folder.
+func TestConcurrentMountsDoNotStack(t *testing.T) {
+	l, _ := fakeLinux(t, "")
+	path := target(t)
+	var mu sync.Mutex
+	n := 0
+	l.MountCIFS = func(_ context.Context, src, p string, _ []string) error {
+		time.Sleep(50 * time.Millisecond) // mount.cifs takes a while
+		mu.Lock()
+		defer mu.Unlock()
+		n++
+		line := fmt.Sprintf("%d 1 0:9 / %s rw - cifs %s rw,cruid=%d\n", 90+n, p, src, me.UID)
+		f, err := os.OpenFile(l.MountInfo, os.O_APPEND|os.O_WRONLY, 0)
+		if err != nil {
+			return err
+		}
+		defer f.Close()
+		_, err = f.WriteString(line)
+		return err
+	}
+	var wg sync.WaitGroup
+	errs := make([]error, 2)
+	for i := range errs {
+		wg.Go(func() {
+			_, errs[i] = l.Mount(context.Background(), me, Request{Share: share, Path: path})
+		})
+	}
+	wg.Wait()
+	if n != 1 || (errs[0] == nil) == (errs[1] == nil) {
+		t.Fatalf("mount.cifs ran %d times, errors %v", n, errs)
 	}
 }
 
