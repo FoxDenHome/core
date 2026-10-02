@@ -59,6 +59,8 @@ in
                 client = "${proto}://${hostName}";
                 server = "${hostName}:443";
               };
+              single_sso = true;
+              oidc_aware_preferred = true;
               identity_provider = lib.mkIf svcConfig.oAuth.enable [
                 {
                   brand = "Kanidm";
