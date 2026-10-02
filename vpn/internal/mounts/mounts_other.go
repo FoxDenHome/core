@@ -6,7 +6,7 @@ import "context"
 
 type unsupported struct{}
 
-func NewLinux() Mounter { return unsupported{} }
+func New() Mounter { return unsupported{} }
 
 func (unsupported) Mount(context.Context, User, Request) (Mount, error) {
 	return Mount{}, ErrUnsupported

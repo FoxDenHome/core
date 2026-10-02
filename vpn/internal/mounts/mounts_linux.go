@@ -29,7 +29,7 @@ type Linux struct {
 	RDMADevices string
 }
 
-func NewLinux() *Linux {
+func New() *Linux {
 	return &Linux{
 		MountCIFS: runMountCIFS,
 		UnmountFn: func(p string) error { return unix.Unmount(p, 0) },

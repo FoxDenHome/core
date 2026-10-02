@@ -119,6 +119,7 @@ func New(opts Options) (*Daemon, error) {
 		key:        key,
 		tun:        tunnel.New(opts.Tunnel),
 		services:   svc,
+		mounter:    mounts.New(),
 		wake:       make(chan struct{}, 1),
 		settings:   settings,
 		pendingKey: loadPendingKey(opts.StateDir),
