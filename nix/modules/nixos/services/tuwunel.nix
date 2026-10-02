@@ -32,17 +32,9 @@ in
         inherit svcConfig pkgs config;
         name = "http-tuwunel";
         target = "proxy_pass http://127.0.0.1:6167;";
-        extraConfig =
-          { ... }:
-          ''
-            location = /.well-known/matrix/client {
-              add_header Content-Type "application/json";
-              return 200 '{"m.homeserver":{"base_url":"https://matrix.foxden.network/"}}';
-            }
-          '';
       }).config
       {
-        foxDen.services.paperless.oAuth.overrideService = true;
+        foxDen.services.tuwunel.oAuth.overrideService = true;
         foxDen.services.kanidm.oauth2 = lib.mkIf svcConfig.oAuth.enable {
           ${svcConfig.oAuth.clientId} = (
             (services.http.mkOauthConfig {
@@ -67,7 +59,7 @@ in
                 client = "${proto}://${hostName}";
                 server = "${hostName}:443";
               };
-              identity_provider = [
+              identity_provider = lib.mkIf svcConfig.oAuth.enable [
                 {
                   brand = "Kanidm";
                   client_id = svcConfig.oAuth.clientId;
