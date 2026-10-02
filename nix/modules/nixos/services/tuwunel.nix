@@ -51,7 +51,7 @@ in
           settings = {
             global = {
               address = [ "127.0.0.1" ];
-              port = 6167;
+              port = [ 6167 ];
               server_name = svcConfig.serverName;
               identity_provider = [
                 {
