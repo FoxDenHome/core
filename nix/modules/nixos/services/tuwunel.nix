@@ -64,6 +64,9 @@ in
                   brand = "Kanidm";
                   client_id = svcConfig.oAuth.clientId;
                   client_secret = svcConfig.oAuth.clientId;
+                  trusted = true;
+                  unique_id_fallbacks = false;
+                  userid_claims = [ "preferred_username" ];
                   issuer_url = "https://auth.foxden.network/oauth2/openid/${svcConfig.oAuth.clientId}";
                   default = true;
                 }
