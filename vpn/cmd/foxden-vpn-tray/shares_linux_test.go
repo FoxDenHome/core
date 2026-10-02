@@ -46,7 +46,7 @@ func (f *fakeMounts) client(t *testing.T) *api.Client {
 		f.mounts[req.Path] = req.Share
 		f.log = append(f.log, "mount "+req.Share+" "+req.Path)
 		f.mu.Unlock()
-		_ = json.NewEncoder(w).Encode(api.Mount{Path: req.Path})
+		_ = json.NewEncoder(w).Encode(api.Mount{Path: req.Path, Transport: "SMB Direct"})
 	})
 	mux.HandleFunc("POST /v1/mounts/unmount", func(w http.ResponseWriter, r *http.Request) {
 		var req api.MountRequest
@@ -61,6 +61,18 @@ func (f *fakeMounts) client(t *testing.T) *api.Client {
 	go func() { _ = srv.Serve(l) }()
 	t.Cleanup(func() { _ = srv.Close() })
 	return api.NewClient(sock)
+}
+
+// fakeNotes records progress notifications as "start: …" and "done: …".
+type fakeNotes struct{ log []string }
+
+type fakeNote struct{ n *fakeNotes }
+
+func (n fakeNote) done(msg string) { n.n.log = append(n.n.log, "done: "+msg) }
+
+func (f *fakeNotes) progress(_, msg string) note {
+	f.log = append(f.log, "start: "+msg)
+	return fakeNote{f}
 }
 
 func newTestShares(t *testing.T, f *fakeMounts, cfg string, picks *[]string) *shares {
@@ -89,6 +101,8 @@ func TestSharesToggleAndRemount(t *testing.T) {
 	f := &fakeMounts{mounts: map[string]string{}}
 	var picks []string
 	s := newTestShares(t, f, cfg, &picks)
+	notes := &fakeNotes{}
+	s.progress = notes.progress
 
 	// Cancelling the picker changes nothing.
 	s.toggle("dori")
@@ -102,10 +116,20 @@ func TestSharesToggleAndRemount(t *testing.T) {
 	if !slices.Equal(f.log, []string{"mount share " + want}) || !s.state["share"].Enabled {
 		t.Fatalf("first toggle: %v %+v", f.log, s.state)
 	}
+	// It shows a note while mounting, then the result.
+	if !slices.Equal(notes.log, []string{
+		"start: Mounting share at " + homeShort(want) + "…",
+		"done: share is mounted at " + homeShort(want) + " (SMB Direct)",
+	}) {
+		t.Fatalf("mount notes: %q", notes.log)
+	}
 	// Off unmounts and keeps the folder for next time.
 	s.toggle("share")
 	if f.log[len(f.log)-1] != "unmount "+want || s.state["share"].Enabled || s.state["share"].Path != want {
 		t.Fatalf("toggle off: %v %+v", f.log, s.state)
+	}
+	if !slices.Equal(notes.log[2:], []string{"start: Unmounting share…", "done: share is unmounted"}) {
+		t.Fatalf("unmount notes: %q", notes.log)
 	}
 	// Back on: no question, same folder.
 	s.toggle("share")
@@ -116,7 +140,12 @@ func TestSharesToggleAndRemount(t *testing.T) {
 	// After a reboot nothing is mounted; the saved state brings it back.
 	f.mounts = map[string]string{}
 	s2 := newTestShares(t, f, cfg, &picks)
+	s2.progress = notes.progress
+	quiet := len(notes.log)
 	s2.reconcile()
+	if len(notes.log) != quiet {
+		t.Fatalf("background remount notified: %q", notes.log[quiet:])
+	}
 	if f.log[len(f.log)-1] != "mount share "+want {
 		t.Fatalf("remount after restart: %v", f.log)
 	}

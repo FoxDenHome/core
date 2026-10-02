@@ -18,7 +18,10 @@ import (
 // toggle asks for a folder; after that it only mounts and unmounts. The
 // folders and toggles are this user's, kept in ~/.config/foxden-vpn.
 
-const sharesInterval = time.Minute
+const (
+	sharesInterval = time.Minute
+	sharesTitle    = "NAS Shares"
+)
 
 type shareState struct {
 	Path    string `json:"path"`
@@ -30,7 +33,10 @@ type shares struct {
 	file string
 	// pick asks for a folder; replaced in tests.
 	pick func(title, start string) (string, error)
-	kick chan struct{}
+	// progress shows what a click is doing, then its result; replaced in
+	// tests.
+	progress func(title, message string) note
+	kick     chan struct{}
 
 	mParent, mPlaceholder, mChange, mChangePlaceholder *systray.MenuItem
 
@@ -48,7 +54,7 @@ func newShares(t *tray) *shares {
 		dir = filepath.Join(os.Getenv("HOME"), ".config")
 	}
 	s := &shares{
-		t: t, file: filepath.Join(dir, "foxden-vpn", "mounts.json"), pick: pickFolder,
+		t: t, file: filepath.Join(dir, "foxden-vpn", "mounts.json"), pick: pickFolder, progress: notifyProgress,
 		kick: make(chan struct{}, 1), state: map[string]shareState{}, mounted: map[string]api.Mount{},
 		errs: map[string]string{}, toggles: map[string]*systray.MenuItem{}, changes: map[string]*systray.MenuItem{},
 	}
@@ -149,7 +155,7 @@ func (s *shares) reconcile() {
 		if !cur.Enabled || cur.Path == "" || mounted {
 			continue
 		}
-		err := s.mount(sh.Name, cur.Path)
+		_, err := s.mount(sh.Name, cur.Path)
 		s.mu.Lock()
 		if err != nil {
 			s.errs[sh.Name] = err.Error()
@@ -161,12 +167,37 @@ func (s *shares) reconcile() {
 	s.refresh()
 }
 
-func (s *shares) mount(name, path string) error {
+func (s *shares) mount(name, path string) (*api.Mount, error) {
 	if err := os.MkdirAll(path, 0o755); err != nil {
+		return nil, err
+	}
+	return s.t.client.Mount(name, path)
+}
+
+// mountShowing mounts with a notification that stays up while mount.cifs
+// runs (it can take a while trying each transport), then shows the result.
+func (s *shares) mountShowing(name, path string) {
+	n := s.progress(sharesTitle, "Mounting "+name+" at "+homeShort(path)+"…")
+	m, err := s.mount(name, path)
+	if err != nil {
+		n.done("Could not mount " + name + ": " + err.Error())
+		return
+	}
+	msg := name + " is mounted at " + homeShort(path)
+	if m.Transport != "" {
+		msg += " (" + m.Transport + ")"
+	}
+	n.done(msg)
+}
+
+func (s *shares) unmountShowing(name, path string) error {
+	n := s.progress(sharesTitle, "Unmounting "+name+"…")
+	if err := s.t.client.Unmount(path); err != nil {
+		n.done("Could not unmount " + name + ": " + err.Error())
 		return err
 	}
-	_, err := s.t.client.Mount(name, path)
-	return err
+	n.done(name + " is unmounted")
+	return nil
 }
 
 func (s *shares) render() {
@@ -263,8 +294,7 @@ func (s *shares) toggle(name string) {
 	s.mu.Unlock()
 	if cur.Enabled {
 		if cur.Path != "" {
-			if err := s.t.client.Unmount(cur.Path); err != nil {
-				notify(appName, "Unmounting "+name+": "+err.Error())
+			if err := s.unmountShowing(name, cur.Path); err != nil {
 				s.poke()
 				return
 			}
@@ -283,9 +313,7 @@ func (s *shares) toggle(name string) {
 			cur.Path = p
 		}
 		cur.Enabled = true
-		if err := s.mount(name, cur.Path); err != nil {
-			notify(appName, "Mounting "+name+": "+err.Error())
-		}
+		s.mountShowing(name, cur.Path)
 	}
 	s.mu.Lock()
 	s.state[name] = cur
@@ -313,16 +341,13 @@ func (s *shares) changeFolder(name string) {
 		return
 	}
 	if mounted {
-		if err := s.t.client.Unmount(cur.Path); err != nil {
-			notify(appName, "Unmounting "+name+": "+err.Error())
+		if err := s.unmountShowing(name, cur.Path); err != nil {
 			return
 		}
 	}
 	cur.Path = p
 	if cur.Enabled {
-		if err := s.mount(name, p); err != nil {
-			notify(appName, "Mounting "+name+": "+err.Error())
-		}
+		s.mountShowing(name, p)
 	}
 	s.mu.Lock()
 	s.state[name] = cur
