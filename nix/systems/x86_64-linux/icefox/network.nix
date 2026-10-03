@@ -120,7 +120,7 @@ in
         {
           interfaces.default = {
             dns.auxAddresses = [ mainIPv4 ];
-            routes = [ defaultRouteV4 ];
+            routes = [ defaultRouteV6 ];
           };
           interfaces.foxden.routes = [
             {
