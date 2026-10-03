@@ -88,6 +88,10 @@ let
             vlan = 0;
             mtu = ifcfg-foxden.mtu;
           };
+          sriov = {
+            root = ifcfg.phyIface;
+            rootPvid = 0;
+          };
         };
         routes = [
           {
@@ -130,7 +134,12 @@ in
         (mkMinHost ({ inherit mac; } // iface))
         {
           interfaces.default = {
-            driver.name = lib.mkForce "sriov";
+            driver = {
+              sriov = {
+
+              };
+              name = lib.mkForce "sriov";
+            };
             routes = [
               defaultRouteV4
               defaultRouteV6
