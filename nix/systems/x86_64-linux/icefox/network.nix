@@ -71,6 +71,12 @@ let
             vlan = 0;
             mtu = ifcfg.mtu;
           };
+          sriov = {
+            root = ifcfg.phyIface;
+            rootPvid = 0;
+            vlan = 0;
+            mtu = ifcfg.mtu;
+          };
         };
         routes = [ ];
       };
@@ -87,10 +93,6 @@ let
             bridge = ifcfg-foxden.interface;
             vlan = 0;
             mtu = ifcfg-foxden.mtu;
-          };
-          sriov = {
-            root = ifcfg.phyIface;
-            rootPvid = 0;
           };
         };
         routes = [
