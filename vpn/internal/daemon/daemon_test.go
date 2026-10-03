@@ -79,8 +79,9 @@ func TestBuildConfigAtHome(t *testing.T) {
 		if cfg.FullTunnel || cfg.Keepalive != 0 {
 			t.Fatalf("%s: at home the tunnel must be split and on demand", mode)
 		}
-		// The current VLAN (lan) is direct, every other one goes through the tunnel.
-		want := pfx("10.1.0.0/16", "10.100.0.0/16", "fd2c:f4cb:63be::a64:0/112", "fd2c:f4cb:63be:1::/64")
+		// The current VLAN (lan) and the VPN subnet are direct, every other
+		// VLAN goes through the tunnel.
+		want := pfx("10.1.0.0/16", "fd2c:f4cb:63be:1::/64")
 		if !slices.Equal(cfg.Routes, want) {
 			t.Fatalf("%s: routes = %v, want %v", mode, cfg.Routes, want)
 		}

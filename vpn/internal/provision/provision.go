@@ -99,7 +99,8 @@ type Config struct {
 	MTU       int            `json:"mtu"`
 	Server    Server         `json:"server"`
 	DNS       DNS            `json:"dns"`
-	// VPNPrefixes are always routed through the tunnel (the VPN subnet itself).
+	// VPNPrefixes are routed through the tunnel when away from home (the VPN
+	// subnet itself).
 	VPNPrefixes []netip.Prefix `json:"vpn_prefixes"`
 	// InternalPrefixes are what the home DNS answers vpn.foxden.network with.
 	InternalPrefixes []netip.Prefix `json:"internal_prefixes"`

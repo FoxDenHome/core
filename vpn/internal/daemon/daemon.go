@@ -426,7 +426,13 @@ func (d *Daemon) buildConfig(s Settings, prov *provision.Config, location string
 	}
 	// The endpoint may sit inside a routed prefix (at home it is the router's
 	// LAN address); the tunnel keeps its own packets out of itself.
-	routes := slices.Clone(prov.VPNPrefixes)
+	var routes []netip.Prefix
+	if location != api.LocationLAN {
+		// At home the router reaches VPN clients for us. Tunneling them would
+		// send replies to their connections into our tunnel with our LAN
+		// address as source, which the router drops (not our allowed-address).
+		routes = slices.Clone(prov.VPNPrefixes)
+	}
 	for _, n := range prov.Networks {
 		if slices.Contains(s.DisabledNetworks, n.Name) || slices.Contains(homeNets, n.Name) {
 			continue // the network we are on is reached directly
