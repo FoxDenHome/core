@@ -45,6 +45,9 @@ type Settings struct {
 	// Networks are the VLAN names offered to clients, in display order. Each
 	// maps to interface vlan-<name>, with resolvers on vrrp-<name>-dns(6).
 	Networks []string `json:"networks"`
+	// StaticNetworks are offered after Networks with fixed prefixes, for
+	// what is not a router VLAN (e.g. sites behind the wg-s2s tunnel).
+	StaticNetworks []provision.Network `json:"static_networks"`
 	// SMB lists file servers; devices get the shares meant for their owner.
 	SMB []SMBServer `json:"smb"`
 	// Launcher is handed to every device as is.
@@ -298,6 +301,7 @@ func (s *Snapshot) Config(p Peer, set Settings) *provision.Config {
 		dns := append(hosts(s.addrs["vrrp-"+name+"-dns"]), hosts(s.addrs["vrrp-"+name+"-dns6"])...)
 		cfg.Networks = append(cfg.Networks, provision.Network{Name: name, Prefixes: prefixes, DNS: dns})
 	}
+	cfg.Networks = append(cfg.Networks, set.StaticNetworks...)
 	return cfg
 }
 

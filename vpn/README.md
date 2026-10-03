@@ -27,7 +27,7 @@ A WireGuard client manager for macOS and Linux, plus a small self-service portal
 - its addresses
 - the server key and port
 - DNS servers and domains
-- the per-VLAN prefixes and LAN resolvers
+- the per-VLAN prefixes and LAN resolvers, plus static networks such as `s2s` (the sites behind the routers' `wg-s2s` tunnel, 10.99.0.0/16)
 
 Only the device can open its blob, and only the holder of the `wg-vpn` key can have made it. The client pins that public key (`-server-key`).
 
@@ -60,7 +60,7 @@ Only changes need Kanidm. As an admin breakglass, you can still add a peer on th
 - **Full tunnel** routes `0.0.0.0/0` and `::/0` and sends all DNS through the tunnel, with a 25s keepalive.
   - Linux uses wg-quick-style fwmark policy routing (split mode does too, so the tunnel never carries its own packets).
   - macOS uses /1 routes plus a host route for the endpoint via the physical gateway. Split mode adds the same host route whenever the endpoint is inside a tunneled prefix.
-- **Networks.** Each VLAN can be toggled for split mode under **Networks**. All are on by default.
+- **Networks.** Each VLAN, and `s2s`, can be toggled for split mode under **Networks**. All are on by default.
 - **Backends.**
   - Linux: kernel WireGuard via netlink, falling back to embedded wireguard-go if the module is missing.
   - macOS: wireguard-go on a `utun`.

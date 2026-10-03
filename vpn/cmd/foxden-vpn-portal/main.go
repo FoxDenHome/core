@@ -21,6 +21,7 @@ import (
 	"time"
 
 	"github.com/FoxDenHome/core/vpn/internal/fastly"
+	"github.com/FoxDenHome/core/vpn/internal/provision"
 	"github.com/FoxDenHome/core/vpn/internal/registry"
 	"github.com/FoxDenHome/core/vpn/internal/routeros"
 )
@@ -66,6 +67,10 @@ func defaultConfig() Config {
 		DNSDomains:       []string{"foxden.network", "10.in-addr.arpa", "e.b.3.6.b.c.4.f.c.2.d.f.ip6.arpa"},
 		InternalPrefixes: []netip.Prefix{netip.MustParsePrefix("10.0.0.0/8"), netip.MustParsePrefix("fd2c:f4cb:63be::/48")},
 		Networks:         []string{"mgmt", "lan", "dmz", "labnet", "security", "hypervisor", "retro"},
+		StaticNetworks: []provision.Network{{
+			Name:     "s2s",
+			Prefixes: []netip.Prefix{netip.MustParsePrefix("10.99.0.0/16"), netip.MustParsePrefix("fd2c:f4cb:63be::a63:0/112")},
+		}},
 	}
 	return c
 }

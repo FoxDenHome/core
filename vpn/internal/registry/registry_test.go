@@ -24,6 +24,7 @@ func settings() Settings {
 		Host:             "vpn.foxden.network",
 		InternalPrefixes: []netip.Prefix{netip.MustParsePrefix("10.0.0.0/8")},
 		Networks:         []string{"mgmt", "lan"},
+		StaticNetworks:   []provision.Network{{Name: "s2s", Prefixes: []netip.Prefix{netip.MustParsePrefix("10.99.0.0/16")}}},
 	}
 }
 
@@ -152,7 +153,7 @@ func TestConfig(t *testing.T) {
 	if err := cfg.Validate(); err != nil {
 		t.Fatal(err)
 	}
-	if len(cfg.Networks) != 1 || cfg.Networks[0].Name != "lan" { // mgmt is disabled on the router
+	if len(cfg.Networks) != 2 || cfg.Networks[0].Name != "lan" || cfg.Networks[1].Name != "s2s" { // mgmt is disabled on the router
 		t.Fatalf("networks = %+v", cfg.Networks)
 	}
 	got := fmt.Sprint(cfg.Networks[0].Prefixes, cfg.Networks[0].DNS, cfg.VPNPrefixes, cfg.DNS.Servers)
