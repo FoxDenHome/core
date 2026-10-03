@@ -18,11 +18,11 @@ require (
 
 require (
 	github.com/go-jose/go-jose/v4 v4.1.5 // indirect
-	github.com/google/go-cmp v0.6.0 // indirect
+	github.com/google/go-cmp v0.7.0 // indirect
 	github.com/josharian/native v1.2.0 // indirect
 	github.com/mdlayher/genetlink v1.3.2 // indirect
 	github.com/mdlayher/netlink v1.7.2 // indirect
-	github.com/mdlayher/socket v0.5.1 // indirect
+	github.com/mdlayher/socket v0.7.0 // indirect
 	github.com/vishvananda/netns v0.0.5 // indirect
 	golang.org/x/sync v0.23.0 // indirect
 	golang.zx2c4.com/wintun v0.0.0-20230126152724-0fa3db229ce2 // indirect
