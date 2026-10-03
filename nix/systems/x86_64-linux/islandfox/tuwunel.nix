@@ -22,7 +22,6 @@ in
       dns = {
         fqdns = [
           "matrix.foxden.network"
-          "foxden.network"
         ];
         dynDns = true;
       };
