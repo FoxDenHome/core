@@ -78,7 +78,7 @@ func TestAttemptOrder(t *testing.T) {
 		t.Fatalf("SMB Direct options %q do not pin IPv4", o)
 	}
 	opts := strings.Join(attempts(Request{Share: provision.Share{Name: "dori", Host: "h", Home: true}}, me, "")[0].options, ",")
-	for _, want := range []string{"sec=krb5", fmt.Sprintf("cruid=%d", me.UID), "nosuid", "nodev", "file_mode=0600", "dir_mode=0700", "vers=3.1.1"} {
+	for _, want := range []string{"sec=krb5", fmt.Sprintf("cruid=%d", me.UID), "nosuid", "nodev", "file_mode=0600", "dir_mode=0700", "vers=3.1.1", "soft", "echo_interval=5"} {
 		if !strings.Contains(","+opts+",", ","+want+",") {
 			t.Errorf("home share options %q lack %s", opts, want)
 		}

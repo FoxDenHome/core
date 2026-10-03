@@ -55,6 +55,11 @@ func attempts(req Request, u User, rdmaIP string) []attempt {
 		"forceuid", "forcegid",
 		// Mounted by root on the user's behalf.
 		"nosuid", "nodev",
+		// The kernel gives up on a silent server after 3 echo intervals;
+		// the 60s default leaves file browsers hung for minutes when the
+		// network drops. soft (the default) then fails calls instead of
+		// retrying forever.
+		"soft", "echo_interval=5",
 	}
 	if req.Share.Home {
 		base = append(base, "file_mode=0600", "dir_mode=0700")
