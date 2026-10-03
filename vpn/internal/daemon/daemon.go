@@ -470,6 +470,7 @@ func (d *Daemon) Status() api.Status {
 		for _, sh := range p.Shares {
 			st.Shares = append(st.Shares, api.Share{Name: sh.Name, Comment: sh.Comment, Home: sh.Home})
 		}
+		st.Launcher = p.Launcher
 		for _, n := range p.Networks {
 			an := api.Network{Name: n.Name, Enabled: !slices.Contains(d.settings.DisabledNetworks, n.Name)}
 			for _, pfx := range n.Prefixes {

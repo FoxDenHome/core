@@ -47,6 +47,8 @@ type Settings struct {
 	Networks []string `json:"networks"`
 	// SMB lists file servers; devices get the shares meant for their owner.
 	SMB []SMBServer `json:"smb"`
+	// Launcher is handed to every device as is.
+	Launcher *provision.Launcher `json:"launcher"`
 }
 
 // SMBServer is foxDen.services.ksmbd.clients from the NAS's config.
@@ -284,6 +286,7 @@ func (s *Snapshot) Config(p Peer, set Settings) *provision.Config {
 		},
 		DNS:              provision.DNS{Servers: hosts(vpn), Domains: set.DNSDomains},
 		Shares:           set.sharesFor(p.Owner),
+		Launcher:         set.Launcher,
 		VPNPrefixes:      collapse(vpn),
 		InternalPrefixes: set.InternalPrefixes,
 	}

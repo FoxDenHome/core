@@ -11,6 +11,8 @@ import (
 	"net"
 	"net/http"
 	"time"
+
+	"github.com/FoxDenHome/core/vpn/internal/provision"
 )
 
 const DefaultSocket = "/var/run/foxden-vpn.sock"
@@ -71,6 +73,8 @@ type Status struct {
 	PortalURL string `json:"portal_url,omitempty"`
 	// Shares the owner may mount.
 	Shares []Share `json:"shares,omitempty"`
+	// Launcher is what the Servers menu offers.
+	Launcher *provision.Launcher `json:"launcher,omitempty"`
 }
 
 const (

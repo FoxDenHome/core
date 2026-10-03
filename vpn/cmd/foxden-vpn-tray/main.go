@@ -43,6 +43,7 @@ type tray struct {
 	ui         *ui
 	krb        *kerberos // nil where unsupported
 	shares     *shares   // nil where unsupported
+	launcher   *launcher // nil where unsupported
 	wasProv    atomic.Bool
 	renderMu   sync.Mutex
 	mu         sync.Mutex
@@ -67,6 +68,7 @@ func main() {
 	}
 	t.krb = newKerberos(t)
 	t.shares = newShares(t)
+	t.launcher = newLauncher(t)
 	systray.Run(t.onReady, func() {})
 }
 
@@ -96,6 +98,7 @@ func (t *tray) onReady() {
 	t.mSvcPlaceholder = t.mServices.AddSubMenuItem("Loading…", "") // see mNetPlaceholder
 	t.mSvcPlaceholder.Disable()
 	t.shares.menu() // with the Kerberos ticket in it
+	t.launcher.menu()
 	systray.AddSeparator()
 
 	// Only until registered; after that it is "Manage Devices…" below.
@@ -267,6 +270,7 @@ func (t *tray) render(st *api.Status, err error) {
 	t.ui.check(t.mFull, full)
 	t.renderNetworks(st, full && st.Location != api.LocationLAN) // always split at home
 	t.renderServices(st)
+	t.launcher.render(st)
 
 	title, detail, icon := describe(st, t.refreshing.Load())
 	t.ui.title(t.mStatus, title)

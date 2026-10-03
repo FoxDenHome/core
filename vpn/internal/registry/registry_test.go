@@ -2,6 +2,7 @@ package registry
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"net/netip"
@@ -9,6 +10,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/FoxDenHome/core/vpn/internal/provision"
 	"github.com/FoxDenHome/core/vpn/internal/registry/registrytest"
 	"github.com/FoxDenHome/core/vpn/internal/routeros"
 	"golang.zx2c4.com/wireguard/wgctrl/wgtypes"
@@ -346,5 +348,39 @@ func TestSharesPerOwner(t *testing.T) {
 	}
 	if got := names(snap.ByName("old")); !slices.Equal(got, []string{"share@nas.foxden.network/nas-smb.foxden.network home=false"}) {
 		t.Fatalf("ownerless peer's shares = %v", got)
+	}
+}
+
+func TestLauncher(t *testing.T) {
+	// As vpn-portal.nix writes it.
+	set := settings()
+	if err := json.Unmarshal([]byte(`{"launcher": {"jit_radius": "https://radius.auth.foxden.network", "hosts": [
+		{"name": "bengalfox", "ssh": "bengalfox.foxden.network", "kvm": {"host": "kvm-rack.foxden.network", "port": 3}},
+		{"name": "ups-rack", "web": {"url": "https://ups-rack.foxden.network/", "radius": true}}
+	]}}`), &set); err != nil {
+		t.Fatal(err)
+	}
+	f := registrytest.New()
+	if err := upsert(t, f, "doridian", "fennec", key()); err != nil {
+		t.Fatal(err)
+	}
+	snap := read(t, f)
+	b, err := json.Marshal(snap.Config(*snap.ByName("doridian-fennec"), set))
+	if err != nil {
+		t.Fatal(err)
+	}
+	var cfg provision.Config
+	if err := json.Unmarshal(b, &cfg); err != nil {
+		t.Fatal(err)
+	}
+	l := cfg.Launcher
+	if l == nil || l.JITRadius != "https://radius.auth.foxden.network" || len(l.Hosts) != 2 {
+		t.Fatalf("launcher = %+v", l)
+	}
+	if h := l.Hosts[0]; h.SSH != "bengalfox.foxden.network" || h.Web != nil || h.KVM == nil || *h.KVM != (provision.KVM{Host: "kvm-rack.foxden.network", Port: 3}) {
+		t.Fatalf("bengalfox = %+v", h)
+	}
+	if h := l.Hosts[1]; h.SSH != "" || h.KVM != nil || h.Web == nil || !h.Web.Radius || h.Web.URL != "https://ups-rack.foxden.network/" {
+		t.Fatalf("ups-rack = %+v", h)
 	}
 }

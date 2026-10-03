@@ -62,6 +62,36 @@ type Share struct {
 	Home bool `json:"home,omitempty"`
 }
 
+// Launcher is what the tray's Servers menu offers: SSH sessions, web UIs and
+// KVM consoles, the latter two logging in with JIT RADIUS credentials.
+type Launcher struct {
+	Hosts []LaunchHost `json:"hosts,omitempty"`
+	// JITRadius is oauth-jit-radius, which hands out RADIUS credentials for
+	// a Kerberos ticket at <JITRadius>/api/credentials.
+	JITRadius string `json:"jit_radius,omitempty"`
+}
+
+// LaunchHost is one host and what can be opened on it.
+type LaunchHost struct {
+	Name string `json:"name"`
+	// SSH is the host name to ssh to.
+	SSH string `json:"ssh,omitempty"`
+	Web *WebUI `json:"web,omitempty"`
+	KVM *KVM   `json:"kvm,omitempty"`
+}
+
+type WebUI struct {
+	URL string `json:"url"`
+	// Radius marks a web UI that takes JIT RADIUS credentials.
+	Radius bool `json:"radius,omitempty"`
+}
+
+// KVM is the NetCmdr IP KVM switch port a host's console is on.
+type KVM struct {
+	Host string `json:"host"`
+	Port int    `json:"port"`
+}
+
 type Config struct {
 	Version   int            `json:"version"`
 	Name      string         `json:"name"`
@@ -75,6 +105,7 @@ type Config struct {
 	InternalPrefixes []netip.Prefix `json:"internal_prefixes"`
 	Networks         []Network      `json:"networks"`
 	Shares           []Share        `json:"shares,omitempty"`
+	Launcher         *Launcher      `json:"launcher,omitempty"`
 }
 
 func (c *Config) IsInternal(a netip.Addr) bool {
