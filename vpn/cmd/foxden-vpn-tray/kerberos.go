@@ -186,6 +186,9 @@ func (k *kerberos) renew(ctx context.Context, env []string) error {
 			return err
 		}
 	}
+	if err := prepareKinit(); err != nil {
+		return err
+	}
 	if err := k.kinit(ctx, env, kinitArgs(certFile, filepath.Join(k.dir, "pkinit.key"), caFile, cert.Principal)...); err != nil {
 		return err
 	}

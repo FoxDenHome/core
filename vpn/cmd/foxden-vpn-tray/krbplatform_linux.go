@@ -19,6 +19,8 @@ func kinitArgs(cert, key, _ /* ca */, principal string) []string {
 	return []string{"-X", "X509_user_identity=FILE:" + cert + "," + key, principal}
 }
 
+func prepareKinit() error { return nil }
+
 func newSessionKey() (crypto.Signer, []byte, error) {
 	key, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 	if err != nil {
