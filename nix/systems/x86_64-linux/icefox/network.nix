@@ -136,12 +136,7 @@ in
         (mkMinHost ({ inherit mac; } // iface))
         {
           interfaces.default = {
-            driver = {
-              sriov = {
-
-              };
-              name = lib.mkForce "sriov";
-            };
+            driver.name = lib.mkForce "sriov";
             routes = [
               defaultRouteV4
               defaultRouteV6
