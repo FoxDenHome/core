@@ -4,6 +4,8 @@
   inputs = {
     # Basics
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-26.05";
+    # Pinned podman 5.8.6, TODO: drop once https://github.com/podman-container-tools/podman/issues/29805 is fixed
+    nixpkgs-podman.url = "github:NixOS/nixpkgs/1e8bc658fc985ef27ccd66d107d767b32bb7ef98";
 
     home-manager = {
       url = "github:nix-community/home-manager/release-26.05";
