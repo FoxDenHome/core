@@ -248,7 +248,7 @@ func ParseCertPEM(b []byte) (*x509.Certificate, error) {
 	return x509.ParseCertificate(block.Bytes)
 }
 
-// ParseKeyPEM decodes a PKCS #8 or EC private key.
+// ParseKeyPEM decodes a PKCS #8, PKCS #1 (RSA) or EC private key.
 func ParseKeyPEM(b []byte) (crypto.Signer, error) {
 	block, _ := pem.Decode(b)
 	if block == nil {
@@ -259,6 +259,9 @@ func ParseKeyPEM(b []byte) (crypto.Signer, error) {
 			return s, nil
 		}
 		return nil, fmt.Errorf("unsupported key type %T", k)
+	}
+	if k, err := x509.ParsePKCS1PrivateKey(block.Bytes); err == nil {
+		return k, nil
 	}
 	return x509.ParseECPrivateKey(block.Bytes)
 }

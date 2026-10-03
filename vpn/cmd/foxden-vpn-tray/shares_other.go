@@ -1,8 +1,8 @@
-//go:build !linux
+//go:build !linux && !darwin
 
 package main
 
-// Mounting shares is Linux-only for now.
+// Mounting shares is Linux and macOS only.
 type shares struct{}
 
 func newShares(*tray) *shares { return nil }

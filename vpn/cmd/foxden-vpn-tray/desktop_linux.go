@@ -58,3 +58,25 @@ func notify(title, message string) {
 		_ = exec.Command("notify-send", "--app-name=FoxDen VPN", "--icon=network-vpn", title, message).Run()
 	}
 }
+
+// pickFolder asks for a directory with the desktop's own dialog.
+func pickFolder(title, start string) (string, error) {
+	var cmd *exec.Cmd
+	switch {
+	case have("kdialog"):
+		cmd = exec.Command("kdialog", "--title", title, "--getexistingdirectory", start)
+	case have("zenity"):
+		cmd = exec.Command("zenity", "--file-selection", "--directory", "--title", title, "--filename", start+"/")
+	default:
+		return "", errors.New("no folder picker found (install kdialog or zenity)")
+	}
+	out, err := cmd.Output()
+	if err != nil {
+		var exit *exec.ExitError
+		if errors.As(err, &exit) {
+			return "", nil // cancelled
+		}
+		return "", err
+	}
+	return strings.TrimSpace(string(out)), nil
+}

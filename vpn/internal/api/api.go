@@ -135,7 +135,9 @@ type KerberosCert struct {
 type Share struct {
 	Name    string `json:"name"`
 	Comment string `json:"comment,omitempty"`
-	Home    bool   `json:"home,omitempty"`
+	// Host serves the share over TCP; the macOS tray mounts it directly.
+	Host string `json:"host,omitempty"`
+	Home bool   `json:"home,omitempty"`
 }
 
 // Mount is one of the caller's SMB mounts.

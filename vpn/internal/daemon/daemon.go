@@ -468,7 +468,7 @@ func (d *Daemon) Status() api.Status {
 			st.Addresses = append(st.Addresses, a.Addr().String())
 		}
 		for _, sh := range p.Shares {
-			st.Shares = append(st.Shares, api.Share{Name: sh.Name, Comment: sh.Comment, Home: sh.Home})
+			st.Shares = append(st.Shares, api.Share{Name: sh.Name, Comment: sh.Comment, Host: sh.Host, Home: sh.Home})
 		}
 		st.Launcher = p.Launcher
 		for _, n := range p.Networks {

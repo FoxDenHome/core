@@ -1,10 +1,11 @@
+//go:build linux || darwin
+
 package main
 
 import (
 	"encoding/json"
 	"errors"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"strings"
 	"sync"
@@ -17,7 +18,16 @@ import (
 // Shares: a submenu per SMB share the device's owner may mount, with a
 // "Mounted" toggle, the folder and its state, Open Folder and Change Folder.
 // The first mount asks for a folder; after that the toggle only mounts and
-// unmounts. Folders and toggles are this user's, kept in ~/.config/foxden-vpn.
+// unmounts. Folders and toggles are this user's, kept in ~/.config/foxden-vpn
+// (~/Library/Application Support/foxden-vpn on macOS).
+
+// shareMounter does the mounting: the daemon on Linux, the tray itself on
+// macOS.
+type shareMounter interface {
+	Mounts() ([]api.Mount, error)
+	Mount(sh api.Share, path string) (*api.Mount, error)
+	Unmount(path string) error
+}
 
 const (
 	sharesInterval = time.Minute
@@ -42,6 +52,7 @@ type shares struct {
 	// progress shows what a click is doing, then its result; replaced in
 	// tests.
 	progress func(title, message string) note
+	mounter  shareMounter
 	kick     chan struct{}
 
 	mParent, mPlaceholder *systray.MenuItem
@@ -64,6 +75,7 @@ func newShares(t *tray) *shares {
 		kick: make(chan struct{}, 1), state: map[string]shareState{}, mounted: map[string]api.Mount{},
 		errs: map[string]string{}, items: map[string]*shareItem{},
 	}
+	s.mounter = newShareMounter(t)
 	s.load()
 	return s
 }
@@ -134,7 +146,7 @@ func shareLabel(sh api.Share) string {
 
 // refresh reads which of this user's shares are mounted.
 func (s *shares) refresh() {
-	list, err := s.t.client.Mounts()
+	list, err := s.mounter.Mounts()
 	if err != nil {
 		return
 	}
@@ -191,10 +203,17 @@ func (s *shares) mount(name, path string) (*api.Mount, error) {
 	if err := os.MkdirAll(path, 0o755); err != nil {
 		return nil, err
 	}
-	return s.t.client.Mount(name, path)
+	if st := s.t.status(); st != nil {
+		for _, sh := range st.Shares {
+			if sh.Name == name {
+				return s.mounter.Mount(sh, path)
+			}
+		}
+	}
+	return nil, errors.New("unknown share")
 }
 
-// mountShowing mounts with a notification that stays up while mount.cifs
+// mountShowing mounts with a notification that stays up while the mount
 // runs (it can take a while trying each transport), then shows the result.
 func (s *shares) mountShowing(name, path string) {
 	n := s.progress(sharesTitle, "Mounting "+name+" at "+homeShort(path)+"…")
@@ -212,7 +231,7 @@ func (s *shares) mountShowing(name, path string) {
 
 func (s *shares) unmountShowing(name, path string) error {
 	n := s.progress(sharesTitle, "Unmounting "+name+"…")
-	if err := s.t.client.Unmount(path); err != nil {
+	if err := s.mounter.Unmount(path); err != nil {
 		n.done("Could not unmount " + name + ": " + err.Error())
 		return err
 	}
@@ -428,26 +447,4 @@ func (s *shares) changeFolder(name string) {
 	}
 	s.refresh()
 	s.render()
-}
-
-// pickFolder asks for a directory with the desktop's own dialog.
-func pickFolder(title, start string) (string, error) {
-	var cmd *exec.Cmd
-	switch {
-	case have("kdialog"):
-		cmd = exec.Command("kdialog", "--title", title, "--getexistingdirectory", start)
-	case have("zenity"):
-		cmd = exec.Command("zenity", "--file-selection", "--directory", "--title", title, "--filename", start+"/")
-	default:
-		return "", errors.New("no folder picker found (install kdialog or zenity)")
-	}
-	out, err := cmd.Output()
-	if err != nil {
-		var exit *exec.ExitError
-		if errors.As(err, &exit) {
-			return "", nil // cancelled
-		}
-		return "", err
-	}
-	return strings.TrimSpace(string(out)), nil
 }

@@ -1,8 +1,8 @@
-//go:build !linux
+//go:build !linux && !darwin
 
 package main
 
-// Kerberos tickets are Linux-only for now.
+// Kerberos tickets are Linux and macOS only.
 type kerberos struct{}
 
 func newKerberos(*tray) *kerberos { return nil }

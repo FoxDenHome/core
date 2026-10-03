@@ -1,11 +1,11 @@
+//go:build linux || darwin
+
 package main
 
 import (
 	"bytes"
 	"context"
-	"crypto/ecdsa"
-	"crypto/elliptic"
-	"crypto/rand"
+	"crypto"
 	"crypto/x509"
 	"encoding/base64"
 	"errors"
@@ -22,8 +22,8 @@ import (
 )
 
 // Kerberos keeps a ticket for the device owner in the desktop session's
-// default credential cache, so SMB (Dolphin, gvfs, mount.cifs sec=krb5) works
-// without a password. The certificate comes from the portal through the
+// default credential cache, so SMB (Dolphin, gvfs, mount.cifs sec=krb5 on
+// Linux; Finder and mount_smbfs on macOS) works without a password. The certificate comes from the portal through the
 // daemon, which proves the device; the PKINIT key stays in the session.
 
 const (
@@ -125,7 +125,7 @@ func (k *kerberos) ensure(ctx context.Context) {
 		k.fail(errors.New("this device is not registered"))
 		return
 	}
-	if _, err := exec.LookPath("kinit"); err != nil {
+	if _, err := exec.LookPath(krbKinit); err != nil {
 		k.fail(errors.New("kinit not found, install krb5"))
 		return
 	}
@@ -186,7 +186,7 @@ func (k *kerberos) renew(ctx context.Context, env []string) error {
 			return err
 		}
 	}
-	if err := k.kinit(ctx, env, "-X", "X509_user_identity=FILE:"+certFile+","+filepath.Join(k.dir, "pkinit.key"), cert.Principal); err != nil {
+	if err := k.kinit(ctx, env, kinitArgs(certFile, filepath.Join(k.dir, "pkinit.key"), caFile, cert.Principal)...); err != nil {
 		return err
 	}
 	k.mu.Lock()
@@ -198,21 +198,27 @@ func (k *kerberos) renew(ctx context.Context, env []string) error {
 	return nil
 }
 
+// user is the name part of the principal holding the ticket, or "" before
+// there is one.
+func (k *kerberos) user() string {
+	k.mu.Lock()
+	defer k.mu.Unlock()
+	if k.err != "" {
+		return ""
+	}
+	name, _, _ := strings.Cut(k.principl, "@")
+	return name
+}
+
 // sessionKey loads or creates this session's PKINIT key.
-func (k *kerberos) sessionKey() (*ecdsa.PrivateKey, error) {
+func (k *kerberos) sessionKey() (crypto.Signer, error) {
 	path := filepath.Join(k.dir, "pkinit.key")
 	if b, err := os.ReadFile(path); err == nil {
-		if s, err := pkinit.ParseKeyPEM(b); err == nil {
-			if ec, ok := s.(*ecdsa.PrivateKey); ok {
-				return ec, nil
-			}
+		if s, err := pkinit.ParseKeyPEM(b); err == nil && sessionKeyUsable(s) {
+			return s, nil
 		}
 	}
-	key, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
-	if err != nil {
-		return nil, err
-	}
-	b, err := pkinit.KeyPEM(key)
+	key, b, err := newSessionKey()
 	if err != nil {
 		return nil, err
 	}
@@ -222,7 +228,7 @@ func (k *kerberos) sessionKey() (*ecdsa.PrivateKey, error) {
 func runKinit(ctx context.Context, env []string, args ...string) error {
 	ctx, cancel := context.WithTimeout(ctx, 30*time.Second)
 	defer cancel()
-	cmd := exec.CommandContext(ctx, "kinit", args...)
+	cmd := exec.CommandContext(ctx, krbKinit, args...)
 	cmd.Env = env
 	cmd.Stdin = nil // never fall back to a password prompt
 	var out bytes.Buffer
@@ -242,16 +248,17 @@ func runKinit(ctx context.Context, env []string, args ...string) error {
 func klistHas(ctx context.Context, env []string, principal string) bool {
 	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
 	defer cancel()
-	cmd := exec.CommandContext(ctx, "klist")
+	cmd := exec.CommandContext(ctx, krbKlist)
 	cmd.Env = env
 	out, err := cmd.Output()
 	if err != nil {
 		return false
 	}
-	if !strings.Contains(string(out), "principal: "+principal) {
+	// MIT prints "Default principal: ", Heimdal "Principal: ".
+	if !strings.Contains(strings.ToLower(string(out)), "principal: "+strings.ToLower(principal)) {
 		return false
 	}
-	check := exec.CommandContext(ctx, "klist", "-s")
+	check := exec.CommandContext(ctx, krbKlist, "-s")
 	check.Env = env
 	return check.Run() == nil
 }

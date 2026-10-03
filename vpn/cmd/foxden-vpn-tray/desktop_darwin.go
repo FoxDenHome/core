@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"os/exec"
 	"strings"
 )
@@ -33,4 +34,19 @@ func ask(title, message, action string) bool {
 func notify(title, message string) {
 	script := "display notification " + appleScriptString(message) + " with title " + appleScriptString(title)
 	_ = exec.Command("osascript", "-e", script).Run()
+}
+
+// pickFolder asks for a directory with the standard folder chooser.
+func pickFolder(title, start string) (string, error) {
+	script := "POSIX path of (choose folder with prompt " + appleScriptString(title) +
+		" default location (POSIX file " + appleScriptString(start) + "))"
+	out, err := exec.Command("osascript", "-e", script).Output()
+	if err != nil {
+		var exit *exec.ExitError
+		if errors.As(err, &exit) {
+			return "", nil // cancelled
+		}
+		return "", err
+	}
+	return strings.TrimSpace(string(out)), nil
 }
