@@ -102,15 +102,22 @@
           "10.2.10.5/16"
         ];
       };
-      ups-dori-office = mkIntf {
-        dns = {
-          fqdns = [ "ups-dori-office.foxden.network" ];
+      ups-dori-office =
+        mkIntf {
+          dns = {
+            fqdns = [ "ups-dori-office.foxden.network" ];
+          };
+          mac = "00:0C:15:03:74:03";
+          addresses = [
+            "10.1.11.3/16"
+          ];
+        }
+        // {
+          launcher.webUI = {
+            url = "http://ups-dori-office.foxden.network/";
+            radius = true;
+          };
         };
-        mac = "00:0C:15:03:74:03";
-        addresses = [
-          "10.1.11.3/16"
-        ];
-      };
       washing-machine = mkIntf {
         dns = {
           fqdns = [ "washing-machine.foxden.network" ];

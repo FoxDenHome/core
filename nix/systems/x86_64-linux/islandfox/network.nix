@@ -74,6 +74,10 @@ in
   foxDen.hosts.hosts = {
     islandfox = {
       ssh = true;
+      launcher.kvm = {
+        host = "kvm-rack.foxden.network";
+        port = 2;
+      };
       interfaces.default = {
         driver.name = "null";
         email.allowedFrom = [ "islandfox@foxden.network" ];

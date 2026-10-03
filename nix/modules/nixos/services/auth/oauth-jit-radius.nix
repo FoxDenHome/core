@@ -13,6 +13,21 @@ let
   hostName = services.getFirstFQDN config svcConfig;
   proto = if svcConfig.tls.enable then "https" else "http";
 
+  # Lets the VPN tray get credentials with the Kerberos ticket it already has.
+  keytabName = "oauth-jit-radius";
+  keytab = config.foxDen.kerberos.keytabs.${keytabName};
+  servicePrincipal = "HTTP/${hostName}";
+
+  # The groups Kanidm would report in userinfo, from its provisioning on
+  # this host: user -> [ group ].
+  kanidmGroups = lib.foldlAttrs (
+    acc: group: g:
+    if g.present then
+      lib.foldl' (acc: user: acc // { ${user} = (acc.${user} or [ ]) ++ [ group ]; }) acc g.members
+    else
+      acc
+  ) { } config.services.kanidm.provision.groups;
+
   configObj = {
     matchers = [
       {
@@ -60,6 +75,12 @@ let
       admin_group = "superadmins";
       viewer_group = "";
     };
+    kerberos = {
+      keytab = "$\{CREDENTIALS_DIRECTORY}/keytab";
+      principal = servicePrincipal;
+      realm = config.foxDen.kerberos.realm;
+      groups = kanidmGroups;
+    };
   };
 
   configFile = pkgs.writers.writeYAML "config.yml" configObj;
@@ -92,6 +113,11 @@ in
 
         sops.secrets.oauth-jit-radius = config.lib.foxDen.sops.mkIfAvailable { };
 
+        foxDen.kerberos = {
+          enable = true;
+          keytabs.${keytabName}.principals = [ servicePrincipal ];
+        };
+
         foxDen.services.kanidm.oauth2 = lib.mkIf svcConfig.oAuth.enable {
           ${svcConfig.oAuth.clientId} =
             (services.http.mkOauthConfig {
@@ -111,6 +137,9 @@ in
         };
 
         systemd.services.oauth-jit-radius = {
+          requires = [ keytab.unit ];
+          after = [ keytab.unit ];
+
           confinement.packages = [
             pkgs.oauth-jit-radius
           ];
@@ -123,6 +152,7 @@ in
             ];
 
             EnvironmentFile = config.lib.foxDen.sops.mkIfAvailable config.sops.secrets.oauth-jit-radius.path;
+            LoadCredential = "keytab:${keytab.path}";
             WorkingDirectory = "/etc/oauth-jit-radius";
 
             Type = "simple";

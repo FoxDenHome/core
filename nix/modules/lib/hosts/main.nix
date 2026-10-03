@@ -309,6 +309,32 @@ in
               };
             };
             ssh = lib.mkEnableOption "Does this host accept SSH connections";
+            # What the VPN tray's Servers menu offers for this host, besides
+            # SSH (from ssh above).
+            launcher = {
+              webUI = {
+                url = lib.mkOption {
+                  type = nullOr str;
+                  default = null;
+                  example = "https://ups-rack.foxden.network/";
+                  description = "Management web UI";
+                };
+                radius = lib.mkEnableOption "logging into the web UI with JIT RADIUS credentials";
+              };
+              kvm = {
+                host = lib.mkOption {
+                  type = nullOr str;
+                  default = null;
+                  example = "kvm-rack.foxden.network";
+                  description = "NetCmdr IP KVM switch this host's console is on";
+                };
+                port = lib.mkOption {
+                  type = nullOr ints.positive;
+                  default = null;
+                  description = "Port of the KVM switch, 1-based";
+                };
+              };
+            };
             netns = lib.mkOption {
               type = bool;
               default = true;

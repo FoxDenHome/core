@@ -30,23 +30,37 @@
           "10.1.13.1/16"
         ];
       };
-      ups-rack = mkIntf {
-        dns = {
-          fqdns = [ "ups-rack.foxden.network" ];
+      ups-rack =
+        mkIntf {
+          dns = {
+            fqdns = [ "ups-rack.foxden.network" ];
+          };
+          mac = "00:20:85:DB:92:BA";
+          addresses = [
+            "10.1.11.2/16"
+          ];
+        }
+        // {
+          launcher.webUI = {
+            url = "http://ups-rack.foxden.network/";
+            radius = true;
+          };
         };
-        mac = "00:20:85:DB:92:BA";
-        addresses = [
-          "10.1.11.2/16"
-        ];
-      };
-      ats-rack = mkIntf {
-        dns = {
-          fqdns = [ "ats-rack.foxden.network" ];
+      ats-rack =
+        mkIntf {
+          dns = {
+            fqdns = [ "ats-rack.foxden.network" ];
+          };
+          mac = "00:0C:15:04:39:93";
+          addresses = [
+            "10.1.11.4/16"
+          ];
+        }
+        // {
+          launcher.webUI = {
+            url = "http://ats-rack.foxden.network/";
+            radius = true;
+          };
         };
-        mac = "00:0C:15:04:39:93";
-        addresses = [
-          "10.1.11.4/16"
-        ];
-      };
     };
 }

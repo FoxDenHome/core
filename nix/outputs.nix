@@ -100,6 +100,7 @@ let
   firewall = foxDenLib.global.firewall.make nixosConfigurations;
   kanidm = foxDenLib.global.kanidm.mkConfig nixosConfigurations;
   kerberos = foxDenLib.global.kerberos.mkConfig nixosConfigurations;
+  launcher = foxDenLib.global.launcher.mkConfig nixosConfigurations;
   sshHostDnsNames = foxDenLib.global.ssh.sshHostDnsNames nixosConfigurations;
 
   mkSystemConfig = system: {
@@ -113,6 +114,7 @@ let
           firewall
           kanidm
           kerberos
+          launcher
           dns
           ipReverses
           foxIngress
@@ -222,6 +224,10 @@ in
   ipReverses = {
     attrset = ipReverses;
     json = builtins.toFile "ipReverses.json" (builtins.toJSON ipReverses);
+  };
+  launcher = {
+    attrset = launcher;
+    json = builtins.toFile "launcher.json" (builtins.toJSON launcher);
   };
   sshHostDnsNames = {
     attrset = sshHostDnsNames;

@@ -42,6 +42,10 @@ in
   foxDen.hosts.hosts = {
     bengalfox = {
       ssh = true;
+      launcher.kvm = {
+        host = "kvm-rack.foxden.network";
+        port = 1;
+      };
       interfaces.default = {
         driver.name = "null";
         dns = {

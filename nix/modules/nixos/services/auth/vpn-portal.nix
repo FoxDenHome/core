@@ -4,6 +4,7 @@
   lib,
   config,
   kerberos,
+  launcher,
   ...
 }:
 let
@@ -34,6 +35,12 @@ let
     };
     # Shares are handed to devices with their configuration.
     vpn.smb = kerberos.smbServers;
+    # For the tray's Servers menu: SSH, web UIs and KVM consoles, and where
+    # to get JIT RADIUS credentials for them.
+    vpn.launcher = {
+      inherit (launcher) hosts;
+      jit_radius = svcConfig.jitRadiusUrl;
+    };
     # Kerberos client certificates for registered devices' owners (PKINIT).
     pkinit = {
       realm = config.foxDen.kerberos.realm;
@@ -57,6 +64,11 @@ in
       type = lib.types.str;
       default = "zl8wAY4UkFBVdrAzNU5t06";
       description = "Fastly service serving cdn.foxden.network";
+    };
+    jitRadiusUrl = lib.mkOption {
+      type = lib.types.str;
+      default = "https://radius.auth.foxden.network";
+      description = "oauth-jit-radius, which devices ask for RADIUS credentials with their Kerberos ticket";
     };
     oAuthGroup = lib.mkOption {
       type = lib.types.str;

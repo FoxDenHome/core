@@ -1,5 +1,8 @@
-{ ... }:
+{ config, ... }:
 {
+  # oauth-jit-radius has a matcher for this BMC.
+  config.foxDen.hosts.hosts.${config.foxDen.ipmiconfig.network.hostName}.launcher.webUI.radius = true;
+
   config.foxDen.ipmiconfig = {
     enable = true;
     network = {

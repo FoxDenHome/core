@@ -98,6 +98,7 @@ in
     in
     lib.mkIf ipmiconfig.enable {
       foxDen.hosts.hosts.${netconfig.hostName} = {
+        launcher.webUI.url = lib.mkDefault "http://${netconfig.hostName}.${netconfig.hostZone}/";
         interfaces.default = {
           driver.name = "null";
           useDHCP = false;
