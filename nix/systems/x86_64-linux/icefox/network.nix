@@ -127,10 +127,15 @@ in
     mkFullHost =
       mac: iface:
       lib.mkMerge [
-        (mkMinHost ({ inherit mac; } // iface))
+        (mkMinHost (
+          {
+            inherit mac;
+            driver.name = "sriov";
+          }
+          // iface
+        ))
         {
           interfaces.default = {
-            driver.name = "sriov";
             routes = [
               defaultRouteV4
               defaultRouteV6
