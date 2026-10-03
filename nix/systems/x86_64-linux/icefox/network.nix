@@ -1,14 +1,22 @@
 {
   config,
   lib,
-  pkgs,
   foxDenLib,
   firewall,
-  utils,
   ...
 }:
 let
   mainIPv4 = "167.114.157.101";
+  defaultRouteV4 = {
+    Destination = "0.0.0.0/0";
+    GatewayOnLink = true;
+    Gateway = "167.114.157.254";
+  };
+  defaultRouteV6 = {
+    Destination = "::/0";
+    GatewayOnLink = true;
+    Gateway = "2607:5300:60:70ff:ff:ff:ff:ff";
+  };
 
   ifcfg-foxden = {
     addresses = [
@@ -106,13 +114,7 @@ in
         {
           interfaces.default = {
             dns.auxAddresses = [ mainIPv4 ];
-            routes = [
-              {
-                Destination = "::/0";
-                GatewayOnLink = true;
-                Gateway = "2607:5300:60:70ff:ff:ff:ff:ff";
-              }
-            ];
+            routes = [ defaultRouteV4 ];
           };
           interfaces.foxden.routes = [
             {
@@ -120,6 +122,20 @@ in
               Gateway = "10.99.12.1";
             }
           ];
+        }
+      ];
+    mkFullHost =
+      mac: iface:
+      lib.mkMerge [
+        (mkMinHost ({ inherit mac; } // iface))
+        {
+          interfaces.default = {
+            driver.name = "sriov";
+            routes = [
+              defaultRouteV4
+              defaultRouteV6
+            ];
+          };
         }
       ];
   };
@@ -191,16 +207,8 @@ in
   systemd.network.networks."30-${ifcfg.interface}" = {
     name = ifcfg.interface;
     routes = [
-      {
-        Destination = "0.0.0.0/0";
-        GatewayOnLink = true;
-        Gateway = "167.114.157.254";
-      }
-      {
-        Destination = "::/0";
-        GatewayOnLink = true;
-        Gateway = "2607:5300:60:70ff:ff:ff:ff:ff";
-      }
+      defaultRouteV4
+      defaultRouteV6
     ];
     address = ifcfg.addresses;
     dns = ifcfg.nameservers;
@@ -239,29 +247,6 @@ in
       MTUBytes = ifcfg-foxden.mtu;
     };
   };
-
-  systemd.services."sriov-init-${ifcfg.interface}" =
-    let
-      netdev = "sys-subsystem-net-devices-${utils.escapeSystemdPath ifcfg.interface}.device";
-    in
-    {
-      after = [ netdev ];
-      wants = [ netdev ];
-
-      before = [ "libvirtd.service" ];
-      wantedBy = [
-        "multi-user.target"
-        "libvirtd.service"
-      ];
-
-      serviceConfig = {
-        Type = "oneshot";
-        ExecStart = [
-          "${pkgs.bash}/bin/bash -c 'echo 1 > /sys/class/net/${ifcfg.interface}/device/sriov_numvfs'"
-        ];
-        Restart = "no";
-      };
-    };
 
   foxDen.services = {
     wireguard.${ifcfg-foxden.phyIface} = config.lib.foxDen.sops.mkIfAvailable {

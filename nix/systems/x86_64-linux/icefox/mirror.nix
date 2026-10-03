@@ -1,7 +1,4 @@
 { config, ... }:
-let
-  mkV6Host = config.lib.foxDenSys.mkV6Host;
-in
 {
   foxDen.services = config.lib.foxDen.sops.mkIfAvailable {
     mirror = {
@@ -28,7 +25,7 @@ in
   };
 
   foxDen.hosts.hosts = {
-    mirror = mkV6Host {
+    mirror = config.lib.foxDenSys.mkFullHost "02:00:00:ed:b3:f1" {
       dns = {
         fqdns = [
           "mirror.doridian.net"

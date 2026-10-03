@@ -62,13 +62,32 @@ in
         totalvfs="$(cat /sys/class/net/${root}/device/sriov_totalvfs)"
         numvfs="$(cat "$numvfs_file")"
         if [ "$numvfs" -eq 0 ]; then
+          # Probing every VF up front is slow, so leave them unbound and only
+          # probe the ones we actually hand out (see probe_vf)
+          echo 0 > /sys/class/net/${root}/device/sriov_drivers_autoprobe
           echo $totalvfs > "$numvfs_file"
+          numvfs="$totalvfs"
         fi
+
+        probe_vf() {
+          vf_dev="/sys/class/net/${root}/device/virtfn$1"
+          if [ -e "$vf_dev/driver" ]; then
+            return 0
+          fi
+          # With autoprobe off, the PCI core only lets a VF bind through
+          # driver_override, so look up which driver it wants
+          vf_driver="$(${pkgs.kmod}/bin/modprobe -R "$(cat "$vf_dev/modalias")" | ${pkgs.coreutils}/bin/head -1)"
+          ${pkgs.kmod}/bin/modprobe "$vf_driver"
+          echo "$vf_driver" > "$vf_dev/driver_override"
+          ${pkgs.coreutils}/bin/basename "$(${pkgs.coreutils}/bin/readlink -f "$vf_dev")" > /sys/bus/pci/drivers_probe
+        }
 
         assign_vf() {
           idx="$1"
           # Enable spoof checking, set MAC and VLAN
           ${ipCmd} link set dev "${root}" vf "$idx" spoofchk on mac "${interface.mac}" vlan "${toString vlan}"
+          # Probe after setting the MAC, so the VF comes up with it right away
+          probe_vf "$idx"
           # Find current name of VF interface
           ifname=""
           maxtries=1200
@@ -128,6 +147,11 @@ in
 
         # Condition C: No free VFs, go hunting for unused ones (in main netns)
         for i in `seq 0 $(( $numvfs - 1 ))`; do
+          # A VF that was never probed is not in use by anyone
+          if [ ! -e "/sys/class/net/${root}/device/virtfn$i/driver" ]; then
+            assign_vf "$i"
+            exit 0
+          fi
           # If the interface is listed here with its name, it is in the root
           # NS, so it is unused - unless it is one we manage there ourselves
           ifname="$(${pkgs.coreutils}/bin/ls /sys/class/net/${root}/device/virtfn$i/net/ 2>/dev/null || :)"
