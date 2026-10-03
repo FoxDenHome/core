@@ -7,6 +7,7 @@ import (
 	"net/netip"
 	"os"
 	"os/exec"
+	"slices"
 	"strings"
 
 	"github.com/vishvananda/netlink"
@@ -14,13 +15,16 @@ import (
 )
 
 const (
+	rulePrioSource   = 5207
 	rulePrioSuppress = 5208
 	rulePrioTunnel   = 5209
 )
 
 type platformState struct {
-	routes []netlink.Route
-	rules  []*netlink.Rule
+	routes   []netlink.Route
+	rules    []*netlink.Rule
+	srcAddrs []netip.Prefix
+	srcRules []*netlink.Rule
 }
 
 func (t *Tunnel) create(mtu int) error {
@@ -139,7 +143,10 @@ func (t *Tunnel) setRoutes(cfg Config) error {
 		}
 	}
 	t.plat.routes = want
-	return t.addRules()
+	if err := t.addRules(); err != nil {
+		return err
+	}
+	return t.setSourceRules(cfg.Addresses)
 }
 
 func containsRoute(rs []netlink.Route, r netlink.Route) bool {
@@ -188,11 +195,50 @@ func (t *Tunnel) addRules() error {
 	return nil
 }
 
+// setSourceRules sends lookups from our own tunnel addresses straight to
+// RouteTable. Outgoing traffic only carries such a source once it is already
+// bound to the tunnel, so routing is unchanged, but reverse-path checks need
+// it: fib6_lookup(), which nft's fib expression and so firewalld's strict
+// IPv6_rpfilter use, ignores suppress_prefixlength, settles on main's default
+// route and would drop every reply arriving on the tunnel.
+func (t *Tunnel) setSourceRules(addrs []netip.Prefix) error {
+	if slices.Equal(addrs, t.plat.srcAddrs) {
+		return nil
+	}
+	t.delSourceRules()
+	for _, a := range addrs {
+		r := netlink.NewRule()
+		r.Family = netlink.FAMILY_V4
+		if a.Addr().Is6() {
+			r.Family = netlink.FAMILY_V6
+		}
+		r.Priority = rulePrioSource
+		r.Table = RouteTable
+		r.Src = ptr(prefixToIPNet(netip.PrefixFrom(a.Addr(), a.Addr().BitLen())))
+		_ = netlink.RuleDel(r)
+		if err := netlink.RuleAdd(r); err != nil {
+			t.delSourceRules()
+			return fmt.Errorf("adding rule from %s: %w", a.Addr(), err)
+		}
+		t.plat.srcRules = append(t.plat.srcRules, r)
+	}
+	t.plat.srcAddrs = slices.Clone(addrs)
+	return nil
+}
+
+func (t *Tunnel) delSourceRules() {
+	for _, r := range t.plat.srcRules {
+		_ = netlink.RuleDel(r)
+	}
+	t.plat.srcRules, t.plat.srcAddrs = nil, nil
+}
+
 func (t *Tunnel) delRules() {
 	for _, r := range t.plat.rules {
 		_ = netlink.RuleDel(r)
 	}
 	t.plat.rules = nil
+	t.delSourceRules()
 }
 
 func (t *Tunnel) clearRoutes() error {
@@ -216,6 +262,15 @@ func CleanupStale(opts Options) {
 			r.Family = fam
 			r.Priority = prio
 			t.plat.rules = append(t.plat.rules, r)
+		}
+		// One source rule per address; a priority-only delete removes any.
+		r := netlink.NewRule()
+		r.Family = fam
+		r.Priority = rulePrioSource
+		for range 16 {
+			if netlink.RuleDel(r) != nil {
+				break
+			}
 		}
 	}
 	t.delRules()
