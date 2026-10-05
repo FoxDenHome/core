@@ -16,7 +16,10 @@ sub vcl_recv {
 
   set req.http.resp-body = table.lookup(static_root, req.url.path);
   if (req.http.resp-body) {
-    set req.http.resp-meta = table.lookup(static_root, req.url.path + ".meta");
+    set req.http.resp-tmp = table.lookup(static_root, req.url.path + ".meta");
+    if (req.http.resp-tmp) {
+      set req.http.resp-meta = digest.base64_decode(req.http.resp-tmp);
+    }
     set req.http.resp-tmp = req.http.resp-meta:status;
     if (req.http.resp-tmp) {
       error std.atoi(req.http.resp-tmp);
