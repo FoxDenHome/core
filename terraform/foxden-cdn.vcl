@@ -93,6 +93,7 @@ sub vcl_error {
 
   set obj.http.Content-Type = "text/plain";
   set obj.http.Cache-Control = "no-store";
+  set obj.http.Access-Control-Allow-Origin = "*";
   unset obj.http.Retry-After;
 
   if (req.http.resp-meta) {
