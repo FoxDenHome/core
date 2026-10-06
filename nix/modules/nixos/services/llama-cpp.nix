@@ -67,6 +67,12 @@ in
                 (toString svcConfig.contextSize)
                 "--parallel"
                 "1"
+                # q8_0 V cache doubles long-context prompt processing on the 780M (Vulkan)
+                # Do not raise --ubatch-size to 2048 with flash-attn, it hangs the GPU compute ring
+                "--flash-attn"
+                "on"
+                "--cache-type-v"
+                "q8_0"
                 "--jinja"
               ]
               ++ svcConfig.extraFlags
