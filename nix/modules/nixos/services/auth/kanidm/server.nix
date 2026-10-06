@@ -163,7 +163,7 @@ in
                 enableUnix = true;
                 gidNumber = 2010;
                 displayName = "Wizzy";
-                mailAddresses = [ "demwizzy@gmail.com" ];
+                mailAddresses = [ "wizzy@foxden.network" ];
               };
             };
           };
