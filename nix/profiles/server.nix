@@ -1,6 +1,7 @@
 # Mostly https://github.com/NixOS/nixpkgs/blob/master/nixos/modules/profiles/headless.nix
 {
   lib,
+  pkgs,
   config,
   ...
 }:
@@ -46,6 +47,24 @@
   networking.firewall.extraInputRules = ''
     ip saddr 10.0.0.0/8 tcp dport ${toString config.services.prometheus.exporters.node.port} accept
     ip6 saddr fc00::/7 tcp dport ${toString config.services.prometheus.exporters.node.port} accept
+  '';
+
+  # The kernel only spins disks down on poweroff, not on reboot, so a warm
+  # reboot leaves them spinning through the HBA reset. Stop them explicitly.
+  # Runs after filesystems are unmounted; single sdparm call so it's only
+  # exec'd once from /nix. ($1 is halt/poweroff/reboot/kexec)
+  systemd.shutdown."disk-spindown-on-reboot" = pkgs.writeShellScript "disk-spindown-on-reboot" ''
+    [ "$1" = "reboot" ] || exit 0
+    set -- /dev/sd?*
+    [ -e "$1" ] || exit 0
+    disks=""
+    for dev in "$@"; do
+      case "$dev" in *[0-9]) continue ;; esac
+      disks="$disks $dev"
+    done
+    [ -n "$disks" ] || exit 0
+    sync
+    ${pkgs.sdparm}/bin/sdparm --readonly --command=stop $disks || true
   '';
 
   networking.firewall.allowedTCPPorts = [ 5201 ]; # iperf3 default port for testing
