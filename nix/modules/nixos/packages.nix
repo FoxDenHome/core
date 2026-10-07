@@ -57,6 +57,22 @@ let
       (final: prev: {
         podman = nixpkgs-podman.legacyPackages.${systemArch}.podman;
       })
+      # The python wheel only ships providers_shared, so the MIGraphX EP silently falls back to CPU
+      (
+        final: prev:
+        lib.optionalAttrs nixPkgConfig.rocmSupport {
+          pythonPackagesExtensions = prev.pythonPackagesExtensions ++ [
+            (pyFinal: pyPrev: {
+              onnxruntime = pyPrev.onnxruntime.overridePythonAttrs (old: {
+                postInstall = (old.postInstall or "") + ''
+                  ln -s ${final.onnxruntime}/lib/libonnxruntime_providers_migraphx.so \
+                    $out/${pyFinal.python.sitePackages}/onnxruntime/capi/
+                '';
+              });
+            })
+          ];
+        }
+      )
     ];
   };
 
