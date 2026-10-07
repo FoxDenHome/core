@@ -57,17 +57,31 @@ let
       (final: prev: {
         podman = nixpkgs-podman.legacyPackages.${systemArch}.podman;
       })
-      # The python wheel only ships providers_shared, so the MIGraphX EP silently falls back to CPU
       (
         final: prev:
         lib.optionalAttrs nixPkgConfig.rocmSupport {
           pythonPackagesExtensions = prev.pythonPackagesExtensions ++ [
             (pyFinal: pyPrev: {
+              # The python wheel only ships providers_shared, so the MIGraphX EP silently falls back to CPU
               onnxruntime = pyPrev.onnxruntime.overridePythonAttrs (old: {
                 postInstall = (old.postInstall or "") + ''
                   ln -s ${final.onnxruntime}/lib/libonnxruntime_providers_migraphx.so \
                     $out/${pyFinal.python.sitePackages}/onnxruntime/capi/
                 '';
+              });
+              # OpenCV dnn and MIGraphX both register tensor_shape.proto in the shared libprotobuf,
+              # which aborts the process when both are loaded (e.g. immich-machine-learning)
+              opencv4 = pyPrev.opencv4.overrideAttrs (old: {
+                buildInputs = lib.remove final.protobuf old.buildInputs;
+                cmakeFlags =
+                  lib.subtractLists [
+                    (lib.cmakeBool "BUILD_PROTOBUF" false)
+                    (lib.cmakeBool "PROTOBUF_UPDATE_FILES" true)
+                  ] old.cmakeFlags
+                  ++ [
+                    (lib.cmakeBool "BUILD_PROTOBUF" true)
+                    (lib.cmakeBool "PROTOBUF_UPDATE_FILES" false)
+                  ];
               });
             })
           ];
