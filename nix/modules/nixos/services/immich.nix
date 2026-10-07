@@ -135,6 +135,12 @@ in
               MACHINE_LEARNING_PRELOAD__CLIP__VISUAL = clipModelName;
               MACHINE_LEARNING_PRELOAD__FACIAL_RECOGNITION__DETECTION = facialRecognitionModelName;
               MACHINE_LEARNING_PRELOAD__FACIAL_RECOGNITION__RECOGNITION = facialRecognitionModelName;
+            }
+            // lib.optionalAttrs config.foxDen.amdgpu.enable {
+              # MIGraphX compiles each model on first load, which blocks the worker far longer than the default timeout
+              # Compiled models are cached in /var/cache/immich/*/migraphx, so later starts are fast
+              MACHINE_LEARNING_WORKER_TIMEOUT = lib.mkForce "7200";
+              MACHINE_LEARNING_ROCM_PRECISION = "FP16";
             };
           };
           settings = {

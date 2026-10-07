@@ -17,7 +17,11 @@
     "r8169"
     "rdma_cm"
   ];
-  foxDen.amdgpu.enable = true;
+  foxDen.amdgpu = {
+    enable = true;
+    # 780M is gfx1103, which ROCm does not officially support
+    hsaOverrideGfxVersion = "11.0.0";
+  };
   services.hardware.bolt.enable = true;
   powerManagement.cpuFreqGovernor = "performance";
 
