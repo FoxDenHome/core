@@ -154,7 +154,7 @@ Nix: `pkgs.foxden-vpn` (`nix/packages/foxden-vpn`) contains all three binaries.
 
 `foxden-vpn-edge` runs on islandfox as host `tunnel` (`tunnel.f0x.es`, 10.2.11.43; `nix/modules/nixos/services/auth/vpn-edge.nix`).
 
-- **Routing:** foxIngress sends `tunnel.f0x.es` and `_.tunnel.f0x.es` (every name below it) to the edge's PROXY ports 81/444. The routers forward TCP 30000-30199 to it directly. `*.tunnel.f0x.es` is a CNAME to `tunnel.f0x.es`, whose address dyndns keeps current.
+- **Routing:** foxIngress sends `tunnel.f0x.es` and `_.tunnel.f0x.es` (every name below it) to the edge's PROXY ports 81/444. The routers forward TCP 30000-30199 to it directly. `*.tunnel.f0x.es` is a CNAME to `tunnel.f0x.es`, whose address dyndns keeps current. On the LAN, the routers answer `tunnel.f0x.es` and every name below it with the edge's internal addresses (`match-subdomain`, `INTERNAL_SUBDOMAIN_HOSTS` in `mikrotik/configure/dns.py`), not the prefix-translated public IPv6 address.
 - **Control service:** UDP port 4443 (QUIC) is neither forwarded nor behind foxIngress. VPN clients reach it like any LAN host. The portal puts its location into every device's configuration.
 - **Certificate:** the wildcard needs DNS-01. `_acme-challenge.tunnel.f0x.es` is a dynamic TXT record at dns.he.net, and lego's `hurricane` provider updates it with that record's DDNS key. The edge picks up renewals by itself.
 

@@ -58,6 +58,13 @@ INTERNAL_ZONES = [
     "foxden.network",
 ]
 
+# Hosts outside INTERNAL_ZONES whose internal addresses answer for them and
+# every name below them, so LAN clients do not get the prefix-translated
+# public IPv6 address. tunnel.f0x.es is foxden-vpn-edge (*.tunnel.f0x.es).
+INTERNAL_SUBDOMAIN_HOSTS = [
+    "tunnel.f0x.es",
+]
+
 
 def mtik_key(record: dict[str, Any]) -> str:
     additional_fields = MTIK_RECORD_TYPE_UNIQUE_FIELDS.get(record["type"], set())
@@ -193,6 +200,19 @@ def refresh_dns():
                 continue
 
             mikrotik_records += mtik_process(record_raw)
+
+    for host in INTERNAL_SUBDOMAIN_HOSTS:
+        found = False
+        for rec_type in ("A", "AAAA"):
+            record_raw = find_record(host, rec_type)
+            if record_raw is None:
+                continue
+            found = True
+            for record in mtik_process(record_raw):
+                record["match-subdomain"] = "true"
+                mikrotik_records.append(record)
+        if not found:
+            raise RuntimeError(f"No internal A or AAAA record for {host}")
 
     mikrotik_records += FIXED_RECORDS
     mikrotik_forwarders += FIXED_FORWARDERS

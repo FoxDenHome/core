@@ -146,15 +146,59 @@ class TestRefreshDns(unittest.TestCase):
         self.addCleanup(self.tmp.cleanup)
         self.addCleanup(setattr, dns, "INTERNAL_RECORDS", None)
 
-    def run_dns(self, records: list[dict[str, Any]], router: FakeRouter) -> None:
+    def run_dns(
+        self,
+        records: list[dict[str, Any]],
+        router: FakeRouter,
+        other: dict[str, list[dict[str, Any]]] | None = None,
+        subdomain_hosts: list[str] | None = None,
+    ) -> None:
         path = path_join(self.tmp.name, "dns.json")
         with open(path, "w") as f:
-            json.dump({"records": {"internal": {ZONE: records}}}, f)
+            json.dump({"records": {"internal": {ZONE: records, **(other or {})}}}, f)
         with (
             patch.object(dns, "check_output", return_value=path.encode()),
             patch.object(dns, "ROUTERS", [router]),
+            patch.object(dns, "INTERNAL_SUBDOMAIN_HOSTS", subdomain_hosts or []),
         ):
             quiet(dns.refresh_dns)
+
+    def test_subdomain_hosts(self) -> None:
+        other_zone = "example.es"
+
+        def rec(name: str, rectype: str, value: str) -> dict[str, Any]:
+            return {**raw(name, rectype, value), "zone": other_zone}
+
+        router = FakeRouter()
+        self.run_dns(
+            [],
+            router,
+            other={
+                other_zone: [
+                    rec("tunnel", "A", "10.2.11.43"),
+                    rec("tunnel", "AAAA", "fd2c:f4cb:63be:2::b2b"),
+                    rec("@", "MX", "mail.example.com."),
+                ]
+            },
+            subdomain_hosts=[f"tunnel.{other_zone}"],
+        )
+        added = [
+            r
+            for r in router.resources[STATIC].rows
+            if r["name"] == f"tunnel.{other_zone}"
+        ]
+        self.assertEqual(
+            sorted((r["type"], r["address"], r["match-subdomain"]) for r in added),
+            [
+                ("A", "10.2.11.43", "true"),
+                ("AAAA", "fd2c:f4cb:63be:2::b2b", "true"),
+            ],
+        )
+        # Only the listed host comes from a zone that is not internal.
+        self.assertNotIn(other_zone, {r["name"] for r in router.resources[STATIC].rows})
+
+        with self.assertRaises(RuntimeError):
+            self.run_dns([], FakeRouter(), subdomain_hosts=["missing.example.es"])
 
     def test_creates_records_and_is_idempotent(self) -> None:
         router = FakeRouter()
