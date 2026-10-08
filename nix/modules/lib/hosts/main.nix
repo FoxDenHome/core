@@ -87,7 +87,7 @@ in
         submodule {
           options = {
             port = lib.mkOption {
-              type = nullOr ints.u16;
+              type = nullOr foxDenLib.types.portOrRange;
               default = null;
             };
             protocol = lib.mkOption {

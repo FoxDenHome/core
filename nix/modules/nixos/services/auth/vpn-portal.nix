@@ -11,6 +11,7 @@ let
   services = foxDenLib.services;
 
   svcConfig = config.foxDen.services.vpn-portal;
+  edge = config.foxDen.services.vpn-edge;
 
   hostName = services.getFirstFQDN config svcConfig;
   proto = if svcConfig.tls.enable then "https" else "http";
@@ -41,6 +42,8 @@ let
       inherit (launcher) hosts;
       jit_radius = svcConfig.jitRadiusUrl;
     };
+    # Where `foxden-vpnd expose` reaches the expose edge, through the tunnel.
+    vpn.expose = if edge.enable then edge.provision else null;
     # Kerberos client certificates for registered devices' owners (PKINIT).
     pkinit = {
       realm = config.foxDen.kerberos.realm;

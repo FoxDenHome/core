@@ -13,7 +13,7 @@ pkgs.buildGoModule {
     ];
   };
 
-  vendorHash = "sha256-juihFmh22UpNGDGrx5uekibMLnziF01HLMpMxmQkeJI=";
+  vendorHash = "sha256-4pjL+vHLBHUUh7VolLII9U2tiQVoA+aUoufBrio2H/U=";
 
   env.CGO_ENABLED = "0";
   ldflags = [
@@ -22,7 +22,7 @@ pkgs.buildGoModule {
   ];
 
   meta = {
-    description = "FoxDen VPN client daemon, tray applet and device portal";
+    description = "FoxDen VPN client daemon, tray applet, device portal and expose edge";
     mainProgram = "foxden-vpn-portal";
   };
 }

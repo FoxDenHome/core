@@ -265,7 +265,7 @@ in
               default = null;
             };
             dstport = lib.mkOption {
-              type = nullOr ints.u16;
+              type = nullOr foxDenLib.types.portOrRange;
               default = null;
             };
             protocol = lib.mkOption {
@@ -327,7 +327,7 @@ in
               default = config.foxDen.hosts.gateway;
             };
             port = lib.mkOption {
-              type = ints.u16;
+              type = foxDenLib.types.portOrRange;
             };
             protocol = lib.mkOption {
               type = enum [

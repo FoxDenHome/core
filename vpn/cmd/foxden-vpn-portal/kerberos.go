@@ -18,6 +18,7 @@ import (
 
 	"github.com/FoxDenHome/core/vpn/internal/pkinit"
 	"github.com/FoxDenHome/core/vpn/internal/provision"
+	"github.com/FoxDenHome/core/vpn/internal/registry"
 	"golang.zx2c4.com/wireguard/wgctrl/wgtypes"
 )
 
@@ -69,6 +70,9 @@ type deviceChallengeResponse struct {
 func (p *portal) deviceChallenge(w http.ResponseWriter, r *http.Request) {
 	var req struct {
 		PublicKey string `json:"public_key"`
+		// Purpose is what the proof is for: purposePKINIT (the default) or
+		// purposeExpose.
+		Purpose string `json:"purpose"`
 	}
 	if err := json.NewDecoder(http.MaxBytesReader(w, r.Body, 1<<16)).Decode(&req); err != nil {
 		writeAPIJSON(w, http.StatusBadRequest, apiError{"bad request"})
@@ -77,6 +81,14 @@ func (p *portal) deviceChallenge(w http.ResponseWriter, r *http.Request) {
 	pub, err := wgtypes.ParseKey(req.PublicKey)
 	if err != nil {
 		writeAPIJSON(w, http.StatusBadRequest, apiError{"invalid public key"})
+		return
+	}
+	switch req.Purpose {
+	case "":
+		req.Purpose = purposePKINIT
+	case purposePKINIT, purposeExpose:
+	default:
+		writeAPIJSON(w, http.StatusBadRequest, apiError{"unknown purpose"})
 		return
 	}
 	snap, err := p.readPrimary(r.Context())
@@ -96,7 +108,7 @@ func (p *portal) deviceChallenge(w http.ResponseWriter, r *http.Request) {
 	}
 	sum := sha256.Sum256(secret)
 	token, err := p.signToken(enrollToken{
-		Purpose: purposePKINIT, Key: pub.String(),
+		Purpose: req.Purpose, Key: pub.String(),
 		Challenge: hex.EncodeToString(sum[:]), Expires: time.Now().Add(pkinitChallengeTTL),
 	})
 	if err != nil {
@@ -144,6 +156,20 @@ func pkinitKey(b64 string) (any, error) {
 	return pub, nil
 }
 
+// activePeer is the registered, enabled and owned peer holding key.
+func activePeer(snap *registry.Snapshot, key string) (*registry.Peer, error) {
+	peer := snap.ByKey(key)
+	switch {
+	case peer == nil:
+		return nil, errors.New("this device is not registered")
+	case peer.Disabled:
+		return nil, errors.New("this device is disabled")
+	case peer.Owner == "":
+		return nil, errors.New("this device has no owner; register it through the portal")
+	}
+	return peer, nil
+}
+
 func (p *portal) kerberosCert(w http.ResponseWriter, r *http.Request) {
 	if p.ca == nil {
 		writeAPIJSON(w, http.StatusServiceUnavailable, apiError{"Kerberos certificates are not configured"})
@@ -169,16 +195,9 @@ func (p *portal) kerberosCert(w http.ResponseWriter, r *http.Request) {
 		writeAPIJSON(w, http.StatusServiceUnavailable, apiError{"cannot reach the router"})
 		return
 	}
-	peer := snap.ByKey(tok.Key)
-	switch {
-	case peer == nil:
-		writeAPIJSON(w, http.StatusForbidden, apiError{"this device is not registered"})
-		return
-	case peer.Disabled:
-		writeAPIJSON(w, http.StatusForbidden, apiError{"this device is disabled"})
-		return
-	case peer.Owner == "":
-		writeAPIJSON(w, http.StatusForbidden, apiError{"this device has no owner; register it through the portal"})
+	peer, err := activePeer(snap, tok.Key)
+	if err != nil {
+		writeAPIJSON(w, http.StatusForbidden, apiError{err.Error()})
 		return
 	}
 	cert, err := p.ca.IssueClient(peer.Owner, p.cfg.PKINIT.Realm, pub, p.caTTL)

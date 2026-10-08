@@ -1,9 +1,11 @@
 locals {
+  # The dns-he-net provider rejects wildcard names (its domain regexp has
+  # no "*" label), so those are created by hand in the HE web UI.
   records_ext = [for r in var.records : merge(r, {
     type = upper(r.type)
     host = r.name == "@" ? "" : r.name
     fqdn = r.name == "@" ? var.domain : "${r.name}.${var.domain}"
-  })]
+  }) if !startswith(r.name, "*")]
 
   record_map = zipmap([for r in local.records_ext : "${r.type};${r.name};${r.value}"], local.records_ext)
 
@@ -13,6 +15,9 @@ locals {
   dyndns_hosts_fqdns  = toset([for _, v in local.dyndns_hosts : v.fqdn])
   dyndns_ipv4_by_fqdn = { for _, v in local.dyndns_hosts : v.fqdn => v.value if v.type == "A" }
   dyndns_ipv6_by_fqdn = { for _, v in local.dyndns_hosts : v.fqdn => v.value if v.type == "AAAA" }
+  # Dynamic TXT records are for ACME DNS-01 (lego's "hurricane" provider),
+  # not for the routers' address updates.
+  dyndns_txt_fqdns = toset([for _, v in local.dyndns_hosts : v.fqdn if v.type == "TXT"])
 }
 
 resource "dns-he-net_a" "static" {
@@ -128,6 +133,20 @@ resource "dns-he-net_aaaa" "dynamic" {
   }
 }
 
+resource "dns-he-net_txt" "dynamic" {
+  zone_id  = var.he_zone_id
+  for_each = { for _, v in local.dyndns_hosts : v.fqdn => v if v.type == "TXT" }
+
+  domain  = each.value.fqdn
+  ttl     = each.value.ttl
+  data    = "\"${each.value.value}\""
+  dynamic = true
+
+  lifecycle {
+    ignore_changes = [data]
+  }
+}
+
 resource "random_password" "he_dynamic_key" {
   for_each = local.dyndns_hosts_fqdns
 
@@ -148,6 +167,7 @@ output "he_dynamic_keys" {
     key  = random_password.he_dynamic_key[fqdn].result
     ipv4 = try(local.dyndns_ipv4_by_fqdn[fqdn], null)
     ipv6 = try(local.dyndns_ipv6_by_fqdn[fqdn], null)
+    txt  = contains(local.dyndns_txt_fqdns, fqdn)
   } }
   sensitive = true
 }

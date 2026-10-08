@@ -3,6 +3,7 @@
 //	foxden-vpnd            run the daemon (as root)
 //	foxden-vpnd pubkey     print this device's public key
 //	foxden-vpnd status     print the daemon's status as JSON
+//	foxden-vpnd expose     publish a local port (see `foxden-vpnd expose -h`)
 package main
 
 import (
@@ -72,6 +73,9 @@ func main() {
 		}
 		b, _ := json.MarshalIndent(st, "", "  ")
 		fmt.Println(string(b))
+		return
+	case "expose":
+		runExpose(*socket, flag.Args()[1:])
 		return
 	default:
 		log.Fatalf("unknown command %q", flag.Arg(0))

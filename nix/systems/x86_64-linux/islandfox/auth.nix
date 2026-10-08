@@ -30,6 +30,10 @@ in
         displayName = "FoxDen portal";
       };
     };
+    vpn-edge = {
+      enable = true;
+      host = "tunnel";
+    };
     kerberos = {
       enable = true;
       host = "kerberos";
@@ -88,6 +92,25 @@ in
       addresses = [
         "10.2.11.40/16"
         "fd2c:f4cb:63be:2::b28/64"
+      ];
+    };
+    # foxden-vpnd expose: HTTPS under *.tunnel.f0x.es via foxIngress, raw TCP
+    # on a forwarded port range.
+    tunnel = mkVlanHost 2 {
+      dns = {
+        fqdns = [ "tunnel.f0x.es" ];
+        dynDns = true;
+      };
+      webservice.enable = true;
+      firewall.portForwards = [
+        {
+          protocol = "tcp";
+          port = config.foxDen.services.vpn-edge.tcpPorts.range;
+        }
+      ];
+      addresses = [
+        "10.2.11.43/16"
+        "fd2c:f4cb:63be:2::b2b/64"
       ];
     };
     kerberos = mkVlanHost 2 {

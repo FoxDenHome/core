@@ -73,6 +73,14 @@ func (d *Daemon) Serve(ctx context.Context, socket, group string) error {
 		}
 		writeJSON(w, cert)
 	})
+	mux.HandleFunc("POST /v1/expose/ticket", func(w http.ResponseWriter, r *http.Request) {
+		t, err := d.ExposeTicket(r.Context())
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadGateway)
+			return
+		}
+		writeJSON(w, t)
+	})
 	mux.HandleFunc("POST /v1/enroll/start", func(w http.ResponseWriter, r *http.Request) {
 		var req api.EnrollStartRequest
 		if err := json.NewDecoder(http.MaxBytesReader(w, r.Body, 1<<16)).Decode(&req); err != nil {

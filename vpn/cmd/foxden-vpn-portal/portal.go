@@ -134,6 +134,8 @@ func (p *portal) routes() http.Handler {
 	mux.HandleFunc("POST /api/enroll/complete", p.enrollComplete)
 	mux.HandleFunc("POST /api/device/challenge", p.deviceChallenge)
 	mux.HandleFunc("POST /api/kerberos/cert", p.kerberosCert)
+	mux.HandleFunc("POST /api/expose/ticket", p.exposeTicket)
+	mux.HandleFunc("POST /api/expose/check", p.exposeCheck)
 	mux.HandleFunc("GET /login", p.login)
 	mux.HandleFunc("GET /oauth2/callback", p.callback)
 	mux.HandleFunc("POST /logout", func(w http.ResponseWriter, r *http.Request) {

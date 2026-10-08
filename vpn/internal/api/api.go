@@ -131,6 +131,17 @@ type KerberosCert struct {
 	Expires     time.Time `json:"expires"`
 }
 
+// ExposeTicket lets `foxden-vpnd expose` open tunnels on the expose edge
+// for this device. It is short-lived; get a new one per connection.
+type ExposeTicket struct {
+	Ticket  string    `json:"ticket"`
+	Expires time.Time `json:"expires"`
+	// Edges are the control service's addresses (host:port), reached
+	// through the tunnel, and ServerName the name on its certificate.
+	Edges      []string `json:"edges"`
+	ServerName string   `json:"server_name"`
+}
+
 // Share is an SMB share the device's owner may mount.
 type Share struct {
 	Name    string `json:"name"`
@@ -245,6 +256,14 @@ func (c *Client) EnrollComplete(token, challenge string) (*Status, error) {
 func (c *Client) KerberosCert(publicKey string) (*KerberosCert, error) {
 	var out KerberosCert
 	if err := c.call(http.MethodPost, "/v1/kerberos/cert", KerberosCertRequest{PublicKey: publicKey}, 90*time.Second, &out); err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+func (c *Client) ExposeTicket() (*ExposeTicket, error) {
+	var out ExposeTicket
+	if err := c.call(http.MethodPost, "/v1/expose/ticket", nil, 90*time.Second, &out); err != nil {
 		return nil, err
 	}
 	return &out, nil

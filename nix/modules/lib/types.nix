@@ -81,4 +81,19 @@ in
     && portValid
     && ((ipv4Check ip) || (ipv6Check ip))
   );
+
+  # A port, or an inclusive range written "first-last" (RouterOS and
+  # nftables both take that form as is).
+  portOrRange = types.either types.port (
+    types.addCheck types.str (
+      range:
+      let
+        split = builtins.match "^([0-9]+)-([0-9]+)$" range;
+        first = nixpkgs.lib.strings.toIntBase10 (builtins.elemAt split 0);
+        last = nixpkgs.lib.strings.toIntBase10 (builtins.elemAt split 1);
+        validTry = builtins.tryEval (first > 0 && first < last && last <= 65535);
+      in
+      split != null && validTry.success && validTry.value
+    )
+  );
 }

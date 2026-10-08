@@ -33,6 +33,9 @@ def write_all_hosts(indent: str) -> list[str]:
         if host in SPECIAL_HOSTS:
             continue
         hostCfg = hosts[host]
+        if hostCfg.get("txt"):
+            # ACME DNS-01 records, updated by whoever requests the certificate
+            continue
         if hostCfg.get("ipv6") is not None:
             lines.append(
                 f'{indent}$dyndnsUpdate host="{host}" key="{hostCfg["key"]}" priv6addr="{hostCfg["ipv6"]}" ip6addr=$ip6addr ipaddr=$ipaddr\n'

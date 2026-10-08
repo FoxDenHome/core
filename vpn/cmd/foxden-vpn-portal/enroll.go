@@ -40,6 +40,10 @@ const enrollTTL = 5 * time.Minute
 const (
 	purposeEnroll = "enroll"
 	purposePKINIT = "pkinit"
+	// purposeExpose proves a device to get an expose ticket, which is a token
+	// with purposeExposeTicket.
+	purposeExpose       = "expose"
+	purposeExposeTicket = "expose-ticket"
 )
 
 // checkAnswer verifies a token for purpose and the device's answer to the

@@ -5,6 +5,7 @@ A WireGuard client manager for macOS and Linux, plus a small self-service portal
 - **`foxden-vpnd`** is the root daemon. It owns the device key, brings the tunnel up when away from home and down when at home, and keeps the endpoint fresh.
 - **`foxden-vpn-tray`** is the menu bar / system tray applet: a native `NSStatusItem` on macOS and a StatusNotifierItem on KDE Plasma.
 - **`foxden-vpn-portal`** runs on islandfox. Users log in with Kanidm and add, replace or remove their own devices.
+- **`foxden-vpn-edge`** runs on islandfox too. It publishes local ports of registered devices, like ngrok (see **Exposing local ports**).
 
 ## How it fits together
 
@@ -97,6 +98,20 @@ Only changes need Kanidm. As an admin breakglass, you can still add a peer on th
 
 - **shutdownd** (Linux): lets the UPS monitor shut the machine down on power loss. It uses the same paths as shutdownd's own `install.sh`, so a manual install is taken over in place. Its private key (`/etc/shutdownd/cert.pem`) is kept at 0600, and removal keeps `/etc/shutdownd`, so the machine keeps its identity. The caller's certificate is pinned in `internal/services/shutdownd-server.pem`; while that file is empty, an existing `/etc/shutdownd/server.pem` is used, and installing on a machine without one is refused.
 
+**Exposing local ports:** `foxden-vpnd expose` publishes a port of this machine until you stop it. Being residential, it offers two things:
+
+```sh
+foxden-vpnd expose http 3000             # https://<random>.tunnel.f0x.es -> localhost:3000
+foxden-vpnd expose tcp 192.168.1.5:22    # tcp://tunnel.f0x.es:<random port> -> 192.168.1.5:22
+foxden-vpnd expose -name demo http 8080  # ask for https://demo.tunnel.f0x.es
+```
+
+- **http:** the edge terminates TLS with a `*.tunnel.f0x.es` certificate and passes the plain bytes on, so the port normally serves HTTP/1.1. Plain HTTP is redirected to HTTPS.
+- **tcp:** a random port in 30000-30199, passed through as is.
+- **How it connects:** the edge's control service is not reachable from the internet, so the VPN has to be up. The device's configuration says where it is: port 4443 on the edge's LAN addresses, reached through the tunnel like the rest of lan, or directly at home. The CLI connects over QUIC and carries every public connection as a stream of that one connection, so the routers never change per tunnel. Each line it prints is one incoming connection, with the client's real address.
+- **Who may:** the CLI runs as you and connects the streams itself; the daemon only vouches for the device. It proves the device to the portal with the WireGuard key, as for Kerberos, and hands the CLI a ticket that is good for 2 minutes. The edge asks the portal whose ticket it is. Up to 10 tunnels per device.
+- **Lifetime:** a tunnel lasts as long as the CLI. If the connection drops, the CLI reconnects and gets the same name or port back: a closed tunnel's address stays reserved for its device for 10 minutes. Removing or disabling the device closes its tunnels within 5 minutes.
+
 **Updates:** the daemon reports a build ID, a hash of its executable. When the tray sees it change, it checks whether its own binary on disk changed too. If so, it re-executes itself, so after an install every running tray picks up the new version. Any updater, including a future self-updater, only has to replace the binaries and then restart the daemon. The tray re-executes through the path it was started from, so on Nix it follows the profile symlink to the new store path.
 
 ## Install
@@ -134,6 +149,27 @@ Nix: `pkgs.foxden-vpn` (`nix/packages/foxden-vpn`) contains all three binaries.
    ```
 
 4. Deploy islandfox. The portal is `portal.foxden.network` (host `portal` in `nix/systems/x86_64-linux/islandfox/auth.nix`, Kanidm client `portal`). Login is limited to Kanidm's `login-users` (option `oAuthGroup`).
+
+### Expose edge
+
+`foxden-vpn-edge` runs on islandfox as host `tunnel` (`tunnel.f0x.es`, 10.2.11.43; `nix/modules/nixos/services/auth/vpn-edge.nix`).
+
+- **Routing:** foxIngress sends `tunnel.f0x.es` and `_.tunnel.f0x.es` (every name below it) to the edge's PROXY ports 81/444. The routers forward TCP 30000-30199 to it directly. `*.tunnel.f0x.es` is a CNAME to `tunnel.f0x.es`, whose address dyndns keeps current.
+- **Control service:** UDP port 4443 (QUIC) is neither forwarded nor behind foxIngress. VPN clients reach it like any LAN host. The portal puts its location into every device's configuration.
+- **Certificate:** the wildcard needs DNS-01. `_acme-challenge.tunnel.f0x.es` is a dynamic TXT record at dns.he.net, and lego's `hurricane` provider updates it with that record's DDNS key. The edge picks up renewals by itself.
+
+To set it up:
+
+1. `tofu apply` in `terraform/`, which creates the dynamic TXT record and its key.
+2. In the dns.he.net web UI, add the CNAME `*.tunnel.f0x.es` → `tunnel.f0x.es`. Terraform skips it: its provider rejects wildcard names.
+3. Add a `foxden-vpn-edge-acme` entry to `nix/secrets/islandfox.yaml` with that key, taken from `tofu output -json he_dynamic_keys`:
+
+   ```
+   HURRICANE_TOKENS=tunnel.f0x.es:<key of _acme-challenge.tunnel.f0x.es>
+   ```
+
+4. Run `mikrotik/configure.py`, which pushes the port forwards, foxIngress and dyndns. The dyndns script skips TXT records.
+5. Deploy islandfox.
 
 ### Existing peers
 

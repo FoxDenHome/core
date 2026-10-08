@@ -107,6 +107,17 @@ type Config struct {
 	Networks         []Network      `json:"networks"`
 	Shares           []Share        `json:"shares,omitempty"`
 	Launcher         *Launcher      `json:"launcher,omitempty"`
+	Expose           *Expose        `json:"expose,omitempty"`
+}
+
+// Expose is where foxden-vpn-edge's control service is: internal addresses,
+// reached through the tunnel like the rest of their network, or directly at
+// home.
+type Expose struct {
+	Addresses []netip.Addr `json:"addresses"`
+	Port      uint16       `json:"port"`
+	// ServerName is the name on the edge's certificate.
+	ServerName string `json:"server_name"`
 }
 
 func (c *Config) IsInternal(a netip.Addr) bool {
