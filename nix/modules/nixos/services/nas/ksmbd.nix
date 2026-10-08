@@ -27,21 +27,13 @@ let
   keytabName = "ksmbd-${config.networking.hostName}";
   keytab = krbCfg.keytabs.${keytabName};
   # One cifs/ principal per name clients may connect by.
-  smbFQDNs = lib.unique (
-    lib.concatMap (
-      host:
-      lib.concatMap (iface: iface.dns.fqdns) (
-        lib.attrValues (foxDenLib.hosts.getByName config host).interfaces
-      )
-    ) ([ svcConfig.host ] ++ svcConfig.extraHosts)
-  );
-  servicePrincipal = "cifs/${lib.head smbFQDNs}@${krbCfg.realm}";
-
   hostFQDNs =
     host:
     lib.concatMap (iface: iface.dns.fqdns) (
       lib.attrValues (foxDenLib.hosts.getByName config host).interfaces
     );
+  smbFQDNs = lib.unique (hostFQDNs svcConfig.host);
+  servicePrincipal = "cifs/${lib.head smbFQDNs}@${krbCfg.realm}";
 
   stateDir = "/var/lib/ksmbd";
   pwddbPath = "${stateDir}/ksmbdpwd.db";
@@ -55,17 +47,13 @@ let
   confPath = "${runtimeDir}/ksmbd.conf";
   nssNamesPath = "${runtimeDir}/nss-names";
 
-  # Interfaces ksmbd binds to, with the netns their link bounce has to
+  # The interface ksmbd binds to, with the netns its link bounce has to
   # happen in (null = root netns).
-  mkHostInterface = host: {
-    name = foxDenLib.hosts.getInterfaceName config host;
-    netns = (foxDenLib.hosts.getByName config host).namespace;
-    routes = (foxDenLib.hosts.getInterface config host).routes or [ ];
+  hostInterface = {
+    name = foxDenLib.hosts.getInterfaceName config svcConfig.host;
+    netns = (foxDenLib.hosts.getByName config svcConfig.host).namespace;
+    routes = (foxDenLib.hosts.getInterface config svcConfig.host).routes or [ ];
   };
-  hostInterfaces = map mkHostInterface ([ svcConfig.host ] ++ svcConfig.extraHosts);
-  interfaceNames = (map (iface: iface.name) hostInterfaces) ++ svcConfig.extraInterfaces;
-
-  hostUnits = map (host: (foxDenLib.hosts.getByName config host).unit) svcConfig.extraHosts;
 
   # kanidm-unixd is not ordered before nss-user-lookup.target, so name it.
   nssUnits = [
@@ -92,7 +80,6 @@ let
     "valid users"
     "write list"
   ];
-  nssUserNames = lib.filter (n: !lib.hasPrefix "@" n) userListNames;
   nssGroupNames = lib.unique (
     map (lib.removePrefix "@") (lib.filter (lib.hasPrefix "@") userListNames)
     ++ namesFromKeys [ "force group" ]
@@ -101,12 +88,11 @@ let
   # Has to stay under the unit's TimeoutStartSec, which ExecStartPre counts
   # against.
   nssTimeout = 60;
-  kdcTimeout = 20;
 
   # A data file rather than part of waitForNss, so new users don't change
   # ksmbd.service and force a restart.
   nssNames = pkgs.writeText "ksmbd-nss-names" (
-    lib.concatMapStrings (name: "passwd ${name}\n") nssUserNames
+    lib.concatMapStrings (name: "passwd ${name}\n") (lib.filter (n: !lib.hasPrefix "@" n) userListNames)
     + lib.concatMapStrings (name: "group ${name}\n") nssGroupNames
   );
 
@@ -164,7 +150,7 @@ let
     text = ''
       conf=${inner confPath}
       support=no
-      deadline=$(( $(date +%s) + ${toString kdcTimeout} ))
+      deadline=$(( $(date +%s) + 20 ))
       while :; do
         if kinit -k -t ${keytab.path} -c MEMORY: ${servicePrincipal}; then
           support=yes
@@ -248,27 +234,21 @@ let
     ];
     text =
       let
-        nsPrefix =
-          iface: if iface.netns == null then "" else "ip netns exec ${lib.escapeShellArg iface.netns} ";
-        forEach = f: lib.concatMapStrings (iface: "${f iface}\n") hostInterfaces;
+        iface = hostInterface;
+        nsPrefix = if iface.netns == null then "" else "ip netns exec ${lib.escapeShellArg iface.netns} ";
+        name = lib.escapeShellArg iface.name;
       in
       ''
         # Bouncing drops IPv6 addresses and routes; keep the former and
         # restore the latter.
-        ${forEach (iface: "${nsPrefix iface}sysctl -qw net.ipv6.conf.${iface.name}.keep_addr_on_down=1")}
+        ${nsPrefix}sysctl -qw net.ipv6.conf.${iface.name}.keep_addr_on_down=1
         for _ in 1 2 3 4 5; do
           sleep 1
-          ${forEach (
-            iface:
-            "${nsPrefix iface}ip link set ${lib.escapeShellArg iface.name} down; ${nsPrefix iface}ip link set ${lib.escapeShellArg iface.name} up"
-          )}
+          ${nsPrefix}ip link set ${name} down; ${nsPrefix}ip link set ${name} up
         done
-        ${forEach (
-          iface:
-          lib.concatMapStringsSep "\n" (
-            route: "${foxDenLib.hosts.renderRoute "${nsPrefix iface}ip" iface.name route} || true"
-          ) (if iface.routes == null then [ ] else iface.routes)
-        )}
+        ${lib.concatMapStringsSep "\n" (
+          route: "${foxDenLib.hosts.renderRoute "${nsPrefix}ip" iface.name route} || true"
+        ) (if iface.routes == null then [ ] else iface.routes)}
       '';
   };
 
@@ -295,26 +275,6 @@ in
         Rebuilds the kernel with SMB_SERVER_SMBDIRECT; without it RDMA
         connects are rejected silently. Needs an RDMA-capable interface in
         the root netns'';
-      extraHosts = lib.mkOption {
-        type = lib.types.listOf lib.types.str;
-        default = [ ];
-        example = [ "nas" ];
-        description = ''
-          Additional foxDen hosts to listen on beyond {option}`host`, in
-          whatever netns they live in.
-        '';
-      };
-      extraInterfaces = lib.mkOption {
-        type = lib.types.listOf lib.types.str;
-        default = [ ];
-        example = [ "br-default" ];
-        description = ''
-          Additional interface names, by literal name, to listen on.
-
-          Never bounced, so they only work if brought up after ksmbd
-          starts. Prefer {option}`extraHosts`.
-        '';
-      };
       settings = lib.mkOption {
         type = lib.types.attrsOf (lib.types.attrsOf lib.types.str);
         default = { };
@@ -373,7 +333,7 @@ in
           # Otherwise ksmbd binds any interface that comes up, including
           # management. TCP only: SMB Direct always binds everything in the
           # root netns.
-          "interfaces" = lib.concatStringsSep " " interfaceNames;
+          "interfaces" = hostInterface.name;
           "bind interfaces only" = "yes";
         };
 
@@ -415,10 +375,8 @@ in
         # Unconfined: `ip netns exec` needs the real /run/netns.
         systemd.services.ksmbd-bounce-interface = {
           description = "Bounce ksmbd's SMB interfaces to force a namespaced socket bind";
-          after = [ "ksmbd.service" ] ++ hostUnits;
-          requires = hostUnits;
-          # Re-bounce when an extra host's interface comes back.
-          partOf = [ "ksmbd.service" ] ++ hostUnits;
+          after = [ "ksmbd.service" ];
+          partOf = [ "ksmbd.service" ];
           serviceConfig = {
             Type = "oneshot";
             ExecStart = "${bounceInterface}/bin/ksmbd-bounce-interface";
@@ -429,7 +387,7 @@ in
           description = "ksmbd userspace daemon";
           wantedBy = [ "multi-user.target" ];
           wants = [ "ksmbd-bounce-interface.service" ] ++ nssUnits;
-          after = hostUnits ++ nssUnits;
+          after = nssUnits;
           # See globalConf.
           restartTriggers = [ globalConf ];
           serviceConfig = {
@@ -488,8 +446,6 @@ in
       }
       {
         foxDen.services.ksmbd.clients = {
-          # The main host, for TCP too; the extra hosts are only for legacy
-          # clients that were set up with them.
           host = lib.head (hostFQDNs svcConfig.host);
           rdmaHost = if svcConfig.smbDirect then lib.head (hostFQDNs svcConfig.host) else null;
           shares = lib.mapAttrsToList (name: share: {
