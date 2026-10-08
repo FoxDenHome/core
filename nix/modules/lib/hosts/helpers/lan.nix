@@ -42,8 +42,8 @@ in
         driver = {
           name = driver;
           sriov = {
-            root = ifcfg.phyIface;
-            rootPvid = ifcfg.phyPvid;
+            root = ifcfg.interface;
+            rootPvid = ifcfg.pvid;
           }
           // commonConfig;
           bridge = {
@@ -52,12 +52,12 @@ in
           // commonConfig;
           macvlan = {
             root = ifcfg.interface;
-            rootPvid = ifcfg.phyPvid;
+            rootPvid = ifcfg.pvid;
           }
           // commonConfig;
           ipvlan = {
             root = ifcfg.interface;
-            rootPvid = ifcfg.phyPvid;
+            rootPvid = ifcfg.pvid;
           }
           // commonConfig;
         };

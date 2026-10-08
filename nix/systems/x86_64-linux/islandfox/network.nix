@@ -12,13 +12,12 @@ let
     routes = foxDenLib.hosts.helpers.lan.mkRoutes 2;
     nameservers = foxDenLib.hosts.helpers.lan.mkNameservers 2;
     interface = "ens1np0";
-    phyIface = "ens1np0";
-    phyPvid = 2;
+    pvid = 2;
     mtu = 9000;
     mac = config.lib.foxDen.mkHashMac "000001";
     defaultDriver = "macvlan";
   };
-  hostIface = "sys-${ifcfg.phyIface}";
+  hostIface = "sys-${ifcfg.interface}";
 in
 {
   lib.foxDenSys.mkVlanHost = foxDenLib.hosts.helpers.lan.mkVlanHost ifcfg;

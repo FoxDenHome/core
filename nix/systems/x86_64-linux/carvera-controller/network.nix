@@ -33,7 +33,7 @@ in
       MTUBytes = ifcfg.mtu;
     };
   };
-  #boot.initrd.systemd.network.networks."30-${ifcfg.phyIface}" = config.systemd.network.networks."30-${ifcfg.interface}" // { name = ifcfg.phyIface; };
+  #boot.initrd.systemd.network.networks."30-${ifcfg.interface}" = config.systemd.network.networks."30-${ifcfg.interface}";
 
   foxDen.hosts.hosts = {
     carvera-controller = {

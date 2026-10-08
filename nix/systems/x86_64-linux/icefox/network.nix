@@ -18,6 +18,7 @@ let
     Gateway = "2607:5300:60:70ff:ff:ff:ff:ff";
   };
 
+  foxdenVpnIface = "wg-foxden";
   ifcfg-foxden = {
     addresses = [
       "10.99.10.2/16"
@@ -34,7 +35,6 @@ let
       "fd2c:f4cb:63be::a63:102"
     ];
     interface = "br-foxden";
-    phyIface = "wg-foxden";
     mac = config.lib.foxDen.mkHashMac "000001";
     mtu = 1280;
   };
@@ -50,7 +50,6 @@ let
     mac = "3c:ec:ef:78:c1:66";
     mtu = 1500;
     interface = "eno1np0";
-    phyIface = "eno1np0";
   };
 
   mkMinHost = (
@@ -72,7 +71,7 @@ let
             mtu = ifcfg.mtu;
           };
           sriov = {
-            root = ifcfg.phyIface;
+            root = ifcfg.interface;
             rootPvid = 0;
             vlan = 0;
             mtu = ifcfg.mtu;
@@ -194,8 +193,8 @@ in
         content = ''
           chain forward {
             type filter hook forward priority filter; policy drop;
-            iifname "${ifcfg-foxden.phyIface}" oifname "${ifcfg-foxden.interface}" accept
-            iifname "${ifcfg-foxden.interface}" oifname "${ifcfg-foxden.phyIface}" accept
+            iifname "${foxdenVpnIface}" oifname "${ifcfg-foxden.interface}" accept
+            iifname "${ifcfg-foxden.interface}" oifname "${foxdenVpnIface}" accept
           }
         '';
         family = "ip6";
@@ -206,7 +205,7 @@ in
     "net.ipv4.ip_forward" = "1";
     # Global IPv6 forwarding stays off, only forward packets received on the foxden interfaces
     # Applied by systemd-sysctl via udev when the interfaces appear
-    "net.ipv6.conf.${ifcfg-foxden.phyIface}.force_forwarding" = "1";
+    "net.ipv6.conf.${foxdenVpnIface}.force_forwarding" = "1";
     "net.ipv6.conf.${ifcfg-foxden.interface}.force_forwarding" = "1";
   };
 
@@ -255,7 +254,7 @@ in
   };
 
   foxDen.services = {
-    wireguard.${ifcfg-foxden.phyIface} = config.lib.foxDen.sops.mkIfAvailable {
+    wireguard.${foxdenVpnIface} = config.lib.foxDen.sops.mkIfAvailable {
       host = "";
       interface = {
         ips = ifcfg-foxden.addresses;
