@@ -32,8 +32,9 @@ in
     ];
   };
 
-  environment.systemPackages = [
-    pkgs.yt-dlp
+  environment.systemPackages = with pkgs; [
+    lgogdownloader
+    yt-dlp
   ];
 
   foxDen.services = config.lib.foxDen.sops.mkIfAvailable {
