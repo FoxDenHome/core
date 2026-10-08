@@ -112,8 +112,6 @@ in
       host = "nas-smb";
       smbDirect = true;
       kerberos.enable = true;
-      # Legacy, non-RDMA clients keep reaching SMB on the nas host itself.
-      extraHosts = [ "nas" ];
       sharePaths = [
         "/mnt/zhdd/nas"
         "/mnt/zhdd/nashome"
