@@ -1,6 +1,6 @@
 //go:build !linux && !darwin
 
-package main
+package tray
 
 // Mounting shares is Linux and macOS only.
 type shares struct{}

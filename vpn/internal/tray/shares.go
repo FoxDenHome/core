@@ -1,6 +1,6 @@
 //go:build linux || darwin
 
-package main
+package tray
 
 import (
 	"encoding/json"

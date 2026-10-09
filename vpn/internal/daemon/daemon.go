@@ -451,6 +451,7 @@ func (d *Daemon) Status() api.Status {
 	st := api.Status{
 		Services:     d.services.Status(),
 		Build:        buildid.Self(),
+		Executable:   buildid.SelfPath(),
 		HomeNetworks: d.homeNets,
 		PublicKey:    d.key.PublicKey().String(),
 		PortalURL:    d.opts.PortalURL,

@@ -43,9 +43,11 @@ type Network struct {
 }
 
 type Status struct {
-	// Build identifies the daemon's executable. When it changes, the daemon
-	// was updated, and the tray updates itself too.
+	// Build identifies the daemon's executable, and Executable is where it
+	// is. The tray is the same binary: when its build differs, it restarts
+	// into Executable.
 	Build          string `json:"build,omitempty"`
+	Executable     string `json:"executable,omitempty"`
 	PublicKey      string `json:"public_key"`
 	Provisioned    bool   `json:"provisioned"`
 	ProvisionError string `json:"provision_error,omitempty"`

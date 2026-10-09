@@ -34,6 +34,17 @@ type Client struct {
 	TLS *tls.Config
 	// OnURL is called with the tunnel's address whenever it changes.
 	OnURL func(url string)
+	// OnUp is called whenever a connection to the edge is ready, OnDown
+	// when one ends or fails and another is about to be tried.
+	OnUp   func(Welcome)
+	OnDown func(error)
+	// OnConn is called for every public connection with the client's
+	// address and the error reaching Target, if any. Without an error, the
+	// function it returns (if not nil) is called once the connection ends.
+	OnConn func(remote string, err error) (done func())
+	// Retry keeps trying when the first attempt fails too, as for a tunnel
+	// restored after a restart: its address is still reserved for a while.
+	Retry bool
 	Logf  func(format string, args ...any)
 
 	url string
@@ -48,7 +59,7 @@ func (c *Client) logf(format string, args ...any) {
 }
 
 // Run keeps the tunnel up, reconnecting (to the same name or port) until ctx
-// ends. Only a first attempt that fails is fatal.
+// ends. Only a first attempt that fails is fatal, unless Retry is set.
 func (c *Client) Run(ctx context.Context) error {
 	backoff := time.Second
 	for {
@@ -56,11 +67,14 @@ func (c *Client) Run(ctx context.Context) error {
 		if ctx.Err() != nil {
 			return nil
 		}
-		if c.url == "" {
+		if c.url == "" && !c.Retry {
 			return err
 		}
 		if up {
 			backoff = time.Second
+		}
+		if c.OnDown != nil {
+			c.OnDown(err)
 		}
 		c.logf("disconnected (%v), reconnecting in %s", err, backoff)
 		select {
@@ -155,6 +169,9 @@ func (c *Client) session(ctx context.Context) (up bool, err error) {
 	}
 	// Ask for the same address after a reconnect.
 	c.Hello.Name, c.Hello.Port = w.Name, w.Port
+	if c.OnUp != nil {
+		c.OnUp(w)
+	}
 
 	for {
 		st, err := conn.AcceptStream(ctx)
@@ -175,6 +192,10 @@ func (c *Client) handle(st net.Conn) {
 	}
 	_ = st.SetReadDeadline(time.Time{})
 	local, err := net.DialTimeout("tcp", c.Target, 10*time.Second)
+	var done func()
+	if c.OnConn != nil {
+		done = c.OnConn(h.Remote, err)
+	}
 	if err != nil {
 		c.logf("%s: %v", h.Remote, err)
 		_ = st.Close()
@@ -182,4 +203,7 @@ func (c *Client) handle(st net.Conn) {
 	}
 	c.logf("connection from %s", h.Remote)
 	Pipe(&Conn{Conn: st, R: r}, local)
+	if done != nil {
+		done()
+	}
 }

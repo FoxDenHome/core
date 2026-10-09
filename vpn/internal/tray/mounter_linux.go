@@ -1,4 +1,4 @@
-package main
+package tray
 
 import "github.com/FoxDenHome/core/vpn/internal/api"
 

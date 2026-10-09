@@ -1,6 +1,6 @@
 //go:build !linux && !darwin
 
-package main
+package tray
 
 // Kerberos tickets are Linux and macOS only.
 type kerberos struct{}

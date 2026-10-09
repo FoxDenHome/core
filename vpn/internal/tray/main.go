@@ -1,11 +1,11 @@
-// foxden-vpn-tray is the unprivileged status-bar applet for foxden-vpnd: a
-// native NSStatusItem on macOS and a StatusNotifierItem on KDE Plasma (and
-// other SNI-capable Linux panels).
-package main
+// Package tray is `foxden-vpnd tray`, the unprivileged status-bar applet
+// for the daemon: a native NSStatusItem on macOS and a StatusNotifierItem on
+// KDE Plasma (and other SNI-capable Linux panels). It is the daemon's own
+// binary, so the two always come from the same build.
+package tray
 
 import (
 	"errors"
-	"flag"
 	"log"
 	"os"
 	"path/filepath"
@@ -25,6 +25,7 @@ const appName = "FoxDen VPN"
 type tray struct {
 	client    *api.Client
 	portalURL string
+	args      []string
 
 	mStatus, mDetail, mAddr       *systray.MenuItem
 	mEnabled, mSplit, mFull       *systray.MenuItem
@@ -44,6 +45,7 @@ type tray struct {
 	krb        *kerberos // nil where unsupported
 	shares     *shares   // nil where unsupported
 	launcher   *launcher // nil where unsupported
+	expose     *exposer
 	wasProv    atomic.Bool
 	renderMu   sync.Mutex
 	mu         sync.Mutex
@@ -53,14 +55,22 @@ type tray struct {
 	announce   sync.Once
 }
 
-func main() {
-	socket := flag.String("socket", api.DefaultSocket, "foxden-vpnd control socket")
-	portal := flag.String("portal-url", "https://portal.foxden.network/", "device management portal")
-	flag.Parse()
+// Options are what the tray was started with.
+type Options struct {
+	Socket    string // the daemon's control socket
+	PortalURL string // device management portal
+	// Args start the tray again with the same options, after an update:
+	// the command line after the executable's path.
+	Args []string
+}
 
+// Run runs the tray until it is quit. It must be called from the main
+// goroutine.
+func Run(o Options) {
 	t := &tray{
-		client:    api.NewClient(*socket),
-		portalURL: *portal,
+		client:    api.NewClient(o.Socket),
+		portalURL: o.PortalURL,
+		args:      o.Args,
 		nets:      map[string]*systray.MenuItem{},
 		svcs:      map[string]*systray.MenuItem{},
 		ui:        newUI(),
@@ -69,7 +79,8 @@ func main() {
 	t.krb = newKerberos(t)
 	t.shares = newShares(t)
 	t.launcher = newLauncher(t)
-	systray.Run(t.onReady, func() {})
+	t.expose = newExposer(t)
+	systray.Run(t.onReady, func() { t.expose.stopAll() })
 }
 
 func (t *tray) onReady() {
@@ -99,6 +110,7 @@ func (t *tray) onReady() {
 	t.mSvcPlaceholder.Disable()
 	t.shares.menu() // with the Kerberos ticket in it
 	t.launcher.menu()
+	t.expose.menu() // with the published ports below it
 	systray.AddSeparator()
 
 	// Only until registered; after that it is "Manage Devices…" below.
@@ -176,6 +188,7 @@ func (t *tray) onReady() {
 	go t.pollLoop()
 	go t.krb.run()
 	go t.shares.run()
+	go t.expose.run()
 }
 
 func (t *tray) status() *api.Status {
@@ -194,7 +207,8 @@ func (t *tray) pollNow() {
 func (t *tray) pollLoop() {
 	tk := time.NewTicker(2 * time.Second)
 	defer tk.Stop()
-	upd := newUpdater()
+	upd := newUpdater(t.args)
+	upd.handoff = t.expose.handoff
 	for {
 		st, err := t.client.Status()
 		if err == nil {
@@ -233,6 +247,7 @@ func (t *tray) render(st *api.Status, err error) {
 	t.mu.Lock()
 	t.last = st
 	t.mu.Unlock()
+	t.expose.render() // enabled only while registered
 	if st != nil && !t.wasProv.Swap(st.Provisioned) && st.Provisioned {
 		t.krb.poke() // just registered, or the first status after start
 		t.shares.poke()

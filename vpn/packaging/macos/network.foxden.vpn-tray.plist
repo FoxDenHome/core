@@ -6,7 +6,8 @@
 	<string>network.foxden.vpn-tray</string>
 	<key>ProgramArguments</key>
 	<array>
-		<string>/Applications/FoxDen VPN.app/Contents/MacOS/foxden-vpn-tray</string>
+		<string>/Applications/FoxDen VPN.app/Contents/MacOS/foxden-vpnd</string>
+		<string>tray</string>
 	</array>
 	<key>RunAtLoad</key>
 	<true/>

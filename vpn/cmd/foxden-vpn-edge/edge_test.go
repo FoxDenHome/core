@@ -482,3 +482,82 @@ func TestProxyHeaderIPv6(t *testing.T) {
 		t.Fatal("accepted a connection without a PROXY header")
 	}
 }
+
+// TestClientEvents covers what the tray shows: a restored tunnel that
+// retries until it gets a ticket, then its welcome and connections.
+func TestClientEvents(t *testing.T) {
+	h := newHarness(t)
+	backend := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {}))
+	defer backend.Close()
+
+	var mu sync.Mutex
+	var tickets, downs int
+	ups := make(chan expose.Welcome, 4)
+	conns := make(chan string, 4)
+	ended := make(chan struct{}, 4)
+	ctx, cancel := context.WithCancel(context.Background())
+	c := &expose.Client{
+		Edges:      []string{h.ctlAddr},
+		ServerName: testDomain,
+		Target:     backend.Listener.Addr().String(),
+		Hello:      expose.Hello{Kind: expose.KindHTTP, Name: "back"},
+		Ticket: func(context.Context) (expose.Ticket, error) {
+			mu.Lock()
+			defer mu.Unlock()
+			if tickets++; tickets == 1 {
+				return expose.Ticket{}, errors.New("daemon restarting")
+			}
+			return expose.Ticket{Ticket: "t-alice"}, nil
+		},
+		TLS:    &tls.Config{RootCAs: h.roots},
+		Retry:  true,
+		OnUp:   func(w expose.Welcome) { ups <- w },
+		OnDown: func(error) { mu.Lock(); downs++; mu.Unlock() },
+		OnConn: func(remote string, err error) func() {
+			if err != nil {
+				t.Errorf("connection from %s: %v", remote, err)
+			}
+			conns <- remote
+			return func() { ended <- struct{}{} }
+		},
+		Logf: func(string, ...any) {},
+	}
+	done := make(chan error, 1)
+	go func() { done <- c.Run(ctx) }()
+	defer func() {
+		cancel()
+		if err := <-done; err != nil {
+			t.Errorf("Run: %v", err)
+		}
+	}()
+
+	var w expose.Welcome
+	select {
+	case w = <-ups:
+	case err := <-done:
+		t.Fatalf("Run gave up: %v", err)
+	case <-time.After(10 * time.Second):
+		t.Fatal("timeout waiting for the tunnel")
+	}
+	if w.URL != "https://back."+testDomain || w.Name != "back" {
+		t.Fatalf("welcome = %+v", w)
+	}
+	mu.Lock()
+	if downs != 1 {
+		t.Errorf("OnDown called %d times for the failed first attempt, want 1", downs)
+	}
+	mu.Unlock()
+
+	code, _ := get(t, h.httpsClient(h.pTLSLn, proxyV4("192.0.2.9", 4444)), w.URL+"/")
+	if code != 200 {
+		t.Fatalf("got %d", code)
+	}
+	if remote := <-conns; remote != "192.0.2.9:4444" {
+		t.Fatalf("remote = %q", remote)
+	}
+	select {
+	case <-ended:
+	case <-time.After(5 * time.Second):
+		t.Fatal("the connection's end was not reported")
+	}
+}

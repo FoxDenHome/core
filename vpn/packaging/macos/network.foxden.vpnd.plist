@@ -6,7 +6,7 @@
 	<string>network.foxden.vpnd</string>
 	<key>ProgramArguments</key>
 	<array>
-		<string>/usr/local/bin/foxden-vpnd</string>
+		<string>/Applications/FoxDen VPN.app/Contents/MacOS/foxden-vpnd</string>
 	</array>
 	<key>RunAtLoad</key>
 	<true/>

@@ -1,6 +1,6 @@
 //go:build linux || darwin
 
-package main
+package tray
 
 import (
 	"bytes"
@@ -168,7 +168,7 @@ func (k *kerberos) renew(ctx context.Context, env []string) error {
 	}
 	certFile, caFile := filepath.Join(k.dir, "pkinit.pem"), filepath.Join(k.dir, "pkinit-ca.pem")
 	realm := cert.Principal[strings.LastIndex(cert.Principal, "@")+1:]
-	conf := fmt.Sprintf(`# Written by foxden-vpn-tray.
+	conf := fmt.Sprintf(`# Written by the FoxDen VPN tray.
 [libdefaults]
   dns_lookup_kdc = true
 

@@ -2,7 +2,7 @@
 Type=Application
 Name=FoxDen VPN
 Comment=FoxDen VPN status and settings
-Exec=/usr/local/bin/foxden-vpn-tray
+Exec=/usr/local/bin/foxden-vpnd tray
 Icon=network-vpn
 Categories=Network;
 X-KDE-autostart-phase=2

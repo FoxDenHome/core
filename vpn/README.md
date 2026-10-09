@@ -3,7 +3,7 @@
 A WireGuard client manager for macOS and Linux, plus a small self-service portal for registering devices.
 
 - **`foxden-vpnd`** is the root daemon. It owns the device key, brings the tunnel up when away from home and down when at home, and keeps the endpoint fresh.
-- **`foxden-vpn-tray`** is the menu bar / system tray applet: a native `NSStatusItem` on macOS and a StatusNotifierItem on KDE Plasma.
+- **`foxden-vpnd tray`** is the menu bar / system tray applet. It is the same binary as the daemon (`foxden-vpn-tray` is a link to it), so the two never drift apart. On macOS it is a native `NSStatusItem`, and on KDE Plasma a StatusNotifierItem. Its dialogs are native too. On Linux they are Kirigami windows run with Qt 6's `qml` tool, and folders are picked through the XDG desktop portal (KDE's file dialog on Plasma). Where those are missing, `kdialog` or `zenity` stand in.
 - **`foxden-vpn-portal`** runs on islandfox. Users log in with Kanidm and add, replace or remove their own devices.
 - **`foxden-vpn-edge`** runs on islandfox too. It publishes local ports of registered devices, like ngrok (see **Exposing local ports**).
 
@@ -111,8 +111,9 @@ foxden-vpnd expose -name demo http 8080  # ask for https://demo.tunnel.f0x.es
 - **How it connects:** the edge's control service is not reachable from the internet, so the VPN has to be up. The device's configuration says where it is: port 4443 on the edge's LAN addresses, reached through the tunnel like the rest of lan, or directly at home. The CLI connects over QUIC and carries every public connection as a stream of that one connection, so the routers never change per tunnel. Each line it prints is one incoming connection, with the client's real address.
 - **Who may:** the CLI runs as you and connects the streams itself; the daemon only vouches for the device. It proves the device to the portal with the WireGuard key, as for Kerberos, and hands the CLI a ticket that is good for 2 minutes. The edge asks the portal whose ticket it is. Up to 10 tunnels per device.
 - **Lifetime:** a tunnel lasts as long as the CLI. If the connection drops, the CLI reconnects and gets the same name or port back: a closed tunnel's address stays reserved for its device for 10 minutes. Removing or disabling the device closes its tunnels within 5 minutes.
+- **From the tray:** **Expose Local Port** lists the ports listening on this machine, with the owning process where it is one of yours (`/proc` on Linux, `lsof` on macOS). Ports in the kernel's ephemeral range are left out, because they belong to helpers such as an IDE's. Clicking one, or **Other Target…** for any port or `host:port`, opens a form to choose HTTPS or TCP, and a name or public port (random if left empty). Well-known non-HTTP ports such as 22 start out as TCP. The form is a Kirigami window on Linux and an `NSAlert` on macOS. The address is copied to the clipboard once the tunnel is up. Each published port then gets its own menu item below, showing where it forwards to, its state, its connection counts and the last client, with **Copy Address**, **Open in Browser** and **Disconnect**. The tunnels run in the tray, so quitting it closes them. When the tray restarts into a new version, it hands them over and they come back under the same addresses.
 
-**Updates:** the daemon reports a build ID, a hash of its executable. When the tray sees it change, it checks whether its own binary on disk changed too. If so, it re-executes itself, so after an install every running tray picks up the new version. Any updater, including a future self-updater, only has to replace the binaries and then restart the daemon. The tray re-executes through the path it was started from, so on Nix it follows the profile symlink to the new store path.
+**Updates:** the tray is the daemon's own binary, and the two stay in lock step. The daemon reports its build ID (a hash of its executable) and where its executable is, resolved through symlinks. Whenever the tray's build differs from the daemon's, the tray re-executes that file as `tray`, carrying its exposed ports over. A change to tray code alone counts too, since it changes the shared binary. It waits until the file on disk hashes to the daemon's build, so it never starts a half-written binary or one the daemon has not been restarted into. Any updater, including a future self-updater, only has to replace the binary and then restart the daemon. On Nix the reported path is the new store path.
 
 ## Install
 
@@ -122,13 +123,13 @@ Linux (systemd; members of `wheel` may control the daemon):
 sudo make install-linux
 ```
 
-macOS, built on a Mac because the tray links AppKit (members of `admin` may control the daemon):
+macOS, built on a Mac because the tray links AppKit (members of `admin` may control the daemon). The one binary lives in `/Applications/FoxDen VPN.app`, where the tray has to run to stay out of the Dock. The daemon runs from there too, and `/usr/local/bin/foxden-vpnd` links to it:
 
 ```sh
 sudo make install-macos
 ```
 
-Nix: `pkgs.foxden-vpn` (`nix/packages/foxden-vpn`) contains all three binaries.
+Nix: `pkgs.foxden-vpn` (`nix/packages/foxden-vpn`) contains `foxden-vpnd` (daemon and tray, with `foxden-vpn-tray` linking to it), `foxden-vpn-portal` and `foxden-vpn-edge`.
 
 ## One-time server setup
 

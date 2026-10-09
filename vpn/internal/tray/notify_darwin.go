@@ -1,4 +1,4 @@
-package main
+package tray
 
 // note is a notification for something that runs; done shows the result.
 type note interface {

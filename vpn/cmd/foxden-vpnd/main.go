@@ -1,9 +1,14 @@
-// foxden-vpnd is the privileged FoxDen VPN daemon.
+// foxden-vpnd is the privileged FoxDen VPN daemon, and its tray applet.
 //
 //	foxden-vpnd            run the daemon (as root)
+//	foxden-vpnd tray       run the tray applet (as the desktop user)
 //	foxden-vpnd pubkey     print this device's public key
 //	foxden-vpnd status     print the daemon's status as JSON
 //	foxden-vpnd expose     publish a local port (see `foxden-vpnd expose -h`)
+//
+// Started as foxden-vpn-tray (a symlink), it runs the tray. Being one
+// binary keeps the tray in lock step with the daemon: it restarts into the
+// daemon's executable whenever their builds differ.
 package main
 
 import (
@@ -21,7 +26,9 @@ import (
 	"time"
 
 	"github.com/FoxDenHome/core/vpn/internal/api"
+	"github.com/FoxDenHome/core/vpn/internal/buildid"
 	"github.com/FoxDenHome/core/vpn/internal/daemon"
+	"github.com/FoxDenHome/core/vpn/internal/tray"
 	"github.com/FoxDenHome/core/vpn/internal/tunnel"
 	"golang.zx2c4.com/wireguard/wgctrl/wgtypes"
 )
@@ -47,10 +54,10 @@ func defaultGroup() string {
 func main() {
 	var (
 		stateDir     = flag.String("state-dir", defaultStateDir(), "directory for key, settings and cached provisioning")
-		socket       = flag.String("socket", api.DefaultSocket, "control socket path")
+		socket       = flag.String("socket", api.DefaultSocket, "control socket path (daemon, tray and commands)")
 		group        = flag.String("socket-group", defaultGroup(), "group allowed to use the control socket")
 		provisionURL = flag.String("provision-url", "https://cdn.foxden.network/vpn/peers", "base URL of provisioning blobs")
-		portalURL    = flag.String("portal-url", "https://portal.foxden.network/", "device registration portal")
+		portalURL    = flag.String("portal-url", "https://portal.foxden.network/", "device registration portal (daemon and tray)")
 		serverKey    = flag.String("server-key", defaultServerKey, "WireGuard public key of the VPN server")
 		ifname       = flag.String("interface", "foxden0", "interface name (Linux only; macOS assigns utunN)")
 		userspace    = flag.Bool("userspace", false, "always use wireguard-go, even if kernel WireGuard is available")
@@ -60,9 +67,19 @@ func main() {
 	if os.Getenv("JOURNAL_STREAM") != "" {
 		log.SetFlags(0) // journald adds its own timestamps
 	}
+	// Hashed now, before an update can replace the file.
+	buildid.Self()
 
-	switch flag.Arg(0) {
+	cmd := flag.Arg(0)
+	args := os.Args[1:]
+	if filepath.Base(os.Args[0]) == "foxden-vpn-tray" && cmd == "" {
+		cmd, args = "tray", append(args, "tray")
+	}
+	switch cmd {
 	case "":
+	case "tray":
+		tray.Run(tray.Options{Socket: *socket, PortalURL: *portalURL, Args: args})
+		return
 	case "pubkey":
 		printPubkey(*stateDir, *socket)
 		return

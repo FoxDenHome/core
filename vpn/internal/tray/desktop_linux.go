@@ -1,7 +1,9 @@
-package main
+package tray
 
 import (
+	_ "embed"
 	"errors"
+	"log"
 	"os"
 	"os/exec"
 	"strings"
@@ -37,9 +39,23 @@ func openURL(u string) error {
 	return exec.Command("xdg-open", u).Start()
 }
 
+//go:embed askdialog.qml
+var askDialogQML []byte
+
 // ask shows message with an action button and "Close", and reports whether
 // the action was chosen.
 func ask(title, message, action string) bool {
+	var r struct {
+		OK bool `json:"ok"`
+	}
+	in := map[string]string{"title": title, "message": message, "action": action, "icon": "dialog-question"}
+	err := runQML(askDialogQML, in, &r)
+	if err == nil {
+		return r.OK
+	}
+	if !errors.Is(err, errNoQML) {
+		log.Printf("Kirigami dialog: %v", err) // most likely no Kirigami
+	}
 	switch {
 	case have("kdialog"):
 		return exec.Command("kdialog", "--title", title, "--yes-label", action, "--no-label", "Close",
@@ -59,8 +75,15 @@ func notify(title, message string) {
 	}
 }
 
-// pickFolder asks for a directory with the desktop's own dialog.
+// pickFolder asks for a directory with the desktop's own dialog: through
+// the XDG desktop portal, which is KDE's file dialog on Plasma and GTK's on
+// GNOME, or kdialog or zenity without one.
 func pickFolder(title, start string) (string, error) {
+	dir, err := portalPickFolder(title, start)
+	if err == nil {
+		return dir, nil
+	}
+	log.Printf("folder picker portal: %v", err)
 	var cmd *exec.Cmd
 	switch {
 	case have("kdialog"):
@@ -68,7 +91,7 @@ func pickFolder(title, start string) (string, error) {
 	case have("zenity"):
 		cmd = exec.Command("zenity", "--file-selection", "--directory", "--title", title, "--filename", start+"/")
 	default:
-		return "", errors.New("no folder picker found (install kdialog or zenity)")
+		return "", errors.New("no folder picker found (install xdg-desktop-portal, kdialog or zenity)")
 	}
 	out, err := cmd.Output()
 	if err != nil {

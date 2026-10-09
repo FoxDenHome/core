@@ -16,13 +16,17 @@ pkgs.buildGoModule {
   vendorHash = "sha256-4pjL+vHLBHUUh7VolLII9U2tiQVoA+aUoufBrio2H/U=";
 
   env.CGO_ENABLED = "0";
+  # The tray is `foxden-vpnd tray`; the link keeps the old name working.
+  postInstall = ''
+    ln -s foxden-vpnd $out/bin/foxden-vpn-tray
+  '';
   ldflags = [
     "-s"
     "-w"
   ];
 
   meta = {
-    description = "FoxDen VPN client daemon, tray applet, device portal and expose edge";
+    description = "FoxDen VPN client daemon and tray applet, device portal and expose edge";
     mainProgram = "foxden-vpn-portal";
   };
 }
