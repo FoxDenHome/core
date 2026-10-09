@@ -155,6 +155,8 @@ QQC2.ApplicationWindow {
                         value = valueFromText(contentItem.text, locale);
                     }
 
+                    // Sized for the placeholder, not only for numbers.
+                    Layout.preferredWidth: Kirigami.Units.gridUnit * 7
                     from: root.portFirst - 1
                     to: root.portLast
                     value: {
@@ -162,8 +164,10 @@ QQC2.ApplicationWindow {
                         return p >= root.portFirst && p <= root.portLast ? p : from;
                     }
                     editable: true
-                    // Plain numbers: "30,042" would be odd for a port.
-                    textFromValue: (v, locale) => v < root.portFirst ? "Random" : String(v)
+                    // Plain numbers: "30,042" would be odd for a port. The
+                    // step below the range is a random port: left empty,
+                    // with a placeholder.
+                    textFromValue: (v, locale) => v < root.portFirst ? "" : String(v)
                     valueFromText: (text, locale) => {
                         const p = parseInt(text);
                         return isNaN(p) ? from : Math.max(from, Math.min(to, p));
@@ -178,6 +182,17 @@ QQC2.ApplicationWindow {
                     Keys.onEnterPressed: {
                         commit();
                         root.submit();
+                    }
+
+                    // The style's text field draws no placeholder.
+                    QQC2.Label {
+                        parent: port.contentItem
+                        x: port.contentItem.leftPadding
+                        anchors.verticalCenter: parent.verticalCenter
+                        text: "random"
+                        font: port.font
+                        color: Kirigami.Theme.disabledTextColor
+                        visible: port.contentItem.text === ""
                     }
                 }
 
