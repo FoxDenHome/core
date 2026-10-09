@@ -1,0 +1,16 @@
+--- a/fs/smb/server/asn1.c
++++ b/fs/smb/server/asn1.c
+@@ -198,7 +198,12 @@
+ 
+ 		sprint_oid(value, vlen, buf, sizeof(buf));
+ 		ksmbd_debug(AUTH, "Unexpected OID: %s\n", buf);
+-		return -EBADMSG;
++		/*
++		 * Skip mechs we don't know, as Samba and Windows do. Failing
++		 * here aborts the whole negTokenInit, e.g. on macOS's LKDC
++		 * marker (1.2.752.43.14.3), and the mechToken is never read.
++		 */
++		return 0;
+ 	}
+ 
+ 	conn->auth_mechs |= mech_type;

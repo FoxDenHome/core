@@ -345,7 +345,15 @@ in
 
         boot.kernelModules = [ "ksmbd" ];
 
-        boot.kernelPatches = lib.optional svcConfig.smbDirect {
+        boot.kernelPatches = [
+          # macOS lists mechs ksmbd doesn't know in its SPNEGO negTokenInit,
+          # which made ksmbd drop the whole token and fail session setup.
+          {
+            name = "ksmbd-skip-unknown-mechs";
+            patch = ./ksmbd-skip-unknown-mechs.patch;
+          }
+        ]
+        ++ lib.optional svcConfig.smbDirect {
           name = "ksmbd-smbdirect";
           patch = null;
           structuredExtraConfig = {
