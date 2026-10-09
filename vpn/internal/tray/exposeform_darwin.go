@@ -6,11 +6,14 @@ package tray
 #include <stdlib.h>
 #import <Cocoa/Cocoa.h>
 
-// FoxdenExposeMode enables the field that goes with the chosen kind.
-@interface FoxdenExposeMode : NSObject
+// FoxdenExposeMode enables the fields that go with the chosen kind, and
+// keeps the port field and its stepper in step.
+@interface FoxdenExposeMode : NSObject <NSTextFieldDelegate>
 @property (assign) NSSegmentedControl *mode;
 @property (assign) NSTextField *name, *port;
+@property (assign) NSStepper *stepper;
 - (void)changed:(id)sender;
+- (void)stepped:(id)sender;
 @end
 
 @implementation FoxdenExposeMode
@@ -18,6 +21,14 @@ package tray
 	BOOL tcp = self.mode.selectedSegment == 1;
 	self.name.enabled = !tcp;
 	self.port.enabled = tcp;
+	self.stepper.enabled = tcp;
+}
+- (void)stepped:(id)sender {
+	self.port.stringValue = [NSString stringWithFormat:@"%ld", (long)self.stepper.integerValue];
+}
+- (void)controlTextDidChange:(NSNotification *)note {
+	if (note.object == self.port && self.port.integerValue > 0)
+		self.stepper.integerValue = self.port.integerValue;
 }
 @end
 
@@ -42,7 +53,8 @@ static NSTextField *foxdenLabel(NSString *s) {
 
 // foxdenExposeForm runs the form as a modal alert on the main thread.
 static foxdenExposeResult foxdenExposeForm(const char *title, const char *message, const char *error,
-	const char *target, int tcp, const char *name, const char *port, const char *domain) {
+	const char *target, int tcp, const char *name, const char *port, const char *domain,
+	int tcpFirst, int tcpLast) {
 	__block foxdenExposeResult r = {0};
 	dispatch_sync(dispatch_get_main_queue(), ^{ @autoreleasepool {
 		NSAlert *alert = [[[NSAlert alloc] init] autorelease];
@@ -70,14 +82,29 @@ static foxdenExposeResult foxdenExposeForm(const char *title, const char *messag
 			stack.spacing = 2;
 			nameView = stack;
 		}
+		// Empty is a random port; the stepper picks one from the range.
 		NSTextField *portField = [NSTextField textFieldWithString:foxdenString(port)];
 		portField.placeholderString = @"random";
+		NSStepper *stepper = [[[NSStepper alloc] init] autorelease];
+		stepper.minValue = tcpFirst > 0 ? tcpFirst : 1;
+		stepper.maxValue = tcpFirst > 0 ? tcpLast : 65535;
+		stepper.integerValue = portField.integerValue > 0 ? portField.integerValue : (NSInteger)stepper.minValue;
+		stepper.valueWraps = NO;
+		NSMutableArray *portViews = [NSMutableArray arrayWithObjects:portField, stepper, nil];
+		if (tcpFirst > 0) {
+			NSTextField *range = [NSTextField labelWithString:
+				[NSString stringWithFormat:@"%d–%d", tcpFirst, tcpLast]];
+			range.textColor = NSColor.secondaryLabelColor;
+			[portViews addObject:range];
+		}
+		NSStackView *portView = [NSStackView stackViewWithViews:portViews];
+		portView.spacing = 4;
 
 		NSGridView *grid = [NSGridView gridViewWithViews:@[
 			@[foxdenLabel(@"Target:"), targetField],
 			@[foxdenLabel(@"Publish as:"), mode],
 			@[foxdenLabel(@"HTTPS name:"), nameView],
-			@[foxdenLabel(@"TCP port:"), portField],
+			@[foxdenLabel(@"TCP port:"), portView],
 		]];
 		grid.rowAlignment = NSGridRowAlignmentFirstBaseline;
 		grid.rowSpacing = 8;
@@ -93,8 +120,12 @@ static foxdenExposeResult foxdenExposeForm(const char *title, const char *messag
 		m.mode = mode;
 		m.name = nameField;
 		m.port = portField;
+		m.stepper = stepper;
 		mode.target = m;
 		mode.action = @selector(changed:);
+		stepper.target = m;
+		stepper.action = @selector(stepped:);
+		portField.delegate = m;
 		[m changed:nil];
 
 		alert.accessoryView = grid;
@@ -129,7 +160,8 @@ func showExposeForm(f exposeForm) (exposeForm, bool, error) {
 	if f.TCP {
 		tcp = 1
 	}
-	r := C.foxdenExposeForm(args[0], args[1], args[2], args[3], tcp, args[4], args[5], args[6])
+	r := C.foxdenExposeForm(args[0], args[1], args[2], args[3], tcp, args[4], args[5], args[6],
+		C.int(f.TCPFirst), C.int(f.TCPLast))
 	defer C.free(unsafe.Pointer(r.target))
 	defer C.free(unsafe.Pointer(r.name))
 	defer C.free(unsafe.Pointer(r.port))

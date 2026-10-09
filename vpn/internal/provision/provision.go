@@ -118,6 +118,14 @@ type Expose struct {
 	Port      uint16       `json:"port"`
 	// ServerName is the name on the edge's certificate.
 	ServerName string `json:"server_name"`
+	// TCPPorts are the public ports TCP tunnels get, for asking for one.
+	TCPPorts *PortRange `json:"tcp_ports,omitempty"`
+}
+
+// PortRange is an inclusive range of ports.
+type PortRange struct {
+	First uint16 `json:"first"`
+	Last  uint16 `json:"last"`
 }
 
 func (c *Config) IsInternal(a netip.Addr) bool {

@@ -57,13 +57,17 @@ func zenityExposeForm(f exposeForm) (exposeForm, bool, error) {
 	} else {
 		text = strings.TrimSpace(text + "\n\nPublish " + f.Target + ":")
 	}
+	portRange := ""
+	if f.TCPFirst > 0 {
+		portRange = " (" + f.tcpRange() + ")"
+	}
 	suffix := ""
 	if f.Domain != "" {
 		suffix = " (<name>." + f.Domain + ")"
 	}
 	args = append(args, "--text", text,
 		"--add-combo", "Publish as", "--combo-values", "HTTPS|TCP",
-		"--add-entry", "Name for HTTPS"+suffix+", or public port for TCP (empty: random)")
+		"--add-entry", "Name for HTTPS"+suffix+", or public port for TCP"+portRange+" (empty: random)")
 	out, err := exec.Command("zenity", args...).Output()
 	if err != nil {
 		var exit *exec.ExitError

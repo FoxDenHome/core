@@ -172,7 +172,6 @@ type exposer struct {
 	mu        sync.Mutex
 	listening []listenTarget
 	tunnels   []*tunnel
-	domain    string
 }
 
 func newExposer(t *tray) *exposer {
@@ -235,7 +234,7 @@ func (e *exposer) menu() {
 	for i, m := range e.lslots {
 		on(m, func() { e.publishListener(i) })
 	}
-	on(e.mOther, func() { e.publish(newExposeForm("", "", e.domainName())) })
+	on(e.mOther, func() { e.publish(newExposeForm("", "", e.t.status())) })
 	for i, s := range e.tslots {
 		on(s.copy, func() {
 			if url, _ := e.slotTunnel(i); url != "" {
@@ -299,8 +298,7 @@ func (e *exposer) publishListener(i int) {
 	}
 	l := e.listening[i]
 	e.mu.Unlock()
-	f := newExposeForm(l.Target, l.Process, e.domainName())
-	e.publish(f)
+	e.publish(newExposeForm(l.Target, l.Process, e.t.status()))
 }
 
 // publish shows the form until what was entered is valid, then publishes it.
@@ -325,22 +323,6 @@ func (e *exposer) publish(f exposeForm) {
 		}
 		f, f.Error = res, err.Error()
 	}
-}
-
-// domainName is the edge's domain, for the form, as the last ticket said.
-// Before the first one, it asks for one; the form makes do without.
-func (e *exposer) domainName() string {
-	e.mu.Lock()
-	d := e.domain
-	e.mu.Unlock()
-	if d == "" {
-		if t, err := e.t.client.ExposeTicket(); err == nil {
-			e.mu.Lock()
-			e.domain, d = t.ServerName, t.ServerName
-			e.mu.Unlock()
-		}
-	}
-	return d
 }
 
 func (e *exposer) update(f func()) {
@@ -374,9 +356,6 @@ func (e *exposer) start(s savedTunnel, restored bool) {
 			if err != nil {
 				return expose.Ticket{}, fmt.Errorf("foxden-vpnd: %w", err)
 			}
-			e.mu.Lock()
-			e.domain = t.ServerName
-			e.mu.Unlock()
 			return expose.Ticket{Ticket: t.Ticket, Edges: t.Edges, ServerName: t.ServerName}, nil
 		},
 		Retry: restored,
@@ -550,7 +529,7 @@ func (e *exposer) render() {
 	e.mu.Lock()
 	defer e.mu.Unlock()
 
-	ui.enable(e.mParent, st != nil && st.Provisioned)
+	ui.enable(e.mParent, st != nil && st.Expose != nil)
 	published := map[string]bool{}
 	for _, tun := range e.tunnels {
 		published[tun.Target] = true

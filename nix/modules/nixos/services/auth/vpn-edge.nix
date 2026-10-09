@@ -66,6 +66,9 @@ in
         addresses = map foxDenLib.util.removeIPCidr host.interfaces.${ifaceName}.addresses;
         port = svcConfig.controlPort;
         server_name = domain;
+        tcp_ports = {
+          inherit (svcConfig.tcpPorts) first last;
+        };
       };
       description = "Where devices find the control service, for their provisioning";
     };

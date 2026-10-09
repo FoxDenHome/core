@@ -77,6 +77,8 @@ type Status struct {
 	Shares []Share `json:"shares,omitempty"`
 	// Launcher is what the Servers menu offers.
 	Launcher *provision.Launcher `json:"launcher,omitempty"`
+	// Expose is where the expose edge is, if this device may use it.
+	Expose *provision.Expose `json:"expose,omitempty"`
 }
 
 const (

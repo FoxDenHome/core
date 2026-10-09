@@ -103,7 +103,10 @@ func TestExposeFormTunnel(t *testing.T) {
 		{f: exposeForm{Target: "3000", Name: "-bad"}, err: true},
 		{f: exposeForm{Target: "3000", TCP: true, Port: "x"}, err: true},
 		{f: exposeForm{Target: "nope"}, err: true},
-		{f: newExposeForm("localhost:8080", "nginx", ""), want: savedTunnel{Kind: "http", Target: "localhost:8080", Process: "nginx"}},
+		{f: exposeForm{Target: "22", TCP: true, Port: "30199", TCPFirst: 30000, TCPLast: 30199}, want: savedTunnel{Kind: "tcp", Target: "localhost:22", Port: 30199}},
+		{f: exposeForm{Target: "22", TCP: true, Port: "30200", TCPFirst: 30000, TCPLast: 30199}, err: true},
+		{f: exposeForm{Target: "22", TCP: true, Port: "2222"}, want: savedTunnel{Kind: "tcp", Target: "localhost:22", Port: 2222}}, // range unknown
+		{f: newExposeForm("localhost:8080", "nginx", nil), want: savedTunnel{Kind: "http", Target: "localhost:8080", Process: "nginx"}},
 	} {
 		got, err := c.f.tunnel()
 		if (err != nil) != c.err || (!c.err && got != c.want) {
@@ -111,7 +114,7 @@ func TestExposeFormTunnel(t *testing.T) {
 		}
 	}
 	// A different target than the one offered loses the process name.
-	f := newExposeForm("localhost:8080", "nginx", "")
+	f := newExposeForm("localhost:8080", "nginx", nil)
 	f.Target = "8081"
 	if got, _ := f.tunnel(); got.Process != "" {
 		t.Errorf("process kept for another target: %+v", got)

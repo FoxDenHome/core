@@ -11,7 +11,11 @@ QQC2.ApplicationWindow {
 
     readonly property var form: JSON.parse(Qt.application.arguments[Qt.application.arguments.length - 1])
     readonly property bool tcp: tcpButton.checked
-    readonly property bool valid: target.acceptableInput && (tcp ? port.acceptableInput || port.text === "" : name.acceptableInput || name.text === "")
+    readonly property bool valid: target.acceptableInput && (tcp || name.acceptableInput || name.text === "")
+    // The public ports a TCP tunnel can ask for; the step below the first
+    // is "Random". Without a known range, any port.
+    readonly property int portFirst: form.tcp_first > 0 ? form.tcp_first : 1
+    readonly property int portLast: form.tcp_first > 0 ? form.tcp_last : 65535
     property bool answered: false
 
     function answer(ok) {
@@ -23,12 +27,13 @@ QQC2.ApplicationWindow {
             target: target.text,
             tcp: tcp,
             name: name.text,
-            port: port.text
+            port: port.value < portFirst ? "" : String(port.value)
         }));
         Qt.quit();
     }
 
     function submit() {
+        port.commit(); // a port typed but not yet taken
         if (valid)
             answer(true);
     }
@@ -138,18 +143,50 @@ QQC2.ApplicationWindow {
                 }
             }
 
-            QQC2.TextField {
-                id: port
-
+            ColumnLayout {
                 Kirigami.FormData.label: "Public port:"
                 visible: root.tcp
-                text: root.form.port
-                placeholderText: "random"
-                validator: IntValidator {
-                    bottom: 1
-                    top: 65535
+                spacing: Kirigami.Units.smallSpacing
+
+                QQC2.SpinBox {
+                    id: port
+
+                    function commit() {
+                        value = valueFromText(contentItem.text, locale);
+                    }
+
+                    from: root.portFirst - 1
+                    to: root.portLast
+                    value: {
+                        const p = parseInt(root.form.port);
+                        return p >= root.portFirst && p <= root.portLast ? p : from;
+                    }
+                    editable: true
+                    // Plain numbers: "30,042" would be odd for a port.
+                    textFromValue: (v, locale) => v < root.portFirst ? "Random" : String(v)
+                    valueFromText: (text, locale) => {
+                        const p = parseInt(text);
+                        return isNaN(p) ? from : Math.max(from, Math.min(to, p));
+                    }
+                    validator: RegularExpressionValidator {
+                        regularExpression: /^(\d{0,5}|[Rr]andom)$/
+                    }
+                    Keys.onReturnPressed: {
+                        commit();
+                        root.submit();
+                    }
+                    Keys.onEnterPressed: {
+                        commit();
+                        root.submit();
+                    }
                 }
-                onAccepted: root.submit()
+
+                QQC2.Label {
+                    text: root.form.tcp_first > 0 ? "From " + root.form.tcp_first + " to " + root.form.tcp_last : ""
+                    visible: text !== ""
+                    font: Kirigami.Theme.smallFont
+                    color: Kirigami.Theme.disabledTextColor
+                }
             }
         }
 
