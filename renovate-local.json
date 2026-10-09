@@ -15,6 +15,16 @@
       "matchDepTypes": ["requires-python"],
       "matchPaths": ["nix/packages/carvera-controller/**"],
       "enabled": false
+    },
+    {
+      "matchManagers": ["gomod"],
+      "matchFileNames": ["vpn/**"],
+      "postUpgradeTasks": {
+        "commands": [
+          "/repo/tools/auto-nix-hash vpn/vendor-hash.txt ./nix#nixosConfigurations.islandfox.pkgs.foxden-vpn.goModules"
+        ],
+        "executionMode": "branch"
+      }
     }
   ]
 }

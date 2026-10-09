@@ -13,7 +13,7 @@ pkgs.buildGoModule {
     ];
   };
 
-  vendorHash = "sha256-OcGSdttMWEqagdSoMxMGvjDWK6ZmdnpyfRWqVlwnyvg=";
+  vendorHash = lib.trim (builtins.readFile ../../../vpn/vendor-hash.txt);
 
   env.CGO_ENABLED = "0";
   # The tray is `foxden-vpnd tray`; the link keeps the old name working.

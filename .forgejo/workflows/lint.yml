@@ -30,11 +30,10 @@ jobs:
             trusted-public-keys = cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY= cache.nixos-cuda.org:74DUi4Ye579gUqzH4ziL9IyiJBlDpMRn9MBN8oNan9M=
             trusted-substituters = http://host.docker.internal:1111?trusted=true https://cache.nixos-cuda.org https://cache.nixos.org/
             substituters = http://host.docker.internal:1111?trusted=true https://cache.nixos-cuda.org https://cache.nixos.org/
-      - run: nix registry add nixpkgs github:NixOS/nixpkgs/nixos-26.05
       - name: Lint nix
         run: |
           cd ./nix
-          nix run 'nixpkgs#nixfmt-tree' -- --ci
+          nix run --inputs-from . 'nixpkgs#nixfmt-tree' -- --ci
       - name: Lint mikrotik
         run: |
           cd ./mikrotik

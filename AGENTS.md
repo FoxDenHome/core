@@ -39,7 +39,7 @@ go test ./internal/<pkg> -run <TestName>
 ./update-all.sh   # flake update + factorio mod list + mikrotik configure
 ```
 
-CI (`.forgejo/workflows/lint.yml`) runs nixfmt, ruff and tflint. Pushes to `main` touching `nix/**` trigger `deploy.yml`, which SSHes into each host as `nixpush`. The hosts then run `nixos-rebuild switch` against `git+https://git.foxden.network/FoxDen/core?dir=nix#<hostname>`, so **pushing to main deploys to production**.
+CI (`.forgejo/workflows/lint.yml`) runs nixfmt, ruff and tflint. `main` is protected and changes land through PRs on Forgejo. Open them from a branch pushed to `origin` (e.g. `git push origin HEAD:<branch>` then `fj pr create --head <branch> --base main`), not with AGit (`refs/for/main/...`): Forgejo treats AGit PRs as fork PRs and withholds secrets (like `EXT_GITHUB_TOKEN`) from their CI runs. Merges to `main` touching `nix/**` trigger `deploy.yml`, which SSHes into each host as `nixpush`. The hosts then run `nixos-rebuild switch` against `git+https://git.foxden.network/FoxDen/core?dir=nix#<hostname>`, so **merging to main deploys to production**.
 
 ## Nix architecture
 
@@ -66,4 +66,4 @@ Typical service pattern (see `systems/x86_64-linux/islandfox/rmfakecloud.nix` + 
 - ZFS datasets must use `mountpoint=legacy`.
 - Never use `/var/run`; always use `/run`.
 - RouterOS devices can't be rebuilt from zero; `mikrotik/` only manages their dynamic config (DNS, DHCP, firewall, DynDNS, VRRP, scripts).
-- After changing Go deps in `vpn/`, update `vendorHash` in `nix/packages/foxden-vpn/package.nix`.
+- The `vpn/` Go vendor hash lives in `vpn/vendor-hash.txt`. Renovate regenerates it on Go dep bumps; after changing deps by hand, run `../maid/tools/auto-nix-hash vpn/vendor-hash.txt './nix#nixosConfigurations.islandfox.pkgs.foxden-vpn.goModules'` from the repo root (FoxDen/maid checked out alongside core).
