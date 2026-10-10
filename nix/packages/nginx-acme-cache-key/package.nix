@@ -12,25 +12,20 @@ pkgs.stdenv.mkDerivation (finalAttrs: {
 
   src = ./.;
 
-  cargoDeps = pkgs.rustPlatform.fetchCargoVendor {
-    inherit (finalAttrs) pname version src;
-    hash = "sha256-xc40z3JLKpbtZiFPaVFCMjyswz+wQkSTuG0TeAtDsaM=";
+  cargoDeps = pkgs.rustPlatform.importCargoLock {
+    lockFile = ./Cargo.lock;
   };
 
   nativeBuildInputs = with pkgs; [
     cargo
     rustc
+    rustPlatform.cargoSetupHook
   ];
 
   env = {
     CARGO_NET_OFFLINE = "true";
   };
   buildPhase = ''
-    # cargo config.
-    mkdir -p .cargo
-    cat $cargoDeps/.cargo/config.toml >> .cargo/config.toml
-    ln -s $cargoDeps @vendor@
-
     cargo build --release
   '';
   installPhase = ''
