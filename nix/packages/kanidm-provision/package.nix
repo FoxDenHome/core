@@ -11,7 +11,7 @@ pkgs.rustPlatform.buildRustPackage (finalAttrs: {
     hash = "sha256-k+m73Ih+LzBsanbplHIivoF7z+RcRvj6IeoesDdfImc=";
   };
 
-  cargoHash = "sha256-dPTrIc/hTbMlFDXYMk/dTjqaNECazldfW43egDOwyLM=";
+  cargoLock.lockFile = "${finalAttrs.src}/Cargo.lock";
 
   nativeInstallCheckInputs = [ pkgs.versionCheckHook ];
   versionCheckProgramArg = "--version";

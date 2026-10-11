@@ -26,9 +26,9 @@ pkgs.stdenv.mkDerivation (finalAttrs: {
     hash = "sha256-GQ56cuJyAtgRz/hHXW7P7stnSNPMbSVS9KHuNLoHpDk=";
   };
 
-  cargoDeps = pkgs.rustPlatform.fetchCargoVendor {
-    inherit (finalAttrs) pname version src;
-    hash = "sha256-jtoF+KUo+C9WctKWJHGrvFPYNEWOkehagRYLORBz04A=";
+  cargoDeps = pkgs.rustPlatform.importCargoLock {
+    lockFile = "${finalAttrs.src}/Cargo.lock";
+    allowBuiltinFetchGit = true;
   };
 
   # keep yarnOfflineCache same output style with offlineCache = yarn-berry.fetchYarnBerryDeps { inherit (finalAttrs) src missingHashes; hash = "" };
@@ -92,6 +92,7 @@ pkgs.stdenv.mkDerivation (finalAttrs: {
     prisma_6
     rsync
     rustc
+    rustPlatform.cargoSetupHook
     writableTmpDirAsHomeHook
     yarn-berry-custom
     zip
@@ -109,11 +110,6 @@ pkgs.stdenv.mkDerivation (finalAttrs: {
   # FIXME: use `yarn config set cacheFolder $offlineCache/cache`
   configurePhase = ''
     runHook preConfigure
-
-    # cargo config.
-    mkdir -p .cargo
-    cat $cargoDeps/.cargo/config.toml >> .cargo/config.toml
-    ln -s $cargoDeps @vendor@
 
     # yarn config
     yarn config set enableTelemetry false
