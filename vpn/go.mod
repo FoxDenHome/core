@@ -6,7 +6,7 @@ require (
 	fyne.io/systray v1.12.2
 	github.com/coreos/go-oidc/v3 v3.21.0
 	github.com/go-routeros/routeros/v3 v3.0.1
-	github.com/godbus/dbus/v5 v5.2.3
+	github.com/godbus/dbus/v5 v5.2.4
 	github.com/quic-go/quic-go v0.63.0
 	github.com/vishvananda/netlink v1.3.1
 	golang.org/x/crypto v0.58.0
