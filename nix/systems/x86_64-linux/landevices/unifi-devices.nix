@@ -34,7 +34,7 @@
         dns = {
           fqdns = [ "ap-backyard.foxden.network" ];
         };
-        mac = "68:D7:9A:1F:57:E2";
+        mac = "8c:ed:e1:ec:cd:32";
         addresses = [
           "10.1.10.6/16"
         ];
@@ -46,7 +46,7 @@
         dns = {
           fqdns = [ "ap-corridor-upper.foxden.network" ];
         };
-        mac = "60:22:32:1D:48:15";
+        mac = "a4:f8:ff:9a:61:c1";
         addresses = [
           "10.1.10.7/16"
         ];
@@ -58,7 +58,7 @@
         dns = {
           fqdns = [ "ap-living-room.foxden.network" ];
         };
-        mac = "60:22:32:83:6D:9E";
+        mac = "a4:f8:ff:9a:25:6c";
         addresses = [
           "10.1.10.11/16"
         ];
