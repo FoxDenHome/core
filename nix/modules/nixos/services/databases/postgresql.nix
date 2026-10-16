@@ -25,7 +25,23 @@ let
       };
     };
 
+  groupSocketType =
+    with lib.types;
+    submodule {
+      options = {
+        database = lib.mkOption {
+          description = "Name of the database (also used as role and proxy user name)";
+          type = str;
+        };
+        group = lib.mkOption {
+          description = "Unix group (name or GID) allowed to connect";
+          type = either str int;
+        };
+      };
+    };
+
   mkSvcUser = svc: config.systemd.services.${svc.service}.serviceConfig.User;
+  mkGroupSocketDir = gs: "/run/postgresql-${gs.database}";
 in
 {
   options.foxDen.services.postgresql =
@@ -38,6 +54,15 @@ in
         type = listOf serviceType;
         default = [ ];
         description = "List of systemd services connecting to PostgreSQL";
+      };
+      groupSockets = lib.mkOption {
+        type = listOf groupSocketType;
+        default = [ ];
+        description = ''
+          Databases exposed to members of a Unix group via a proxied socket at
+          /run/postgresql-<database>/.s.PGSQL.5432. Connections reach PostgreSQL
+          as the <database> user, so access is decided by the socket's group.
+        '';
       };
       socketPath = lib.mkOption {
         type = str;
@@ -65,11 +90,11 @@ in
           enable = true;
           package = pkgs.postgresql_16_jit;
           enableTCPIP = false;
-          ensureDatabases = map (svc: svc.database) svcConfig.services;
+          ensureDatabases = map (svc: svc.database) (svcConfig.services ++ svcConfig.groupSockets);
           ensureUsers = map (svc: {
             name = svc.database;
             ensureDBOwnership = true;
-          }) svcConfig.services;
+          }) (svcConfig.services ++ svcConfig.groupSockets);
           identMap = ''
             postgres root postgres
           ''
@@ -77,6 +102,11 @@ in
             map (svc: ''
               postgres ${mkSvcUser svc} ${svc.database}
             '') svcConfig.services
+          )
+          + lib.concatStringsSep "\n" (
+            map (gs: ''
+              postgres ${gs.database} ${gs.database}
+            '') svcConfig.groupSockets
           );
         };
 
@@ -127,6 +157,60 @@ in
               };
             };
           }) svcConfig.services
+        );
+      }
+      {
+        users.users = lib.attrsets.listToAttrs (
+          map (gs: {
+            name = gs.database;
+            value = {
+              isSystemUser = true;
+              group = gs.database;
+            };
+          }) svcConfig.groupSockets
+        );
+        users.groups = lib.attrsets.listToAttrs (
+          map (gs: {
+            name = gs.database;
+            value = { };
+          }) svcConfig.groupSockets
+        );
+
+        systemd.sockets = lib.attrsets.listToAttrs (
+          map (gs: {
+            name = "postgresql-${gs.database}";
+            value = {
+              wantedBy = [ "sockets.target" ];
+              listenStreams = [ "${mkGroupSocketDir gs}/.s.PGSQL.5432" ];
+              socketConfig = {
+                SocketUser = "root";
+                SocketGroup = toString gs.group;
+                SocketMode = "0660";
+                DirectoryMode = "0755";
+              };
+            };
+          }) svcConfig.groupSockets
+        );
+
+        systemd.services = lib.attrsets.listToAttrs (
+          map (gs: {
+            name = "postgresql-${gs.database}";
+            value = {
+              requires = [ "postgresql.service" ];
+              after = [ "postgresql.service" ];
+              serviceConfig = {
+                User = gs.database;
+                Group = gs.database;
+                ExecStart = "${config.systemd.package}/lib/systemd/systemd-socket-proxyd ${config.foxDen.services.postgresql.socketPath}";
+                PrivateNetwork = true;
+                PrivateTmp = true;
+                ProtectHome = true;
+                ProtectSystem = "strict";
+                NoNewPrivileges = true;
+                RestrictAddressFamilies = [ "AF_UNIX" ];
+              };
+            };
+          }) svcConfig.groupSockets
         );
       }
     ]
