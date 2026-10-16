@@ -24,9 +24,34 @@ terraform {
     }
   }
 
-  backend "local" {
-    path = "default.tfstate"
+  # Connection comes from PG_CONN_STR, set up by tofu.sh
+  backend "pg" {}
+
+  encryption {
+    key_provider "pbkdf2" "state" {
+      passphrase = var.state_passphrase
+    }
+
+    method "aes_gcm" "state" {
+      keys = key_provider.pbkdf2.state
+    }
+
+    state {
+      method   = method.aes_gcm.state
+      enforced = true
+    }
+
+    plan {
+      method   = method.aes_gcm.state
+      enforced = true
+    }
   }
+}
+
+# From state-passphrase.yaml, set up by tofu.sh
+variable "state_passphrase" {
+  type      = string
+  sensitive = true
 }
 
 variable "he_net_username" {

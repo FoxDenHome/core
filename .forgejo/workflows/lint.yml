@@ -4,7 +4,6 @@ on:
   pull_request:
   push:
     paths-ignore:
-      - terraform/*.tfstate
       - terraform/.terraform.lock.hcl
       - mikrotik/uv.lock
       - nix/flake.lock
