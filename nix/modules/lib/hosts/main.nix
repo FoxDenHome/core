@@ -739,9 +739,23 @@ in
                           after = [ "network-pre.target" ] ++ rootDeviceUnits;
                           restartTriggers = [ (builtins.concatStringsSep " " host.nameservers) ];
 
+                          # Bounded, so a broken config can't hang a switch forever
+                          startLimitIntervalSec = 15 * 60;
+                          startLimitBurst = 10;
+
                           serviceConfig = {
                             Type = "oneshot";
                             RemainAfterExit = true;
+
+                            # Setup can trip over transient boot races, so
+                            # retry in place. ExecStopPost tears the netns down
+                            # between attempts, and "direct" keeps dependents
+                            # waiting instead of failing them on each attempt.
+                            Restart = "on-failure";
+                            RestartMode = "direct";
+                            RestartSec = "5s";
+                            RestartSteps = 5;
+                            RestartMaxDelaySec = "1min";
 
                             ExecStart =
                               (lib.lists.optionals (!inRootNetns) [

@@ -103,6 +103,11 @@ in
             fi
             sleep 0.1
           done
+          # A freshly probed VF shows up as ethN and udev renames it to
+          # ens1f0vN on its own, so let udev finish first, or its rename
+          # races ours (on a cold boot it can even undo ours)
+          ${pkgs.systemd}/bin/udevadm settle --timeout=60 || true
+          ifname="$(${pkgs.coreutils}/bin/ls /sys/class/net/${root}/device/virtfn$idx/net/)"
           # And rename it, unless it already carries the name (a VF we keep
           # in the root netns still does after a restart)
           if [ "$ifname" != "${uniqueServiceInterface}" ]; then
