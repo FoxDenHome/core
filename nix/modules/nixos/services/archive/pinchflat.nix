@@ -17,6 +17,13 @@ let
   ytDlp = pkgs.yt-dlp.overridePythonAttrs (old: {
     dependencies = (old.dependencies or [ ]) ++ [ pkgs.bgutil-ytdlp-pot-provider.plugin ];
   });
+
+  # Pinchflat passes this to yt-dlp for downloads. Age-restricted videos are SABR-only
+  # on the default authenticated clients, but mweb (with a PO token) still gets
+  # plain https formats.
+  ytDlpBaseConfig = pkgs.writeText "pinchflat-yt-dlp-base-config.txt" ''
+    --extractor-args youtube:player_client=default,mweb,web_safari
+  '';
 in
 {
   options.foxDen.services.pinchflat = {
@@ -88,6 +95,9 @@ in
         systemd.services.pinchflat = {
           wants = [ "pinchflat-pot.service" ];
           after = [ "pinchflat-pot.service" ];
+          preStart = ''
+            ${pkgs.coreutils}/bin/install -Dm644 ${ytDlpBaseConfig} ${stateDir}/extras/yt-dlp-configs/base-config.txt
+          '';
         };
 
         environment.persistence."/nix/persist/pinchflat" = {
