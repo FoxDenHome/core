@@ -11,6 +11,12 @@ let
   svcConfig = config.foxDen.services.pinchflat;
 
   stateDir = "/var/lib/pinchflat";
+
+  # yt-dlp with the bgutil PO token provider plugin. The plugin's default
+  # base_url (127.0.0.1:4416) hits pinchflat-pot in the same netns.
+  ytDlp = pkgs.yt-dlp.overridePythonAttrs (old: {
+    dependencies = (old.dependencies or [ ]) ++ [ pkgs.bgutil-ytdlp-pot-provider.plugin ];
+  });
 in
 {
   options.foxDen.services.pinchflat = {
@@ -29,6 +35,10 @@ in
         name = "pinchflat";
         inherit svcConfig pkgs config;
       }).config
+      (services.make {
+        name = "pinchflat-pot";
+        inherit svcConfig pkgs config;
+      }).config
       (services.http.make {
         inherit svcConfig pkgs config;
         name = "http-pinchflat";
@@ -41,7 +51,7 @@ in
           enable = true;
           # Pinchflat always listens on all interfaces, which would let other
           # hosts on the VLAN reach it without going through oauth2-proxy.
-          package = pkgs.pinchflat.overrideAttrs (old: {
+          package = (pkgs.pinchflat.override { yt-dlp = ytDlp; }).overrideAttrs (old: {
             postPatch = (old.postPatch or "") + ''
               substituteInPlace config/runtime.exs \
                 --replace-fail "else: {0, 0, 0, 0}" "else: {127, 0, 0, 1}"
@@ -61,6 +71,23 @@ in
             # NAS files are group-writable for the share group
             UMask = "0002";
           };
+        };
+
+        # Proof-of-origin token server for YouTube (works around SABR-only formats)
+        systemd.services.pinchflat-pot = {
+          serviceConfig = {
+            DynamicUser = true;
+            Type = "simple";
+            ExecStart = [
+              "${pkgs.bgutil-ytdlp-pot-provider}/bin/bgutil-pot-server --host 127.0.0.1 --port 4416"
+            ];
+          };
+          wantedBy = [ "multi-user.target" ];
+        };
+
+        systemd.services.pinchflat = {
+          wants = [ "pinchflat-pot.service" ];
+          after = [ "pinchflat-pot.service" ];
         };
 
         environment.persistence."/nix/persist/pinchflat" = {
