@@ -57,11 +57,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1792010221,
-        "narHash": "sha256-AcNw6W2gU2II07v2mUJCcMv0v/YnlCZwvQhTVvNdrN8=",
+        "lastModified": 1792209482,
+        "narHash": "sha256-cj5z13EpKO6XYKfiyaGW7IwLgpSBv49/OlYAcGVs1gk=",
         "owner": "Doridian",
         "repo": "DarkSignsOnline",
-        "rev": "560b2a7254d63d36d5a53360eef7a835cffb0d27",
+        "rev": "91612d020e0e262fdf46baa489c87b351de1a458",
         "type": "github"
       },
       "original": {
@@ -80,11 +80,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1791927242,
-        "narHash": "sha256-9wwFHpv1qdAwcxWFN+lZcq2fUaT4Wkw3uo5A84loLKM=",
+        "lastModified": 1792211149,
+        "narHash": "sha256-aLEXU4v/VlEAxd7oSlqUk8FGULCELsKeM/LzF7VRTgE=",
         "ref": "refs/heads/main",
-        "rev": "42d30ec1b9dc1bb805ec95cd59d3d58baae5fe63",
-        "revCount": 795,
+        "rev": "eb01f6525e4927c35d1b05c3c0cb32d9cb5de3f0",
+        "revCount": 798,
         "type": "git",
         "url": "https://git.foxden.network/FoxDen/e621dumper"
       },
@@ -103,11 +103,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1791927239,
-        "narHash": "sha256-xIiHIoBFWlDTOG7cwPrsyiM/+jq6iITW43Rz91OAXcI=",
+        "lastModified": 1792211153,
+        "narHash": "sha256-GENH3Lq6Y0+zWm4NxP/IYgBxGkbJRrD1cnJfnwqmIgA=",
         "ref": "refs/heads/main",
-        "rev": "bdef36b0bbbb0f3994773119cef87e3d381a6181",
-        "revCount": 835,
+        "rev": "fa87babc2fb913300c43b26ebadc9b16ceacbeb4",
+        "revCount": 838,
         "type": "git",
         "url": "https://git.foxden.network/FoxDen/fadumper"
       },
@@ -168,11 +168,11 @@
         "nixpkgs-acme": "nixpkgs-acme"
       },
       "locked": {
-        "lastModified": 1792010251,
-        "narHash": "sha256-Rhyl/BGwJ2Wrt/aGihy/4vCCGFNs0W/nVxqch1jlzdo=",
+        "lastModified": 1792276044,
+        "narHash": "sha256-+RjfVutR87lTL++GohTPDKtszopJh8TlQWMQQIhRH2Q=",
         "ref": "refs/heads/main",
-        "rev": "312234184b4d0e8b79bb58ef2c50bf11ffe13db0",
-        "revCount": 4200,
+        "rev": "484310608f527020e336402fb1ec483b969b93bb",
+        "revCount": 4208,
         "type": "git",
         "url": "https://git.foxden.network/foxCaves/foxCaves"
       },
@@ -266,11 +266,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1791938526,
-        "narHash": "sha256-yNYK2pdk3bCtJrpblrNYA6hZKdybWUeyTtx74+OEJFo=",
+        "lastModified": 1792274446,
+        "narHash": "sha256-AM1HmBeDnB2B3dSiXuCYeu7Me+lHNpz/P39lVxGJBuQ=",
         "owner": "nix-community",
         "repo": "home-manager",
-        "rev": "32904dfe1cf86039f3c8c9f41f94e1cfd76dbb34",
+        "rev": "ab3823b4b24c0c3ca984c1f3ee577fd6d667424c",
         "type": "github"
       },
       "original": {
@@ -305,11 +305,11 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1791883866,
-        "narHash": "sha256-yvkDdToRZ4IgPc9tSBzzCYJvTLf8n5eE3rgUkpCuD5A=",
+        "lastModified": 1792295010,
+        "narHash": "sha256-F7meJtbqGttmUoMmYjRRgkVs42sn7bh7vvRvLPlUN98=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "a033e66ab94a6bedf2c3d58d93a36319d3cbbbaf",
+        "rev": "8ce73368d1efd4d657e9064d29b144a52046b4e8",
         "type": "github"
       },
       "original": {
@@ -491,11 +491,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1791710405,
-        "narHash": "sha256-mVD4XIc5JkqMW2K04IkFUzHgHmyJZlzw5ktfgMDCbKU=",
+        "lastModified": 1792056300,
+        "narHash": "sha256-YU1LjDe1o2Ymg5zEiCHbmMXLkDCtxHQRiVqZ3nC5GGk=",
         "owner": "Mic92",
         "repo": "sops-nix",
-        "rev": "ee48786c6f9160d2c1a084aac841f68195b8420c",
+        "rev": "44931708c62937c2b1bf7953902989fa5bb9ee1b",
         "type": "github"
       },
       "original": {
@@ -708,11 +708,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1791981146,
-        "narHash": "sha256-PeENT3Fu7a7YrX5zIHjdxai8GzPcxpKn+nQsgByhwNo=",
+        "lastModified": 1792151315,
+        "narHash": "sha256-PMtgvHuGijoIAtPtrBm7kJOI6fxzX4LYPAIK+QVGY+Y=",
         "owner": "pyproject-nix",
         "repo": "uv2nix",
-        "rev": "a541fda20d6784d88789cfcb221638b7c25a23dd",
+        "rev": "7aba73a3d85454f1118f8cf9de97979b4d26bcac",
         "type": "github"
       },
       "original": {
