@@ -135,88 +135,10 @@ let
     };
   };
 
-  # TODO: This should be inside of a nixos module so it gets built right on a host and hosted from that host :3
-  mkNetboot =
-    arch:
-    nixpkgs.lib.nixosSystem {
-      system = "${arch}-linux";
-      modules = [
-        (
-          {
-            config,
-            pkgs,
-            modulesPath,
-            ...
-          }:
-          let
-            homeCfg =
-              { ... }:
-              {
-                home.stateVersion = config.system.nixos.release;
-                home.file = {
-                  ".config/nixpkgs/config.nix" = {
-                    enable = true;
-                    force = true;
-                    text = "{ allowUnfree = true; }";
-                  };
-                };
-              };
-          in
-          {
-            imports = [
-              "${modulesPath}/installer/netboot/netboot-minimal.nix"
-              home-manager.nixosModules.home-manager
-            ];
-            config = {
-              system.stateVersion = config.system.nixos.release;
-              nixpkgs = {
-                localSystem.system = "x86_64-linux"; # TODO: This is annoying, but builtins.currentSystem is no more
-                crossSystem.system = "${arch}-linux";
-                config.allowUnfree = true;
-              };
-              nix.settings = {
-                experimental-features = [
-                  "configurable-impure-env"
-                  "nix-command"
-                  "flakes"
-                ];
-                substituters = [
-                  "https://cache.nixos-cuda.org"
-                ];
-                trusted-public-keys = [
-                  "cache.nixos-cuda.org:74DUi4Ye579gUqzH4ziL9IyiJBlDpMRn9MBN8oNan9M="
-                ];
-              };
-              environment.systemPackages = with pkgs; [
-                arch-install-scripts
-                git
-                htop
-                nano
-                pacman
-                rsync
-                screen
-              ];
-              boot.uki.settings.UKI.Initrd =
-                "${config.system.build.netbootRamdisk}/${config.system.boot.loader.initrdFile}";
-              home-manager.users = {
-                root = homeCfg;
-                nixos = homeCfg;
-              };
-              home-manager.useGlobalPkgs = true;
-            };
-          }
-        )
-      ];
-    };
-
-  nixosConfigurations = (nixpkgs.lib.attrsets.listToAttrs (map mkSystemConfig systems)) // {
-    "x86_64-netboot" = mkNetboot "x86_64";
-    "aarch64-netboot" = mkNetboot "aarch64";
-  };
+  nixosConfigurations = nixpkgs.lib.attrsets.listToAttrs (map mkSystemConfig systems);
 in
 {
-  nixosConfigurations = nixosConfigurations;
-
+  inherit nixosConfigurations;
   dns = {
     attrset = dns;
     json = builtins.toFile "dns.json" (builtins.toJSON dns);
