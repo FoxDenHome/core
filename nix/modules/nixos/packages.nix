@@ -5,13 +5,11 @@ inputs@{
   systemArch,
   flakeInputs,
   build-gradle-application,
-  nixpkgs-podman,
   ...
 }:
 let
   internalPackages = {
     "nixpkgs" = true;
-    "nixpkgs-podman" = true;
     "impermanence" = true;
     "sops-nix" = true;
     "self" = true;
@@ -53,10 +51,6 @@ let
     config = nixPkgConfig;
     overlays = [
       build-gradle-application.overlays.default
-      # TODO: drop once https://github.com/podman-container-tools/podman/issues/29805 is fixed
-      (final: prev: {
-        podman = nixpkgs-podman.legacyPackages.${systemArch}.podman;
-      })
       (
         final: prev:
         lib.optionalAttrs nixPkgConfig.rocmSupport {
