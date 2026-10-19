@@ -104,10 +104,12 @@ in
     {
       lib.foxDen.mailerHost = mailer;
       security.wrappers.sendmail = {
-        source = pkgs.writeShellScript "sendmail.sh" ''
-          export FOXMAIL_DEFAULT_SERVER='${mailer}:2525'
-          exec ${pkgs.foxMail}/bin/sendmail "$@"
-        '';
+        source = "${
+          pkgs.runCommand "sendmail" { nativeBuildInputs = [ pkgs.makeBinaryWrapper ]; } ''
+            makeBinaryWrapper ${pkgs.foxMail}/bin/sendmail $out/bin/sendmail \
+              --set FOXMAIL_DEFAULT_SERVER '${mailer}:2525'
+          ''
+        }/bin/sendmail";
         owner = "root";
         group = "root";
       };
