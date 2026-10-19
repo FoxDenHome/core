@@ -58,6 +58,7 @@ func main() {
 		group        = flag.String("socket-group", defaultGroup(), "group allowed to use the control socket")
 		provisionURL = flag.String("provision-url", "https://cdn.foxden.network/vpn/peers", "base URL of provisioning blobs")
 		portalURL    = flag.String("portal-url", "https://portal.foxden.network/", "device registration portal (daemon and tray)")
+		kanidmURL    = flag.String("kanidm-url", "https://auth.foxden.network", "Kanidm, which the tray reads the owner's SSH keys from")
 		serverKey    = flag.String("server-key", defaultServerKey, "WireGuard public key of the VPN server")
 		ifname       = flag.String("interface", "foxden0", "interface name (Linux only; macOS assigns utunN)")
 		userspace    = flag.Bool("userspace", false, "always use wireguard-go, even if kernel WireGuard is available")
@@ -78,7 +79,7 @@ func main() {
 	switch cmd {
 	case "":
 	case "tray":
-		tray.Run(tray.Options{Socket: *socket, PortalURL: *portalURL, Args: args})
+		tray.Run(tray.Options{Socket: *socket, PortalURL: *portalURL, KanidmURL: *kanidmURL, Args: args})
 		return
 	case "pubkey":
 		printPubkey(*stateDir, *socket)

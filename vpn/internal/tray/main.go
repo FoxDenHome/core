@@ -25,6 +25,7 @@ const appName = "FoxDen VPN"
 type tray struct {
 	client    *api.Client
 	portalURL string
+	kanidmURL string
 	args      []string
 
 	mStatus, mDetail, mAddr       *systray.MenuItem
@@ -35,30 +36,33 @@ type tray struct {
 	mReregister, mRegenerate      *systray.MenuItem
 	mDevice, mManage              *systray.MenuItem
 	mRefresh                      *systray.MenuItem
+	mSSHKeys                      *systray.MenuItem
 	mQuit                         *systray.MenuItem
 	nets                          map[string]*systray.MenuItem
 	netOrder                      []string
 	mServices, mSvcPlaceholder    *systray.MenuItem
 	svcs                          map[string]*systray.MenuItem
 
-	ui         *ui
-	krb        *kerberos // nil where unsupported
-	shares     *shares   // nil where unsupported
-	launcher   *launcher // nil where unsupported
-	expose     *exposer
-	wasProv    atomic.Bool
-	renderMu   sync.Mutex
-	mu         sync.Mutex
-	last       *api.Status
-	refreshing atomic.Bool
-	poll       chan struct{}
-	announce   sync.Once
+	ui          *ui
+	krb         *kerberos // nil where unsupported
+	shares      *shares   // nil where unsupported
+	launcher    *launcher // nil where unsupported
+	expose      *exposer
+	wasProv     atomic.Bool
+	renderMu    sync.Mutex
+	mu          sync.Mutex
+	last        *api.Status
+	refreshing  atomic.Bool
+	sshKeysOpen atomic.Bool
+	poll        chan struct{}
+	announce    sync.Once
 }
 
 // Options are what the tray was started with.
 type Options struct {
 	Socket    string // the daemon's control socket
 	PortalURL string // device management portal
+	KanidmURL string // where the owner's SSH keys are read from
 	// Args start the tray again with the same options, after an update:
 	// the command line after the executable's path.
 	Args []string
@@ -70,6 +74,7 @@ func Run(o Options) {
 	t := &tray{
 		client:    api.NewClient(o.Socket),
 		portalURL: o.PortalURL,
+		kanidmURL: o.KanidmURL,
 		args:      o.Args,
 		nets:      map[string]*systray.MenuItem{},
 		svcs:      map[string]*systray.MenuItem{},
@@ -111,6 +116,7 @@ func (t *tray) onReady() {
 	t.shares.menu() // with the Kerberos ticket in it
 	t.launcher.menu()
 	t.expose.menu() // with the published ports below it
+	t.mSSHKeys = systray.AddMenuItem(sshKeysTitle+"…", "Which SSH keys may log in to this machine, next to your Kanidm keys")
 	systray.AddSeparator()
 
 	// Only until registered; after that it is "Manage Devices…" below.
@@ -173,6 +179,11 @@ func (t *tray) onReady() {
 					notify(appName, err.Error())
 				}
 			}
+		}
+	}()
+	go func() {
+		for range t.mSSHKeys.ClickedCh {
+			t.editSSHKeys()
 		}
 	}()
 	go func() {
