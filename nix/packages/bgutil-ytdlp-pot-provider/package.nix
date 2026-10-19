@@ -10,7 +10,7 @@ let
 
   # yt-dlp plugin, version-locked to the server below (nixpkgs only ships an older plugin)
   plugin = pkgs.python3Packages.buildPythonPackage {
-    pname = "bgutil-ytdlp-pot-provider-plugin";
+    pname = "bgutil-ytdlp-pot-provider";
     inherit version src;
     pyproject = true;
     sourceRoot = "${src.name}/plugin";
