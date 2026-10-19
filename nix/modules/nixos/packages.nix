@@ -36,14 +36,6 @@ let
     allowUnfree = true;
     cudaSupport = config.foxDen.nvidia.enable;
     rocmSupport = config.foxDen.amdgpu.enable;
-    permittedInsecurePackages = [
-      "gradle-7.6.6" # TODO: What is pulling this in?
-      "immich-2.7.5"
-      "openssl-3.0.22"
-    ];
-    problems.handlers = {
-      zfs.broken = "warn"; # TODO: Remove this once ZFS officially supports 7.1
-    };
   };
 
   pkgsConfig = {
