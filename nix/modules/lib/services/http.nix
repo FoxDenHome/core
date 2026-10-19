@@ -245,21 +245,25 @@ let
             cp -r .cargo $out/
           '';
     in
-    {
+    pkgs.mkNginxPlugin {
       inherit src;
-      name = "acme";
+      pname = "acme";
+      version = "0.4.1";
 
       preConfigure = ''
         export NGX_RUSTC_OPT="--config ${src}/.cargo/config.toml"
         export OPENSSL_NO_VENDOR=1
       '';
 
-      inputs = with pkgs; [
-        openssl
+      nativeBuildInputs = with pkgs; [
         cargo
         rustPlatform.bindgenHook
         rustc
         pkg-config
+      ];
+
+      buildInputs = with pkgs; [
+        openssl
       ];
 
       meta = with nixpkgs.lib; {
