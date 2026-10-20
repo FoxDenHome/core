@@ -141,6 +141,9 @@ in
               # Compiled models are cached in /var/cache/immich/*/migraphx, so later starts are fast
               MACHINE_LEARNING_WORKER_TIMEOUT = lib.mkForce "7200";
               MACHINE_LEARNING_ROCM_PRECISION = "FP16";
+              # MIOpen defaults to $HOME/.cache/miopen, but $HOME is the read-only /var/empty
+              MIOPEN_USER_DB_PATH = "/var/cache/immich/miopen";
+              MIOPEN_CUSTOM_CACHE_DIR = "/var/cache/immich/miopen";
             };
           };
           settings = {
