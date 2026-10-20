@@ -108,6 +108,15 @@ in
               postgres ${gs.database} ${gs.database}
             '') svcConfig.groupSockets
           );
+
+          extensions = ps: [
+            ps.pgvector
+            ps.vectorchord
+          ];
+          settings = {
+            shared_preload_libraries = [ "vchord.so" ];
+            search_path = "\"$user\", public, vectors";
+          };
         };
 
         systemd.services.postgresql = {
