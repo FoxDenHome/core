@@ -7,11 +7,11 @@ in
     immich = {
       enable = true;
       host = "immich";
-      tls.enable = false;
+      tls.enable = true;
       oAuth = {
         enable = true;
-        clientId = "immich-demo";
-        displayName = "Immich-demo";
+        clientId = "immich";
+        displayName = "Immich";
         imageFile = ../../../files/icons/immich.svg;
       };
     };
@@ -20,11 +20,13 @@ in
   foxDen.hosts.hosts = {
     immich = mkVlanHost 2 {
       dns = {
-        fqdns = [ "images-demo.foxden.network" ];
+        fqdns = [ "images.foxden.network" ];
+        dynDns = true;
       };
+      webservice.enable = true;
       addresses = [
-        "10.2.11.223/16"
-        "fd2c:f4cb:63be:2::ff17/64"
+        "10.2.11.23/16"
+        "fd2c:f4cb:63be:2::b17/64"
       ];
     };
   };
