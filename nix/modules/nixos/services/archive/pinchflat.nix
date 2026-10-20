@@ -12,8 +12,11 @@ let
 
   stateDir = "/var/lib/pinchflat";
 
-  # yt-dlp with the bgutil PO token provider plugin. The plugin's default
-  # base_url (127.0.0.1:4416) hits pinchflat-pot in the same netns.
+  potPort = 4416;
+
+  # yt-dlp with the bgutil PO token provider plugin, served by pinchflat-pot in
+  # the same netns. Pinchflat-NGX passes the base_url from POT_PROVIDER_URL, but
+  # only loads the plugin itself from its Docker image's /opt path.
   ytDlpWithPot = pkgs.yt-dlp.overridePythonAttrs (old: {
     dependencies = (old.dependencies or [ ]) ++ [ pkgs.bgutil-ytdlp-pot-provider.plugin ];
   });
@@ -21,7 +24,9 @@ let
   # Age-restricted videos are SABR-only on the default authenticated clients, but
   # mweb (with a PO token) still gets plain https formats. This has to apply to every
   # yt-dlp call: pinchflat only passes its yt-dlp-configs to the download itself, not
-  # to the downloadability precheck that runs before it.
+  # to the downloadability precheck that runs before it. NGX's per-source player
+  # client setting does cover every call, but adds nothing for sources left on
+  # "Default"; a source that sets one overrides this.
   ytDlp = pkgs.symlinkJoin {
     name = "yt-dlp-pinchflat";
     paths = [ ytDlpWithPot ];
@@ -65,7 +70,7 @@ in
           enable = true;
           # Pinchflat always listens on all interfaces, which would let other
           # hosts on the VLAN reach it without going through oauth2-proxy.
-          package = (pkgs.pinchflat.override { yt-dlp = ytDlp; }).overrideAttrs (old: {
+          package = (pkgs.pinchflat-ngx.override { yt-dlp = ytDlp; }).overrideAttrs (old: {
             postPatch = (old.postPatch or "") + ''
               substituteInPlace config/runtime.exs \
                 --replace-fail "else: {0, 0, 0, 0}" "else: {127, 0, 0, 1}"
@@ -75,6 +80,7 @@ in
           mediaDir = svcConfig.mediaDir;
           group = "share";
           secretsFile = config.lib.foxDen.sops.mkIfAvailable config.sops.secrets.pinchflat.path;
+          extraConfig.POT_PROVIDER_URL = "http://127.0.0.1:${toString potPort}";
         };
 
         systemd.services.pinchflat = {
@@ -93,7 +99,7 @@ in
             DynamicUser = true;
             Type = "simple";
             ExecStart = [
-              "${pkgs.bgutil-ytdlp-pot-provider}/bin/bgutil-pot-server --host 127.0.0.1 --port 4416"
+              "${pkgs.bgutil-ytdlp-pot-provider}/bin/bgutil-pot-server --host 127.0.0.1 --port ${toString potPort}"
             ];
           };
           wantedBy = [ "multi-user.target" ];
