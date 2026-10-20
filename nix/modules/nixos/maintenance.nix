@@ -64,7 +64,7 @@ in
       set -xeuo pipefail
       systemctl --no-block start nixos-update
       journalctl --unit nixos-update --since=now --no-hostname -f |
-          awk '/: nixos-update.service: Deactivated successfully/ { print; exit; }; { print; }'
+          awk '/: nixos-update.service: Deactivated successfully/ { print; exit; }; /: nixos-update.service: Failed with result/ { print; exit 1; }; { print; }'
     '';
 
     users.groups.maintainers = { };

@@ -45,6 +45,38 @@ let
       build-gradle-application.overlays.default
       (
         final: prev:
+        lib.optionalAttrs nixPkgConfig.cudaSupport {
+          _cuda = prev._cuda.extend (
+            _: prevCuda: {
+              extensions = prevCuda.extensions ++ [
+                (cudaFinal: cudaPrev: {
+                  # patchelf aborts (splitIndex assertion) when autoAddDriverRunpath rewrites tools/gdscheck.
+                  # The GDS CLI tools are unused, so drop them before fixup.
+                  libcufile = cudaPrev.libcufile.overrideAttrs (old: {
+                    postInstall = (old.postInstall or "") + ''
+                      rm -r "$out/tools"
+                    '';
+                  });
+                })
+              ];
+            }
+          );
+        }
+      )
+      (final: prev: {
+        pythonPackagesExtensions = prev.pythonPackagesExtensions ++ [
+          (pyFinal: pyPrev: {
+            # Only the TypeError wording differs ("Expected str, got int" vs "must be str")
+            pyopenjtalk-plus = pyPrev.pyopenjtalk-plus.overridePythonAttrs (old: {
+              disabledTests = (old.disabledTests or [ ]) ++ [
+                "test_run_njd_from_mecab_invalid_input_should_not_break_next_call"
+              ];
+            });
+          })
+        ];
+      })
+      (
+        final: prev:
         lib.optionalAttrs nixPkgConfig.rocmSupport {
           pythonPackagesExtensions = prev.pythonPackagesExtensions ++ [
             (pyFinal: pyPrev: {
