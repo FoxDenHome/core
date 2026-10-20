@@ -46,21 +46,20 @@ let
       (
         final: prev:
         lib.optionalAttrs nixPkgConfig.cudaSupport {
-          _cuda = prev._cuda.extend (
-            _: prevCuda: {
-              extensions = prevCuda.extensions ++ [
-                (cudaFinal: cudaPrev: {
-                  # patchelf aborts (splitIndex assertion) when autoAddDriverRunpath rewrites tools/gdscheck.
-                  # The GDS CLI tools are unused, so drop them before fixup.
-                  libcufile = cudaPrev.libcufile.overrideAttrs (old: {
-                    postInstall = (old.postInstall or "") + ''
-                      rm -r "$out/tools"
-                    '';
-                  });
-                })
-              ];
-            }
-          );
+          # patchelf 0.19 aborts (splitIndex assertion in shiftFile) when this hook rewrites the
+          # RUNPATH of non-PIE executables autoPatchelf already patched (libcufile's gdscheck,
+          # tensorrt's trtexec, ...). autoPatchelf's pass already leaves those segfaulting, so
+          # skip them and keep patching the shared libraries, which are what actually gets used.
+          autoAddDriverRunpath = prev.autoAddDriverRunpath.override {
+            addDriverRunpath = prev.addDriverRunpath.overrideAttrs (old: {
+              buildCommand = old.buildCommand + ''
+                substituteInPlace $out/nix-support/setup-hook \
+                  --replace-fail 'if ! isELF "$file"; then continue; fi' \
+                    'if ! isELF "$file"; then continue; fi
+                if [ "$(od -An -tx1 -j16 -N1 "$file")" = " 02" ]; then continue; fi'
+              '';
+            });
+          };
         }
       )
       (final: prev: {
