@@ -722,6 +722,20 @@ in
                           ifaceHooks = map mkHooks hostInterfaces;
                           getHook = sub: lib.flatten (map (cfg: cfg.${sub}) ifaceHooks);
 
+                          # One script instead of a list of Exec lines: a
+                          # daemon-reload mid-start (e.g. during a switch)
+                          # drops the rest of a changed command list, yet the
+                          # oneshot still counts as started, leaving a
+                          # half-configured netns. "-" keeps systemd's meaning.
+                          mkScript =
+                            name: cmds:
+                            pkgs.writeShellScript "netns-host-${host.name}-${name}" ''
+                              set -xeuo pipefail
+                              ${lib.concatMapStringsSep "\n" (
+                                cmd: if lib.hasPrefix "-" cmd then "${lib.removePrefix "-" cmd} || true" else cmd
+                              ) cmds}
+                            '';
+
                           # Hotplugged NICs (e.g. thunderbolt) can appear well
                           # after network-pre.target, so wait for every root link.
                           rootDeviceUnits = map (dev: "sys-subsystem-net-devices-${utils.escapeSystemdPath dev}.device") (
@@ -757,7 +771,7 @@ in
                             RestartSteps = 5;
                             RestartMaxDelaySec = "1min";
 
-                            ExecStart =
+                            ExecStart = mkScript "start" (
                               (lib.lists.optionals (!inRootNetns) [
                                 "-${ipCmd} netns del ${eSA host.namespace}"
                                 "${ipCmd} netns add ${eSA host.namespace}"
@@ -765,9 +779,10 @@ in
                                 "${ipInNsCmd} addr add ::1/128 dev lo noprefixroute"
                                 "${ipInNsCmd} link set lo up"
                               ])
-                              ++ (getHook "start");
+                              ++ (getHook "start")
+                            );
 
-                            ExecStop = getHook "stop";
+                            ExecStop = mkScript "stop" (getHook "stop");
                             ExecStopPost = lib.lists.optional (!inRootNetns) "${ipCmd} netns del ${eSA host.namespace}";
 
                             TimeoutStartSec = "5min";
