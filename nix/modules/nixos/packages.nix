@@ -43,25 +43,6 @@ let
     config = nixPkgConfig;
     overlays = [
       build-gradle-application.overlays.default
-      (
-        final: prev:
-        lib.optionalAttrs nixPkgConfig.cudaSupport {
-          # patchelf 0.19 aborts (splitIndex assertion in shiftFile) when this hook rewrites the
-          # RUNPATH of non-PIE executables autoPatchelf already patched (libcufile's gdscheck,
-          # tensorrt's trtexec, ...). autoPatchelf's pass already leaves those segfaulting, so
-          # skip them and keep patching the shared libraries, which are what actually gets used.
-          autoAddDriverRunpath = prev.autoAddDriverRunpath.override {
-            addDriverRunpath = prev.addDriverRunpath.overrideAttrs (old: {
-              buildCommand = old.buildCommand + ''
-                substituteInPlace $out/nix-support/setup-hook \
-                  --replace-fail 'if ! isELF "$file"; then continue; fi' \
-                    'if ! isELF "$file"; then continue; fi
-                if [ "$(od -An -tx1 -j16 -N1 "$file")" = " 02" ]; then continue; fi'
-              '';
-            });
-          };
-        }
-      )
       (final: prev: {
         pythonPackagesExtensions = prev.pythonPackagesExtensions ++ [
           (pyFinal: pyPrev: {
