@@ -24,9 +24,6 @@
   foxDen.lsi.enable = true;
   foxDen.mlx5.enable = true;
   powerManagement.cpuFreqGovernor = "schedutil";
-  foxDen.services.postgresql = {
-    enable = true;
-  };
 
   boot.swraid = {
     enable = true;
