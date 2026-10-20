@@ -290,7 +290,10 @@ in
         # Local substituter for job containers (host.docker.internal:1111)
         services.harmonia.cache = {
           enable = true;
-          settings.bind = "[::]:1111";
+          settings = {
+            bind = "[::]:1111";
+            priority = 30; # Ahead of cache.nixos.org (40)
+          };
         };
         nix.settings.allowed-users = [ "harmonia" ];
         systemd.services.harmonia.serviceConfig = {
