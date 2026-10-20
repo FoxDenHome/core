@@ -22,6 +22,7 @@ let
 
   services = foxDenLib.services;
   svcConfig = config.foxDen.services.forgejo-runner;
+  containerHost = foxDenLib.hosts.getByName config svcConfig.containerHost;
 
   suffixes = [ "" ] ++ map (label: "-${label}") svcConfig.labels;
   images = [
@@ -167,7 +168,7 @@ in
         inherit svcConfig pkgs config;
       }).config
       (services.make {
-        name = "nix-serve-forgejo-runner";
+        name = "harmonia";
         overrideHost = svcConfig.containerHost;
         inherit svcConfig pkgs config;
       }).config
@@ -286,31 +287,26 @@ in
           }
         ];
 
-        users.users.nix-serve-forgejo-runner = {
-          isSystemUser = true;
-          group = "nix-serve-forgejo-runner";
-          description = "Forgejo runner nix-serve";
-          home = "/var/lib/nix-serve-forgejo-runner";
+        # Local substituter for job containers (host.docker.internal:1111)
+        services.harmonia.cache = {
+          enable = true;
+          settings.bind = "[::]:1111";
         };
-        users.groups.nix-serve-forgejo-runner = { };
-
-        nix.settings.allowed-users = [ "nix-serve-forgejo-runner" ];
-        systemd.services.nix-serve-forgejo-runner = {
-          serviceConfig = {
-            ExecStart = "${pkgs.nix-serve-ng}/bin/nix-serve --port 1111";
-            UMask = 0000;
-            BindReadOnlyPaths = [
-              "/nix/store"
-              "/nix/var/nix"
-            ];
-            StateDirectory = "nix-serve-forgejo-runner";
-            WorkingDirectory = "/var/lib/nix-serve-forgejo-runner";
-            User = "nix-serve-forgejo-runner";
-            Group = "nix-serve-forgejo-runner";
-            Nice = 5;
-          };
-
-          wantedBy = [ "multi-user.target" ];
+        nix.settings.allowed-users = [ "harmonia" ];
+        systemd.services.harmonia.serviceConfig = {
+          BindReadOnlyPaths = [
+            "/nix/store"
+            "/nix/var/nix"
+          ];
+          PrivateNetwork = lib.mkForce false; # Joins the container netns via services.make instead
+          Nice = 5;
+        };
+        # Harmonia is socket-activated, so only the listener needs the containers' netns
+        systemd.sockets.harmonia = {
+          requires = [ containerHost.unit ];
+          bindsTo = [ containerHost.unit ];
+          after = [ containerHost.unit ];
+          socketConfig.NetworkNamespacePath = containerHost.namespacePath;
         };
 
         environment.persistence."/nix/persist/forgejo" = {
