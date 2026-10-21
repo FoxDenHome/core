@@ -7,32 +7,12 @@
 }:
 let
   services = foxDenLib.services;
-  phpPkg = pkgs.php84;
   svcConfig = config.foxDen.services.darksignsonline;
 
-  configPhp = ''
-    <?php
-    $MYSQL_HOST = ''';
-    $MYSQL_USERNAME = 'darksignsonline';
-    $MYSQL_PASSWORD = ''';
-    $MYSQL_DATABASE = 'darksignsonline';
-    $SMTP_HOST = '${config.lib.foxDen.mailerHost}';
-    $SMTP_PORT = 2525;
-    $SMTP_USERNAME = ''';
-    $SMTP_PASSWORD = ''';
-    $SMTP_FROM = '${svcConfig.email}';
-    require_once('/run/darksignsonline/dso-config-secret.php');
-  '';
-
-  bindReadOnlyPaths = lib.mkMerge [
-    [
-      "${pkgs.darksignsonline}/var/www/darksignsonline:/var/www/darksignsonline"
-      "${pkgs.writeText "dso-config.php" configPhp}:/run/darksignsonline/dso-config.php"
-    ]
-    (config.lib.foxDen.sops.mkIfAvailable [
-      "${config.sops.secrets.darksignsonline.path}:/run/darksignsonline/dso-config-secret.php"
-    ])
-  ];
+  # The game server answers every `/<name>.php` and `/api/<name>.php`; nginx
+  # serves the rest. It shares the host's network namespace with nginx.
+  listen = "127.0.0.1:8000";
+  server = "${pkgs.darksignsonline-server}/bin/darksignsonline-server";
 in
 {
   options.foxDen.services.darksignsonline = {
@@ -54,7 +34,7 @@ in
     lib.mkMerge [
       (foxDenLib.services.make {
         inherit svcConfig pkgs config;
-        name = "phpfpm-darksignsonline";
+        name = "darksignsonline";
       }).config
       (foxDenLib.services.make {
         inherit svcConfig pkgs config;
@@ -65,11 +45,10 @@ in
         dynamicUser = false;
         name = "http-darksignsonline";
         target = ''
-          index index.php index.htm index.html;
+          index index.html;
         '';
         extraConfig =
           {
-            package,
             headerConfig,
             securityHeaderConfig,
             ...
@@ -95,13 +74,12 @@ in
               add_header Cross-Origin-Opener-Policy "same-origin" always;
               add_header Cross-Origin-Embedder-Policy "require-corp" always;
             }
+            location = / {
+              rewrite ^ /index.php last;
+            }
             location ~ ^/(api/)?[a-z0-9_]+\.php$ {
-              fastcgi_index index.php;
-              include ${package}/conf/fastcgi_params;
-              fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
-              fastcgi_param SCRIPT_NAME $fastcgi_script_name;
-              fastcgi_param HTTP_HOST $host; # Needed for HTTP/3: https://github.com/froxlor/Froxlor/commit/2d7f0ed1054141dbc5e75cde5e40770a78423f13
-              fastcgi_pass unix:${config.services.phpfpm.pools.darksignsonline.socket};
+              proxy_pass http://${listen}$uri$is_args$args;
+              proxy_set_header X-Real-IP $remote_addr;
             }
           '';
       }).config
@@ -141,8 +119,8 @@ in
 
         systemd.services.http-darksignsonline = {
           unitConfig = {
-            After = [ "phpfpm-darksignsonline.service" ];
-            Wants = [ "phpfpm-darksignsonline.service" ];
+            After = [ "darksignsonline.service" ];
+            Wants = [ "darksignsonline.service" ];
           };
 
           serviceConfig = {
@@ -151,36 +129,32 @@ in
 
             BindReadOnlyPaths = [
               "${pkgs.darksignsonline}/var/www/darksignsonline:/var/www/darksignsonline"
-              "/run/phpfpm"
             ];
           };
         };
 
-        services.phpfpm.pools.darksignsonline = {
-          user = "darksignsonline";
-          group = "darksignsonline";
-          phpPackage = phpPkg;
-          settings = {
-            "pm" = "dynamic";
-            "pm.max_children" = 5;
-            "pm.start_servers" = 2;
-            "pm.min_spare_servers" = 1;
-            "pm.max_spare_servers" = 3;
-            "listen.owner" = "darksignsonline";
-            "listen.group" = "darksignsonline";
+        # The database settings come from foxDen.services.mysql below, the
+        # JWT keys (JWT_PRIVATE_KEY, JWT_PUBLIC_KEY, base64 PEM) from sops.
+        systemd.services.darksignsonline = {
+          environment = {
+            DSO_LISTEN = listen;
+            SMTP_HOST = config.lib.foxDen.mailerHost;
+            SMTP_PORT = "2525";
+            SMTP_FROM = svcConfig.email;
           };
-          phpOptions = ''
-            display_errors = On
-            log_errors = Off
-            fastcgi.logging = Off
-          '';
-        };
 
-        systemd.services.phpfpm-darksignsonline = {
           serviceConfig = {
-            BindReadOnlyPaths = bindReadOnlyPaths;
-            PrivateUsers = false;
+            User = "darksignsonline";
+            Group = "darksignsonline";
+
+            EnvironmentFile = config.lib.foxDen.sops.mkIfAvailable config.sops.secrets.darksignsonline.path;
+
+            Type = "exec";
+            ExecStart = server;
+            Restart = "always";
           };
+
+          wantedBy = [ "multi-user.target" ];
         };
 
         systemd.services.tasks-darksignsonline = {
@@ -188,9 +162,8 @@ in
             User = "darksignsonline";
             Group = "darksignsonline";
             Type = "simple";
-            ExecStart = "${phpPkg}/bin/php /var/www/darksignsonline/_tasks.php";
+            ExecStart = "${server} tasks";
             Restart = "no";
-            BindReadOnlyPaths = bindReadOnlyPaths;
           };
         };
 
@@ -207,7 +180,7 @@ in
           services = [
             {
               databases = [ "darksignsonline" ];
-              service = "phpfpm-darksignsonline";
+              service = "darksignsonline";
               user = "darksignsonline";
             }
             {
