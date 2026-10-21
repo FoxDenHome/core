@@ -9,10 +9,12 @@ let
   services = foxDenLib.services;
   svcConfig = config.foxDen.services.darksignsonline;
 
-  # The game server answers every `/<name>.php` and `/api/<name>.php`; nginx
-  # serves the rest. It shares the host's network namespace with nginx.
+  # The game server is the whole site: the API, the account pages, the static
+  # files and the browser client, with the headers the client needs. nginx is
+  # only TLS and Anubis in front of it. It shares the host's network namespace
+  # with nginx, so nginx's X-Real-IP comes from loopback, which the server
+  # trusts by default.
   listen = "127.0.0.1:8000";
-  server = "${pkgs.darksignsonline-server}/bin/darksignsonline-server";
 in
 {
   options.foxDen.services.darksignsonline = {
@@ -36,52 +38,19 @@ in
         inherit svcConfig pkgs config;
         name = "darksignsonline";
       }).config
-      (foxDenLib.services.make {
-        inherit svcConfig pkgs config;
-        name = "tasks-darksignsonline";
-      }).config
       (services.http.make {
         inherit svcConfig pkgs config;
         dynamicUser = false;
         name = "http-darksignsonline";
+        # The server sends its own X-Content-Type-Options and X-Frame-Options
+        # (and its own Cache-Control, which nginx keeps); nginx adds these two
+        # for every response, so drop the server's copies rather than
+        # sending each twice.
         target = ''
-          index index.html;
+          proxy_pass http://${listen};
+          proxy_hide_header X-Content-Type-Options;
+          proxy_hide_header X-Frame-Options;
         '';
-        extraConfig =
-          {
-            headerConfig,
-            securityHeaderConfig,
-            ...
-          }:
-          ''
-            root /var/www/darksignsonline;
-            location = /game {
-              return 308 /game/;
-            }
-            location /game/ {
-              ${securityHeaderConfig}
-              add_header Cross-Origin-Opener-Policy "same-origin" always;
-              add_header Cross-Origin-Embedder-Policy "require-corp" always;
-              add_header Cache-Control "public, max-age=31536000, immutable" always;
-            }
-            location = /game/index.html {
-              ${headerConfig}
-              add_header Cross-Origin-Opener-Policy "same-origin" always;
-              add_header Cross-Origin-Embedder-Policy "require-corp" always;
-            }
-            location = /game/ {
-              ${headerConfig}
-              add_header Cross-Origin-Opener-Policy "same-origin" always;
-              add_header Cross-Origin-Embedder-Policy "require-corp" always;
-            }
-            location = / {
-              rewrite ^ /index.php last;
-            }
-            location ~ ^/(api/)?[a-z0-9_]+\.php$ {
-              proxy_pass http://${listen}$uri$is_args$args;
-              proxy_set_header X-Real-IP $remote_addr;
-            }
-          '';
       }).config
       {
         sops.secrets.darksignsonline = config.lib.foxDen.sops.mkIfAvailable {
@@ -126,10 +95,6 @@ in
           serviceConfig = {
             User = "darksignsonline";
             Group = "darksignsonline";
-
-            BindReadOnlyPaths = [
-              "${pkgs.darksignsonline}/var/www/darksignsonline:/var/www/darksignsonline"
-            ];
           };
         };
 
@@ -150,29 +115,11 @@ in
             EnvironmentFile = config.lib.foxDen.sops.mkIfAvailable config.sops.secrets.darksignsonline.path;
 
             Type = "exec";
-            ExecStart = server;
+            ExecStart = lib.getExe pkgs.darksignsonline;
             Restart = "always";
           };
 
           wantedBy = [ "multi-user.target" ];
-        };
-
-        systemd.services.tasks-darksignsonline = {
-          serviceConfig = {
-            User = "darksignsonline";
-            Group = "darksignsonline";
-            Type = "simple";
-            ExecStart = "${server} tasks";
-            Restart = "no";
-          };
-        };
-
-        systemd.timers.tasks-darksignsonline = {
-          wantedBy = [ "timers.target" ];
-          timerConfig = {
-            OnBootSec = "10min";
-            OnUnitInactiveSec = "15min";
-          };
         };
 
         foxDen.services.mysql = {
@@ -181,11 +128,6 @@ in
             {
               databases = [ "darksignsonline" ];
               service = "darksignsonline";
-              user = "darksignsonline";
-            }
-            {
-              databases = [ "darksignsonline" ];
-              service = "tasks-darksignsonline";
               user = "darksignsonline";
             }
           ];
