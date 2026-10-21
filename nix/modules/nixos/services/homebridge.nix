@@ -31,6 +31,9 @@ in
           };
         };
 
+        # preStart calls install/rm/ln from PATH
+        systemd.services.homebridge.confinement.packages = [ pkgs.coreutils ];
+
         environment.persistence."/nix/persist/homebridge" = {
           hideMounts = true;
           directories = [
