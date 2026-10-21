@@ -5,7 +5,7 @@
     # Basics
     # Pinned to a nixos-unstable-small rev the NixOS-CUDA Hydra has built, so cache.nixos-cuda.org
     # has our CUDA packages. Bump with ./pin-cuda-nixpkgs.sh, not by hand.
-    nixpkgs.url = "github:NixOS/nixpkgs/f43dcf4b67a1ad8af1032918c0af0b66297e9781";
+    nixpkgs.url = "github:NixOS/nixpkgs/02c087f3fe673c9e317f206a627cb6b910336dbe";
 
     home-manager = {
       url = "github:nix-community/home-manager";
