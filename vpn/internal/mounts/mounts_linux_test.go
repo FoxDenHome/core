@@ -61,7 +61,7 @@ func TestAttemptOrder(t *testing.T) {
 		return
 	}
 	if g := got(true, share); !slices.Equal(g, []string{
-		"nas-smb.foxden.network SMB Direct, multichannel", "nas-smb.foxden.network SMB Direct",
+		"nas-smb.foxden.network SMB Direct",
 		"nas.foxden.network TCP, multichannel", "nas.foxden.network TCP",
 	}) {
 		t.Fatalf("with RDMA: %v", g)
@@ -74,8 +74,12 @@ func TestAttemptOrder(t *testing.T) {
 	if g := got(true, noRDMAHost); len(g) != 2 {
 		t.Fatalf("server without SMB Direct: %v", g)
 	}
-	if o := strings.Join(attempts(Request{Share: share}, me, "10.2.11.16")[0].options, ","); !strings.Contains(o, ",rdma,ip=10.2.11.16,") {
+	o := strings.Join(attempts(Request{Share: share}, me, "10.2.11.16")[0].options, ",") + ","
+	if !strings.Contains(o, ",rdma,ip=10.2.11.16,") {
 		t.Fatalf("SMB Direct options %q do not pin IPv4", o)
+	}
+	if !strings.Contains(o, ",nosharesock,") || strings.Contains(o, "multichannel") {
+		t.Fatalf("SMB Direct options %q must use nosharesock and no multichannel", o)
 	}
 	opts := strings.Join(attempts(Request{Share: provision.Share{Name: "dori", Host: "h", Home: true}}, me, "")[0].options, ",")
 	for _, want := range []string{"sec=krb5", fmt.Sprintf("cruid=%d", me.UID), "nosuid", "nodev", "file_mode=0600", "dir_mode=0700", "vers=3.1.1", "soft", "echo_interval=5"} {
@@ -119,7 +123,7 @@ func TestMountFallsBack(t *testing.T) {
 		return nil
 	}
 	m, err := l.Mount(context.Background(), me, Request{Share: share, Path: target(t), AtHome: true})
-	if err != nil || m.Transport != "TCP, multichannel" || len(*calls) != 3 {
+	if err != nil || m.Transport != "TCP, multichannel" || len(*calls) != 2 {
 		t.Fatalf("%+v %v %v", m, err, *calls)
 	}
 	l.MountCIFS = func(context.Context, string, string, []string) error {

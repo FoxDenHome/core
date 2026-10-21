@@ -41,10 +41,15 @@ type attempt struct {
 	transport string
 }
 
-// attempts lists option sets, best first: SMB Direct with multichannel,
-// SMB Direct, TCP with multichannel, plain TCP. The first that mounts wins.
+// attempts lists option sets, best first: SMB Direct, TCP with
+// multichannel, plain TCP. The first that mounts wins.
 // SMB Direct is tried only with rdmaIP, the RDMA host's IPv4 address: ksmbd
 // listens for RDMA on IPv4 only, and the kernel would otherwise pick IPv6.
+// For the same reason it goes without multichannel: the server advertises
+// its IPv6 interface too, and the kernel's RDMA channel to it never connects
+// and leaves the session reconnecting forever. nosharesock keeps a new mount
+// off an existing (possibly stuck) connection to the same server, which
+// would otherwise fail it with "Host is down".
 func attempts(req Request, u User, rdmaIP string) []attempt {
 	base := []string{
 		"vers=3.1.1",
@@ -72,10 +77,7 @@ func attempts(req Request, u User, rdmaIP string) []attempt {
 	var out []attempt
 	if rdmaIP != "" && req.Share.RDMAHost != "" {
 		ip := "ip=" + rdmaIP
-		out = append(out,
-			attempt{req.Share.RDMAHost, with(append([]string{"rdma", ip}, multichannel...)...), "SMB Direct, multichannel"},
-			attempt{req.Share.RDMAHost, with("rdma", ip), "SMB Direct"},
-		)
+		out = append(out, attempt{req.Share.RDMAHost, with("rdma", ip, "nosharesock"), "SMB Direct"})
 	}
 	return append(out,
 		attempt{req.Share.Host, with(multichannel...), "TCP, multichannel"},
