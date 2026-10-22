@@ -1,0 +1,2 @@
+#!/bin/sh
+exec ./tofu.sh apply tf.plan

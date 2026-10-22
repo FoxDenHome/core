@@ -1,0 +1,3 @@
+#!/bin/sh
+rm -f tf.plan
+exec ./tofu.sh plan -out tf.plan
