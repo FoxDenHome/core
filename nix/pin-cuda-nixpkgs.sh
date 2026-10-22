@@ -4,6 +4,7 @@
 # compiling torch & co. The pin never moves backwards; if no newer eval qualifies, it stays put.
 set -euo pipefail
 cd "$(dirname "$0")"
+set -x
 
 HYDRA='https://hydra.nixos-cuda.org'
 JOBSET='nixos-cuda/cuda-packages-unstable'
