@@ -44,7 +44,6 @@ in
         "usbhid"
         "usb_storage"
       ];
-      initrd.systemd.enable = true;
       plymouth.enable = false;
       binfmt = {
         preferStaticEmulators = true;

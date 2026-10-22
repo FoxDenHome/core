@@ -1,5 +1,7 @@
 {
   lib,
+  nixpkgs,
+  systemArch,
   impermanence,
   home-manager,
   pkgs,
@@ -7,9 +9,20 @@
   config,
   ...
 }:
+let
+  # Upstream impermanence still reads boot.initrd.systemd.enable, which nixpkgs removed
+  # (scripted initrd is gone). Systemd is the only initrd now, so the branch is always taken.
+  # Uses the nixpkgs input rather than pkgs, since imports must not depend on config.
+  impermanenceSrc = nixpkgs.legacyPackages.${systemArch}.runCommand "impermanence-src" { } ''
+    cp -r ${impermanence} $out
+    chmod -R u+w $out
+    substituteInPlace $out/nixos.nix --replace-fail \
+      'config.boot.initrd.systemd.enable' 'true'
+  '';
+in
 {
   imports = [
-    impermanence.nixosModules.impermanence
+    (import "${impermanenceSrc}/nixos.nix")
     home-manager.nixosModules.home-manager
   ];
 
