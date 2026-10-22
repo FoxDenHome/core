@@ -24,7 +24,7 @@ terraform {
     }
   }
 
-  # Connection comes from PG_CONN_STR, set up by tofu.sh
+  # Connection comes from PG_CONN_STR, set up by tf.sh
   backend "pg" {}
 
   encryption {
@@ -48,7 +48,7 @@ terraform {
   }
 }
 
-# From state-passphrase.yaml, set up by tofu.sh
+# From state-passphrase.yaml, set up by tf.sh
 variable "state_passphrase" {
   type      = string
   sensitive = true

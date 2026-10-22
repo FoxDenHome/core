@@ -30,7 +30,7 @@ uv run python -m unittest tests.test_dns           # single module; append .Clas
 
 # Terraform
 tflint -c "$PWD/terraform/.tflint.hcl" --recursive -f compact   # from repo root (CI)
-terraform/tofu.sh plan                                           # tofu wrapper: state backend tunnel + passphrase
+terraform/tf.sh plan                                           # tofu wrapper: state backend tunnel + passphrase
 
 # VPN (run from vpn/)
 make            # go build ./cmd/... into bin/
@@ -60,7 +60,7 @@ Typical service pattern (see `systems/x86_64-linux/islandfox/rmfakecloud.nix` + 
 ## Secrets
 
 - `nix/secrets/<hostname>.yaml` is each host's default sops file, and `shared.yaml` is shared across hosts. Wrap secret-dependent config in `config.lib.foxDen.sops.mkIfAvailable` so hosts and builds without sops still evaluate.
-- Terraform state lives in PostgreSQL on islandfox (`pg` backend, database `opentofu`), encrypted client-side by OpenTofu with the passphrase in `terraform/state-passphrase.yaml` (sops; `.sops.yaml` covers `terraform/`). Always run `terraform/tofu.sh <args>` instead of `tofu`: it opens an SSH Unix socket forward to `/run/postgresql-opentofu/.s.PGSQL.5432` (only the kanidm `superadmins` group may connect) and sets `PG_CONN_STR` and `TF_VAR_state_passphrase`.
+- Terraform state lives in PostgreSQL on islandfox (`pg` backend, database `opentofu`), encrypted client-side by OpenTofu with the passphrase in `terraform/state-passphrase.yaml` (sops; `.sops.yaml` covers `terraform/`). Always run `terraform/tf.sh <args>` instead of `tofu`: it opens an SSH Unix socket forward to `/run/postgresql-opentofu/.s.PGSQL.5432` (only the kanidm `superadmins` group may connect) and sets `PG_CONN_STR` and `TF_VAR_state_passphrase`.
 
 ## Gotchas (from README)
 

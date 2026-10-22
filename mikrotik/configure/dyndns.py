@@ -18,9 +18,9 @@ def load_dyndns_hosts():
     if _dyndns_hosts_value is not None:
         return _dyndns_hosts_value
 
-    # tofu.sh sets up access to the state backend on islandfox
+    # tf.sh sets up access to the state backend on islandfox
     output = check_output(
-        [mtik_path("../terraform/tofu.sh"), "output", "-show-sensitive", "-json"]
+        [mtik_path("../terraform/tf.sh"), "output", "-show-sensitive", "-json"]
     ).decode("utf-8")
     raw_output = json_loads(output)
     _dyndns_hosts_value = raw_output["he_dynamic_keys"]["value"]

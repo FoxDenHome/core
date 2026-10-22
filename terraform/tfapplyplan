@@ -1,2 +1,2 @@
 #!/bin/sh
-exec ./tofu.sh apply tf.plan
+exec ./tf.sh apply tf.plan

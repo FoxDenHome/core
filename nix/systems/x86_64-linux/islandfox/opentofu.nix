@@ -1,6 +1,6 @@
 { ... }:
 {
-  # OpenTofu state backend for terraform/, reached over SSH by terraform/tofu.sh
+  # OpenTofu state backend for terraform/, reached over SSH by terraform/tf.sh
   foxDen.services.postgresql = {
     enable = true;
     groupSockets = [
