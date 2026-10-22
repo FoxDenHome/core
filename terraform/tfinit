@@ -1,0 +1,2 @@
+#!/bin/sh
+exec ./tf.sh init -upgrade
