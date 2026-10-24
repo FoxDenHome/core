@@ -74,10 +74,6 @@ let
             type = nullOr (listOf ints.unsigned);
             default = null;
           };
-          vga = lib.mkOption {
-            type = bool;
-            default = false;
-          };
           # Keyed by the interface name in foxDen.hosts.hosts.<vm>, which
           # supplies the MAC
           network = lib.mkOption {
@@ -123,7 +119,7 @@ let
     disk = 2;
     usbController = 3;
     virtioSerial = 4;
-    balloon = 5;
+    # 5 was the balloon, left free so rng keeps its address
     rng = 6;
   };
   firstDynamicUnit = 7;
@@ -284,11 +280,7 @@ let
         ++ map (share: {
           kind = "share";
           value = share;
-        }) shares
-        ++ lib.lists.optional hw.vga {
-          kind = "vga";
-          value = null;
-        };
+        }) shares;
       placed = lib.imap0 (i: d: d // { unit = firstDynamicUnit + i; }) hwDynamic;
       placedOf = kind: lib.filter (d: d.kind == kind) placed;
       rootPortCount = lib.max minRootPorts (firstDynamicUnit - 1 + lib.length placed);
@@ -324,17 +316,11 @@ let
         "-nodefaults"
         "-no-user-config"
         "-rtc"
-        "base=utc,driftfix=slew"
-        "-global"
-        "kvm-pit.lost_tick_policy=delay"
+        "base=utc"
         "-global"
         "ICH9-LPC.disable_s3=1"
         "-global"
         "ICH9-LPC.disable_s4=1"
-        "-global"
-        "ICH9-LPC.noreboot=off"
-        "-action"
-        "watchdog=reset"
         "-boot"
         "strict=on"
         "-qmp"
@@ -343,6 +329,8 @@ let
         "socket,id=serial0,path=${runDir}/serial.sock,server=on,wait=off"
         "-serial"
         "chardev:serial0"
+        "-display"
+        "none"
       ]
       ++ mkRootPorts rootPortCount
       ++ [
@@ -359,31 +347,15 @@ let
         "socket,id=qga0,path=${runDir}/qga.sock,server=on,wait=off"
         "-device"
         "virtserialport,bus=virtio-serial0.0,nr=1,chardev=qga0,name=org.qemu.guest_agent.0"
-        "-device"
-        "qemu-xhci,id=usb,p2=15,p3=15,${mkAddr units.usbController}"
-        "-device"
-        "virtio-balloon-pci,id=balloon0,${mkAddr units.balloon}"
         "-object"
         "rng-random,id=rng0,filename=/dev/urandom"
         "-device"
         "virtio-rng-pci,rng=rng0,${mkAddr units.rng}"
       ]
-      ++ (
-        if hw.vga then
-          lib.concatMap (d: [
-            "-device"
-            "VGA,vgamem_mb=16,${mkAddr d.unit}"
-            "-device"
-            "usb-tablet,bus=usb.0"
-            "-vnc"
-            "unix:${runDir}/vnc.sock"
-          ]) (placedOf "vga")
-        else
-          [
-            "-display"
-            "none"
-          ]
-      )
+      ++ lib.lists.optionals (vm.config.devices.usb != [ ]) [
+        "-device"
+        "qemu-xhci,id=usb,p2=15,p3=15,${mkAddr units.usbController}"
+      ]
       # By ID rather than bus address: QEMU then picks the stick up again
       # whenever it is replugged, or shows up after the VM started
       ++ lib.concatMap (dev: [
