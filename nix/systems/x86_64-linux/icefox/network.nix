@@ -110,6 +110,7 @@ let
 in
 {
   lib.foxDenSys = {
+    inherit mainIPv4;
     mainIPs = map foxDenLib.util.removeIPCidr (ifcfg-foxden.addresses ++ ifcfg.addresses);
     inherit mkMinHost;
     mkV6Host =

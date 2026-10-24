@@ -2,6 +2,7 @@
 let
   mkV6Host = config.lib.foxDenSys.mkV6Host;
   mkMinHost = config.lib.foxDenSys.mkMinHost;
+  mainIPv4 = config.lib.foxDenSys.mainIPv4;
 in
 {
   foxDen.services = config.lib.foxDen.sops.mkIfAvailable {
@@ -30,6 +31,12 @@ in
       enable = true;
       host = "deluge";
       downloadsDir = "/mnt/ztank/local/nas/torrent";
+      tls.enable = true;
+      oAuth = {
+        enable = true;
+        displayName = "Deluge Offsite (IceFox)";
+        clientId = "deluge-icefox";
+      };
     };
     kiwix = {
       enable = true;
@@ -62,6 +69,12 @@ in
       enable = true;
       host = "nzbget";
       downloadsDir = "/mnt/ztank/local/nas/usenet";
+      tls.enable = true;
+      oAuth = {
+        enable = true;
+        displayName = "NZBGet Offsite (IceFox)";
+        clientId = "nzbget-icefox";
+      };
     };
     jellyfin = {
       host = "jellyfin";
@@ -87,6 +100,7 @@ in
       dns = {
         fqdns = [ "nzbget-offsite.foxden.network" ];
       };
+      webservice.enable = true;
       addresses = [
         "2607:5300:60:7065::1:8/112"
         "10.99.12.8/24"
@@ -120,7 +134,11 @@ in
         host = mkMinHost {
           dns = {
             fqdns = [ "deluge-offsite.foxden.network" ];
+            # Routed through the VPN, so no public address of its own; foxingress
+            # on the main IP takes HTTP(S) for it.
+            auxAddresses = [ mainIPv4 ];
           };
+          webservice.enable = true;
           addresses = [
             "10.99.12.11/24"
             "fd2c:f4cb:63be::a63:c0b/120"

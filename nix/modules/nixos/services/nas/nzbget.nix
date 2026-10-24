@@ -37,12 +37,22 @@ in
         name = "nzbget";
         inherit svcConfig pkgs config;
       }).config
+      (services.http.make {
+        inherit svcConfig pkgs config;
+        name = "http-nzbget";
+        target = "proxy_pass http://127.0.0.1:6789;";
+      }).config
       {
         services.nzbget = {
           enable = true;
           settings = {
             MainDir = "/var/lib/nzbget";
             DestDir = svcConfig.downloadsDir;
+            # Only reachable through http-nzbget (oauth2-proxy), so skip its own auth
+            ControlIP = "127.0.0.1";
+            ControlPort = 6789;
+            ControlPassword = "";
+            SecureControl = false;
           };
           group = "share";
         };

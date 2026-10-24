@@ -63,6 +63,12 @@ in
       enable = true;
       host = "deluge";
       downloadsDir = "/mnt/zssd/nas/torrent";
+      tls.enable = true;
+      oAuth = {
+        enable = true;
+        displayName = "Deluge Local (BengalFox)";
+        clientId = "deluge-bengalfox";
+      };
     };
     jellyfin = {
       enable = true;
@@ -104,6 +110,12 @@ in
       enable = true;
       host = "nzbget";
       downloadsDir = "/mnt/zssd/nas/usenet";
+      tls.enable = true;
+      oAuth = {
+        enable = true;
+        displayName = "NZBGet Local (BengalFox)";
+        clientId = "nzbget-bengalfox";
+      };
     };
     ksmbd = {
       enable = true;
@@ -177,7 +189,9 @@ in
       (mkVlanHost 2 {
         dns = {
           fqdns = [ "deluge.foxden.network" ];
+          dynDns = true;
         };
+        webservice.enable = true;
         addresses = [
           "10.2.11.8/16"
           "fd2c:f4cb:63be:2::b08/64"
@@ -309,7 +323,9 @@ in
     nzbget = mkVlanHost 2 {
       dns = {
         fqdns = [ "nzbget.foxden.network" ];
+        dynDns = true;
       };
+      webservice.enable = true;
       addresses = [
         "10.2.11.9/16"
         "fd2c:f4cb:63be:2::b09/64"
