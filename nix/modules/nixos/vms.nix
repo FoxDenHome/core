@@ -536,7 +536,7 @@ let
     text = ''
       if [ $# -ne 1 ]; then
         echo "Usage: vm-console <vm>" >&2
-        echo "VMs: ${lib.concatStringsSep " " vmNames}" >&2
+        echo "VMs: ${lib.concatStringsSep " " (lib.attrsets.attrNames vms)}" >&2
         exit 1
       fi
       sock="/run/vm-$1/serial.sock"
