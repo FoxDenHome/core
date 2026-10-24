@@ -61,6 +61,7 @@ in
               };
               single_sso = svcConfig.oAuth.enable;
               oidc_aware_preferred = svcConfig.oAuth.enable;
+              login_with_password = !svcConfig.oAuth.enable;
               identity_provider = lib.mkIf svcConfig.oAuth.enable [
                 {
                   brand = "Kanidm";
