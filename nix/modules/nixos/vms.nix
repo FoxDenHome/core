@@ -1,5 +1,5 @@
 {
-  hostName,
+  config,
   pkgs,
   lib,
   utils,
@@ -8,25 +8,129 @@
 let
   eSA = lib.strings.escapeShellArg;
 
-  vmDirPath = ../../vms/${hostName};
-
   qemu = pkgs.qemu_kvm;
   vmUser = "qemu-vm";
   persistDir = "/nix/persist/vms";
   stateRoot = "/var/lib/vms";
 
-  vmNames =
-    let
-      vmDir = if (builtins.pathExists vmDirPath) then (builtins.readDir vmDirPath) else { };
-    in
-    lib.attrsets.attrNames vmDir;
-
-  vms = lib.attrsets.genAttrs vmNames (name: {
+  vms = lib.attrsets.mapAttrs (name: vmCfg: {
     inherit name;
-    # TODO: Validate this somehow
-    config = import (vmDirPath + "/${name}/config.nix");
-  });
+    config = vmCfg;
+  }) config.foxDen.vms;
   vmList = lib.attrsets.attrValues vms;
+
+  # "pci.6" style placement, see mkAddr
+  addrType = lib.types.str;
+
+  networkType =
+    with lib.types;
+    submodule {
+      options = {
+        type = lib.mkOption {
+          type = enum [
+            "macvtap"
+            "sriov"
+          ];
+        };
+        parent = lib.mkOption {
+          type = nullOr str;
+          default = null;
+          description = "macvtap: host interface to attach to";
+        };
+        root = lib.mkOption {
+          type = nullOr str;
+          default = null;
+          description = "sriov: PF to take the VF from";
+        };
+        vf = lib.mkOption {
+          type = nullOr ints.unsigned;
+          default = null;
+        };
+        vlan = lib.mkOption {
+          type = ints.unsigned;
+          default = 0;
+        };
+        addr = lib.mkOption { type = addrType; };
+      };
+    };
+
+  vmType =
+    with lib.types;
+    submodule {
+      options = {
+        rootDiskSize = lib.mkOption { type = str; };
+        autostart = lib.mkOption {
+          type = bool;
+          default = true;
+        };
+        hardware = {
+          uuid = lib.mkOption { type = str; };
+          memory = lib.mkOption { type = str; };
+          smp = lib.mkOption { type = str; };
+          cpuAffinity = lib.mkOption {
+            type = nullOr str;
+            default = null;
+          };
+          rootPorts = {
+            slot = lib.mkOption { type = ints.unsigned; };
+            count = lib.mkOption { type = ints.unsigned; };
+          };
+          disk = {
+            type = lib.mkOption {
+              type = enum [
+                "scsi"
+                "virtio-blk"
+              ];
+            };
+            addr = lib.mkOption { type = addrType; };
+          };
+          usbController = lib.mkOption { type = addrType; };
+          virtioSerial = lib.mkOption { type = addrType; };
+          balloon = lib.mkOption { type = addrType; };
+          rng = lib.mkOption { type = addrType; };
+          vga = lib.mkOption {
+            type = nullOr addrType;
+            default = null;
+          };
+          # Keyed by the interface name in foxDen.hosts.hosts.<vm>, which
+          # supplies the MAC
+          network = lib.mkOption {
+            type = attrsOf networkType;
+            default = { };
+          };
+          shares = lib.mkOption {
+            type = listOf (submodule {
+              options = {
+                tag = lib.mkOption { type = str; };
+                source = lib.mkOption { type = str; };
+                addr = lib.mkOption { type = addrType; };
+              };
+            });
+            default = [ ];
+          };
+        };
+        devices = {
+          usb = lib.mkOption {
+            type = listOf (submodule {
+              options = {
+                vendorId = lib.mkOption { type = str; };
+                productId = lib.mkOption { type = str; };
+              };
+            });
+            default = [ ];
+          };
+          pci = lib.mkOption {
+            type = listOf (submodule {
+              options = {
+                host = lib.mkOption { type = str; };
+                addr = lib.mkOption { type = addrType; };
+              };
+            });
+            default = [ ];
+          };
+        };
+      };
+    };
 
   # "pci.6" is slot 0 of root port 6, "pcie.0:0x3" a slot on the root bus.
   # Placements mirror what libvirt picked, so guests keep their NIC names.
@@ -62,18 +166,19 @@ let
 
   vmNetworks =
     vm:
-    lib.attrsets.mapAttrsToList (ifName: net: net // { inherit ifName; }) (
-      vm.config.hardware.network or { }
-    );
+    lib.attrsets.mapAttrsToList (ifName: net: net // { inherit ifName; }) (vm.config.hardware.network);
 
   # Hotplugged NICs (e.g. thunderbolt) can show up long after boot, so the VM
   # follows the device it sits on rather than racing it
   rootDeviceUnits =
     vm:
     lib.lists.unique (
-      map (net: "sys-subsystem-net-devices-${utils.escapeSystemdPath (net.parent or net.root)}.device") (
-        vmNetworks vm
-      )
+      map (
+        net:
+        "sys-subsystem-net-devices-${
+          utils.escapeSystemdPath (if net.type == "macvtap" then net.parent else net.root)
+        }.device"
+      ) (vmNetworks vm)
     );
 
   fsSocketName = vm: share: "vm-${vm.name}-fs-${share.tag}";
@@ -119,7 +224,7 @@ let
   mkNetSetup =
     vm: fd: net:
     let
-      mac = vm.config.interfaces.${net.ifName}.mac;
+      mac = config.foxDen.hosts.hosts.${vm.name}.interfaces.${net.ifName}.mac;
     in
     if net.type == "macvtap" then
       let
@@ -156,7 +261,7 @@ let
       in
       {
         setup = ''
-          flock -x /run/foxden-sriov.lock ${assignVfScript} ${eSA net.root} ${toString net.vf} ${mac} ${toString (net.vlan or 0)}
+          flock -x /run/foxden-sriov.lock ${assignVfScript} ${eSA net.root} ${toString net.vf} ${mac} ${toString net.vlan}
           ${vfVar}="$(basename "$(readlink -f /sys/class/net/${eSA net.root}/device/virtfn${toString net.vf})")"
           ${bindVfioScript} "${"$"}${vfVar}"
         '';
@@ -175,7 +280,7 @@ let
       hw = vm.config.hardware;
       stateDir = "${stateRoot}/${vm.name}";
       runDir = "/run/vm-${vm.name}";
-      shares = hw.shares or [ ];
+      shares = hw.shares;
       nets = lib.imap0 (i: mkNetSetup vm (3 + i)) (vmNetworks vm);
 
       # Shell words: dynamic ones (VF addresses) expand at start
@@ -259,7 +364,7 @@ let
         "virtio-rng-pci,rng=rng0,${mkAddr hw.rng}"
       ]
       ++ (
-        if hw ? vga then
+        if hw.vga != null then
           [
             "-device"
             "VGA,vgamem_mb=16,${mkAddr hw.vga}"
@@ -279,11 +384,11 @@ let
       ++ lib.concatMap (dev: [
         "-device"
         "usb-host,bus=usb.0,vendorid=0x${dev.vendorId},productid=0x${dev.productId}"
-      ]) (vm.config.devices.usb or [ ])
+      ]) vm.config.devices.usb
       ++ lib.concatMap (dev: [
         "-device"
         "vfio-pci,host=${dev.host},${mkAddr dev.addr}"
-      ]) (vm.config.devices.pci or [ ])
+      ]) vm.config.devices.pci
       ++ lib.concatMap (share: [
         "-chardev"
         "socket,id=fs-${share.tag},path=${fsSocketPath vm share}"
@@ -323,9 +428,7 @@ let
         chmod 0600 ${stateDir}/disk.qcow2 ${stateDir}/vars.fd
         chown ${vmUser}:${vmUser} ${runDir}
 
-        ${lib.concatMapStringsSep "\n" (dev: "${bindVfioScript} ${eSA dev.host}") (
-          vm.config.devices.pci or [ ]
-        )}
+        ${lib.concatMapStringsSep "\n" (dev: "${bindVfioScript} ${eSA dev.host}") vm.config.devices.pci}
         ${lib.concatMapStringsSep "\n" (net: net.setup) nets}
 
         exec setpriv --reuid=${vmUser} --regid=${vmUser} --init-groups --inh-caps=-all --bounding-set=-all -- \
@@ -388,7 +491,7 @@ let
             RuntimeDirectory = "vm-${vm.name}";
             RuntimeDirectoryMode = "0750";
           }
-          // lib.attrsets.optionalAttrs (hw ? cpuAffinity) {
+          // lib.attrsets.optionalAttrs (hw.cpuAffinity != null) {
             CPUAffinity = hw.cpuAffinity;
           };
         };
@@ -452,7 +555,29 @@ let
     "SUBSYSTEM==\"usb\", ENV{DEVTYPE}==\"usb_device\", ATTR{idVendor}==\"${dev.vendorId}\", ATTR{idProduct}==\"${dev.productId}\", GROUP=\"${vmUser}\", MODE=\"0660\"";
 in
 {
-  config = lib.mkIf ((lib.length vmNames) > 0) {
+  options.foxDen.vms = lib.mkOption {
+    type = lib.types.attrsOf vmType;
+    default = { };
+    description = ''
+      QEMU VMs on this machine. Each one also needs a foxDen.hosts.hosts
+      entry of the same name, whose interfaces (matching hardware.network)
+      give the MACs, addresses and DNS.
+    '';
+  };
+
+  config = lib.mkIf (vmList != [ ]) {
+    assertions = lib.concatMap (
+      vm:
+      map (net: {
+        assertion =
+          (config.foxDen.hosts.hosts.${vm.name}.interfaces.${net.ifName}.mac or null) != null
+          && (if net.type == "macvtap" then net.parent != null else net.root != null && net.vf != null);
+        message = "VM ${vm.name}: network ${net.ifName} needs foxDen.hosts.hosts.${vm.name}.interfaces.${net.ifName}.mac and ${
+          if net.type == "macvtap" then "parent" else "root and vf"
+        }";
+      }) (vmNetworks vm)
+    ) vmList;
+
     users.users.${vmUser} = {
       isSystemUser = true;
       group = vmUser;
@@ -484,22 +609,15 @@ in
     };
 
     services.udev.extraRules = lib.concatMapStringsSep "\n" mkUSBUdevRule (
-      lib.concatMap (vm: vm.config.devices.usb or [ ]) vmList
+      lib.concatMap (vm: vm.config.devices.usb) vmList
     );
 
-    foxDen.hosts.hosts = lib.attrsets.genAttrs vmNames (name: {
-      interfaces = lib.attrsets.mapAttrs (
-        _: iface:
-        {
-          driver.name = "null";
-          useDHCP = true;
-        }
-        // iface
-      ) vms.${name}.config.interfaces;
-      webservice = vms.${name}.config.webservice or { };
-      ssh = vms.${name}.config.ssh or false;
-    });
-
-    foxDen.dns.records = lib.mkMerge (map (vm: vm.config.records or [ ]) vmList);
+    # VM NICs are QEMU's to set up, the guest picks its address up via DHCP
+    foxDen.hosts.hosts = lib.attrsets.mapAttrs (_: vm: {
+      interfaces = lib.attrsets.mapAttrs (_: _: {
+        driver.name = lib.mkDefault "null";
+        useDHCP = lib.mkDefault true;
+      }) vm.config.hardware.network;
+    }) vms;
   };
 }
