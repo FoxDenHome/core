@@ -426,6 +426,27 @@ let
 
   vmUnits = map mkVm vmList;
 
+  # virsh console analog: attach to a VM's serial socket
+  vmConsole = pkgs.writeShellApplication {
+    name = "vm-console";
+    runtimeInputs = [ pkgs.socat ];
+    text = ''
+      if [ $# -ne 1 ]; then
+        echo "Usage: vm-console <vm>" >&2
+        echo "VMs: ${lib.concatStringsSep " " vmNames}" >&2
+        exit 1
+      fi
+      sock="/run/vm-$1/serial.sock"
+      if [ ! -S "$sock" ]; then
+        echo "No console for VM $1 (is vm-$1.service running?)" >&2
+        exit 1
+      fi
+      echo "Connected to $1 (escape with ^])" >&2
+      socat -,raw,echo=0,escape=0x1d "UNIX-CONNECT:$sock"
+      echo >&2
+    '';
+  };
+
   mkUSBUdevRule =
     dev:
     "SUBSYSTEM==\"usb\", ENV{DEVTYPE}==\"usb_device\", ATTR{idVendor}==\"${dev.vendorId}\", ATTR{idProduct}==\"${dev.productId}\", GROUP=\"${vmUser}\", MODE=\"0660\"";
@@ -440,6 +461,8 @@ in
     users.groups.${vmUser} = { };
 
     boot.kernelModules = [ "vfio-pci" ];
+
+    environment.systemPackages = [ vmConsole ];
 
     systemd.services = lib.mkMerge (map (u: u.services) vmUnits);
     systemd.sockets = lib.mkMerge (map (u: u.sockets) vmUnits);
