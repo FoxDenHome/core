@@ -14,9 +14,6 @@ let
   vmUser = "qemu-vm";
   persistDir = "/nix/persist/vms";
   stateRoot = "/var/lib/vms";
-  # Where libvirt kept disks and NVRAM, read through the persist dir so the
-  # one-time move into ours is a rename on the same mount, not a copy
-  libvirtPersistDir = "/nix/persist/libvirt/var/lib/libvirt";
 
   vmNames =
     let
@@ -131,10 +128,6 @@ let
       {
         setup = ''
           ip link del ${tap} 2>/dev/null || true
-          # A macvtap left behind with our MAC (e.g. by libvirt) blocks ours
-          for stale in $(ip -o link show type macvtap | grep -i ' link/ether ${mac} ' | cut -d' ' -f2 | cut -d@ -f1); do
-            ip link del "$stale"
-          done
           ip link add link ${eSA net.parent} name ${tap} address ${mac} type macvtap mode bridge
           ip link set ${tap} up
           tapdev="/dev/tap$(cat /sys/class/net/${tap}/ifindex)"
@@ -181,7 +174,6 @@ let
     let
       hw = vm.config.hardware;
       stateDir = "${stateRoot}/${vm.name}";
-      persistStateDir = "${persistDir}${stateDir}";
       runDir = "/run/vm-${vm.name}";
       shares = hw.shares or [ ];
       nets = lib.imap0 (i: mkNetSetup vm (3 + i)) (vmNetworks vm);
@@ -317,15 +309,9 @@ let
       startScript = pkgs.writeShellScript "vm-${vm.name}-start" ''
         set -euo pipefail
 
-        mkdir -p ${persistStateDir}
-        chown root:${vmUser} ${persistStateDir}
-        chmod 0750 ${persistStateDir}
-        if [ ! -e ${persistStateDir}/disk.qcow2 ] && [ -e ${libvirtPersistDir}/images/${vm.name}.qcow2 ]; then
-          mv ${libvirtPersistDir}/images/${vm.name}.qcow2 ${persistStateDir}/disk.qcow2
-        fi
-        if [ ! -e ${persistStateDir}/vars.fd ] && [ -e ${libvirtPersistDir}/qemu/nvram/${vm.name}_VARS.fd ]; then
-          mv ${libvirtPersistDir}/qemu/nvram/${vm.name}_VARS.fd ${persistStateDir}/vars.fd
-        fi
+        mkdir -p ${stateDir}
+        chown root:${vmUser} ${stateDir}
+        chmod 0750 ${stateDir}
         if [ ! -e ${stateDir}/disk.qcow2 ]; then
           echo "Creating root disk for ${vm.name}"
           qemu-img create -f qcow2 ${stateDir}/disk.qcow2 ${vm.config.rootDiskSize}
