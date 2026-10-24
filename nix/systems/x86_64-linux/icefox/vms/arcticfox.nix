@@ -13,13 +13,12 @@
       };
       disk = {
         type = "virtio-blk";
-        addr = "pci.4";
+        addr = "pci.2";
       };
-      usbController = "pci.2";
-      virtioSerial = "pci.3";
+      usbController = "pci.3";
+      virtioSerial = "pci.4";
       balloon = "pci.5";
       rng = "pci.6";
-      vga = "pcie.0:0x1";
       network.default = {
         type = "sriov";
         root = "eno1np0";

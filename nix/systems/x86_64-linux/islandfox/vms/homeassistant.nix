@@ -12,16 +12,16 @@
       };
       disk = {
         type = "scsi";
-        addr = "pcie.0:0x3";
+        addr = "pci.2";
       };
-      usbController = "pcie.0:0x4";
-      virtioSerial = "pci.1";
-      balloon = "pcie.0:0x5";
-      rng = "pcie.0:0x7";
+      usbController = "pci.3";
+      virtioSerial = "pci.4";
+      balloon = "pci.5";
+      rng = "pci.6";
       network.default = {
         type = "macvtap";
         parent = "ens1np0";
-        addr = "pci.6";
+        addr = "pci.1";
       };
     };
     devices.usb = [
