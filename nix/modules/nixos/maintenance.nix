@@ -62,6 +62,20 @@ in
       pkgs.writeShellScript "nixos-prune-all.sh" pruneAllScript;
     environment.etc."foxden/nixos/update.sh".source = pkgs.writeShellScript "nixos-update.sh" ''
       set -xeuo pipefail
+      # A start on an already-running unit is a no-op, which would just attach to
+      # an update that may predate the newest commit. Wait for it to finish first.
+      while true; do
+        state="$(systemctl show --property=ActiveState --value nixos-update)"
+        case "$state" in
+          active | activating | deactivating | reloading | refreshing)
+            echo "nixos-update is $state, waiting for it to finish..."
+            sleep 5
+            ;;
+          *)
+            break
+            ;;
+        esac
+      done
       systemctl --no-block start nixos-update
       journalctl --unit nixos-update --since=now --no-hostname -f |
           awk '/: nixos-update.service: Deactivated successfully/ { print; exit; }; /: nixos-update.service: Failed with result/ { print; exit 1; }; { print; }'
