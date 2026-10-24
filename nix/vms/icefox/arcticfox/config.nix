@@ -1,5 +1,37 @@
 {
   rootDiskSize = "128G";
+  hardware = {
+    uuid = "fd300e9a-1168-4b12-b4e6-7cded421a9d3";
+    memory = "8G";
+    smp = "8,sockets=1,dies=1,clusters=1,cores=4,threads=2";
+    cpuAffinity = "4-7 12-15";
+    rootPorts = {
+      slot = 2;
+      count = 14;
+    };
+    disk = {
+      type = "virtio-blk";
+      addr = "pci.4";
+    };
+    usbController = "pci.2";
+    virtioSerial = "pci.3";
+    balloon = "pci.5";
+    rng = "pci.6";
+    vga = "pcie.0:0x1";
+    network.default = {
+      type = "sriov";
+      root = "eno1np0";
+      vf = 63;
+      addr = "pci.1";
+    };
+    shares = [
+      {
+        tag = "backup";
+        source = "/mnt/ztank/local/backups/arcticfox";
+        addr = "pci.7";
+      }
+    ];
+  };
   autostart = true;
   ssh = true;
   interfaces.default = {

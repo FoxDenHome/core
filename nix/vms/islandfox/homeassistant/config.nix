@@ -1,5 +1,27 @@
 {
   rootDiskSize = "64G";
+  hardware = {
+    uuid = "eb80bf4d-b2e5-49c3-9e4a-8bde379b8353";
+    memory = "4G";
+    smp = "4";
+    rootPorts = {
+      slot = 1;
+      count = 6;
+    };
+    disk = {
+      type = "scsi";
+      addr = "pcie.0:0x3";
+    };
+    usbController = "pcie.0:0x4";
+    virtioSerial = "pci.1";
+    balloon = "pcie.0:0x5";
+    rng = "pcie.0:0x7";
+    network.default = {
+      type = "macvtap";
+      parent = "ens1np0";
+      addr = "pci.6";
+    };
+  };
   devices.usb = [
     {
       # ZigBee USB stick
@@ -25,6 +47,13 @@
       # SNDWAY SW-525B
       vendorId = "0483";
       productId = "5750";
+    }
+  ];
+  devices.pci = [
+    {
+      # MT7922 WiFi
+      host = "0000:04:00.0";
+      addr = "pci.2";
     }
   ];
   autostart = true;
