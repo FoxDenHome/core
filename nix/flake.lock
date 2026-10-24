@@ -168,11 +168,11 @@
         "nixpkgs-acme": "nixpkgs-acme"
       },
       "locked": {
-        "lastModified": 1792798787,
-        "narHash": "sha256-wrFqHLNPNg4b/vDWpB/JqpRTOXn/59tmiq6uXHXX3gc=",
+        "lastModified": 1792808916,
+        "narHash": "sha256-jOyFeowKwm2K4ZOx2kbUmLyru6G00oCJz5S9WrAfN28=",
         "ref": "refs/heads/main",
-        "rev": "9f5520bc32614435e75cd37bfddb66aa1e61de78",
-        "revCount": 4224,
+        "rev": "7d698a67f2c554669ed9ecbb05ddf7002280ffaa",
+        "revCount": 4225,
         "type": "git",
         "url": "https://git.foxden.network/foxCaves/foxCaves"
       },
