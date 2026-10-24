@@ -74,12 +74,6 @@ let
             type = nullOr (listOf ints.unsigned);
             default = null;
           };
-          diskType = lib.mkOption {
-            type = enum [
-              "scsi"
-              "virtio-blk"
-            ];
-          };
           vga = lib.mkOption {
             type = bool;
             default = false;
@@ -355,24 +349,8 @@ let
         # Disk I/O off the main loop
         "-object"
         "iothread,id=iothread0"
-      ]
-      ++ (
-        if hw.diskType == "scsi" then
-          [
-            "-device"
-            "virtio-scsi-pci,id=scsi0,iothread=iothread0,${mkAddr units.disk}"
-            "-device"
-            "scsi-hd,bus=scsi0.0,drive=disk0,bootindex=1"
-          ]
-        else if hw.diskType == "virtio-blk" then
-          [
-            "-device"
-            "virtio-blk-pci,drive=disk0,iothread=iothread0,bootindex=1,${mkAddr units.disk}"
-          ]
-        else
-          throw "VM ${vm.name}: unknown disk type ${hw.diskType}"
-      )
-      ++ [
+        "-device"
+        "virtio-blk-pci,drive=disk0,iothread=iothread0,bootindex=1,${mkAddr units.disk}"
         "-drive"
         "if=none,id=disk0,file=${stateDir}/disk.qcow2,format=qcow2,cache=none,aio=native,discard=unmap"
         "-device"

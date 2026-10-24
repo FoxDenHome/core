@@ -18,7 +18,6 @@
         7
         15
       ];
-      diskType = "virtio-blk";
       network.default = {
         type = "sriov";
         root = "eno1np0";

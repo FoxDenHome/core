@@ -6,7 +6,6 @@
       uuid = "eb80bf4d-b2e5-49c3-9e4a-8bde379b8353";
       memory = "4G";
       smp = "4";
-      diskType = "virtio-blk";
       network.default = {
         type = "macvtap";
         parent = "ens1np0";
