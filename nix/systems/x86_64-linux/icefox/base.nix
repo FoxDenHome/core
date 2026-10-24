@@ -12,6 +12,9 @@
   boot.kernelParams = [
     "console=tty1"
     "console=ttyS1,115200n8"
+    # iTLB multihit mitigation splits guest huge pages, and the only guest
+    # (arcticfox) is trusted
+    "kvm.nx_huge_pages=off"
   ];
   hardware.enableRedistributableFirmware = true;
   hardware.cpu.intel.updateMicrocode = true;

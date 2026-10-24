@@ -67,6 +67,13 @@ let
             type = nullOr str;
             default = null;
           };
+          # Host CPU per vCPU index, so the SMT topology the guest sees in
+          # smp matches the cores it actually runs on. Everything else
+          # (main loop, iothread) floats on cpuAffinity.
+          vcpuPinning = lib.mkOption {
+            type = nullOr (listOf ints.unsigned);
+            default = null;
+          };
           diskType = lib.mkOption {
             type = enum [
               "scsi"
@@ -308,8 +315,10 @@ let
         }"
         "-accel"
         "kvm"
+        # Passthrough devices rule out migration anyway, and this keeps
+        # invtsc so the guest can trust its TSC
         "-cpu"
-        "host,migratable=on"
+        "host,migratable=off"
         "-m"
         hw.memory
         "-smp"
@@ -342,18 +351,23 @@ let
         "chardev:serial0"
       ]
       ++ mkRootPorts rootPortCount
+      ++ [
+        # Disk I/O off the main loop
+        "-object"
+        "iothread,id=iothread0"
+      ]
       ++ (
         if hw.diskType == "scsi" then
           [
             "-device"
-            "virtio-scsi-pci,id=scsi0,${mkAddr units.disk}"
+            "virtio-scsi-pci,id=scsi0,iothread=iothread0,${mkAddr units.disk}"
             "-device"
             "scsi-hd,bus=scsi0.0,drive=disk0,bootindex=1"
           ]
         else if hw.diskType == "virtio-blk" then
           [
             "-device"
-            "virtio-blk-pci,drive=disk0,bootindex=1,${mkAddr units.disk}"
+            "virtio-blk-pci,drive=disk0,iothread=iothread0,bootindex=1,${mkAddr units.disk}"
           ]
         else
           throw "VM ${vm.name}: unknown disk type ${hw.diskType}"
@@ -458,6 +472,28 @@ let
         done
       '';
 
+      # debug-threads names vCPU threads "CPU <index>/KVM"; QEMU only
+      # spawns them after mapping guest RAM, which can take a while
+      pinScript = pkgs.writeShellScript "vm-${vm.name}-pin" ''
+        set -euo pipefail
+        pins=(${lib.concatMapStringsSep " " toString hw.vcpuPinning})
+        maxtries=600
+        while [ "$(grep -lE '^CPU [0-9]+/KVM$' /proc/"$MAINPID"/task/*/comm 2>/dev/null | wc -l)" -lt ''${#pins[@]} ]; do
+          maxtries=$((maxtries - 1))
+          if [ $maxtries -le 0 ]; then
+            echo "Timeout waiting for vCPU threads" >&2
+            exit 1
+          fi
+          sleep 0.1
+        done
+        for comm in /proc/"$MAINPID"/task/*/comm; do
+          if [[ "$(cat "$comm")" =~ ^CPU\ ([0-9]+)/KVM$ ]] && [ -n "''${pins[''${BASH_REMATCH[1]}]:-}" ]; then
+            tid="$(basename "$(dirname "$comm")")"
+            taskset -pc "''${pins[''${BASH_REMATCH[1]}]}" "$tid" >/dev/null
+          fi
+        done
+      '';
+
       cleanupScript = pkgs.writeShellScript "vm-${vm.name}-cleanup" ''
         ${lib.concatMapStringsSep "\n" (net: net.cleanup) nets}
         true
@@ -506,6 +542,10 @@ let
           }
           // lib.attrsets.optionalAttrs (hw.cpuAffinity != null) {
             CPUAffinity = hw.cpuAffinity;
+          }
+          // lib.attrsets.optionalAttrs (hw.vcpuPinning != null) {
+            # Unpinned beats a VM stuck in a restart loop
+            ExecStartPost = "-${pinScript}";
           };
         };
       }

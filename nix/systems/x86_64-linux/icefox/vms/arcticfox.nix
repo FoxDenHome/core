@@ -7,6 +7,17 @@
       memory = "8G";
       smp = "8,sockets=1,dies=1,clusters=1,cores=4,threads=2";
       cpuAffinity = "4-7 12-15";
+      # Guest core N (threads 2N, 2N+1) on host core 4+N and its sibling
+      vcpuPinning = [
+        4
+        12
+        5
+        13
+        6
+        14
+        7
+        15
+      ];
       diskType = "virtio-blk";
       network.default = {
         type = "sriov";
