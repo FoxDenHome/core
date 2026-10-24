@@ -131,6 +131,10 @@ let
       {
         setup = ''
           ip link del ${tap} 2>/dev/null || true
+          # A macvtap left behind with our MAC (e.g. by libvirt) blocks ours
+          for stale in $(ip -o link show type macvtap | grep -i ' link/ether ${mac} ' | cut -d' ' -f2 | cut -d@ -f1); do
+            ip link del "$stale"
+          done
           ip link add link ${eSA net.parent} name ${tap} address ${mac} type macvtap mode bridge
           ip link set ${tap} up
           tapdev="/dev/tap$(cat /sys/class/net/${tap}/ifindex)"
