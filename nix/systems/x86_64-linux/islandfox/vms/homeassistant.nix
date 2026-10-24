@@ -6,22 +6,10 @@
       uuid = "eb80bf4d-b2e5-49c3-9e4a-8bde379b8353";
       memory = "4G";
       smp = "4";
-      rootPorts = {
-        slot = 1;
-        count = 6;
-      };
-      disk = {
-        type = "scsi";
-        addr = "pci.2";
-      };
-      usbController = "pci.3";
-      virtioSerial = "pci.4";
-      balloon = "pci.5";
-      rng = "pci.6";
+      diskType = "scsi";
       network.default = {
         type = "macvtap";
         parent = "ens1np0";
-        addr = "pci.1";
       };
     };
     devices.usb = [
@@ -55,7 +43,6 @@
       {
         # MT7922 WiFi
         host = "0000:04:00.0";
-        addr = "pci.2";
       }
     ];
   };

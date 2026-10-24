@@ -19,9 +19,6 @@ let
   }) config.foxDen.vms;
   vmList = lib.attrsets.attrValues vms;
 
-  # "pci.6" style placement, see mkAddr
-  addrType = lib.types.str;
-
   networkType =
     with lib.types;
     submodule {
@@ -50,7 +47,6 @@ let
           type = ints.unsigned;
           default = 0;
         };
-        addr = lib.mkOption { type = addrType; };
       };
     };
 
@@ -71,26 +67,15 @@ let
             type = nullOr str;
             default = null;
           };
-          rootPorts = {
-            slot = lib.mkOption { type = ints.unsigned; };
-            count = lib.mkOption { type = ints.unsigned; };
+          diskType = lib.mkOption {
+            type = enum [
+              "scsi"
+              "virtio-blk"
+            ];
           };
-          disk = {
-            type = lib.mkOption {
-              type = enum [
-                "scsi"
-                "virtio-blk"
-              ];
-            };
-            addr = lib.mkOption { type = addrType; };
-          };
-          usbController = lib.mkOption { type = addrType; };
-          virtioSerial = lib.mkOption { type = addrType; };
-          balloon = lib.mkOption { type = addrType; };
-          rng = lib.mkOption { type = addrType; };
           vga = lib.mkOption {
-            type = nullOr addrType;
-            default = null;
+            type = bool;
+            default = false;
           };
           # Keyed by the interface name in foxDen.hosts.hosts.<vm>, which
           # supplies the MAC
@@ -103,7 +88,6 @@ let
               options = {
                 tag = lib.mkOption { type = str; };
                 source = lib.mkOption { type = str; };
-                addr = lib.mkOption { type = addrType; };
               };
             });
             default = [ ];
@@ -123,7 +107,6 @@ let
             type = listOf (submodule {
               options = {
                 host = lib.mkOption { type = str; };
-                addr = lib.mkOption { type = addrType; };
               };
             });
             default = [ ];
@@ -132,24 +115,28 @@ let
       };
     };
 
-  # "pci.6" is slot 0 of root port 6, "pcie.0:0x3" a slot on the root bus.
-  # Placements mirror what libvirt picked, so guests keep their NIC names.
-  mkAddr =
-    placement:
-    let
-      parts = lib.splitString ":" placement;
-    in
-    if lib.length parts == 1 then
-      "bus=${placement},addr=0x0"
-    else
-      "bus=${lib.elemAt parts 0},addr=${lib.elemAt parts 1}";
+  # Every device sits alone on its own root port. Units 1-6 are fixed, so
+  # guests keep their NIC names, the rest count up from 7 in hwDynamic order.
+  units = {
+    network = 1;
+    disk = 2;
+    usbController = 3;
+    virtioSerial = 4;
+    balloon = 5;
+    rng = 6;
+  };
+  firstDynamicUnit = 7;
+  # Spare ports for hotplug
+  minRootPorts = 16;
+
+  mkAddr = unit: "bus=pci.${toString unit},addr=0x0";
 
   mkRootPorts =
-    { slot, count }:
+    count:
     lib.concatMap (
       i:
       let
-        portSlot = slot + i / 8;
+        portSlot = 1 + i / 8;
         func = lib.mod i 8;
       in
       [
@@ -222,7 +209,7 @@ let
   '';
 
   mkNetSetup =
-    vm: fd: net:
+    vm: fd: unit: net:
     let
       mac = config.foxDen.hosts.hosts.${vm.name}.interfaces.${net.ifName}.mac;
     in
@@ -252,7 +239,7 @@ let
           "-netdev"
           "tap,id=net-${net.ifName},fd=${toString fd},vhost=on"
           "-device"
-          "virtio-net-pci,netdev=net-${net.ifName},mac=${mac},${mkAddr net.addr}"
+          "virtio-net-pci,netdev=net-${net.ifName},mac=${mac},${mkAddr unit}"
         ];
       }
     else if net.type == "sriov" then
@@ -268,7 +255,7 @@ let
         cleanup = "";
         args = [
           "-device"
-          "vfio-pci,host=${"$"}${vfVar},${mkAddr net.addr}"
+          "vfio-pci,host=${"$"}${vfVar},${mkAddr unit}"
         ];
       }
     else
@@ -281,7 +268,33 @@ let
       stateDir = "${stateRoot}/${vm.name}";
       runDir = "/run/vm-${vm.name}";
       shares = hw.shares;
-      nets = lib.imap0 (i: mkNetSetup vm (3 + i)) (vmNetworks vm);
+      networks = vmNetworks vm;
+
+      # Devices without a fixed unit, in placement order
+      hwDynamic =
+        map (net: {
+          kind = "network";
+          value = net;
+        }) (lib.drop 1 networks)
+        ++ map (dev: {
+          kind = "pci";
+          value = dev;
+        }) vm.config.devices.pci
+        ++ map (share: {
+          kind = "share";
+          value = share;
+        }) shares
+        ++ lib.lists.optional hw.vga {
+          kind = "vga";
+          value = null;
+        };
+      placed = lib.imap0 (i: d: d // { unit = firstDynamicUnit + i; }) hwDynamic;
+      placedOf = kind: lib.filter (d: d.kind == kind) placed;
+      rootPortCount = lib.max minRootPorts (firstDynamicUnit - 1 + lib.length placed);
+
+      netUnits =
+        lib.lists.optional (networks != [ ]) units.network ++ map (d: d.unit) (placedOf "network");
+      nets = lib.imap0 (i: net: mkNetSetup vm (3 + i) (lib.elemAt netUnits i) net) networks;
 
       # Shell words: dynamic ones (VF addresses) expand at start
       qemuArgs = [
@@ -328,51 +341,51 @@ let
         "-serial"
         "chardev:serial0"
       ]
-      ++ mkRootPorts hw.rootPorts
+      ++ mkRootPorts rootPortCount
       ++ (
-        if hw.disk.type == "scsi" then
+        if hw.diskType == "scsi" then
           [
             "-device"
-            "virtio-scsi-pci,id=scsi0,${mkAddr hw.disk.addr}"
+            "virtio-scsi-pci,id=scsi0,${mkAddr units.disk}"
             "-device"
             "scsi-hd,bus=scsi0.0,drive=disk0,bootindex=1"
           ]
-        else if hw.disk.type == "virtio-blk" then
+        else if hw.diskType == "virtio-blk" then
           [
             "-device"
-            "virtio-blk-pci,drive=disk0,bootindex=1,${mkAddr hw.disk.addr}"
+            "virtio-blk-pci,drive=disk0,bootindex=1,${mkAddr units.disk}"
           ]
         else
-          throw "VM ${vm.name}: unknown disk type ${hw.disk.type}"
+          throw "VM ${vm.name}: unknown disk type ${hw.diskType}"
       )
       ++ [
         "-drive"
         "if=none,id=disk0,file=${stateDir}/disk.qcow2,format=qcow2,cache=none,aio=native,discard=unmap"
         "-device"
-        "virtio-serial-pci,id=virtio-serial0,${mkAddr hw.virtioSerial}"
+        "virtio-serial-pci,id=virtio-serial0,${mkAddr units.virtioSerial}"
         "-chardev"
         "socket,id=qga0,path=${runDir}/qga.sock,server=on,wait=off"
         "-device"
         "virtserialport,bus=virtio-serial0.0,nr=1,chardev=qga0,name=org.qemu.guest_agent.0"
         "-device"
-        "qemu-xhci,id=usb,p2=15,p3=15,${mkAddr hw.usbController}"
+        "qemu-xhci,id=usb,p2=15,p3=15,${mkAddr units.usbController}"
         "-device"
-        "virtio-balloon-pci,id=balloon0,${mkAddr hw.balloon}"
+        "virtio-balloon-pci,id=balloon0,${mkAddr units.balloon}"
         "-object"
         "rng-random,id=rng0,filename=/dev/urandom"
         "-device"
-        "virtio-rng-pci,rng=rng0,${mkAddr hw.rng}"
+        "virtio-rng-pci,rng=rng0,${mkAddr units.rng}"
       ]
       ++ (
-        if hw.vga != null then
-          [
+        if hw.vga then
+          lib.concatMap (d: [
             "-device"
-            "VGA,vgamem_mb=16,${mkAddr hw.vga}"
+            "VGA,vgamem_mb=16,${mkAddr d.unit}"
             "-device"
             "usb-tablet,bus=usb.0"
             "-vnc"
             "unix:${runDir}/vnc.sock"
-          ]
+          ]) (placedOf "vga")
         else
           [
             "-display"
@@ -385,16 +398,16 @@ let
         "-device"
         "usb-host,bus=usb.0,vendorid=0x${dev.vendorId},productid=0x${dev.productId}"
       ]) vm.config.devices.usb
-      ++ lib.concatMap (dev: [
+      ++ lib.concatMap (d: [
         "-device"
-        "vfio-pci,host=${dev.host},${mkAddr dev.addr}"
-      ]) vm.config.devices.pci
-      ++ lib.concatMap (share: [
+        "vfio-pci,host=${d.value.host},${mkAddr d.unit}"
+      ]) (placedOf "pci")
+      ++ lib.concatMap (d: [
         "-chardev"
-        "socket,id=fs-${share.tag},path=${fsSocketPath vm share}"
+        "socket,id=fs-${d.value.tag},path=${fsSocketPath vm d.value}"
         "-device"
-        "vhost-user-fs-pci,chardev=fs-${share.tag},tag=${share.tag},queue-size=1024,${mkAddr share.addr}"
-      ]) shares
+        "vhost-user-fs-pci,chardev=fs-${d.value.tag},tag=${d.value.tag},queue-size=1024,${mkAddr d.unit}"
+      ]) (placedOf "share")
       ++ lib.lists.optionals (shares != [ ]) [
         # vhost-user needs guest RAM it can map
         "-object"

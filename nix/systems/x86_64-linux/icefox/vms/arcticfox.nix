@@ -7,29 +7,16 @@
       memory = "8G";
       smp = "8,sockets=1,dies=1,clusters=1,cores=4,threads=2";
       cpuAffinity = "4-7 12-15";
-      rootPorts = {
-        slot = 2;
-        count = 14;
-      };
-      disk = {
-        type = "virtio-blk";
-        addr = "pci.2";
-      };
-      usbController = "pci.3";
-      virtioSerial = "pci.4";
-      balloon = "pci.5";
-      rng = "pci.6";
+      diskType = "virtio-blk";
       network.default = {
         type = "sriov";
         root = "eno1np0";
         vf = 63;
-        addr = "pci.1";
       };
       shares = [
         {
           tag = "backup";
           source = "/mnt/ztank/local/backups/arcticfox";
-          addr = "pci.7";
         }
       ];
     };
