@@ -3,9 +3,16 @@ from os.path import join as path_join
 from shutil import rmtree
 from subprocess import check_output
 
-from configure.util import NIX_DIR, ROUTERS, mtik_path
+from configure.util import NIX_DIR, ROUTERS, MTikContainer, mtik_path
 
 OUT_PATH = mtik_path("out/foxingress")
+
+CONTAINER = MTikContainer(
+    name="foxingress",
+    remote_image="git.foxden.network/foxden/foxingress:latest",
+    subnet=0,
+    mounts=("/foxingress:/config:ro",),
+)
 
 
 def refresh_foxingress():
@@ -35,7 +42,8 @@ def refresh_foxingress():
         if router.horizon != "internal":
             continue
         print(f"## {router.host}")
+        router.containers.add(CONTAINER)
         changes = router.sync(OUT_PATH, "/foxingress")
         if changes:
-            print("### Restarting foxIngress container", changes)
-            router.restart_container("foxingress")
+            print("### Queueing foxIngress container restart", changes)
+            router.container_restarts.add(CONTAINER.name)

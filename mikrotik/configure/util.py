@@ -1,11 +1,10 @@
 from dataclasses import dataclass, field
+from ipaddress import IPv4Address, IPv6Address
 from os.path import dirname, join, realpath
 from subprocess import check_call, check_output
-from time import sleep
 from uuid import uuid4
 
 from routeros_api import RouterOsApiPool
-from routeros_api.exceptions import RouterOsApiCommunicationError
 
 MTIK_DIR = realpath(dirname(__file__) + "/../")
 NIX_DIR = realpath(dirname(__file__) + "/../../nix/")
@@ -35,6 +34,78 @@ class MTikScript:
     run_on_change: bool = False
 
 
+# Each container gets subnet X: 172.17.X.0/24 and CONTAINER_IPV6_BASE + X/120,
+# with .1 on the router side of its veth and .2 in the container
+CONTAINER_IPV4_NET = "172.17.0.0/16"
+CONTAINER_IPV6_BASE = IPv6Address("fd2c:f4cb:63be::ac11:0")
+CONTAINER_INTERFACE_LIST = "zone-local"
+ROUTER_HOST = 1
+CONTAINER_HOST = 2
+
+
+@dataclass(frozen=True, kw_only=True)
+class MTikContainer:
+    name: str
+    remote_image: str
+    subnet: int
+    mounts: tuple[str, ...] = ()
+    workdir: str = "/"
+    restart_policy: str = "always"
+    restart_interval: str = "15s"
+    logging: bool = True
+    start_on_boot: bool = True
+
+    def __post_init__(self) -> None:
+        if not 0 <= self.subnet <= 255:
+            raise ValueError(f"Container {self.name} subnet out of range")
+
+    @property
+    def interface(self) -> str:
+        return f"veth-{self.name}"
+
+    def ipv4(self, host: int) -> str:
+        return str(
+            IPv4Address(CONTAINER_IPV4_NET.split("/")[0]) + self.subnet * 256 + host
+        )
+
+    def ipv6(self, host: int) -> str:
+        return str(CONTAINER_IPV6_BASE + self.subnet * 256 + host)
+
+    def attribs(self) -> dict[str, str]:
+        return {
+            "name": self.name,
+            "remote-image": self.remote_image,
+            "interface": self.interface,
+            "dns": self.ipv4(ROUTER_HOST),
+            "mount": ",".join(self.mounts),
+            "root-dir": f"/{self.name}-root",
+            "workdir": self.workdir,
+            "restart-policy": self.restart_policy,
+            "restart-interval": self.restart_interval,
+            "logging": format_mtik_bool(self.logging),
+            "start-on-boot": format_mtik_bool(self.start_on_boot),
+        }
+
+    def veth_attribs(self) -> dict[str, str]:
+        return {
+            "name": self.interface,
+            "address": f"{self.ipv4(CONTAINER_HOST)}/24,{self.ipv6(CONTAINER_HOST)}/120",
+            "gateway": self.ipv4(ROUTER_HOST),
+            "gateway6": self.ipv6(ROUTER_HOST),
+            "dhcp": format_mtik_bool(False),
+        }
+
+    def ip_address_attribs(self) -> dict[str, str]:
+        return {"address": f"{self.ipv4(ROUTER_HOST)}/24", "interface": self.interface}
+
+    def ipv6_address_attribs(self) -> dict[str, str]:
+        return {
+            "address": f"{self.ipv6(ROUTER_HOST)}/120",
+            "interface": self.interface,
+            "advertise": format_mtik_bool(False),
+        }
+
+
 @dataclass(kw_only=True)
 class MTikRouter:
     host: str
@@ -43,6 +114,9 @@ class MTikRouter:
     dyndns_suffix_ipv6: str
     horizon: str
     scripts: set[MTikScript] = field(default_factory=set)
+    containers: set[MTikContainer] = field(default_factory=set)
+    # Containers whose config files changed, restarted by refresh_containers
+    container_restarts: set[str] = field(default_factory=set)
 
     _connection_cache: RouterOsApiPool | None = None
     _username: str = "foxden-core-configure"
@@ -106,27 +180,6 @@ class MTikRouter:
         containers.call(
             "shell", {"number": name, "cmd": command, "no-sh": format_mtik_bool(True)}
         )
-
-    def restart_container(self, name: str) -> None:
-        connection = self.connection()
-        api = connection.get_api()
-        containers = api.get_resource("/container")
-        try:
-            containers.call("stop", {"numbers": name})
-        except RouterOsApiCommunicationError:
-            pass
-
-        def _ct_state(sn: str) -> bool:
-            ct = containers.get(name=name)[0]
-            if sn not in ct:
-                return False
-            return parse_mtik_bool(ct[sn])
-
-        while not _ct_state("stopped"):
-            sleep(0.1)
-        containers.call("start", {"numbers": name})
-        while not _ct_state("running"):
-            sleep(0.1)
 
 
 def format_mtik_bool(val: bool) -> str:

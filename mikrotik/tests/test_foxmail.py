@@ -14,15 +14,11 @@ class SyncRouter(FakeRouter):
         super().__init__(host=host)
         self.changes = changes
         self.synced: list[tuple[str, dict[str, Any]]] = []
-        self.restarted: list[str] = []
 
     def sync(self, src: str, dest: str) -> list[str]:
         with open(path_join(src, "config.yml")) as f:
             self.synced.append((dest, json.load(f)))
         return self.changes
-
-    def restart_container(self, name: str) -> None:
-        self.restarted.append(name)
 
 
 BASE_CONFIG = {
@@ -67,8 +63,10 @@ class TestFoxmail(unittest.TestCase):
                 },
             )
 
-        self.assertEqual(routers[0].restarted, ["foxmail"])
-        self.assertEqual(routers[1].restarted, [])
+        for router in routers:
+            self.assertEqual(router.containers, {foxmail.CONTAINER})
+        self.assertEqual(routers[0].container_restarts, {"foxmail"})
+        self.assertEqual(routers[1].container_restarts, set())
 
 
 if __name__ == "__main__":

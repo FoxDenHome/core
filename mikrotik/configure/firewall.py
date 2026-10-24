@@ -4,7 +4,11 @@ from json import load as json_load
 from subprocess import check_output
 from typing import Any
 
+from configure.foxingress import CONTAINER as FOXINGRESS
+from configure.foxmail import CONTAINER as FOXMAIL
 from configure.util import (
+    CONTAINER_HOST,
+    CONTAINER_IPV4_NET,
     NIX_DIR,
     ROUTERS,
     MTikRouter,
@@ -173,7 +177,7 @@ DEFAULT_RULES_HEAD: list[FirewallRule] = [
             "action": "masquerade",
             "chain": "srcnat",
             "comment": "Containers",
-            "src-address": "172.17.0.0/16",
+            "src-address": CONTAINER_IPV4_NET,
         },
     ),
     FirewallRule(
@@ -231,7 +235,7 @@ DEFAULT_RULES_HEAD: list[FirewallRule] = [
             "comment": "foxIngress TCP (Priv)",
             "dst-port": "9001",
             "protocol": "tcp",
-            "to-addresses": "172.17.0.2",
+            "to-addresses": FOXINGRESS.ipv4(CONTAINER_HOST),
         },
     ),
     FirewallRule(
@@ -243,7 +247,7 @@ DEFAULT_RULES_HEAD: list[FirewallRule] = [
             "comment": "foxIngress TCP (Pub)",
             "dst-port": "80,443",
             "protocol": "tcp",
-            "to-addresses": "172.17.0.2",
+            "to-addresses": FOXINGRESS.ipv4(CONTAINER_HOST),
         },
     ),
     FirewallRule(
@@ -255,7 +259,7 @@ DEFAULT_RULES_HEAD: list[FirewallRule] = [
             "comment": "foxMail TCP (Priv)",
             "dst-port": "2525,9002",
             "protocol": "tcp",
-            "to-addresses": "172.17.1.2",
+            "to-addresses": FOXMAIL.ipv4(CONTAINER_HOST),
         },
     ),
     FirewallRule(
@@ -306,7 +310,7 @@ DEFAULT_RULES_HEAD: list[FirewallRule] = [
             "comment": "foxIngress TCP (Priv)",
             "dst-port": "9001",
             "protocol": "tcp",
-            "to-address": "fd2c:f4cb:63be::ac11:2/128",
+            "to-address": f"{FOXINGRESS.ipv6(CONTAINER_HOST)}/128",
         },
     ),
     FirewallRule(
@@ -318,7 +322,7 @@ DEFAULT_RULES_HEAD: list[FirewallRule] = [
             "comment": "foxMail TCP (Priv)",
             "dst-port": "2525,9002",
             "protocol": "tcp",
-            "to-address": "fd2c:f4cb:63be::ac11:102/128",
+            "to-address": f"{FOXMAIL.ipv6(CONTAINER_HOST)}/128",
         },
     ),
 ]
@@ -339,7 +343,7 @@ DEFAULT_RULES_TAIL: list[FirewallRule] = [
         attribs={
             "action": "accept",
             "chain": "forward",
-            "in-interface": "veth-foxmail",
+            "in-interface": FOXMAIL.interface,
             "out-interface": "wg-s2s",
         },
     ),
@@ -389,7 +393,7 @@ DEFAULT_RULES_TAIL: list[FirewallRule] = [
             "chain": "forward",
             "comment": "foxIngress TCP (Pub)",
             "dst-port": "80,443",
-            "out-interface": "veth-foxingress",
+            "out-interface": FOXINGRESS.interface,
             "protocol": "tcp",
         },
     ),
@@ -402,7 +406,7 @@ DEFAULT_RULES_TAIL: list[FirewallRule] = [
             "comment": "foxIngress TCP (Priv)",
             "dst-port": "9001",
             "in-interface-list": "zone-local",
-            "out-interface": "veth-foxingress",
+            "out-interface": FOXINGRESS.interface,
             "protocol": "tcp",
         },
     ),
@@ -415,7 +419,7 @@ DEFAULT_RULES_TAIL: list[FirewallRule] = [
             "comment": "foxMail TCP (Priv)",
             "dst-port": "2525,9002",
             "in-interface-list": "zone-local",
-            "out-interface": "veth-foxmail",
+            "out-interface": FOXMAIL.interface,
             "protocol": "tcp",
         },
     ),
