@@ -193,9 +193,14 @@ in
               listenStreams = [ "${mkGroupSocketDir gs}/.s.PGSQL.5432" ];
               socketConfig = {
                 SocketUser = "root";
-                SocketGroup = toString gs.group;
                 SocketMode = "0660";
                 DirectoryMode = "0755";
+                # Not SocketGroup=: systemd resolves even a numeric GID via
+                # NSS, which for kanidm groups fails until the network is up,
+                # and a failed socket never retries. "+GID" skips the lookup.
+                ExecStartPost = "${pkgs.coreutils}/bin/chgrp ${
+                  if builtins.isInt gs.group then "+${toString gs.group}" else gs.group
+                } ${mkGroupSocketDir gs}/.s.PGSQL.5432";
               };
             };
           }) svcConfig.groupSockets

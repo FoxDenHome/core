@@ -52,6 +52,18 @@ in
       wantedBy = [ "multi-user.target" ];
     };
 
+    # The SNMP driver gives up if it can't resolve the UPS at boot, which
+    # happens whenever the NIC is slow to come up
+    systemd.services.upsdrv = {
+      wants = [ "network-online.target" ];
+      after = [ "network-online.target" ];
+      startLimitIntervalSec = 0;
+      serviceConfig = {
+        Restart = "on-failure";
+        RestartSec = "10s";
+      };
+    };
+
     foxDen.firewall.rules = [
       {
         table = "filter";

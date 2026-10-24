@@ -22,6 +22,10 @@ in
 {
   lib.foxDenSys.mkVlanHost = foxDenLib.hosts.helpers.lan.mkVlanHost ifcfg;
 
+  # The thunderbolt NIC takes ~2.5min to show up after boot, and it carries
+  # all of islandfox's networking, so network-online has to wait for it
+  systemd.network.wait-online.timeout = 300;
+
   foxDen.hosts.index = 2;
   foxDen.hosts.gateway = "router";
 
