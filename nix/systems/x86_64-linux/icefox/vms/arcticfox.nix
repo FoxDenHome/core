@@ -1,6 +1,7 @@
 { ... }:
 {
   foxDen.vms.arcticfox = {
+    host = "arcticfox";
     rootDiskSize = "128G";
     hardware = {
       uuid = "fd300e9a-1168-4b12-b4e6-7cded421a9d3";

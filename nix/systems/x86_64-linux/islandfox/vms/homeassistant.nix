@@ -1,6 +1,7 @@
 { ... }:
 {
   foxDen.vms.homeassistant = {
+    host = "homeassistant";
     rootDiskSize = "64G";
     hardware = {
       uuid = "eb80bf4d-b2e5-49c3-9e4a-8bde379b8353";

@@ -54,6 +54,9 @@ let
     with lib.types;
     submodule {
       options = {
+        # foxDen.hosts.hosts entry whose interfaces (matching
+        # hardware.network) give the MACs, addresses and DNS
+        host = lib.mkOption { type = str; };
         rootDiskSize = lib.mkOption { type = str; };
         autostart = lib.mkOption {
           type = bool;
@@ -74,7 +77,7 @@ let
             type = nullOr (listOf ints.unsigned);
             default = null;
           };
-          # Keyed by the interface name in foxDen.hosts.hosts.<vm>, which
+          # Keyed by the interface name in the VM's host, which
           # supplies the MAC
           network = lib.mkOption {
             type = attrsOf networkType;
@@ -208,7 +211,7 @@ let
   mkNetSetup =
     vm: fd: unit: net:
     let
-      mac = config.foxDen.hosts.hosts.${vm.name}.interfaces.${net.ifName}.mac;
+      mac = config.foxDen.hosts.hosts.${vm.config.host}.interfaces.${net.ifName}.mac;
     in
     if net.type == "macvtap" then
       let
@@ -562,9 +565,9 @@ in
     type = lib.types.attrsOf vmType;
     default = { };
     description = ''
-      QEMU VMs on this machine. Each one also needs a foxDen.hosts.hosts
-      entry of the same name, whose interfaces (matching hardware.network)
-      give the MACs, addresses and DNS.
+      QEMU VMs on this machine. Each one names its foxDen.hosts.hosts entry
+      in host, whose interfaces (matching hardware.network) give the MACs,
+      addresses and DNS.
     '';
   };
 
@@ -573,9 +576,9 @@ in
       vm:
       map (net: {
         assertion =
-          (config.foxDen.hosts.hosts.${vm.name}.interfaces.${net.ifName}.mac or null) != null
+          (config.foxDen.hosts.hosts.${vm.config.host}.interfaces.${net.ifName}.mac or null) != null
           && (if net.type == "macvtap" then net.parent != null else net.root != null && net.vf != null);
-        message = "VM ${vm.name}: network ${net.ifName} needs foxDen.hosts.hosts.${vm.name}.interfaces.${net.ifName}.mac and ${
+        message = "VM ${vm.name}: network ${net.ifName} needs foxDen.hosts.hosts.${vm.config.host}.interfaces.${net.ifName}.mac and ${
           if net.type == "macvtap" then "parent" else "root and vf"
         }";
       }) (vmNetworks vm)
@@ -616,11 +619,13 @@ in
     );
 
     # VM NICs are QEMU's to set up, the guest picks its address up via DHCP
-    foxDen.hosts.hosts = lib.attrsets.mapAttrs (_: vm: {
-      interfaces = lib.attrsets.mapAttrs (_: _: {
-        driver.name = lib.mkDefault "null";
-        useDHCP = lib.mkDefault true;
-      }) vm.config.hardware.network;
-    }) vms;
+    foxDen.hosts.hosts = lib.mkMerge (
+      map (vm: {
+        ${vm.config.host}.interfaces = lib.attrsets.mapAttrs (_: _: {
+          driver.name = lib.mkDefault "null";
+          useDHCP = lib.mkDefault true;
+        }) vm.config.hardware.network;
+      }) vmList
+    );
   };
 }
