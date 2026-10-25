@@ -101,6 +101,8 @@ in
             enable = true;
           };
           settings = {
+            auth.disable_login_form = svcConfig.oAuth.enable;
+            "auth.basic".enabled = !svcConfig.oAuth.enable;
             "auth.generic_oauth" = lib.mkIf svcConfig.oAuth.enable {
               allow_assign_grafana_admin = true;
               allow_sign_up = true;
