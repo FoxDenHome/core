@@ -10,7 +10,7 @@
     {
       fqdn = "_acme-challenge.unifi.foxden.network";
       type = "TXT";
-      value = "ci6wjwvhVB8w_LBnWilRc69OjDu8C6uK_hctWW5UW6o";
+      value = "F0u1XW2UDg8X7deghuHwGRztjpP0IG4-svcWj6kECP8";
       horizon = "*";
     }
   ];
