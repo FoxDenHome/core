@@ -7,7 +7,11 @@
 {
   options.foxDen.node-exporter = {
     enable = lib.mkEnableOption "Enable Prometheus node-exporter";
-    smartctl.enable = lib.mkEnableOption "Enable Prometheus smartctl-exporter alongside node-exporter";
+    smartctl.enable = lib.mkOption {
+      type = lib.types.bool;
+      default = true;
+      description = "Run Prometheus smartctl-exporter alongside node-exporter";
+    };
     textfile = {
       scripts = lib.mkOption {
         readOnly = true;
