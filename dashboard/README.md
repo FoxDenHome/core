@@ -1,0 +1,122 @@
+# foxden-dashboard
+
+A small rack dashboard: a wireframe view of the rack on the left, and details for the selected device on the right. Each device shows its live front panel: drive bays with SMART state, switch ports, PDU outlets with power, and UPS meters. It's a single static Go binary with the UI embedded, meant to run as a container on the routers.
+
+It polls devices directly and has no Prometheus dependency, so it keeps working when the monitoring host is down:
+
+| Source | Used by |
+|---|---|
+| SNMP v2c | UPS, ATS, switches, routers, tape library |
+| node_exporter (`:9100`) | servers: load, memory, ZFS pools, disk inventory |
+| smartctl_exporter (`:9633`) | disk health, on by default wherever node-exporter is |
+| UniFi Network API (local console) | PDU per-outlet power (the PDU's own SNMP has no outlet data) |
+
+## Running
+
+```sh
+make                    # bin/foxden-dashboard
+make test
+SNMP_COMMUNITY=... UNIFI_API_KEY=... ./bin/foxden-dashboard -config config.json
+./bin/foxden-dashboard -modules                 # list modules
+./bin/foxden-dashboard -config config.json -check   # validate layout
+```
+
+`${VAR}` in the config is expanded from the environment, so secrets stay out of the file.
+
+UniFi access never goes through the cloud. The module uses `$UNIFI_API_KEY` if it is set. Otherwise it logs in to the local console with `$UNIFI_USERNAME`/`$UNIFI_PASSWORD`, which works on any UniFi OS version. A local-only admin with the Network "View Only" role is enough.
+
+## Config
+
+The config places **module instances** in the rack. A module is a kind of hardware. Its preset knows the faceplate and how to poll it. An instance says where the device sits and how to reach it. To move a device, change its `u`. To add a second unit of the same model, add another entry with the same `module`.
+
+```jsonc
+{
+  "title": "FoxDen Rack",
+  "units": 23,                   // rack height
+  "interval": "15s",
+  "snmp": { "community": "${SNMP_COMMUNITY}" },
+  "devices": [
+    {
+      "id": "bengalfox",
+      "module": "supermicro-cse826",
+      "u": 16,                   // lowest U occupied, counted from the bottom
+      "address": "bengalfox.foxden.network"
+      // "height": 2,            // defaults to the module's height
+      // "options": { ... }      // module-specific, overrides the preset
+    },
+    {
+      "id": "shelf", "module": "shelf", "u": 12, "height": 2,
+      "children": [              // devices sitting side by side on the shelf
+        { "id": "islandfox", "module": "mini-pc", "address": "...", "width": 2 },
+        { "id": "ntpi", "module": "raspberry-pi", "address": "..." }
+      ]
+    }
+  ]
+}
+```
+
+The loader rejects overlapping devices, devices outside the rack, duplicate ids and unknown option keys.
+
+### Drive bays
+
+`server`-based modules take `bays.slots`. It lists one entry per bay, row by row from the top left as seen from the front. Each entry says which disk belongs in that bay:
+
+- `phy:N`: the disk on SAS expander phy N, read from the kernel's by-path name. This is the CSE-826 default (`phy:0` … `phy:11`).
+- `serial:XYZ` or `wwn:0x…`: a specific disk.
+- `""`: a bay that is never populated.
+
+If a bay lights up in the wrong place when you check with the identify LED, reorder the list:
+
+```json
+"options": { "bays": { "slots": ["phy:3","phy:2","phy:1","phy:0", "..."] } }
+```
+
+Disks that don't sit behind a front bay, like NVMe drives, boot disks and every disk of a server without `bays`, are listed as **Internal disks** in the details panel. They count toward the device's status but aren't drawn on the rack.
+
+Most SMART error counters flag at any non-zero value. CRC errors, reallocated sectors, SAS grown defects and NVMe media errors are lifetime counts where an old value is normal, so these only warn when they **increase** while the dashboard is running. The baseline is kept in memory, so after a restart the dashboard takes the current values as the new baseline.
+
+### Remote sites
+
+Machines outside the rack go under `remote`. They're drawn below the rack, grouped by site, and use the same modules:
+
+```json
+"remote": [
+  { "name": "OVH", "devices": [ { "id": "icefox", "module": "server", "address": "icefox.foxden.network" } ] }
+]
+```
+
+### Ports
+
+Switch modules take `groups`, and `ports` lists interface names (`ifName`) with brace ranges. RouterOS ports renamed to their role are mapped like this:
+
+```json
+"groups": [
+  { "label": "SFP+",  "ports": "sfp{1..11},wan",  "labels": "{1..12}", "rows": 2 },
+  { "label": "SFP28", "ports": "vlan-mgmt,sfpx2", "labels": "1,2",     "rows": 2 }
+]
+```
+
+`#N` matches by ifIndex instead.
+
+### Transfer switch
+
+The ATS is mounted at the back and all it adds is which feed is live, so it doesn't get a slot. Attach it to the UPS it feeds instead, and it shows up as A/B indicators on the UPS:
+
+```json
+"options": { "ats": { "model": "cyberpower", "address": "ats-rack.foxden.network" } }
+```
+
+## Adding a module
+
+Modules live in `internal/modules/`, and each calls `register(Spec{...})` from `init()`.
+
+- **New model of existing hardware.** Register a preset that calls an existing constructor with different defaults. For example, a new switch is `newSwitch(switchOptions{Groups: ...})`, and a new chassis is `newServer(serverOptions{Bays: ...})`.
+- **New kind of hardware.** Implement `Driver`:
+  - `Skeleton()` returns the faceplate with every slot `unknown`.
+  - `Poll(ctx)` returns a `rack.State` that fills the faceplate groups (`bay`, `port`, `outlet`, `meter`, `led`) and the detail sections.
+
+The UI is generic over those group kinds, so a new module needs no frontend work.
+
+## Container
+
+`Dockerfile` builds a `FROM scratch` image (about 8 MB) that reads `/config/config.json`, like foxIngress.

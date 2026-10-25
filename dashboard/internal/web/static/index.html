@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>Rack</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect x='3' y='1.5' width='10' height='13' rx='1' fill='none' stroke='%237ee0b8' stroke-width='1.2'/%3E%3Cpath d='M5 5h6M5 8h6M5 11h6' stroke='%237ee0b8' stroke-width='1.2'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top">
+  <h1 id="title">Rack</h1>
+  <div class="tally" id="tally"></div>
+  <div class="live" id="live"><span class="pulse"></span><span id="live-text">connecting…</span></div>
+</header>
+<main class="layout">
+  <section class="rack-pane" aria-label="Rack">
+    <div class="rack-scroll">
+      <div class="rack" id="rack"></div>
+      <div id="remote"></div>
+    </div>
+  </section>
+  <section class="detail-pane" id="detail" aria-live="polite"></section>
+</main>
+<script src="app.js"></script>
+</body>
+</html>
