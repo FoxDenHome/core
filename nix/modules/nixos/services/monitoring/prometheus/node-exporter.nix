@@ -7,6 +7,7 @@
 {
   options.foxDen.node-exporter = {
     enable = lib.mkEnableOption "Enable Prometheus node-exporter";
+    smartctl.enable = lib.mkEnableOption "Enable Prometheus smartctl-exporter alongside node-exporter";
     textfile = {
       scripts = lib.mkOption {
         readOnly = true;
@@ -34,6 +35,12 @@
   };
 
   config = lib.mkIf config.foxDen.node-exporter.enable {
+    services.prometheus.exporters.smartctl.enable = config.foxDen.node-exporter.smartctl.enable;
+    networking.firewall.extraInputRules = lib.mkIf config.foxDen.node-exporter.smartctl.enable ''
+      ip saddr 10.0.0.0/8 tcp dport ${toString config.services.prometheus.exporters.smartctl.port} accept
+      ip6 saddr fc00::/7 tcp dport ${toString config.services.prometheus.exporters.smartctl.port} accept
+    '';
+
     services.prometheus.exporters.node = {
       enable = true;
       enabledCollectors = [
