@@ -4,7 +4,7 @@
     {
       fqdn = "_acme-challenge.nvr.foxden.network";
       type = "TXT";
-      value = "kFn7OM4YaM9lXcy4odp0wA_WpA75j5M4EQ7ADWsQuQc";
+      value = "4UUjWAJr4fNsxihKTSypDSA_iAAY0XRpDVzczXKMJqA";
       horizon = "*";
     }
     {
