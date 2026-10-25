@@ -44,6 +44,13 @@ let
     overlays = [
       build-gradle-application.overlays.default
       (final: prev: {
+        # 0.15.0 emits SCSI verify/endurance metrics it never registers in
+        # Describe(), so every scrape fails with a 500 once a SAS drive reports them
+        prometheus-smartctl-exporter = prev.prometheus-smartctl-exporter.overrideAttrs (old: {
+          patches = (old.patches or [ ]) ++ [
+            ./services/monitoring/prometheus/smartctl-exporter-describe.patch
+          ];
+        });
         pythonPackagesExtensions = prev.pythonPackagesExtensions ++ [
           (pyFinal: pyPrev: {
             # Only the TypeError wording differs ("Expected str, got int" vs "must be str")

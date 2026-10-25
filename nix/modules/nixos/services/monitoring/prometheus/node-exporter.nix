@@ -35,8 +35,8 @@
   };
 
   config = lib.mkIf config.foxDen.node-exporter.enable {
-    services.prometheus.exporters.smartctl.enable = config.foxDen.node-exporter.smartctl.enable;
-    networking.firewall.extraInputRules = lib.mkIf config.foxDen.node-exporter.smartctl.enable ''
+    services.prometheus.exporters.smartctl.enable = true;
+    networking.firewall.extraInputRules = ''
       ip saddr 10.0.0.0/8 tcp dport ${toString config.services.prometheus.exporters.smartctl.port} accept
       ip6 saddr fc00::/7 tcp dport ${toString config.services.prometheus.exporters.smartctl.port} accept
     '';

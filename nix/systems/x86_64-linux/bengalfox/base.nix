@@ -22,7 +22,6 @@
   boot.extraModulePackages = [ ];
   foxDen.nvidia.enable = true;
   foxDen.lsi.enable = true;
-  foxDen.node-exporter.smartctl.enable = true;
   foxDen.mlx5.enable = true;
   powerManagement.cpuFreqGovernor = "schedutil";
 
