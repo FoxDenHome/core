@@ -168,11 +168,11 @@
         "nixpkgs-acme": "nixpkgs-acme"
       },
       "locked": {
-        "lastModified": 1793050401,
-        "narHash": "sha256-QTV43lOLZKkQM9tEy/22XMqtilv8G+qwAb5zoCih/9k=",
+        "lastModified": 1793050861,
+        "narHash": "sha256-IvSWQfFhibhYGU+KPR1tmMkyjKpzYGY0wljYh8gB3RY=",
         "ref": "refs/heads/main",
-        "rev": "c942e028066c8f296208c05d38fea0614afa1633",
-        "revCount": 4227,
+        "rev": "1e0814113a05032d51f607cad8bc5018586b6a13",
+        "revCount": 4228,
         "type": "git",
         "url": "https://git.foxden.network/foxCaves/foxCaves"
       },
@@ -191,11 +191,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1793050388,
-        "narHash": "sha256-mXMrHZ/F1y8YOs7VqOBKxaKBWT9j0x9W7cMksiTQ0bs=",
+        "lastModified": 1793054959,
+        "narHash": "sha256-Rd+Jr5Ku/eD7rsaHYRfXkvuFQODgFbsusAMFhF9b+kg=",
         "ref": "refs/heads/main",
-        "rev": "40b2e803a3b5634547c73a10f860809767927d3d",
-        "revCount": 300,
+        "rev": "caea0e8728890b649fefbe23cda2f46353b1943f",
+        "revCount": 301,
         "type": "git",
         "url": "https://git.foxden.network/FoxDen/foxIngress"
       },
@@ -304,17 +304,17 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1792734696,
-        "narHash": "sha256-nAY7gNcbuoQkfPHxwVuRFcazYHptzBpKZN/I1/18Vaw=",
+        "lastModified": 1793007441,
+        "narHash": "sha256-rKx8CXjTrCX41kYuoZkQrL6tJ8jkKoRDzeozwCNg+J4=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "3a32588c117116d2bf0edc33915981398fab2b00",
+        "rev": "0d1260143669e79a76652f664f106b84df8bbf32",
         "type": "github"
       },
       "original": {
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "3a32588c117116d2bf0edc33915981398fab2b00",
+        "rev": "0d1260143669e79a76652f664f106b84df8bbf32",
         "type": "github"
       }
     },
@@ -473,11 +473,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1792809984,
-        "narHash": "sha256-KV+CaZX7QS0hcdKxwGKehDb1jmUgx6lbkTPpaoIW5Nw=",
+        "lastModified": 1793052255,
+        "narHash": "sha256-Y/JIHTnMlOabDfyaSBubWGLDIVGihLEUuoMhFvQKaDo=",
         "owner": "Mic92",
         "repo": "sops-nix",
-        "rev": "442449fa7b1fe6c692d0103ac9fc8f9e82931cf3",
+        "rev": "60182817ee048ac94b4c68ea76d5ef2e8aac730d",
         "type": "github"
       },
       "original": {
