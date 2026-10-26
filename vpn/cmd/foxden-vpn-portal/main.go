@@ -70,6 +70,10 @@ func defaultConfig() Config {
 		StaticNetworks: []provision.Network{{
 			Name:     "s2s",
 			Prefixes: []netip.Prefix{netip.MustParsePrefix("10.99.0.0/16"), netip.MustParsePrefix("fd2c:f4cb:63be::a63:0/112")},
+		}, {
+			// Every subnet the routers can hand a container (mikrotik/configure/util.py)
+			Name:     "containers",
+			Prefixes: []netip.Prefix{netip.MustParsePrefix("172.17.0.0/16"), netip.MustParsePrefix("fd2c:f4cb:63be::ac11:0/112")},
 		}},
 	}
 	return c
