@@ -80,11 +80,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1792822398,
-        "narHash": "sha256-+bdrVK9IhoztokHl5I9SScgVZAPmD14yaIEPw4ow+iM=",
+        "lastModified": 1792861326,
+        "narHash": "sha256-h+hlADNRYw/3Bqyf2oM+6L/2obkh29sViPWlnH8q348=",
         "ref": "refs/heads/main",
-        "rev": "3eefb17b257c41482c93a61f82efb7eae57b679f",
-        "revCount": 806,
+        "rev": "8631d9562e0802ce97357b4ce28f6f35181821a6",
+        "revCount": 807,
         "type": "git",
         "url": "https://git.foxden.network/FoxDen/e621dumper"
       },
@@ -103,11 +103,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1792822394,
-        "narHash": "sha256-E8r3Z5naY5XTk3+jc4cRj61w1tYUDz/Ok9rPzkVxlaM=",
+        "lastModified": 1792861330,
+        "narHash": "sha256-X5wb5cEKp2/cjg/ZpJoXAe/MJNpXUEDgV/xE636I+iQ=",
         "ref": "refs/heads/main",
-        "rev": "9c3cc06df3d4c8b728a6256fee59493410be1918",
-        "revCount": 846,
+        "rev": "f2283de593b9d5107c749559bead8f43f982b46a",
+        "revCount": 847,
         "type": "git",
         "url": "https://git.foxden.network/FoxDen/fadumper"
       },
@@ -191,11 +191,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1792796481,
-        "narHash": "sha256-eUVnPvyDrPHdteFZRCMJimcisNswoBTZbg5Z+nZKBN4=",
+        "lastModified": 1792861335,
+        "narHash": "sha256-YWa6+V2xKi+SK9P9cpTKVnhFw4vWMU+Jd8s5x7srE+g=",
         "ref": "refs/heads/main",
-        "rev": "74b9057acf3debc0f95e0ecea766ccfb37ca3e8e",
-        "revCount": 298,
+        "rev": "c6aac47e9b10d54356b28568deaae5d93546fa01",
+        "revCount": 299,
         "type": "git",
         "url": "https://git.foxden.network/FoxDen/foxIngress"
       },
@@ -266,11 +266,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1792818371,
-        "narHash": "sha256-yhEZAzZRNvzYpoAlyFY3wM75V9BmkIXJIueof8S5gOg=",
+        "lastModified": 1793033486,
+        "narHash": "sha256-fXVURa0+CSCgaxLt8tmPNJq2U+fGYOwbk5j2YUe7kSc=",
         "owner": "nix-community",
         "repo": "home-manager",
-        "rev": "2cd3234928f60bbff695a7ee56115ef7799c47cd",
+        "rev": "7db163b2aee7e410e396b48aed02f646d742b9b8",
         "type": "github"
       },
       "original": {
