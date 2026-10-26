@@ -247,12 +247,22 @@ def refresh_containers_router(
     existing_map = {ct["name"]: ct for ct in containers.get()}
 
     for container in wanted:
-        veth_changed = _refresh_network(api, container)
-
-        attribs = container.attribs()
-        image_id = resolve(container.remote_image, "linux", arch)
-
         current = existing_map.pop(container.name, None)
+        try:
+            image_id = resolve(container.remote_image, "linux", arch)
+        except HTTPError as e:
+            if e.code != 404:
+                raise
+            # Not published yet, leave whatever is deployed alone
+            print(
+                f"### WARNING: Skipping container {container.name},"
+                f" no image {container.remote_image}"
+            )
+            continue
+
+        veth_changed = _refresh_network(api, container)
+        attribs = container.attribs()
+
         if current is None:
             print("### Creating container", container.name)
             containers.add(**attribs)
