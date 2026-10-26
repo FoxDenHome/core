@@ -44,6 +44,10 @@ type portGroupOptions struct {
 
 type switchOptions struct {
 	Groups []portGroupOptions `json:"groups"`
+	// UniFi optionally reads PoE from the UniFi controller, since the switches'
+	// SNMP agents don't report per-port power. The controller's port N is the
+	// Nth port across all groups.
+	UniFi *unifiOptions `json:"unifi"`
 }
 
 type portInfo struct {
@@ -57,9 +61,10 @@ type portInfo struct {
 }
 
 type snmpSwitch struct {
-	env  *Env
-	dev  *config.Device
-	opts switchOptions
+	env   *Env
+	dev   *config.Device
+	opts  switchOptions
+	unifi *unifiClient
 
 	mu   sync.Mutex
 	prev map[string]portInfo
@@ -130,7 +135,14 @@ func newSwitch(defaults switchOptions) func(*Env, *config.Device) (Driver, error
 				opts.Groups[i].Rows = 1
 			}
 		}
-		return &snmpSwitch{env: env, dev: dev, opts: opts}, nil
+		sw := &snmpSwitch{env: env, dev: dev, opts: opts}
+		if opts.UniFi != nil {
+			sw.unifi, err = newUnifiClient(env, opts.UniFi.withDefaults())
+			if err != nil {
+				return nil, fmt.Errorf("device %s: unifi: %w", dev.ID, err)
+			}
+		}
+		return sw, nil
 	}
 }
 
@@ -217,9 +229,16 @@ func (s *snmpSwitch) Poll(ctx context.Context) (rack.State, error) {
 	s.prev, s.at = ports, now
 	s.mu.Unlock()
 
+	var poe map[int]unifiPort
+	var poeErr error
+	if s.unifi != nil {
+		poe, poeErr = s.poe(ctx)
+	}
+
 	st := s.Skeleton()
 	st.Status = rack.StatusOK
 	up, total := 0, 0
+	var poeTotal float64
 	for gi := range st.Faceplate {
 		for si := range st.Faceplate[gi].Slots {
 			slot := &st.Faceplate[gi].Slots[si]
@@ -235,6 +254,9 @@ func (s *snmpSwitch) Poll(ctx context.Context) (rack.State, error) {
 				continue
 			}
 			s.fillPort(slot, p)
+			if pp, ok := poe[total]; ok {
+				poeTotal += fillPoE(slot, pp)
+			}
 			if p.oper == ifStatusUp {
 				up++
 			}
@@ -247,8 +269,15 @@ func (s *snmpSwitch) Poll(ctx context.Context) (rack.State, error) {
 		sec.Add("Uptime", formatDuration(time.Duration(ticks)*10*time.Millisecond))
 	}
 	sec.Add("Ports up", fmt.Sprintf("%d / %d", up, total))
-	st.Sections = []rack.Section{sec}
 	st.Summary = fmt.Sprintf("%d/%d up", up, total)
+	if poeErr != nil {
+		st.Status = rack.StatusWarn
+		st.Error = "unifi: " + poeErr.Error()
+	} else if poe != nil {
+		sec.Add("PoE draw", fmt.Sprintf("%.1f W", poeTotal))
+		st.Summary += fmt.Sprintf(" · PoE %.0f W", poeTotal)
+	}
+	st.Sections = []rack.Section{sec}
 	st.Rollup()
 	return st, nil
 }
@@ -285,4 +314,57 @@ func (s *snmpSwitch) fillPort(slot *rack.Slot, p portInfo) {
 	}
 	sec.AddStatus("Errors in/out", fmt.Sprintf("%d / %d", p.inErrors, p.outErrors), es)
 	slot.Sections = []rack.Section{sec}
+}
+
+type unifiPort struct {
+	Index      int       `json:"port_idx"`
+	PoECapable bool      `json:"port_poe"`
+	PoEEnable  bool      `json:"poe_enable"`
+	PoEGood    bool      `json:"poe_good"`
+	PoEMode    string    `json:"poe_mode"`
+	PoEClass   string    `json:"poe_class"`
+	PoEPower   flexFloat `json:"poe_power"`
+	PoEVoltage flexFloat `json:"poe_voltage"`
+	// PoECurrent is in mA.
+	PoECurrent flexFloat `json:"poe_current"`
+}
+
+// poe returns the controller's PoE-capable ports by port number.
+func (s *snmpSwitch) poe(ctx context.Context) (map[int]unifiPort, error) {
+	var d struct {
+		Ports []unifiPort `json:"port_table"`
+	}
+	if err := s.unifi.device(ctx, &d); err != nil {
+		return nil, err
+	}
+	out := map[int]unifiPort{}
+	for _, p := range d.Ports {
+		if p.PoECapable {
+			out[p.Index] = p
+		}
+	}
+	return out, nil
+}
+
+// fillPoE adds a port's PoE state and returns the watts it delivers.
+func fillPoE(slot *rack.Slot, p unifiPort) float64 {
+	sec := &slot.Sections[0]
+	if !p.PoEEnable {
+		sec.AddStatus("PoE", "off", rack.StatusOff)
+		return 0
+	}
+	w := float64(p.PoEPower)
+	slot.Power = rack.Watts(w)
+	if !p.PoEGood {
+		sec.Add("PoE", fmt.Sprintf("%s, no device", p.PoEMode))
+		return w
+	}
+	v := fmt.Sprintf("%.1f W", w)
+	if p.PoEClass != "" {
+		v += " · " + p.PoEClass
+	}
+	sec.Add("PoE", v)
+	sec.Add("PoE voltage", fmt.Sprintf("%.1f V", float64(p.PoEVoltage)))
+	sec.Add("PoE current", fmt.Sprintf("%.0f mA", float64(p.PoECurrent)))
+	return w
 }

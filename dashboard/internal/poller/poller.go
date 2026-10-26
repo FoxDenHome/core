@@ -25,6 +25,8 @@ type Device struct {
 	Address  string     `json:"address,omitempty"`
 	State    rack.State `json:"state"`
 	Children []*Device  `json:"children,omitempty"`
+
+	power []config.PowerFeed
 }
 
 type Snapshot struct {
@@ -82,6 +84,7 @@ func New(cfg *config.Config, env *modules.Env) (*Poller, error) {
 			Width:   c.Width,
 			Address: c.Address,
 			State:   drv.Skeleton(),
+			power:   c.Power,
 		}
 		if d.Height == 0 {
 			d.Height = spec.Height
@@ -127,6 +130,9 @@ func New(cfg *config.Config, env *modules.Env) (*Poller, error) {
 			s.Devices = append(s.Devices, d)
 		}
 		p.remote = append(p.remote, s)
+	}
+	if err := p.checkPower(); err != nil {
+		return nil, err
 	}
 	return p, nil
 }
@@ -176,9 +182,12 @@ func (p *Poller) pollOnce(ctx context.Context, e entry) {
 func (p *Poller) Snapshot() Snapshot {
 	p.mu.RLock()
 	defer p.mu.RUnlock()
+	byID := map[string]*Device{}
 	var clone func(d *Device) *Device
 	clone = func(d *Device) *Device {
 		c := *d
+		c.State = d.State.Clone()
+		byID[c.ID] = &c
 		c.Children = nil
 		for _, ch := range d.Children {
 			c.Children = append(c.Children, clone(ch))
@@ -196,5 +205,6 @@ func (p *Poller) Snapshot() Snapshot {
 		}
 		out.Remote = append(out.Remote, s)
 	}
+	applyPower(byID)
 	return out
 }

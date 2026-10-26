@@ -61,6 +61,18 @@ type Device struct {
 	Options json.RawMessage `json:"options,omitempty"`
 	// Children sit on this device side by side (only meaningful for shelves).
 	Children []Device `json:"children,omitempty"`
+	// Power lists where the device draws power from. The readings come from
+	// the feeding device, so this works for devices that can't meter themselves.
+	Power []PowerFeed `json:"power,omitempty"`
+}
+
+// PowerFeed is a metered slot on another device, like a PDU outlet or a PoE port.
+type PowerFeed struct {
+	Device string `json:"device"`
+	// Slot is the slot id on that device: the outlet number, or the port's ifName.
+	Slot string `json:"slot"`
+	// Label names the feed on this device ("PSU 1"). Defaults to "<device> <slot>".
+	Label string `json:"label,omitempty"`
 }
 
 // Load reads a JSON config. ${VAR} references are expanded from the environment

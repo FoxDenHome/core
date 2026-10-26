@@ -24,13 +24,31 @@
       "id": "bengalfox",
       "module": "supermicro-cse826",
       "u": 16,
-      "address": "bengalfox.foxden.network"
+      "address": "bengalfox.foxden.network",
+      "power": [
+        {
+          "device": "pdu-rack",
+          "slot": "8",
+          "label": "PSU A"
+        },
+        {
+          "device": "pdu-rack",
+          "slot": "9",
+          "label": "PSU B"
+        }
+      ]
     },
     {
       "id": "tape-library",
       "module": "ibm-ts3100",
       "u": 14,
-      "address": "tape-library.foxden.network"
+      "address": "tape-library.foxden.network",
+      "power": [
+        {
+          "device": "pdu-rack",
+          "slot": "13"
+        }
+      ]
     },
     {
       "id": "shelf",
@@ -42,12 +60,25 @@
           "id": "islandfox",
           "module": "mini-pc",
           "address": "islandfox.foxden.network",
-          "width": 2
+          "width": 2,
+          "power": [
+            {
+              "device": "pdu-rack",
+              "slot": "7"
+            }
+          ]
         },
         {
           "id": "ntpi",
           "module": "raspberry-pi",
-          "address": "ntpi.foxden.network"
+          "address": "ntpi.foxden.network",
+          "power": [
+            {
+              "device": "switch-rack",
+              "slot": "0/45",
+              "label": "PoE"
+            }
+          ]
         }
       ]
     },
@@ -55,7 +86,19 @@
       "id": "switch-rack",
       "module": "unifi-us-48",
       "u": 11,
-      "address": "switch-rack.foxden.network"
+      "address": "switch-rack.foxden.network",
+      "options": {
+        "unifi": {
+          "controller": "https://unifi.foxden.network",
+          "mac": "74:fa:29:8a:c2:c3"
+        }
+      },
+      "power": [
+        {
+          "device": "pdu-rack",
+          "slot": "6"
+        }
+      ]
     },
     {
       "id": "brush-10",
@@ -67,7 +110,13 @@
       "id": "switch-rack-agg",
       "module": "unifi-usw-pro-aggregation",
       "u": 9,
-      "address": "switch-rack-agg.foxden.network"
+      "address": "switch-rack-agg.foxden.network",
+      "power": [
+        {
+          "device": "pdu-rack",
+          "slot": "5"
+        }
+      ]
     },
     {
       "id": "router",
@@ -95,7 +144,19 @@
             "rows": 2
           }
         ]
-      }
+      },
+      "power": [
+        {
+          "device": "pdu-rack",
+          "slot": "10",
+          "label": "PSU A"
+        },
+        {
+          "device": "pdu-rack",
+          "slot": "11",
+          "label": "PSU B"
+        }
+      ]
     },
     {
       "id": "router-backup",
@@ -117,7 +178,13 @@
             "rows": 1
           }
         ]
-      }
+      },
+      "power": [
+        {
+          "device": "pdu-rack",
+          "slot": "17"
+        }
+      ]
     },
     {
       "id": "pdu-rack",
@@ -133,7 +200,13 @@
       "id": "nvr",
       "module": "unifi-unvr",
       "u": 4,
-      "address": "nvr.foxden.network"
+      "address": "nvr.foxden.network",
+      "power": [
+        {
+          "device": "pdu-rack",
+          "slot": "12"
+        }
+      ]
     },
     {
       "id": "brush-3",

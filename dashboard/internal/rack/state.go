@@ -1,7 +1,10 @@
 // Package rack holds the data model the modules produce and the UI renders.
 package rack
 
-import "time"
+import (
+	"slices"
+	"time"
+)
 
 type Status string
 
@@ -80,7 +83,10 @@ type Slot struct {
 	// Value is a short reading shown on the slot itself ("34°C", "12 W", "10G").
 	Value string `json:"value,omitempty"`
 	// Percent fills meters.
-	Percent  *float64  `json:"percent,omitempty"`
+	Percent *float64 `json:"percent,omitempty"`
+	// Power is what the slot delivers in watts (PDU outlets, PoE ports).
+	// Devices that draw from it pick it up through their power feeds.
+	Power    *float64  `json:"power,omitempty"`
 	Sections []Section `json:"sections,omitempty"`
 }
 
@@ -114,6 +120,37 @@ func (st *State) Rollup() {
 	st.Status = Worst(all...)
 }
 
+// Clone copies the faceplate and section lists so they can be extended without
+// touching the original. Rows are shared and must not be modified.
+func (st State) Clone() State {
+	st.Sections = slices.Clone(st.Sections)
+	st.Faceplate = slices.Clone(st.Faceplate)
+	for gi := range st.Faceplate {
+		g := &st.Faceplate[gi]
+		g.Slots = slices.Clone(g.Slots)
+		for si := range g.Slots {
+			g.Slots[si].Sections = slices.Clone(g.Slots[si].Sections)
+		}
+	}
+	return st
+}
+
+// FindSlot returns the slot with the given id in any faceplate group.
+func (st *State) FindSlot(id string) *Slot {
+	for gi := range st.Faceplate {
+		for si := range st.Faceplate[gi].Slots {
+			if st.Faceplate[gi].Slots[si].ID == id {
+				return &st.Faceplate[gi].Slots[si]
+			}
+		}
+	}
+	return nil
+}
+
 func Percent(v float64) *float64 {
+	return &v
+}
+
+func Watts(v float64) *float64 {
 	return &v
 }

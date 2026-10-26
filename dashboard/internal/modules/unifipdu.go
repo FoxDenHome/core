@@ -1,18 +1,10 @@
 package modules
 
 import (
-	"bytes"
 	"context"
-	"crypto/tls"
-	"encoding/json"
 	"fmt"
-	"net/http"
-	"net/http/cookiejar"
-	"os"
 	"sort"
 	"strconv"
-	"strings"
-	"sync"
 	"time"
 
 	"github.com/FoxDenHome/core/dashboard/internal/config"
@@ -22,32 +14,15 @@ import (
 // The UniFi PDU's own SNMP agent has no outlet data, so this goes through the
 // UniFi Network controller instead.
 type unifiPDUOptions struct {
-	// Controller is the UniFi OS console base URL, e.g. https://unifi.example.
-	Controller string `json:"controller"`
-	Site       string `json:"site"`
-	// MAC of the PDU as the controller knows it.
-	MAC string `json:"mac"`
-	// APIKeyEnv names the environment variable holding a UniFi API key. Used
-	// when set; otherwise the module logs in as a local user.
-	APIKeyEnv string `json:"api_key_env"`
-	// UsernameEnv/PasswordEnv name the environment variables holding a local
-	// UniFi OS user (a local-only, view-only admin is enough).
-	UsernameEnv string `json:"username_env"`
-	PasswordEnv string `json:"password_env"`
-	// Insecure skips TLS verification for consoles with self-signed certs.
-	Insecure bool `json:"insecure"`
-	Outlets  int  `json:"outlets"`
-	Rows     int  `json:"rows"`
+	unifiOptions
+	Outlets int `json:"outlets"`
+	Rows    int `json:"rows"`
 }
 
 type unifiPDU struct {
-	env    *Env
 	dev    *config.Device
 	opts   unifiPDUOptions
-	client *http.Client
-
-	loginMu  sync.Mutex
-	loggedIn bool
+	client *unifiClient
 }
 
 func init() {
@@ -56,12 +31,9 @@ func init() {
 		Description: "UniFi USP-PDU-Pro, per-outlet power via the UniFi Network API. Options: controller, site, mac, api_key_env or username_env/password_env, insecure, outlets, rows.",
 		Height:      2,
 		New: newUnifiPDU(unifiPDUOptions{
-			Site:        "default",
-			APIKeyEnv:   "UNIFI_API_KEY",
-			UsernameEnv: "UNIFI_USERNAME",
-			PasswordEnv: "UNIFI_PASSWORD",
-			Outlets:     20,
-			Rows:        2,
+			unifiOptions: unifiDefaults,
+			Outlets:      20,
+			Rows:         2,
 		}),
 	})
 }
@@ -72,18 +44,11 @@ func newUnifiPDU(defaults unifiPDUOptions) func(*Env, *config.Device) (Driver, e
 		if err != nil {
 			return nil, err
 		}
-		if opts.Controller == "" || opts.MAC == "" {
-			return nil, fmt.Errorf("device %s: controller and mac are required", dev.ID)
+		client, err := newUnifiClient(env, opts.unifiOptions)
+		if err != nil {
+			return nil, fmt.Errorf("device %s: %w", dev.ID, err)
 		}
-		opts.Controller = strings.TrimRight(opts.Controller, "/")
-		opts.MAC = strings.ToLower(opts.MAC)
-		// Own client: the session login keeps its cookie in the jar.
-		jar, _ := cookiejar.New(nil)
-		client := &http.Client{Timeout: env.HTTP.Timeout, Jar: jar}
-		if opts.Insecure {
-			client.Transport = &http.Transport{TLSClientConfig: &tls.Config{InsecureSkipVerify: true}}
-		}
-		return &unifiPDU{env: env, dev: dev, opts: opts, client: client}, nil
+		return &unifiPDU{dev: dev, opts: opts, client: client}, nil
 	}
 }
 
@@ -97,22 +62,6 @@ func (p *unifiPDU) skeletonOutlets(n int) rack.Group {
 
 func (p *unifiPDU) Skeleton() rack.State {
 	return rack.State{Status: rack.StatusUnknown, Faceplate: []rack.Group{p.skeletonOutlets(p.opts.Outlets)}}
-}
-
-// flexFloat accepts numbers and numeric strings; the controller sends both.
-type flexFloat float64
-
-func (f *flexFloat) UnmarshalJSON(b []byte) error {
-	s := strings.Trim(string(b), `"`)
-	if s == "" || s == "null" {
-		return nil
-	}
-	v, err := strconv.ParseFloat(s, 64)
-	if err != nil {
-		return nil
-	}
-	*f = flexFloat(v)
-	return nil
 }
 
 type unifiOutlet struct {
@@ -137,87 +86,11 @@ type unifiDevice struct {
 	PowerBudget flexFloat     `json:"outlet_ac_power_budget"`
 }
 
-// login starts a UniFi OS session; the TOKEN cookie lands in the client's jar.
-func (p *unifiPDU) login(ctx context.Context) error {
-	user, pass := os.Getenv(p.opts.UsernameEnv), os.Getenv(p.opts.PasswordEnv)
-	if user == "" || pass == "" {
-		return fmt.Errorf("no credentials: set $%s, or $%s and $%s", p.opts.APIKeyEnv, p.opts.UsernameEnv, p.opts.PasswordEnv)
-	}
-	body, _ := json.Marshal(map[string]any{"username": user, "password": pass, "rememberMe": true})
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, p.opts.Controller+"/api/auth/login", bytes.NewReader(body))
-	if err != nil {
-		return err
-	}
-	req.Header.Set("Content-Type", "application/json")
-	resp, err := p.client.Do(req)
-	if err != nil {
-		return err
-	}
-	_ = resp.Body.Close()
-	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("login: HTTP %d", resp.StatusCode)
-	}
-	return nil
-}
-
-func (p *unifiPDU) get(ctx context.Context, url string) (*http.Response, error) {
-	key := os.Getenv(p.opts.APIKeyEnv)
-	for attempt := 0; ; attempt++ {
-		if key == "" {
-			p.loginMu.Lock()
-			if !p.loggedIn {
-				if err := p.login(ctx); err != nil {
-					p.loginMu.Unlock()
-					return nil, err
-				}
-				p.loggedIn = true
-			}
-			p.loginMu.Unlock()
-		}
-		req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
-		if err != nil {
-			return nil, err
-		}
-		if key != "" {
-			req.Header.Set("X-API-KEY", key)
-		}
-		req.Header.Set("Accept", "application/json")
-		resp, err := p.client.Do(req)
-		if err != nil {
-			return nil, err
-		}
-		if resp.StatusCode == http.StatusUnauthorized && key == "" && attempt == 0 {
-			// Session expired: log in again once.
-			_ = resp.Body.Close()
-			p.loginMu.Lock()
-			p.loggedIn = false
-			p.loginMu.Unlock()
-			continue
-		}
-		return resp, nil
-	}
-}
-
 func (p *unifiPDU) Poll(ctx context.Context) (rack.State, error) {
-	url := fmt.Sprintf("%s/proxy/network/api/s/%s/stat/device/%s", p.opts.Controller, p.opts.Site, p.opts.MAC)
-	resp, err := p.get(ctx, url)
-	if err != nil {
+	var d unifiDevice
+	if err := p.client.device(ctx, &d); err != nil {
 		return rack.State{}, err
 	}
-	defer resp.Body.Close()
-	if resp.StatusCode != http.StatusOK {
-		return rack.State{}, fmt.Errorf("controller: HTTP %d", resp.StatusCode)
-	}
-	var body struct {
-		Data []unifiDevice `json:"data"`
-	}
-	if err := json.NewDecoder(resp.Body).Decode(&body); err != nil {
-		return rack.State{}, fmt.Errorf("controller: %w", err)
-	}
-	if len(body.Data) == 0 {
-		return rack.State{}, fmt.Errorf("controller does not know %s", p.opts.MAC)
-	}
-	d := body.Data[0]
 
 	outlets := d.Outlets
 	sort.Slice(outlets, func(i, j int) bool { return outlets[i].Index < outlets[j].Index })
@@ -258,6 +131,7 @@ func (p *unifiPDU) Poll(ctx context.Context) (rack.State, error) {
 			w := float64(o.Power)
 			sum += w
 			slot.Value = formatFloat(w, "W")
+			slot.Power = rack.Watts(w)
 			sec.Add("Power", fmt.Sprintf("%.1f W", w))
 			sec.Add("Current", fmt.Sprintf("%.2f A", float64(o.Current)))
 			sec.Add("Voltage", fmt.Sprintf("%.1f V", float64(o.Voltage)))

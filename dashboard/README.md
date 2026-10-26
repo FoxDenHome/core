@@ -9,7 +9,7 @@ It polls devices directly and has no Prometheus dependency, so it keeps working 
 | SNMP v2c | UPS, ATS, switches, routers, tape library |
 | node_exporter (`:9100`) | servers: load, memory, ZFS pools, disk inventory |
 | smartctl_exporter (`:9633`) | disk health, on by default wherever node-exporter is |
-| UniFi Network API (local console) | PDU per-outlet power (the PDU's own SNMP has no outlet data) |
+| UniFi Network API (local console) | PDU per-outlet power and switch PoE (their own SNMP has neither) |
 
 ## Running
 
@@ -97,6 +97,28 @@ Switch modules take `groups`, and `ports` lists interface names (`ifName`) with 
 ```
 
 `#N` matches by ifIndex instead.
+
+### PoE
+
+The UniFi switches' SNMP agents don't report per-port PoE, so a switch module reads it from the controller when given a `unifi` block (same fields and credentials as the PDU). The controller's port N is the Nth port across all `groups`:
+
+```json
+"options": { "unifi": { "controller": "https://unifi.foxden.network", "mac": "74:fa:29:8a:c2:c3" } }
+```
+
+### Power feeds
+
+A device that can't meter itself can borrow readings from whatever feeds it. `power` lists PDU outlets or PoE ports by device id and slot id (outlet number, or the port's `ifName`):
+
+```json
+{ "id": "bengalfox", "power": [
+  { "device": "pdu-rack", "slot": "3", "label": "PSU 1" },
+  { "device": "pdu-rack", "slot": "4", "label": "PSU 2" }
+] }
+{ "id": "ntpi", "power": [ { "device": "switch-rack", "slot": "0/12", "label": "PoE" } ] }
+```
+
+The device gets a **Power** section with each feed and the total, and its draw is added to its summary. If one of several feeds is off, the device turns yellow, since it's running without its spare. The feeding outlet or port in turn shows what it powers. Readings are merged when the UI fetches the rack, so they're always the feeding device's latest.
 
 ### Transfer switch
 
