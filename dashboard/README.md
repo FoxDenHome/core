@@ -141,4 +141,18 @@ The UI is generic over those group kinds, so a new module needs no frontend work
 
 ## Container
 
-`Dockerfile` builds a `FROM scratch` image (about 8 MB) that reads `/config/config.json`, like foxIngress.
+`Dockerfile` builds a `FROM scratch` image (about 8 MB) that reads `/config/config.json`, like foxIngress. `.forgejo/workflows/dashboard.yml` tests it and, on `main`, pushes `git.foxden.network/foxden/dashboard:latest` for amd64 and arm64.
+
+`mikrotik/configure.py` runs it on `router` and `router-backup` at `172.17.2.2:8080`. It copies `config.json` to `/dashboard` on each router and passes the environment from `mikrotik/secrets/dashboard.yaml`, a sops file holding a flat map of variables:
+
+```sh
+sops mikrotik/secrets/dashboard.yaml   # from the repo root
+```
+
+```yaml
+SNMP_COMMUNITY: ...
+UNIFI_USERNAME: ...
+UNIFI_PASSWORD: ...
+```
+
+The values end up in a `/container/envs` list named `dashboard`. Changing them restarts the container on the next `configure.py` run.

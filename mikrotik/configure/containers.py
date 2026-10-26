@@ -200,6 +200,31 @@ def _refresh_network(api: Any, container: MTikContainer) -> bool:
     return veth_changed
 
 
+def _refresh_envs(api: Any, wanted: list[MTikContainer]) -> set[str]:
+    """Syncs /container/envs, returns the names of containers whose env changed."""
+    envs = api.get_resource("/container/envs")
+    missing = {
+        (container.name, key, value)
+        for container in wanted
+        for key, value in container.env
+    }
+    changed: set[str] = set()
+    for entry in envs.get():
+        item = (entry.get("list", ""), entry.get("key", ""), entry.get("value", ""))
+        if item in missing:
+            missing.remove(item)
+            continue
+        # Values are secrets, so only name the list and key
+        print("### Removing stray /container/envs entry", item[:2])
+        envs.remove(id=entry["id"])
+        changed.add(item[0])
+    for name, key, value in sorted(missing):
+        print("### Adding /container/envs entry", (name, key))
+        envs.add(list=name, key=key, value=value)
+        changed.add(name)
+    return changed
+
+
 def refresh_containers_router(
     router: MTikRouter,
     resolve: Callable[[str, str, str], str] = resolve_image_id,
@@ -215,6 +240,9 @@ def refresh_containers_router(
         values = [getattr(container, field) for container in wanted]
         if len(values) != len(set(values)):
             raise ValueError(f"Duplicate container {field} in {values}")
+
+    # Before the containers, which must not reference a missing list
+    env_changed = _refresh_envs(api, wanted)
 
     existing_map = {ct["name"]: ct for ct in containers.get()}
 
@@ -238,7 +266,9 @@ def refresh_containers_router(
             current.get("remote-image") != container.remote_image
             or current.get("image-id") != image_id
         )
-        restart_requested = container.name in router.container_restarts
+        restart_requested = (
+            container.name in router.container_restarts or container.name in env_changed
+        )
         if not (config_changes or image_changed or veth_changed or restart_requested):
             continue
 
@@ -278,12 +308,11 @@ def refresh_containers_router(
         _stop(containers, name)
         containers.remove(id=ct["id"])
 
-    # Mounts and envs are set inline on each container, so any lists are leftovers
-    for path in ("/container/mounts", "/container/envs"):
-        resource = api.get_resource(path)
-        for entry in resource.get():
-            print(f"### Removing stray {path} entry {entry.get('list')}")
-            resource.remove(id=entry["id"])
+    # Mounts are set inline on each container, so any lists are leftovers
+    mounts = api.get_resource("/container/mounts")
+    for entry in mounts.get():
+        print(f"### Removing stray /container/mounts entry {entry.get('list')}")
+        mounts.remove(id=entry["id"])
 
     used_interfaces = {container.interface for container in wanted}
     stray_veths = [

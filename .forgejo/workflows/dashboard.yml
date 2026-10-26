@@ -1,0 +1,61 @@
+# Builds dashboard/ into git.foxden.network/foxden/dashboard. Not named like
+# the shared docker.yml template, which builds from the repo root.
+#
+# Deploying to the routers is mikrotik/configure.py, which repulls :latest.
+name: Dashboard image
+
+concurrency:
+  group: dashboard-${{ github.ref }}
+  cancel-in-progress: true
+
+enable-openid-connect: true
+
+on:
+  pull_request:
+    paths:
+      - '.forgejo/workflows/dashboard.yml'
+      - 'dashboard/**'
+  push:
+    paths:
+      - '.forgejo/workflows/dashboard.yml'
+      - 'dashboard/**'
+    branches:
+      - main
+
+jobs:
+  dashboard:
+    runs-on: ${{ vars.MANAGED_RUNNER_TAG || 'ubuntu-26.04' }}
+    steps:
+      - id: jwt
+        run: get-actions-jwt
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+      - name: Check out the repo
+        uses: https://data.forgejo.org/actions/checkout@v7
+      - uses: https://data.forgejo.org/actions/setup-go@v7
+        with:
+          go-version-file: dashboard/go.mod
+          check-latest: true
+          cache: false
+      - name: Test
+        working-directory: dashboard
+        run: |
+          make test
+          go run ./cmd/foxden-dashboard -config config.json -check
+      - run: start-docker
+      - name: Log in to Docker Registry
+        uses: https://data.forgejo.org/docker/login-action@v4
+        with:
+          registry: git.foxden.network
+          username: forgejo
+          password: ${{ steps.jwt.outputs.jwt }}
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+      - name: Set up Docker Buildx
+        uses: https://data.forgejo.org/docker/setup-buildx-action@v4
+      - name: Build container image
+        uses: https://data.forgejo.org/docker/build-push-action@v7
+        with:
+          context: dashboard
+          platforms: linux/amd64,linux/arm64
+          push: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+          tags: |
+            git.foxden.network/foxden/dashboard:latest
