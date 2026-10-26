@@ -13,8 +13,11 @@
   --crit: #ff6b6b;
   --unknown: #8a95a8;
   --off: #3a4552;
-  --u: 32px;
-  --rail: 30px;
+  --u: 42px;
+  --rail: 24px;
+  /* a 600mm cabinet is ~13.5U wide; keep that ratio instead of stretching */
+  --rack-w: calc(var(--u) * 600 / 44.45);
+  --page-w: 1600px;
   --mono: ui-monospace, "JetBrains Mono", "SF Mono", "Cascadia Code", Menlo, Consolas, monospace;
   --sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 }
@@ -44,7 +47,7 @@ button:focus-visible { outline: 1px solid var(--accent); outline-offset: 1px; }
   display: flex;
   align-items: center;
   gap: 20px;
-  padding: 10px 16px;
+  padding: 10px max(16px, (100% - var(--page-w)) / 2);
   border-bottom: 1px solid var(--line);
   flex: none;
 }
@@ -70,6 +73,7 @@ button:focus-visible { outline: 1px solid var(--accent); outline-offset: 1px; }
   min-height: 0;
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
+  padding: 0 max(0px, (100% - var(--page-w)) / 2);
 }
 .rack-pane {
   border-right: 1px solid var(--line);
@@ -82,7 +86,7 @@ button:focus-visible { outline: 1px solid var(--accent); outline-offset: 1px; }
 /* ---------- rack ---------- */
 .rack {
   position: relative;
-  width: 680px;
+  width: var(--rack-w);
   border: 1px solid var(--line-strong);
   border-radius: 3px;
   padding: 6px 0;
@@ -142,7 +146,7 @@ button:focus-visible { outline: 1px solid var(--accent); outline-offset: 1px; }
 }
 .dev-name { display: flex; align-items: center; gap: 6px; font: 600 12px var(--mono); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .dev-sum { font: 10.5px var(--mono); color: var(--muted); overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
-.h1 .dev-sum { display: none; }
+.h1 .dev-sum { -webkit-line-clamp: 1; }
 .dot { flex: none; width: 7px; height: 7px; border-radius: 50%; border: 1.5px solid var(--s); }
 .dot.s-ok { background: var(--s); }
 .dot.s-warn, .dot.s-crit { background: var(--s); box-shadow: 0 0 6px var(--s); }
@@ -155,7 +159,6 @@ button:focus-visible { outline: 1px solid var(--accent); outline-offset: 1px; }
   padding: 3px 8px;
   overflow: hidden;
 }
-.h1 .dev-id { flex-direction: row; align-items: center; justify-content: flex-start; }
 .dev-side {
   flex: none;
   align-self: center;
@@ -164,8 +167,7 @@ button:focus-visible { outline: 1px solid var(--accent); outline-offset: 1px; }
   color: var(--muted);
   white-space: nowrap;
 }
-.h1 .dev-side { display: block; }
-.dev:not(.h1) .dev-side { display: none; }
+.dev-side { display: none; }
 
 /* shelf: children sit on a ledge */
 .dev.shelf { background: none; border-style: dashed; border-color: var(--line); padding: 3px 4px 5px; gap: 4px; cursor: default; }
@@ -371,7 +373,7 @@ button:focus-visible { outline: 1px solid var(--accent); outline-offset: 1px; }
 }
 
 /* remote sites: devices outside the rack, no U */
-.site { width: 680px; margin-top: 18px; }
+.site { width: var(--rack-w); margin-top: 18px; }
 .site-head {
   display: flex; align-items: center; gap: 10px;
   font: 600 11px var(--mono); color: var(--muted);
