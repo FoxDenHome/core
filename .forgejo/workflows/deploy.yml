@@ -3,6 +3,7 @@ on:
     paths:
       - '.forgejo/workflows/deploy.yml'
       - 'nix/**'
+      - 'vpn/**'
     branches:
       - main
 
