@@ -6,18 +6,21 @@ from os.path import join as path_join
 from shutil import copyfile, rmtree
 from subprocess import check_output
 
+from configure.dyndns import load_dyndns_hosts
 from configure.util import ROUTERS, MTikContainer, mtik_path
 
 OUT_PATH = mtik_path("out/dashboard")
 CONFIG_PATH = mtik_path("../dashboard/config.json")
 # Flat map of environment variables (SNMP_COMMUNITY, UNIFI_USERNAME, ...)
 SECRETS_PATH = mtik_path("secrets/dashboard.yaml")
+# dns.he.net dynamic TXT record the dashboard writes for DNS-01
+ACME_TXT_HOST = "_acme-challenge.status.foxden.network"
 
 CONTAINER = MTikContainer(
     name="dashboard",
     remote_image="git.foxden.network/foxden/dashboard:latest",
     subnet=2,
-    mounts=("/dashboard:/config:ro",),
+    mounts=("/dashboard:/config:ro", "/dashboard-data:/data:rw"),
 )
 
 
@@ -35,8 +38,18 @@ def load_secrets() -> tuple[tuple[str, str], ...]:
     return tuple(sorted(secrets.items()))
 
 
+def load_acme_dns_key() -> tuple[tuple[str, str], ...]:
+    host = load_dyndns_hosts().get(ACME_TXT_HOST)
+    if host is None:
+        # The dashboard serves plain HTTP only until terraform has made the record
+        print(f"### WARNING: No DDNS key for {ACME_TXT_HOST}, HTTPS stays off")
+        return ()
+    return (("ACME_DNS_KEY", host["key"]),)
+
+
 def refresh_dashboard():
-    container = replace(CONTAINER, env=load_secrets())
+    env = load_secrets() + load_acme_dns_key()
+    container = replace(CONTAINER, env=tuple(sorted(env)))
 
     rmtree(OUT_PATH, ignore_errors=True)
     makedirs(OUT_PATH, exist_ok=True)

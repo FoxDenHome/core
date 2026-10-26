@@ -452,6 +452,34 @@ DEFAULT_RULES_TAIL: list[FirewallRule] = [
             "protocol": "tcp",
         },
     ),
+    # From the LAN and from foxIngress
+    FirewallRule(
+        families=["ip", "ipv6"],
+        table="filter",
+        attribs={
+            "action": "accept",
+            "chain": "forward",
+            "comment": "dashboard HTTP(S)",
+            "dst-port": "80,443",
+            "in-interface-list": "zone-local",
+            "out-interface": DASHBOARD.interface,
+            "protocol": "tcp",
+        },
+    ),
+    # IPv6 from outside skips foxIngress: Ingress PT maps it straight to the container
+    FirewallRule(
+        families=["ipv6"],
+        table="filter",
+        attribs={
+            "action": "accept",
+            "chain": "forward",
+            "comment": "dashboard HTTP(S) (Pub)",
+            "dst-port": "80,443",
+            "in-interface-list": "zone-wan",
+            "out-interface": DASHBOARD.interface,
+            "protocol": "tcp",
+        },
+    ),
     FirewallRule(
         families=["ip", "ipv6"],
         table="filter",

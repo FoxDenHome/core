@@ -7,6 +7,14 @@
   "snmp": {
     "community": "${SNMP_COMMUNITY}"
   },
+  "tls": {
+    "domain": "status.foxden.network",
+    "email": "ssl@foxden.network",
+    "cache_dir": "/data",
+    "dns_key": "${ACME_DNS_KEY}",
+    "listen": ":443",
+    "http_listen": ":80"
+  },
   "devices": [
     {
       "id": "spares",

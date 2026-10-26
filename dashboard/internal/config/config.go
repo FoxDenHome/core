@@ -35,6 +35,23 @@ type Config struct {
 	// Remote lists sites outside the rack (colo, cloud) whose devices are
 	// shown below it. Their devices have no U.
 	Remote []Site `json:"remote"`
+	// TLS serves HTTPS with a Let's Encrypt certificate, next to Listen.
+	TLS *TLS `json:"tls,omitempty"`
+}
+
+type TLS struct {
+	Domain string `json:"domain"`
+	Email  string `json:"email,omitempty"`
+	// Directory is the ACME directory URL. Defaults to Let's Encrypt.
+	Directory string `json:"directory,omitempty"`
+	// CacheDir keeps the account key and certificate across restarts.
+	CacheDir string `json:"cache_dir"`
+	// DNSKey is the dns.he.net DDNS key of _acme-challenge.<domain>. HTTPS
+	// is off while it's empty, so the same config runs locally.
+	DNSKey string `json:"dns_key"`
+	Listen string `json:"listen"`
+	// HTTPListen redirects plain HTTP to HTTPS. Empty disables it.
+	HTTPListen string `json:"http_listen"`
 }
 
 type Site struct {
@@ -92,6 +109,14 @@ func Load(path string) (*Config, error) {
 	}
 	if err := json.Unmarshal([]byte(os.ExpandEnv(string(raw))), cfg); err != nil {
 		return nil, fmt.Errorf("parsing %s: %w", path, err)
+	}
+	if cfg.TLS != nil {
+		if cfg.TLS.Domain == "" || cfg.TLS.CacheDir == "" {
+			return nil, fmt.Errorf("%s: tls needs domain and cache_dir", path)
+		}
+		if cfg.TLS.Listen == "" {
+			cfg.TLS.Listen = ":443"
+		}
 	}
 	return cfg, nil
 }

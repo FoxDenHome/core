@@ -22,7 +22,10 @@ class SyncRouter(FakeRouter):
 
 class TestDashboard(unittest.TestCase):
     def run_refresh(
-        self, routers: list[SyncRouter], secrets: dict[str, object]
+        self,
+        routers: list[SyncRouter],
+        secrets: dict[str, object],
+        dyndns: dict[str, dict[str, str]] | None = None,
     ) -> None:
         with TemporaryDirectory() as tmp:
             config = path_join(tmp, "config.json")
@@ -38,6 +41,7 @@ class TestDashboard(unittest.TestCase):
                 patch.object(dashboard, "SECRETS_PATH", secrets_path),
                 patch.object(dashboard, "OUT_PATH", path_join(tmp, "out")),
                 patch.object(dashboard, "ROUTERS", routers),
+                patch.object(dashboard, "load_dyndns_hosts", return_value=dyndns or {}),
             ):
                 quiet(dashboard.refresh_dashboard)
 
@@ -46,17 +50,32 @@ class TestDashboard(unittest.TestCase):
             SyncRouter("router.foxden.network", ["config.json"]),
             SyncRouter("router-backup.foxden.network", []),
         ]
-        self.run_refresh(routers, {"UNIFI_PASSWORD": "pw", "SNMP_COMMUNITY": "c"})
+        self.run_refresh(
+            routers,
+            {"UNIFI_PASSWORD": "pw", "SNMP_COMMUNITY": "c"},
+            {dashboard.ACME_TXT_HOST: {"key": "ddns"}},
+        )
 
         for router in routers:
             self.assertEqual(router.synced, [("/dashboard", '{"title": "rack"}')])
             (container,) = router.containers
             self.assertEqual(container.name, "dashboard")
             self.assertEqual(
-                container.env, (("SNMP_COMMUNITY", "c"), ("UNIFI_PASSWORD", "pw"))
+                container.env,
+                (
+                    ("ACME_DNS_KEY", "ddns"),
+                    ("SNMP_COMMUNITY", "c"),
+                    ("UNIFI_PASSWORD", "pw"),
+                ),
             )
         self.assertEqual(routers[0].container_restarts, {"dashboard"})
         self.assertEqual(routers[1].container_restarts, set())
+
+    def test_no_acme_key_yet(self) -> None:
+        routers = [SyncRouter("router.foxden.network", [])]
+        self.run_refresh(routers, {"SNMP_COMMUNITY": "c"})
+        (container,) = routers[0].containers
+        self.assertEqual(container.env, (("SNMP_COMMUNITY", "c"),))
 
     def test_rejects_non_string_secret(self) -> None:
         with self.assertRaises(TypeError):

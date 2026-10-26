@@ -1,10 +1,11 @@
 import unittest
+from ipaddress import IPv6Address
 from os.path import join as path_join
 from tempfile import TemporaryDirectory
 from unittest.mock import patch
 
-from configure import dyndns
-from configure.util import MTikRouter
+from configure import dashboard, dyndns
+from configure.util import CONTAINER_IPV6_BASE, MTikRouter
 
 ROUTER_HOST = "router.foxden.network"
 
@@ -92,6 +93,15 @@ class TestDyndns(unittest.TestCase):
     def test_duplicate_special_hosts_errors(self) -> None:
         with self.assertRaises(RuntimeError):
             self.make_with_template("# HOSTS #\n# SPECIAL HOSTS #\n# SPECIAL HOSTS #\n")
+
+
+class TestDashboardPT(unittest.TestCase):
+    def test_template_matches_dashboard_subnet(self) -> None:
+        # The script ORs this suffix onto the router's /60 for Ingress PT
+        offset = int(CONTAINER_IPV6_BASE) & 0xFFFFFFFF
+        suffix = IPv6Address(offset + dashboard.CONTAINER.subnet * 256)
+        with open(dyndns.TEMPLATE) as f:
+            self.assertIn(f"($ip6addr | {suffix})", f.read())
 
 
 if __name__ == "__main__":

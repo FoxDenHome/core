@@ -38,6 +38,20 @@
     }
 }
 
+# The dashboard container's /120 (configure/dashboard.py), so Ingress PT maps it to its ULA
+:local ip6dashnet (($ip6addr | ::ac11:200) . "/120")
+:local ip6dashfind [ /ipv6/firewall/address-list/find list=ipv6-dhcp-ranges comment="PT dashboard" ]
+:if ([:len $ip6dashfind] != 1) do={
+    :if ([:len $ip6dashfind] > 0) do={
+        /ipv6/firewall/address-list/remove $ip6dashfind
+    }
+    /ipv6/firewall/address-list/add list=ipv6-dhcp-ranges comment="PT dashboard" address=$ip6dashnet
+} else={
+    :if ([/ipv6/firewall/address-list/get ($ip6dashfind->0) address] != $ip6dashnet) do={
+        /ipv6/firewall/address-list/set address=$ip6dashnet $ip6dashfind
+    }
+}
+
 /ipv6/firewall/nat/set [ find comment="Egress PT" to-address!=$ip6ptnet ] to-address=$ip6ptnet
 /ipv6/firewall/nat/set [ find comment="VPN Masq" to-address!=$ip6vpnnet ] to-address=$ip6vpnnet
 # END update hairpins

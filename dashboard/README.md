@@ -156,3 +156,19 @@ UNIFI_PASSWORD: ...
 ```
 
 The values end up in a `/container/envs` list named `dashboard`. Changing them restarts the container on the next `configure.py` run.
+
+### HTTPS
+
+With a `tls` block the dashboard also serves HTTPS, plus a redirect from plain HTTP:
+
+```json
+"tls": {
+  "domain": "status.foxden.network", "email": "ssl@foxden.network",
+  "cache_dir": "/data", "dns_key": "${ACME_DNS_KEY}",
+  "listen": ":443", "http_listen": ":80"
+}
+```
+
+The certificate comes from Let's Encrypt over DNS-01. The dashboard writes the challenge to `_acme-challenge.<domain>`, a dns.he.net dynamic TXT record, using that record's DDNS key. So every router gets its own certificate, whether or not it is the VRRP master. `configure.py` reads the key from the tofu output `he_dynamic_keys`, like dyndns does, and passes it as `ACME_DNS_KEY`. While `dns_key` is empty, HTTPS stays off, so the same config runs locally. The account key and certificate live in `/data` (`/dashboard-data` on the router) and are renewed 30 days before expiry.
+
+`status.foxden.network` is set up in `nix/systems/x86_64-linux/landevices/status.nix`. From outside, it is a dyndns record that `router` keeps up to date. IPv4 goes through `router`'s foxIngress. For IPv6, the dyndns script adds the container's /120 to the Ingress PT ranges, so it maps straight to the container's ULA. Inside, the name resolves to the container addresses (`172.17.2.2`, `fd2c:f4cb:63be::ac11:202`), which the client's gateway routes to its own dashboard.
