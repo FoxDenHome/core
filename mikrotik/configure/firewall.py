@@ -4,6 +4,7 @@ from json import load as json_load
 from subprocess import check_output
 from typing import Any
 
+from configure.dashboard import CONTAINER as DASHBOARD
 from configure.foxingress import CONTAINER as FOXINGRESS
 from configure.foxmail import CONTAINER as FOXMAIL
 from configure.util import (
@@ -345,6 +346,34 @@ DEFAULT_RULES_TAIL: list[FirewallRule] = [
             "chain": "forward",
             "in-interface": FOXMAIL.interface,
             "out-interface": "wg-s2s",
+        },
+    ),
+    # IPv4 only: the "Containers" masquerade hides that every router's dashboard
+    # has the same address, IPv6 has no such NAT
+    FirewallRule(
+        families=["ip"],
+        table="filter",
+        attribs={
+            "action": "accept",
+            "chain": "forward",
+            "comment": "dashboard SNMP",
+            "dst-port": "161",
+            "in-interface": DASHBOARD.interface,
+            "out-interface-list": "zone-local",
+            "protocol": "udp",
+        },
+    ),
+    FirewallRule(
+        families=["ip"],
+        table="filter",
+        attribs={
+            "action": "accept",
+            "chain": "forward",
+            "comment": "dashboard UniFi, node_exporter, smartctl_exporter",
+            "dst-port": "443,9100,9633",
+            "in-interface": DASHBOARD.interface,
+            "out-interface-list": "zone-local",
+            "protocol": "tcp",
         },
     ),
     FirewallRule(
