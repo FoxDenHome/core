@@ -92,31 +92,38 @@ in
           wantedBy = [ "multi-user.target" ];
         };
 
-        systemd.services.e621dumper-refresh = {
-          confinement.packages = [ pkgs.e621dumper ];
-          path = [ pkgs.e621dumper ];
-
-          serviceConfig = {
-            BindPaths = [
-              svcConfig.dataDir
+        systemd.services.e621dumper-refresh =
+          let
+            deps = with pkgs; [
+              e621dumper
+              coreutils
             ];
+          in
+          {
+            confinement.packages = deps;
+            path = deps;
 
-            Type = "simple";
-            Restart = "no";
-            RuntimeMaxSec = "20h";
+            serviceConfig = {
+              BindPaths = [
+                svcConfig.dataDir
+              ];
 
-            User = "e621dumper";
-            Group = "e621dumper";
+              Type = "simple";
+              Restart = "no";
+              RuntimeMaxSec = "20h";
 
-            ExecStart = [ "${pkgs.bash}/bin/bash ${pkgs.e621dumper}/lib/node_modules/e621dumper/looper.sh" ];
-            StateDirectory = ifDefaultData "e621dumper";
+              User = "e621dumper";
+              Group = "e621dumper";
 
-            EnvironmentFile = config.lib.foxDen.sops.mkIfAvailable config.sops.secrets.e621dumper.path;
-            Environment = [
-              "\"DOWNLOAD_PATH=${svcConfig.dataDir}\""
-            ];
+              ExecStart = [ "${pkgs.bash}/bin/bash ${pkgs.e621dumper}/lib/node_modules/e621dumper/looper.sh" ];
+              StateDirectory = ifDefaultData "e621dumper";
+
+              EnvironmentFile = config.lib.foxDen.sops.mkIfAvailable config.sops.secrets.e621dumper.path;
+              Environment = [
+                "\"DOWNLOAD_PATH=${svcConfig.dataDir}\""
+              ];
+            };
           };
-        };
 
         systemd.timers.e621dumper-refresh = {
           wantedBy = [ "timers.target" ];
