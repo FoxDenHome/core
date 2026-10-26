@@ -49,6 +49,8 @@ class MTikContainer:
     remote_image: str
     subnet: int
     mounts: tuple[str, ...] = ()
+    # (key, value) pairs, kept in the /container/envs list named after the container
+    env: tuple[tuple[str, str], ...] = field(default=(), repr=False)
     workdir: str = "/"
     restart_policy: str = "always"
     restart_interval: str = "15s"
@@ -78,6 +80,7 @@ class MTikContainer:
             "interface": self.interface,
             "dns": self.ipv4(ROUTER_HOST),
             "mount": ",".join(self.mounts),
+            "envlists": self.name if self.env else "",
             "root-dir": f"/{self.name}-root",
             "workdir": self.workdir,
             "restart-policy": self.restart_policy,

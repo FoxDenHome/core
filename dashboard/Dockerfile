@@ -17,5 +17,6 @@ RUN go build -ldflags="-s -w" -trimpath -o /foxden-dashboard ./cmd/foxden-dashbo
 FROM scratch AS default
 EXPOSE 8080
 ENV CONFIG_FILE=/config/config.json
+COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 COPY --from=builder /foxden-dashboard /foxden-dashboard
 ENTRYPOINT [ "/foxden-dashboard" ]

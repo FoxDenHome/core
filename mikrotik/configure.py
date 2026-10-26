@@ -4,6 +4,7 @@ from contextlib import contextmanager
 from subprocess import CalledProcessError
 
 from configure.containers import refresh_containers
+from configure.dashboard import refresh_dashboard
 from configure.dhcp import refresh_dhcp
 from configure.dns import refresh_dns
 from configure.dyndns import refresh_dyndns
@@ -37,6 +38,8 @@ def main():
         refresh_foxingress()
         print("# foxMail configuration")
         refresh_foxmail()
+        print("# Dashboard configuration")
+        refresh_dashboard()
         # Must run after the modules above as they register containers
         print("# Container configuration")
         refresh_containers()

@@ -1,7 +1,8 @@
 import unittest
+from dataclasses import replace
 from unittest.mock import patch
 
-from configure import foxingress, foxmail
+from configure import dashboard, foxingress, foxmail
 from configure.containers import parse_image_ref, refresh_containers_router
 from configure.util import CONTAINER_HOST, ROUTER_HOST, MTikContainer
 from tests.fakes import FakeResource, FakeRouter, quiet
@@ -119,6 +120,16 @@ class TestMTikContainer(unittest.TestCase):
         self.assertEqual(foxingress.CONTAINER.subnet, 0)
         self.assertEqual(foxmail.CONTAINER.interface, "veth-foxmail")
         self.assertEqual(foxmail.CONTAINER.subnet, 1)
+        self.assertEqual(dashboard.CONTAINER.interface, "veth-dashboard")
+        self.assertEqual(dashboard.CONTAINER.subnet, 2)
+
+    def test_env_is_hidden(self) -> None:
+        container = MTikContainer(
+            name="x", remote_image="x", subnet=3, env=(("KEY", "secret"),)
+        )
+        self.assertNotIn("secret", repr(container))
+        self.assertEqual(container.attribs()["envlists"], "x")
+        self.assertEqual(CT.attribs()["envlists"], "")
 
 
 class TestParseImageRef(unittest.TestCase):
@@ -249,6 +260,42 @@ class TestRefreshContainersRouter(unittest.TestCase):
             [r["interface"] for r in res[IPV6].rows], [CT.interface, TOR.interface]
         )
         self.assertEqual([r["interface"] for r in res[MEMBER].rows], [CT.interface])
+
+    def test_creates_env_list(self) -> None:
+        ct = replace(CT, env=(("A", "1"), ("B", "2")))
+        router = run([ct], [])
+        envs = router.resources["/container/envs"]
+        self.assertEqual(
+            envs.attribs(),
+            [
+                {"list": "foxmail", "key": "A", "value": "1"},
+                {"list": "foxmail", "key": "B", "value": "2"},
+            ],
+        )
+        self.assertEqual(router.resources[CONTAINER].rows[0]["envlists"], "foxmail")
+
+    def test_env_noop_when_up_to_date(self) -> None:
+        ct = replace(CT, env=(("A", "1"),))
+        network = network_rows(ct)
+        network["/container/envs"] = [{"list": "foxmail", "key": "A", "value": "1"}]
+        router = run([ct], [ct_row(ct)], network)
+        self.assertEqual(router.resources[CONTAINER].ops, [])
+        self.assertEqual(router.resources["/container/envs"].ops, [])
+
+    def test_env_change_restarts_container(self) -> None:
+        ct = replace(CT, env=(("A", "2"),))
+        network = network_rows(ct)
+        network["/container/envs"] = [
+            {"list": "foxmail", "key": "A", "value": "1"},
+            {"list": "pdns", "key": "X", "value": "y"},
+        ]
+        router = run([ct], [ct_row(ct)], network)
+        self.assertEqual(
+            router.resources["/container/envs"].attribs(),
+            [{"list": "foxmail", "key": "A", "value": "2"}],
+        )
+        self.assertEqual(router.resources[CONTAINER].count("stop"), 1)
+        self.assertEqual(router.resources[CONTAINER].count("start"), 1)
 
     def test_rejects_duplicate_subnets(self) -> None:
         clash = MTikContainer(name="other", remote_image="x", subnet=CT.subnet)

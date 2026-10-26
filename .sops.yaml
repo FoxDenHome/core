@@ -5,3 +5,7 @@ creation_rules:
     key_groups:
       - age:
         - *admin_doridian_keepassxc
+  - path_regex: '^mikrotik/secrets/'
+    key_groups:
+      - age:
+        - *admin_doridian_keepassxc
