@@ -404,6 +404,7 @@ func (t *tray) refresh() {
 
 func (t *tray) renderNetworks(st *api.Status, full bool) {
 	seen := map[string]bool{}
+	added := false
 	for _, n := range st.Networks {
 		seen[n.Name] = true
 		item, ok := t.nets[n.Name]
@@ -412,6 +413,7 @@ func (t *tray) renderNetworks(st *api.Status, full bool) {
 			item = t.mNetworks.AddSubMenuItemCheckbox(name, strings.Join(n.Prefixes, "\n"), n.Enabled)
 			t.nets[name] = item
 			t.netOrder = append(t.netOrder, name)
+			added = true
 			t.onClick(item, func(st *api.Status) api.SettingsUpdate {
 				enabled := true
 				for _, x := range st.Networks {
@@ -441,6 +443,9 @@ func (t *tray) renderNetworks(st *api.Status, full bool) {
 		t.ui.show(t.mNetPlaceholder, true)
 	} else {
 		t.ui.show(t.mNetPlaceholder, false)
+	}
+	if added {
+		relayout(t.mNetworks)
 	}
 	t.ui.enable(t.mNetworks, true)
 	if full {
@@ -474,12 +479,14 @@ func serviceTitle(s api.Service) string {
 }
 
 func (t *tray) renderServices(st *api.Status) {
+	added := false
 	for _, s := range st.Services {
 		item, ok := t.svcs[s.Name]
 		if !ok {
 			name := s.Name
 			item = t.mServices.AddSubMenuItemCheckbox(name, s.Description, false)
 			t.svcs[name] = item
+			added = true
 			go func() {
 				for range item.ClickedCh {
 					t.toggleService(name)
@@ -492,6 +499,9 @@ func (t *tray) renderServices(st *api.Status) {
 		t.ui.show(item, true)
 	}
 	t.ui.show(t.mSvcPlaceholder, len(st.Services) == 0)
+	if added {
+		relayout(t.mServices)
+	}
 }
 
 func (t *tray) toggleService(name string) {
