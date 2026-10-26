@@ -16,7 +16,7 @@ terraform {
     }
     fastly = {
       source  = "fastly/fastly"
-      version = "~> 10.0.0"
+      version = "~> 10.1.0"
     }
     dns-he-net = {
       source  = "SuperBuker/dns-he-net"
