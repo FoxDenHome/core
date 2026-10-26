@@ -1,6 +1,8 @@
 import unittest
 from dataclasses import replace
+from email.message import Message
 from unittest.mock import patch
+from urllib.error import HTTPError
 
 from configure import dashboard, foxingress, foxmail
 from configure.containers import parse_image_ref, refresh_containers_router
@@ -68,6 +70,7 @@ def run(
     deployed: list[dict[str, str]],
     network: dict[str, list[dict[str, str]]] | None = None,
     restarts: set[str] | None = None,
+    missing: set[str] | None = None,
 ) -> FakeRouter:
     resources = {
         CONTAINER: FakeContainers(deployed, image_id="new"),
@@ -83,6 +86,8 @@ def run(
 
     def resolve(ref: str, os: str, arch: str) -> str:
         resolved.append((ref, os, arch))
+        if ref in (missing or set()):
+            raise HTTPError(ref, 404, "Not Found", Message(), None)
         return "new"
 
     with patch("configure.containers.sleep"):
@@ -296,6 +301,19 @@ class TestRefreshContainersRouter(unittest.TestCase):
         )
         self.assertEqual(router.resources[CONTAINER].count("stop"), 1)
         self.assertEqual(router.resources[CONTAINER].count("start"), 1)
+
+    def test_skips_unpublished_image(self) -> None:
+        router = run([CT, TOR], [], {}, missing={TOR.remote_image})
+        res = router.resources
+        self.assertEqual([r["name"] for r in res[CONTAINER].rows], ["foxmail"])
+        self.assertEqual([r["name"] for r in res[VETH].rows], [CT.interface])
+
+    def test_keeps_deployed_container_without_image(self) -> None:
+        router = run(
+            [CT], [ct_row(CT, **{"image-id": "old"})], missing={CT.remote_image}
+        )
+        for resource in router.resources.values():
+            self.assertEqual(resource.ops, [])
 
     def test_rejects_duplicate_subnets(self) -> None:
         clash = MTikContainer(name="other", remote_image="x", subnet=CT.subnet)
