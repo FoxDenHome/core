@@ -3,7 +3,7 @@ from contextlib import redirect_stdout
 from io import StringIO
 from typing import Any, TypeVar
 
-from configure.util import MTikContainer, MTikScript
+from configure.util import MTikContainer, MTikFirewallRule, MTikScript
 
 T = TypeVar("T")
 
@@ -108,6 +108,7 @@ class FakeRouter:
         self.scripts = scripts or set()
         self.containers = containers or set()
         self.container_restarts: set[str] = set()
+        self.firewall_rules: list[MTikFirewallRule] = []
         self.resources = resources if resources is not None else {}
         self._connection = FakeConnection(FakeApi(self.resources))
 

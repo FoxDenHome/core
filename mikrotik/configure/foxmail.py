@@ -4,7 +4,15 @@ from os.path import join as path_join
 from shutil import rmtree
 from subprocess import check_output
 
-from configure.util import NIX_DIR, ROUTER_HOST, ROUTERS, MTikContainer, mtik_path
+from configure.util import (
+    CONTAINER_HOST,
+    NIX_DIR,
+    ROUTER_HOST,
+    ROUTERS,
+    MTikContainer,
+    MTikFirewallRule,
+    mtik_path,
+)
 
 OUT_PATH = mtik_path("out/foxmail")
 
@@ -14,6 +22,56 @@ CONTAINER = MTikContainer(
     subnet=1,
     mounts=("/foxmail:/config:ro", "/foxmail-data:/data:rw"),
 )
+
+FIREWALL_RULES = [
+    MTikFirewallRule(
+        families=["ip"],
+        table="nat",
+        attribs={
+            "action": "dst-nat",
+            "chain": "local-port-forward",
+            "comment": "foxMail TCP (Priv)",
+            "dst-port": "2525,9002",
+            "protocol": "tcp",
+            "to-addresses": CONTAINER.ipv4(CONTAINER_HOST),
+        },
+    ),
+    MTikFirewallRule(
+        families=["ipv6"],
+        table="nat",
+        attribs={
+            "action": "dst-nat",
+            "chain": "local-port-forward",
+            "comment": "foxMail TCP (Priv)",
+            "dst-port": "2525,9002",
+            "protocol": "tcp",
+            "to-address": f"{CONTAINER.ipv6(CONTAINER_HOST)}/128",
+        },
+    ),
+    MTikFirewallRule(
+        families=["ip", "ipv6"],
+        table="filter",
+        attribs={
+            "action": "accept",
+            "chain": "forward",
+            "in-interface": CONTAINER.interface,
+            "out-interface": "wg-s2s",
+        },
+    ),
+    MTikFirewallRule(
+        families=["ip", "ipv6"],
+        table="filter",
+        attribs={
+            "action": "accept",
+            "chain": "forward",
+            "comment": "foxMail TCP (Priv)",
+            "dst-port": "2525,9002",
+            "in-interface-list": "zone-local",
+            "out-interface": CONTAINER.interface,
+            "protocol": "tcp",
+        },
+    ),
+]
 
 
 def refresh_foxmail():
@@ -41,6 +99,7 @@ def refresh_foxmail():
             continue
         print(f"## {router.host}")
         router.containers.add(CONTAINER)
+        router.firewall_rules.extend(FIREWALL_RULES)
 
         config["sender"]["proxy"] = "socks5://10.99.10.1:1080"
         config["sender"]["domain"] = "redfox.doridian.net"

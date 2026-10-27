@@ -34,6 +34,14 @@ class MTikScript:
     run_on_change: bool = False
 
 
+@dataclass(frozen=True, kw_only=True)
+class MTikFirewallRule:
+    families: list[str]
+    table: str
+    attribs: dict[str, str]
+    ignoreChanges: set[str] = field(default_factory=set)
+
+
 # Each container gets subnet X: 172.17.X.0/24 and CONTAINER_IPV6_BASE + X/120,
 # with .1 on the router side of its veth and .2 in the container
 CONTAINER_IPV4_NET = "172.17.0.0/16"
@@ -120,6 +128,8 @@ class MTikRouter:
     containers: set[MTikContainer] = field(default_factory=set)
     # Containers whose config files changed, restarted by refresh_containers
     container_restarts: set[str] = field(default_factory=set)
+    # Placed after the default head rules and before the nix generated ones
+    firewall_rules: list[MTikFirewallRule] = field(default_factory=list)
 
     _connection_cache: RouterOsApiPool | None = None
     _username: str = "foxden-core-configure"

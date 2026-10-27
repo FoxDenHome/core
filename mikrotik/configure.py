@@ -47,6 +47,7 @@ def main():
         refresh_dns()
         print("# DHCP configuration")
         refresh_dhcp()
+        # Must run after the modules above as they register firewall rules
         print("# Firewall configuration")
         refresh_firewall()
         print("# VRRP configuration")

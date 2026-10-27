@@ -1,6 +1,12 @@
+import json
 import unittest
+from os.path import join as path_join
+from tempfile import TemporaryDirectory
+from unittest.mock import patch
 
-from configure.firewall import FirewallRule, refresh_firewall_router
+from configure import firewall
+from configure.firewall import refresh_firewall_router
+from configure.util import MTikFirewallRule
 from tests.fakes import FakeResource, FakeRouter, quiet
 
 FILTER = "/ip/firewall/filter"
@@ -14,15 +20,15 @@ def rule(
     name: str,
     families: list[str] | None = None,
     **extra: str,
-) -> FirewallRule:
-    return FirewallRule(
+) -> MTikFirewallRule:
+    return MTikFirewallRule(
         families=families or ["ip"],
         table="filter",
         attribs=r(name, **extra),
     )
 
 
-def run(desired: list[FirewallRule], deployed: dict[str, list[dict[str, str]]]):
+def run(desired: list[MTikFirewallRule], deployed: dict[str, list[dict[str, str]]]):
     resources = {key: FakeResource(rules) for key, rules in deployed.items()}
     quiet(refresh_firewall_router, desired, FakeRouter(resources))
     return resources
@@ -45,7 +51,7 @@ class TestRefreshFirewallRouter(unittest.TestCase):
 
     def test_respects_rule_ignore_changes(self) -> None:
         desired = [
-            FirewallRule(
+            MTikFirewallRule(
                 families=["ip"],
                 table="filter",
                 attribs=r("a", **{"dst-address": "1.1.1.1"}),
@@ -137,7 +143,7 @@ class TestRefreshFirewallRouter(unittest.TestCase):
             rule("both", families=["ip", "ipv6"]),
             rule("v4"),
             rule("v6", families=["ipv6"]),
-            FirewallRule(
+            MTikFirewallRule(
                 families=["ip"], table="nat", attribs=r("nat", chain="srcnat")
             ),
         ]
@@ -152,6 +158,49 @@ class TestRefreshFirewallRouter(unittest.TestCase):
         self.assertEqual(res[FILTER].ops, [("move", res[FILTER].ops[0][1])])
         self.assertEqual(res["/ipv6/firewall/filter"].attribs(), [r("both"), r("v6")])
         self.assertEqual(res["/ip/firewall/nat"].attribs(), [r("nat", chain="srcnat")])
+
+
+class TestRefreshFirewall(unittest.TestCase):
+    def test_router_rules_go_between_head_and_nix_rules(self) -> None:
+        module_rule = rule("module")
+        router = FakeRouter()
+        router.firewall_rules.append(module_rule)
+        external = FakeRouter()
+        external.horizon = "external"
+        nix_rules = [
+            {
+                "table": "filter",
+                "chain": "forward",
+                "action": "accept",
+                "comment": "nix",
+            }
+        ]
+        applied: list[tuple[list[MTikFirewallRule], object]] = []
+        with TemporaryDirectory() as tmp:
+            src = path_join(tmp, "firewall.json")
+            with open(src, "w") as f:
+                json.dump(nix_rules, f)
+            with (
+                patch.object(firewall, "check_output", return_value=src.encode()),
+                patch.object(firewall, "ROUTERS", [router, external]),
+                patch.object(
+                    firewall,
+                    "refresh_firewall_router",
+                    lambda rules, rtr: applied.append((rules, rtr)),
+                ),
+            ):
+                firewall.refresh_firewall()
+
+        self.assertEqual(len(applied), 1)
+        rules, target = applied[0]
+        self.assertIs(target, router)
+        head = len(firewall.DEFAULT_RULES_HEAD)
+        tail = len(firewall.DEFAULT_RULES_TAIL)
+        self.assertEqual(len(rules), head + 2 + tail)
+        self.assertEqual(rules[head].attribs["comment"], "module")
+        self.assertEqual(rules[head + 1].attribs["comment"], "nix")
+        self.assertTrue(all(r.attribs["disabled"] == "false" for r in rules))
+        self.assertNotIn("disabled", module_rule.attribs)
 
 
 if __name__ == "__main__":

@@ -1,36 +1,24 @@
 from bisect import bisect_left
-from dataclasses import dataclass, field
+from dataclasses import replace
 from json import load as json_load
 from subprocess import check_output
 from typing import Any
 
-from configure.dashboard import CONTAINER as DASHBOARD
-from configure.foxingress import CONTAINER as FOXINGRESS
-from configure.foxmail import CONTAINER as FOXMAIL
 from configure.util import (
-    CONTAINER_HOST,
     CONTAINER_IPV4_NET,
     NIX_DIR,
     ROUTERS,
+    MTikFirewallRule,
     MTikRouter,
     format_mtik_bool,
     format_weird_mtik_ip,
     is_ipv6,
 )
 
-
-@dataclass(frozen=True, kw_only=True)
-class FirewallRule:
-    families: list[str]
-    table: str
-    attribs: dict[str, str]
-    ignoreChanges: set[str] = field(default_factory=set)
-
-
 IGNORE_CHANGES = {"id", "invalid", "packets", "bytes", "dynamic"}
 
-DEFAULT_RULES_HEAD: list[FirewallRule] = [
-    FirewallRule(
+DEFAULT_RULES_HEAD: list[MTikFirewallRule] = [
+    MTikFirewallRule(
         families=["ip", "ipv6"],
         table="filter",
         attribs={
@@ -40,7 +28,7 @@ DEFAULT_RULES_HEAD: list[FirewallRule] = [
             "out-interface-list": "zone-wan",
         },
     ),
-    FirewallRule(
+    MTikFirewallRule(
         families=["ip", "ipv6"],
         table="filter",
         attribs={
@@ -50,7 +38,7 @@ DEFAULT_RULES_HEAD: list[FirewallRule] = [
             "out-interface-list": "no-internet",
         },
     ),
-    FirewallRule(
+    MTikFirewallRule(
         families=["ip"],
         table="filter",
         attribs={
@@ -59,7 +47,7 @@ DEFAULT_RULES_HEAD: list[FirewallRule] = [
             "protocol": "icmp",
         },
     ),
-    FirewallRule(
+    MTikFirewallRule(
         families=["ipv6"],
         table="filter",
         attribs={
@@ -68,7 +56,7 @@ DEFAULT_RULES_HEAD: list[FirewallRule] = [
             "protocol": "icmpv6",
         },
     ),
-    FirewallRule(
+    MTikFirewallRule(
         families=["ip", "ipv6"],
         table="filter",
         attribs={
@@ -79,7 +67,7 @@ DEFAULT_RULES_HEAD: list[FirewallRule] = [
             "reject-with": "icmp-admin-prohibited",
         },
     ),
-    FirewallRule(
+    MTikFirewallRule(
         families=["ip"],
         table="filter",
         attribs={
@@ -89,7 +77,7 @@ DEFAULT_RULES_HEAD: list[FirewallRule] = [
             "connection-state": "established,related",
         },
     ),
-    FirewallRule(
+    MTikFirewallRule(
         families=["ipv6"],
         table="filter",
         attribs={
@@ -99,7 +87,7 @@ DEFAULT_RULES_HEAD: list[FirewallRule] = [
             "connection-state": "established,related",
         },
     ),
-    FirewallRule(
+    MTikFirewallRule(
         families=["ip", "ipv6"],
         table="filter",
         attribs={
@@ -109,7 +97,7 @@ DEFAULT_RULES_HEAD: list[FirewallRule] = [
             "connection-state": "established,related",
         },
     ),
-    FirewallRule(
+    MTikFirewallRule(
         families=["ip"],
         table="nat",
         attribs={
@@ -119,7 +107,7 @@ DEFAULT_RULES_HEAD: list[FirewallRule] = [
             "out-interface": "wan",
         },
     ),
-    FirewallRule(
+    MTikFirewallRule(
         families=["ip"],
         table="nat",
         attribs={
@@ -129,7 +117,7 @@ DEFAULT_RULES_HEAD: list[FirewallRule] = [
             "dst-address": "10.2.1.1",
         },
     ),
-    FirewallRule(
+    MTikFirewallRule(
         families=["ip"],
         table="nat",
         attribs={
@@ -139,7 +127,7 @@ DEFAULT_RULES_HEAD: list[FirewallRule] = [
             "dst-address": "10.2.1.2",
         },
     ),
-    FirewallRule(
+    MTikFirewallRule(
         families=["ipv6"],
         table="nat",
         attribs={
@@ -149,7 +137,7 @@ DEFAULT_RULES_HEAD: list[FirewallRule] = [
             "dst-address": "fd2c:f4cb:63be:2::101/128",
         },
     ),
-    FirewallRule(
+    MTikFirewallRule(
         families=["ipv6"],
         table="nat",
         attribs={
@@ -159,7 +147,7 @@ DEFAULT_RULES_HEAD: list[FirewallRule] = [
             "dst-address": "fd2c:f4cb:63be:2::102/128",
         },
     ),
-    FirewallRule(
+    MTikFirewallRule(
         families=["ip"],
         table="nat",
         attribs={
@@ -171,7 +159,7 @@ DEFAULT_RULES_HEAD: list[FirewallRule] = [
             "src-address": "!100.68.41.0/24",
         },
     ),
-    FirewallRule(
+    MTikFirewallRule(
         families=["ip"],
         table="nat",
         attribs={
@@ -181,7 +169,7 @@ DEFAULT_RULES_HEAD: list[FirewallRule] = [
             "src-address": CONTAINER_IPV4_NET,
         },
     ),
-    FirewallRule(
+    MTikFirewallRule(
         families=["ip"],
         table="nat",
         attribs={
@@ -193,7 +181,7 @@ DEFAULT_RULES_HEAD: list[FirewallRule] = [
         },
         ignoreChanges={"dst-address"},
     ),
-    FirewallRule(
+    MTikFirewallRule(
         families=["ip"],
         table="nat",
         attribs={
@@ -204,7 +192,7 @@ DEFAULT_RULES_HEAD: list[FirewallRule] = [
             "jump-target": "port-forward",
         },
     ),
-    FirewallRule(
+    MTikFirewallRule(
         families=["ip"],
         table="nat",
         attribs={
@@ -215,7 +203,7 @@ DEFAULT_RULES_HEAD: list[FirewallRule] = [
             "jump-target": "port-forward",
         },
     ),
-    FirewallRule(
+    MTikFirewallRule(
         families=["ip", "ipv6"],
         table="nat",
         attribs={
@@ -227,43 +215,7 @@ DEFAULT_RULES_HEAD: list[FirewallRule] = [
             "jump-target": "local-port-forward",
         },
     ),
-    FirewallRule(
-        families=["ip"],
-        table="nat",
-        attribs={
-            "action": "dst-nat",
-            "chain": "local-port-forward",
-            "comment": "foxIngress TCP (Priv)",
-            "dst-port": "9001",
-            "protocol": "tcp",
-            "to-addresses": FOXINGRESS.ipv4(CONTAINER_HOST),
-        },
-    ),
-    FirewallRule(
-        families=["ip"],
-        table="nat",
-        attribs={
-            "action": "dst-nat",
-            "chain": "port-forward",
-            "comment": "foxIngress TCP (Pub)",
-            "dst-port": "80,443",
-            "protocol": "tcp",
-            "to-addresses": FOXINGRESS.ipv4(CONTAINER_HOST),
-        },
-    ),
-    FirewallRule(
-        families=["ip"],
-        table="nat",
-        attribs={
-            "action": "dst-nat",
-            "chain": "local-port-forward",
-            "comment": "foxMail TCP (Priv)",
-            "dst-port": "2525,9002",
-            "protocol": "tcp",
-            "to-addresses": FOXMAIL.ipv4(CONTAINER_HOST),
-        },
-    ),
-    FirewallRule(
+    MTikFirewallRule(
         families=["ipv6"],
         table="nat",
         attribs={
@@ -276,7 +228,7 @@ DEFAULT_RULES_HEAD: list[FirewallRule] = [
         },
         ignoreChanges={"to-address"},
     ),
-    FirewallRule(
+    MTikFirewallRule(
         families=["ipv6"],
         table="nat",
         attribs={
@@ -288,7 +240,7 @@ DEFAULT_RULES_HEAD: list[FirewallRule] = [
         },
         ignoreChanges={"dst-address"},
     ),
-    FirewallRule(
+    MTikFirewallRule(
         families=["ipv6"],
         table="nat",
         attribs={
@@ -302,33 +254,9 @@ DEFAULT_RULES_HEAD: list[FirewallRule] = [
         },
         ignoreChanges={"to-address"},
     ),
-    FirewallRule(
-        families=["ipv6"],
-        table="nat",
-        attribs={
-            "action": "dst-nat",
-            "chain": "local-port-forward",
-            "comment": "foxIngress TCP (Priv)",
-            "dst-port": "9001",
-            "protocol": "tcp",
-            "to-address": f"{FOXINGRESS.ipv6(CONTAINER_HOST)}/128",
-        },
-    ),
-    FirewallRule(
-        families=["ipv6"],
-        table="nat",
-        attribs={
-            "action": "dst-nat",
-            "chain": "local-port-forward",
-            "comment": "foxMail TCP (Priv)",
-            "dst-port": "2525,9002",
-            "protocol": "tcp",
-            "to-address": f"{FOXMAIL.ipv6(CONTAINER_HOST)}/128",
-        },
-    ),
 ]
-DEFAULT_RULES_TAIL: list[FirewallRule] = [
-    FirewallRule(
+DEFAULT_RULES_TAIL: list[MTikFirewallRule] = [
+    MTikFirewallRule(
         families=["ip", "ipv6"],
         table="filter",
         attribs={
@@ -338,45 +266,7 @@ DEFAULT_RULES_TAIL: list[FirewallRule] = [
             "out-interface-list": "zone-wan",
         },
     ),
-    FirewallRule(
-        families=["ip", "ipv6"],
-        table="filter",
-        attribs={
-            "action": "accept",
-            "chain": "forward",
-            "in-interface": FOXMAIL.interface,
-            "out-interface": "wg-s2s",
-        },
-    ),
-    # IPv4 only: the "Containers" masquerade hides that every router's dashboard
-    # has the same address, IPv6 has no such NAT
-    FirewallRule(
-        families=["ip"],
-        table="filter",
-        attribs={
-            "action": "accept",
-            "chain": "forward",
-            "comment": "dashboard SNMP",
-            "dst-port": "161",
-            "in-interface": DASHBOARD.interface,
-            "out-interface-list": "zone-local",
-            "protocol": "udp",
-        },
-    ),
-    FirewallRule(
-        families=["ip"],
-        table="filter",
-        attribs={
-            "action": "accept",
-            "chain": "forward",
-            "comment": "dashboard tape library telnet, UniFi, node_exporter, smartctl_exporter",
-            "dst-port": "23,443,9100,9633",
-            "in-interface": DASHBOARD.interface,
-            "out-interface-list": "zone-local",
-            "protocol": "tcp",
-        },
-    ),
-    FirewallRule(
+    MTikFirewallRule(
         families=["ip"],
         table="filter",
         attribs={
@@ -386,7 +276,7 @@ DEFAULT_RULES_TAIL: list[FirewallRule] = [
             "out-interface-list": "iface-cghmn",
         },
     ),
-    FirewallRule(
+    MTikFirewallRule(
         families=["ip"],
         table="filter",
         attribs={
@@ -396,7 +286,7 @@ DEFAULT_RULES_TAIL: list[FirewallRule] = [
             "out-interface-list": "iface-cghmn",
         },
     ),
-    FirewallRule(
+    MTikFirewallRule(
         families=["ip", "ipv6"],
         table="filter",
         attribs={
@@ -405,7 +295,7 @@ DEFAULT_RULES_TAIL: list[FirewallRule] = [
             "in-interface": "oob",
         },
     ),
-    FirewallRule(
+    MTikFirewallRule(
         families=["ip", "ipv6"],
         table="filter",
         attribs={
@@ -414,73 +304,7 @@ DEFAULT_RULES_TAIL: list[FirewallRule] = [
             "in-interface": "wg-vpn",
         },
     ),
-    FirewallRule(
-        families=["ip", "ipv6"],
-        table="filter",
-        attribs={
-            "action": "accept",
-            "chain": "forward",
-            "comment": "foxIngress TCP (Pub)",
-            "dst-port": "80,443",
-            "out-interface": FOXINGRESS.interface,
-            "protocol": "tcp",
-        },
-    ),
-    FirewallRule(
-        families=["ip", "ipv6"],
-        table="filter",
-        attribs={
-            "action": "accept",
-            "chain": "forward",
-            "comment": "foxIngress TCP (Priv)",
-            "dst-port": "9001",
-            "in-interface-list": "zone-local",
-            "out-interface": FOXINGRESS.interface,
-            "protocol": "tcp",
-        },
-    ),
-    FirewallRule(
-        families=["ip", "ipv6"],
-        table="filter",
-        attribs={
-            "action": "accept",
-            "chain": "forward",
-            "comment": "foxMail TCP (Priv)",
-            "dst-port": "2525,9002",
-            "in-interface-list": "zone-local",
-            "out-interface": FOXMAIL.interface,
-            "protocol": "tcp",
-        },
-    ),
-    # From the LAN and from foxIngress
-    FirewallRule(
-        families=["ip", "ipv6"],
-        table="filter",
-        attribs={
-            "action": "accept",
-            "chain": "forward",
-            "comment": "dashboard HTTP(S)",
-            "dst-port": "80,443",
-            "in-interface-list": "zone-local",
-            "out-interface": DASHBOARD.interface,
-            "protocol": "tcp",
-        },
-    ),
-    # IPv6 from outside skips foxIngress: Ingress PT maps it straight to the container
-    FirewallRule(
-        families=["ipv6"],
-        table="filter",
-        attribs={
-            "action": "accept",
-            "chain": "forward",
-            "comment": "dashboard HTTP(S) (Pub)",
-            "dst-port": "80,443",
-            "in-interface-list": "zone-wan",
-            "out-interface": DASHBOARD.interface,
-            "protocol": "tcp",
-        },
-    ),
-    FirewallRule(
+    MTikFirewallRule(
         families=["ip", "ipv6"],
         table="filter",
         attribs={
@@ -489,7 +313,7 @@ DEFAULT_RULES_TAIL: list[FirewallRule] = [
             "reject-with": "icmp-admin-prohibited",
         },
     ),
-    FirewallRule(
+    MTikFirewallRule(
         families=["ip", "ipv6"],
         table="filter",
         attribs={
@@ -498,7 +322,7 @@ DEFAULT_RULES_TAIL: list[FirewallRule] = [
             "connection-state": "established,related",
         },
     ),
-    FirewallRule(
+    MTikFirewallRule(
         families=["ip"],
         table="filter",
         attribs={
@@ -507,7 +331,7 @@ DEFAULT_RULES_TAIL: list[FirewallRule] = [
             "protocol": "ipv6-encap",
         },
     ),
-    FirewallRule(
+    MTikFirewallRule(
         families=["ip"],
         table="filter",
         attribs={
@@ -516,7 +340,7 @@ DEFAULT_RULES_TAIL: list[FirewallRule] = [
             "protocol": "icmp",
         },
     ),
-    FirewallRule(
+    MTikFirewallRule(
         families=["ipv6"],
         table="filter",
         attribs={
@@ -525,7 +349,7 @@ DEFAULT_RULES_TAIL: list[FirewallRule] = [
             "protocol": "icmpv6",
         },
     ),
-    FirewallRule(
+    MTikFirewallRule(
         families=["ip", "ipv6"],
         table="filter",
         attribs={
@@ -536,7 +360,7 @@ DEFAULT_RULES_TAIL: list[FirewallRule] = [
             "protocol": "tcp",
         },
     ),
-    FirewallRule(
+    MTikFirewallRule(
         families=["ip", "ipv6"],
         table="filter",
         attribs={
@@ -547,7 +371,7 @@ DEFAULT_RULES_TAIL: list[FirewallRule] = [
             "protocol": "udp",
         },
     ),
-    FirewallRule(
+    MTikFirewallRule(
         families=["ip", "ipv6"],
         table="filter",
         attribs={
@@ -556,7 +380,7 @@ DEFAULT_RULES_TAIL: list[FirewallRule] = [
             "in-interface": "lo",
         },
     ),
-    FirewallRule(
+    MTikFirewallRule(
         families=["ip", "ipv6"],
         table="filter",
         attribs={
@@ -565,7 +389,7 @@ DEFAULT_RULES_TAIL: list[FirewallRule] = [
             "in-interface": "oob",
         },
     ),
-    FirewallRule(
+    MTikFirewallRule(
         families=["ip", "ipv6"],
         table="filter",
         attribs={
@@ -574,7 +398,7 @@ DEFAULT_RULES_TAIL: list[FirewallRule] = [
             "in-interface-list": "zone-local",
         },
     ),
-    FirewallRule(
+    MTikFirewallRule(
         families=["ip", "ipv6"],
         table="filter",
         attribs={
@@ -586,7 +410,7 @@ DEFAULT_RULES_TAIL: list[FirewallRule] = [
 ]
 
 
-def _rule_matches(current_rule: dict[str, Any], rule: FirewallRule) -> bool:
+def _rule_matches(current_rule: dict[str, Any], rule: MTikFirewallRule) -> bool:
     all_keys = set(current_rule.keys()).union(set(rule.attribs.keys()))
     for match_key in all_keys:
         if (
@@ -623,7 +447,7 @@ def _longest_increasing_subsequence(values: list[int]) -> set[int]:
 
 
 def _sync_firewall_table(
-    api_rule: Any, deployed: list[dict[str, Any]], rules: list[FirewallRule]
+    api_rule: Any, deployed: list[dict[str, Any]], rules: list[MTikFirewallRule]
 ) -> None:
     # Pair each wanted rule with an identical deployed rule (if any)
     unmatched = list(range(len(deployed)))
@@ -674,12 +498,12 @@ def _sync_firewall_table(
 
 
 def refresh_firewall_router(
-    firewall_rules: list[FirewallRule], router: MTikRouter
+    firewall_rules: list[MTikFirewallRule], router: MTikRouter
 ) -> None:
     print(f"## {router.host}")
     connection = router.connection()
     api = connection.get_api()
-    table_rules: dict[str, list[FirewallRule]] = {}
+    table_rules: dict[str, list[MTikFirewallRule]] = {}
 
     for rule in firewall_rules:
         for family in rule.families:
@@ -756,18 +580,24 @@ def refresh_firewall() -> None:
                 attribs[field] = format_weird_mtik_ip(attribs[field])
 
         firewall_rules.append(
-            FirewallRule(
+            MTikFirewallRule(
                 families=families,
                 table=rule["table"],
                 attribs=attribs,
             )
         )
 
-    firewall_rules = DEFAULT_RULES_HEAD + firewall_rules + DEFAULT_RULES_TAIL
-    for rule in firewall_rules:
-        rule.attribs["disabled"] = format_mtik_bool(False)
-
     for router in ROUTERS:
         if router.horizon != "internal":
             continue
-        refresh_firewall_router(firewall_rules, router)
+        router_rules = (
+            DEFAULT_RULES_HEAD
+            + router.firewall_rules
+            + firewall_rules
+            + DEFAULT_RULES_TAIL
+        )
+        router_rules = [
+            replace(rule, attribs={**rule.attribs, "disabled": format_mtik_bool(False)})
+            for rule in router_rules
+        ]
+        refresh_firewall_router(router_rules, router)
