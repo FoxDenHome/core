@@ -1,0 +1,17 @@
+
+
+Drive No. 1 Activities:
+------------------------
+
+           LOAD    UNLD    LDACC   CP      WP      CLN     UNLACT  ACTIVE
+Flags:     0       1       0       0       0       0       0       0       
+
+           ATT     CNFREQ  COMPR   PREV    TAF     DINIT   DISREC  INTFC
+ExtFlags:  0       0       1       0       0       1       0       0       
+
+Activity:  Idle
+
+
+Command executed successfully
+00 00 00 82 2B 00 00 00 00 00 00 00 FF FF FF FF FF FF 00 20 20 20 20 20 20 20 
+20 20 20 20 20 20 20 20 20 00 00 00 00 00 00 00 00 

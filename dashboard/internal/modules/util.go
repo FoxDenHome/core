@@ -5,8 +5,32 @@ import (
 	"math"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 )
+
+// baseline tracks lifetime counters where an old non-zero value is normal and
+// only an increase means something is happening.
+type baseline struct {
+	mu    sync.Mutex
+	first map[string]float64
+}
+
+// growth returns how much a counter rose since it was first seen. The baseline
+// is in memory, so a restart accepts whatever the counter is at then.
+func (b *baseline) growth(key string, v float64) float64 {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+	if b.first == nil {
+		b.first = map[string]float64{}
+	}
+	base, ok := b.first[key]
+	if !ok || v < base {
+		b.first[key] = v
+		return 0
+	}
+	return v - base
+}
 
 // expand turns "0/{1..24},sfp1" into ["0/1", ..., "0/24", "sfp1"].
 func expand(spec string) []string {

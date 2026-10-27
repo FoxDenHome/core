@@ -1,0 +1,87 @@
+
+Library Information:                   
+--------------------                     
+HW Revision         : FF                Upgrade Personality : 00.10.03
+HW Variant          : 00                OS Major Version    : 1 
+Firmware Revision   : 6.30              Firmware Build date : 07-29-2026
+Robotic FW Revision : 3.60e             Robot FW Build date : 08-02-2022
+Robotic HW Rev      : Rev1               
+Firmware Checksum   : 37A8              Bootcode Revision   : 0.60 
+Vendor ID           : BDT               Product ID          : FlexStor II      
+Serial Number       : L2U78BK968        Library WWI         : 2000000E1114708B
+Library height      : 2U                OEM Skin            : none
+Connection          : LUN                
+Stacking revision   : 1                 Stacking mode       : Disabled
+Language            : English            
+Network enabled     : Yes               DHCP enabled        : Yes 
+IP Address          :       10.1.13.1   Netmask             : 255.255.0.0 
+Gateway Address     :        10.1.0.1   MAC Address         : 000E1114708B 
+Network active      : Yes               Hostname            : tape-library 
+Protocol Stack      : Dual stack IPv4 + IPv6  
+Link Local Address  : FE80::20E:11FF:FE14:708B  
+Prefix length       : 64                 
+Router Assigned Adr.: 2A0E:7D44:F069:A01:20E:11FF:FE14:708B  
+Router Assigned Adr.: FD2C:F4CB:63BE:1:20E:11FF:FE14:708B SNMP enabled        : Yes 
+SNMP Target 1 Adr.  : 0.0.0.0 (SNMPv1)   
+SNMP Target 2 Adr.  : 0.0.0.0 (SNMPv1)   
+SNMP Target 3 Adr.  : 0.0.0.0 (SNMPv1)   
+SNMP Target 4 Adr.  : 0:0:0:0:0:0:0:0 (SNMPv1) 
+SNMP Target 5 Adr.  : 0:0:0:0:0:0:0:0 (SNMPv1) 
+SNMP Target 6 Adr.  : 0:0:0:0:0:0:0:0 (SNMPv1) 
+SNMP Community Name : public     
+Number of Powerups  : 31                Minutes of Operation: 1585994 (1101d, 9h, 14min)
+Move count          : 387               Robotics Temperature: 38.0
+Inventory valid     : Yes               Robotic Conn. Speed : 57600 Baud
+Barcode Reader      : SE625              
+LED Status:                              
+Ready               : On                Clean               : Off
+Attention           : Off               Error               : Off
+
+Drive No. 0 Information:              ( LUN )  
+------------------------                 
+Vendor ID           : IBM               Product ID          : ULT3580-HH6     
+Firmware Revision   : KAJ9               
+Serial number       : 10WT033159        Personality         : 00 00
+Data compression    : Yes                
+Interface type      : SAS                
+                                         
+Port A Identifier   : 5000E1114708B002   
+Status              : Ready             Link                : Connected
+Speed               : 6 Gb/s            Hashed SAS address  : 1B1ECE
+                                         
+Port B Identifier   : 5000E1114708B003   
+Status              : Not ready         Link                : Not connected
+Speed               : -                 Hashed SAS address  : 000000
+                                         
+Media loads         : 9332              Cleaning operations : 144
+Power on hours      : 55867             Media motion hours  : 4807
+Tape meters         : 41525959           
+                                         
+                                         
+
+Drive No. 1 Information:                
+------------------------                 
+Vendor ID           : HP                Product ID          : Ultrium 6-SCSI  
+Product Revision    : 35PW              Firmware Revision   : 019.745
+Serial number       : HUJ6346PDB        Personality         : 5C 0E
+Drive Temperature   : 42.0              Data compression    : Yes
+Hibernate Mode      : Yes                
+Interface type      : SAS                
+                                         
+Port A Identifier   : 5000E1114708B005   
+Status              : Ready             Link                : Connected
+Speed               : 6 Gb/s            Hashed SAS address  : 778312
+                                         
+Port B Identifier   : 5000E1114708B006   
+Status              : Not ready         Link                : Not connected
+Speed               : -                 Hashed SAS address  : C1CDFC
+                                         
+Media loads         : 11103             Cleaning operations : 14
+Power on hours      : 39254             Media motion hours  : 3185
+Tape meters         : 47993002           
+                                         
+IPv6 link local address : FE80::D2BF:9CFF:FE56:D503 Prefix    : 64
+                                         
+Command executed successfully
+00 00 00 74 2B 00 00 00 00 00 00 00 FF FF FF FF FF FF 00 20 20 20 20 20 20 20 
+20 20 20 20 20 20 20 20 20 00 00 00 00 00 00 00 00 

@@ -56,10 +56,8 @@ type server struct {
 	dev  *config.Device
 	opts serverOptions
 
-	// baseline holds the first value seen for counters that only matter when
-	// they grow, keyed by disk serial and counter.
-	mu       sync.Mutex
-	baseline map[string]float64
+	// counters are only judged by growth, keyed by disk serial and counter.
+	counters baseline
 }
 
 func init() {
@@ -266,6 +264,14 @@ func (s *server) Poll(ctx context.Context) (rack.State, error) {
 	}
 	st.Sections = append(st.Sections, sys)
 
+	if node != nil {
+		t := timingState(node)
+		st.Sections = append(st.Sections, t.sections...)
+		st.Faceplate = append(st.Faceplate, t.groups...)
+		st.Status = rack.Worst(st.Status, t.status)
+		summary = append(summary, t.summary...)
+	}
+
 	if pools := s.zfsPools(node); len(pools.Rows) > 0 {
 		st.Sections = append(st.Sections, pools)
 		for _, r := range pools.Rows {
@@ -395,22 +401,6 @@ func (s *server) tempLimits(dev string, smart promtext.Metrics) (warn, crit floa
 		return v
 	}
 	return math.Min(warn, limit("op_limit_max")), math.Min(crit, limit("critical_limit_max"))
-}
-
-// growth returns how much a counter rose since it was first seen. The baseline
-// is in memory, so a restart accepts whatever the counter is at then.
-func (s *server) growth(key string, v float64) float64 {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	if s.baseline == nil {
-		s.baseline = map[string]float64{}
-	}
-	base, ok := s.baseline[key]
-	if !ok || v < base {
-		s.baseline[key] = v
-		return 0
-	}
-	return v - base
 }
 
 // smartDevice finds the smartctl_exporter device label for a disk. The names
@@ -548,7 +538,7 @@ func (s *server) fillDisk(slot *rack.Slot, d *disk, smart promtext.Metrics, key 
 		st := rack.StatusOK
 		text := formatFloat(v, "")
 		if c.growthOnly {
-			if grew := s.growth(d.serial+"/"+c.label, v); grew > 0 {
+			if grew := s.counters.growth(d.serial+"/"+c.label, v); grew > 0 {
 				st = c.status
 				text += fmt.Sprintf(" (+%s since dashboard start)", formatFloat(grew, ""))
 			}

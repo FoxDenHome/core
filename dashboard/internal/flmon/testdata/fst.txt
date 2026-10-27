@@ -1,0 +1,13 @@
+
+
+Drive sleds Fan status:
+-----------------------
+Drive   Fan speed   Cooling   Mode    Monitoring   Sled HW Rev.   Drive Temp.
+
+  0        10        On       auto       good          1              38.0
+  1         7        On       auto       off           1              42.0
+
+
+Command executed successfully
+00 00 00 7D 2B 00 00 00 00 00 00 00 FF FF FF FF FF FF 00 20 20 20 20 20 20 20 
+20 20 20 20 20 20 20 20 20 00 00 00 00 00 00 00 00 

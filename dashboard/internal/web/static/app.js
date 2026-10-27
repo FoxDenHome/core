@@ -75,7 +75,8 @@ function slotHTML(g, s, size, devId) {
   const data = `data-dev="${esc(devId)}" data-slot="${esc(key)}"`;
   const tip = esc(`${s.label}${s.value ? " · " + s.value : ""} · ${STATUS_TEXT[s.status] ?? s.status}`);
   const tag = size === "full" && s.sections?.length ? "button" : "span";
-  const common = `class="slot ${g.kind} s-${s.status}${picked}" ${data} title="${tip}"`;
+  const span = s.span > 1 ? ` style="grid-row:span ${s.span}"` : "";
+  const common = `class="slot ${g.kind} s-${s.status}${s.span > 1 ? " span" : ""}${picked}" ${data} title="${tip}"${span}`;
   switch (g.kind) {
     case "bay":
       if (size === "full") {
@@ -104,9 +105,10 @@ function groupHTML(g, size, devId) {
   const style = vertical
     ? `grid-template-rows:repeat(${g.rows},auto);grid-auto-flow:column`
     : `grid-template-columns:repeat(${cols(g)},auto)`;
-  const grid = `<div class="grp" style="${style}">${g.slots.map((s) => slotHTML(g, s, size, devId)).join("")}</div>`;
-  if (size === "full" && g.label) return `<div class="grp-wrap"><div class="grp-label">${esc(g.label)}</div>${grid}</div>`;
-  return grid;
+  const align = g.align ? ` align-${g.align}` : "";
+  const slots = g.slots.map((s) => slotHTML(g, s, size, devId)).join("");
+  if (size === "full" && g.label) return `<div class="grp-wrap${align}"><div class="grp-label">${esc(g.label)}</div><div class="grp" style="${style}">${slots}</div></div>`;
+  return `<div class="grp${align}" style="${style}">${slots}</div>`;
 }
 
 /* ---------- rack ---------- */

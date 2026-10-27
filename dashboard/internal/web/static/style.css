@@ -181,8 +181,12 @@ button:focus-visible { outline: 1px solid var(--accent); outline-offset: 1px; }
 .dev.shelf > .dev { position: relative; left: auto; right: auto; flex-basis: 0; min-width: 0; }
 
 /* ---------- faceplate groups ---------- */
-.grp { display: grid; gap: 2px; flex: none; }
+.grp { display: grid; gap: 2px; flex: none; justify-content: start; }
 .grp-wrap { display: flex; flex-direction: column; gap: 4px; flex: none; }
+/* start and end groups split the free space, so a group between them is centered */
+.dev-face > .align-start, .dev-face > .align-end, .d-face > .align-start, .d-face > .align-end { flex: 1 1 0; }
+.grp.align-end { justify-content: end; }
+.grp-wrap.align-end { align-items: flex-end; }
 .grp-label { font: 10px var(--mono); color: var(--faint); letter-spacing: .08em; text-transform: uppercase; }
 
 .slot { position: relative; color: var(--s); }
@@ -204,6 +208,7 @@ button:focus-visible { outline: 1px solid var(--accent); outline-offset: 1px; }
 .mini .bay { width: 64px; height: calc((var(--u) * 2 - 14px) / 3); }
 .full .bay { width: 116px; height: 46px; padding: 0 9px; font-size: 11px; }
 .full .bay .ico { width: 14px; height: 14px; }
+.mini .bay.span, .full .bay.span { height: auto; }
 .bay .lbl { display: none; }
 .full .bay { flex-direction: column; align-items: flex-start; justify-content: center; gap: 2px; }
 .full .bay .lbl { display: block; color: var(--text); }

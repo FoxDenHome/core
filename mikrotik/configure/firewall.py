@@ -369,8 +369,8 @@ DEFAULT_RULES_TAIL: list[FirewallRule] = [
         attribs={
             "action": "accept",
             "chain": "forward",
-            "comment": "dashboard UniFi, node_exporter, smartctl_exporter",
-            "dst-port": "443,9100,9633",
+            "comment": "dashboard tape library telnet, UniFi, node_exporter, smartctl_exporter",
+            "dst-port": "23,443,9100,9633",
             "in-interface": DASHBOARD.interface,
             "out-interface-list": "zone-local",
             "protocol": "tcp",

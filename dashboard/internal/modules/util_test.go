@@ -66,7 +66,7 @@ smartctl_device{device="nvme0",serial_number="S59CNZFNB03251F"} 1
 }
 
 func TestGrowth(t *testing.T) {
-	s := &server{}
+	var b baseline
 	for i, c := range []struct{ v, want float64 }{
 		{34, 0}, // first sight is the baseline
 		{34, 0},
@@ -74,7 +74,7 @@ func TestGrowth(t *testing.T) {
 		{36, 2}, // stays flagged until a restart
 		{0, 0},  // counter reset (drive swapped) starts over
 	} {
-		if got := s.growth("serial/CRC errors", c.v); got != c.want {
+		if got := b.growth("serial/CRC errors", c.v); got != c.want {
 			t.Errorf("step %d: growth(%v) = %v, want %v", i, c.v, got, c.want)
 		}
 	}

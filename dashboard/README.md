@@ -6,10 +6,12 @@ It polls devices directly and has no Prometheus dependency, so it keeps working 
 
 | Source | Used by |
 |---|---|
-| SNMP v2c | UPS, ATS, switches, routers, tape library |
-| node_exporter (`:9100`) | servers: load, memory, ZFS pools, disk inventory |
+| SNMP v2c | UPS, ATS, switches, routers, tape library status, NVR sensors and disk I/O |
+| node_exporter (`:9100`) | servers: load, memory, ZFS pools, disk inventory; time servers: chrony and gpsd via the textfile collector |
 | smartctl_exporter (`:9633`) | disk health, on by default wherever node-exporter is |
 | UniFi Network API (local console) | PDU per-outlet power and switch PoE (their own SNMP has neither) |
+| UniFi Protect API (on the NVR) | NVR disks, RAID, recording and cameras |
+| Telnet (`:23`, FLMON monitor) | tape library drives, magazines, robotics counters and error log |
 
 ## Running
 
@@ -127,6 +129,20 @@ The ATS is mounted at the back and all it adds is which feed is live, so it does
 ```json
 "options": { "ats": { "model": "cyberpower", "address": "ats-rack.foxden.network" } }
 ```
+
+### Time servers
+
+A `server` whose node_exporter has `chrony_*` metrics gets **Time sync** and **Time sources** sections, and with `gpsd_*` metrics a **GNSS** section plus per-satellite signal meters. The faceplate shows GPS, sync and PPS LEDs. ntpi writes these with `chrony-stats.py` and `gpsd-stats.py` ([FoxDen/ntpi](https://git.foxden.network/FoxDen/ntpi)). Refclocks are judged by reach rather than chrony's state, since a `noselect` refclock always shows as unreachable.
+
+### Tape library
+
+`ibm-ts3100` reads the global status over SNMP and everything else from the library's FLMON telnet monitor (`stat`, `inv`, `fst`, `rets`, `adir`, `dra`, `edp`), which needs no login. The faceplate shows the magazines on the left (the left one above the mail slot, the right one at full height), the LEDs centered and the drives on the right. Magazines show how full they are and list their cartridges in the details. `magazines` sets the slots per magazine (default `[11, 12]`).
+
+The monitor serves one session at a time, and both routers poll it. A poll that finds it busy retries once, then shows the last data for up to 5 minutes. Retry counters and new error log entries only warn when they appear while the dashboard is running.
+
+### NVR
+
+`unifi-unvr` reads disks (health, temperature, power-on hours, bad sectors), RAID, recording and cameras from the Protect API on the NVR itself, at `https://<address>`. It logs in with `$UNIFI_USERNAME`/`$UNIFI_PASSWORD`, so the same local view-only user has to exist on the NVR, or it uses an API key from `$NVR_API_KEY`. SNMP adds load, memory, temperatures, fans, voltages and per-disk I/O rates.
 
 ## Adding a module
 

@@ -70,6 +70,15 @@ func newUnifiClient(env *Env, opts unifiOptions) (*unifiClient, error) {
 	if opts.Controller == "" || opts.MAC == "" {
 		return nil, fmt.Errorf("controller and mac are required")
 	}
+	return newUnifiConsole(env, opts)
+}
+
+// newUnifiConsole talks to a UniFi OS console's own APIs (Protect on an NVR),
+// so it needs no device MAC.
+func newUnifiConsole(env *Env, opts unifiOptions) (*unifiClient, error) {
+	if opts.Controller == "" {
+		return nil, fmt.Errorf("controller is required")
+	}
 	opts.Controller = strings.TrimRight(opts.Controller, "/")
 	opts.MAC = strings.ToLower(opts.MAC)
 	// Own client: the session login keeps its cookie in the jar.
@@ -180,6 +189,22 @@ func (u *unifiClient) device(ctx context.Context, out any) error {
 	}
 	if err := json.Unmarshal(body.Data[0], out); err != nil {
 		return fmt.Errorf("controller: %w", err)
+	}
+	return nil
+}
+
+// getJSON decodes a console API path (e.g. /proxy/protect/api/nvr) into out.
+func (u *unifiClient) getJSON(ctx context.Context, path string, out any) error {
+	resp, err := u.get(ctx, u.opts.Controller+path)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("%s: HTTP %d", path, resp.StatusCode)
+	}
+	if err := json.NewDecoder(resp.Body).Decode(out); err != nil {
+		return fmt.Errorf("%s: %w", path, err)
 	}
 	return nil
 }

@@ -49,22 +49,10 @@ func init() {
 		New:         newGeneric(genericOptions{}),
 	})
 	register(Spec{
-		Name:        "unifi-unvr",
-		Description: "UniFi UNVR (4 bays). SNMP reachability only; its agent exposes no disk health.",
-		Height:      1,
-		New:         newGeneric(genericOptions{SNMP: true}),
-	})
-	register(Spec{
 		Name:        "shelf",
 		Description: "A shelf. Put the devices sitting on it in children.",
 		Height:      1,
 		New:         newGeneric(genericOptions{}),
-	})
-	register(Spec{
-		Name:        "ibm-ts3100",
-		Description: "IBM TS3100 / BDT FlexStor II tape library (SNMP reachability).",
-		Height:      2,
-		New:         newGeneric(genericOptions{SNMP: true}),
 	})
 }
 

@@ -74,12 +74,17 @@ type Group struct {
 	// Internal groups aren't visible from the front, so the rack view skips
 	// them; they still count toward status and show in the details.
 	Internal bool `json:"internal,omitempty"`
+	// Align pins the group to the start or end of the faceplate ("start",
+	// "end"), so a group between them sits centered. Empty packs it left.
+	Align string `json:"align,omitempty"`
 }
 
 type Slot struct {
 	ID     string `json:"id"`
 	Label  string `json:"label"`
 	Status Status `json:"status"`
+	// Span makes the slot that many rows tall.
+	Span int `json:"span,omitempty"`
 	// Value is a short reading shown on the slot itself ("34°C", "12 W", "10G").
 	Value string `json:"value,omitempty"`
 	// Percent fills meters.

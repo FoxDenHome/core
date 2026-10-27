@@ -1,0 +1,60 @@
+
+
+Library Inventory table:
+------------------------
+
+
+Mailslot  Lib-Elem.   Medium    PVT              Loads   AIHC   Exceptions
+
+   0      0 -  101                                       1000           
+
+
+Slot      Lib-Elem.   Medium    PVT              Loads   A HC   Exceptions
+
+   1      0 - 1001    Data  6   P0006SL6            25   1 00           
+   2      0 - 1002    Data  6   P0009SL6            30   1 00           
+   3      0 - 1003    Data  6   P0012SL6            33   1 00           
+   4      0 - 1004    Data  6   P0001SL6            69   1 00           
+   5      0 - 1005    Data  6   P0005SL6            27   1 00           
+   6      0 - 1006    Data  6   P0008SL6            33   1 00           
+   7      0 - 1007    Data  6   P0011SL6            21   1 00           
+   8      0 - 1008    Data  6   P0002SL6            20   1 00           
+   9      0 - 1009    Data  6   P0003SL6            31   1 00           
+  10      0 - 1010    Data  6   P0004SL6            24   1 00           
+  11      0 - 1011    Data  6   P0010SL6            34   1 00           
+  12      0 - 1012    Clean 1   P0002SCU            11   1 00           
+  13      0 - 1013    Data  6   P0021SL6             7   1 00           
+  14      0 - 1014    Data  6   P0018SL6                 1 00           
+  15      0 - 1015    Data  6   P0015SL6                 1 00           
+  16      0 - 1016    Data  6   P0007SL6            81   1 00           
+  17      0 - 1017    Data  6   P0020SL6            15   1 00           
+  18      0 - 1018    Data  6   P0017SL6                 1 00           
+  19      0 - 1019    Data  6   P0014SL6                 1 00           
+  20      0 - 1020    Data  6   P0022SL6            13   1 00           
+  21      0 - 1021    Data  6   P0019SL6                 1 00           
+  22      0 - 1022    Data  6   P0016SL6                 1 00           
+  23      0 - 1023    Data  6   P0013SL6                 1 00           
+
+
+Drive     Lib-Elem.   Medium    PVT              Loads   A HC   Exceptions
+
+   0      0 -    1                                       1 00           
+   1      0 -    2                                       1 00           
+
+
+Transp.   Lib-Elem.   Medium    PVT              Loads   A HC   Exceptions
+
+   0      0 -    0                                       1 00           
+
+
+Lib 0 Loader mode: Manual, RND 
+Serial Number: L2U78BK968_LL0
+Wwide Node Name: 2000000E1114708B
+Drive Range:  1 -  2
+Storage slot range: 1001-1023
+Autoclean: Disabled
+
+
+Command executed successfully
+00 00 00 30 2B 00 00 00 00 00 00 00 FF FF FF FF FF FF 00 20 20 20 20 20 20 20 
+20 20 20 20 20 20 20 20 20 00 00 00 00 00 00 00 00 

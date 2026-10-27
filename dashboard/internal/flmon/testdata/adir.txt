@@ -1,0 +1,11 @@
+
+
+ADI communication retries:
+-------------------------------------------------------------------------
+Drive      Rx Rreq      Tx Rreq     RxLogout      TxLogin
+
+   0           12            1            0            4
+   1            0            0            0            0
+Command executed successfully
+00 00 00 8B 2B 00 00 00 00 00 00 00 FF FF FF FF FF FF 00 20 20 20 20 20 20 20 
+20 20 20 20 20 20 20 20 20 00 00 00 00 00 00 00 00 
