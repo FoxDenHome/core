@@ -47,6 +47,13 @@ let
           type = ints.unsigned;
           default = 0;
         };
+        # macvtap: follow the MAC, promisc and multicast filters the guest
+        # sets (libvirt's trustGuestRxFilters). Without it the macvtap
+        # drops multicast the guest subscribed to (mDNS, IPv6 ND, ...)
+        trustGuestRxFilters = lib.mkOption {
+          type = bool;
+          default = false;
+        };
       };
     };
 
@@ -168,6 +175,10 @@ let
       ) (vmNetworks vm)
     );
 
+  rxFilterQmpPath = vm: "/run/vm-${vm.name}/qmp-rxfilter.sock";
+  trustedNetworks =
+    vm: lib.filter (net: net.type == "macvtap" && net.trustGuestRxFilters) (vmNetworks vm);
+
   fsSocketName = vm: share: "vm-${vm.name}-fs-${share.tag}";
   fsSocketPath = vm: share: "/run/vm-${vm.name}-fs/${share.tag}.sock";
 
@@ -193,6 +204,77 @@ let
       ${pkgs.coreutils}/bin/sleep 0.1
     done
     ${pkgs.coreutils}/bin/chown ${vmUser}:${vmUser} "$group"
+  '';
+
+  # Mirrors the guest's RX filter onto its macvtap, like libvirt does for
+  # trustGuestRxFilters. Args: QMP socket, then <nic id>=<macvtap> pairs
+  rxFilterScript = pkgs.writeShellScript "vm-rxfilter.sh" ''
+    set -uo pipefail
+    sock="$1"
+    shift
+    declare -A taps mcast
+    for pair in "$@"; do
+      taps["''${pair%%=*}"]="''${pair#*=}"
+    done
+
+    # PartOf the VM, so this only waits while the VM is (re)starting
+    while [ ! -S "$sock" ]; do
+      sleep 1
+    done
+
+    coproc QMP { socat - UNIX-CONNECT:"$sock"; }
+    send() {
+      printf '%s\n' "$1" >&"''${QMP[1]}"
+    }
+    # QEMU only emits NIC_RX_FILTER_CHANGED again after a query
+    query() {
+      send "$(jq -cn --arg nic "$1" '{execute: "query-rx-filter", arguments: {name: $nic}, id: $nic}')"
+    }
+
+    apply() {
+      local nic="$1" filter="$2"
+      local tap="''${taps[$nic]}"
+      local mac promisc allmulti want addr
+      mac="$(jq -r '."main-mac"' <<<"$filter")"
+      # Extra unicast MACs can't be filtered on a macvtap, so they mean promisc
+      promisc="$(jq -r 'if .promiscuous or .unicast == "all" or ."unicast-overflow" or (."unicast-table" | length > 0) then "on" else "off" end' <<<"$filter")"
+      allmulti="$(jq -r 'if .multicast == "all" or ."multicast-overflow" then "on" else "off" end' <<<"$filter")"
+      want="$(jq -r 'if .multicast == "normal" then ."multicast-table"[] else empty end' <<<"$filter" | tr '\n' ' ')"
+
+      ip link set dev "$tap" address "$mac"
+      ip link set dev "$tap" promisc "$promisc" allmulticast "$allmulti"
+      for addr in ''${mcast[$nic]:-}; do
+        [[ " $want " == *" $addr "* ]] || ip maddr del "$addr" dev "$tap"
+      done
+      for addr in $want; do
+        [[ " ''${mcast[$nic]:-} " == *" $addr "* ]] || ip maddr add "$addr" dev "$tap"
+      done
+      mcast[$nic]="$want"
+    }
+
+    send '{"execute":"qmp_capabilities"}'
+    # The guest may have set its filter before we connected
+    for nic in "''${!taps[@]}"; do
+      query "$nic"
+    done
+
+    while IFS= read -r line <&"''${QMP[0]}"; do
+      nic="$(jq -r 'select(.event == "NIC_RX_FILTER_CHANGED") | .data.name // empty' <<<"$line")"
+      if [ -n "$nic" ]; then
+        if [ -n "''${taps[$nic]:-}" ]; then
+          query "$nic"
+        fi
+        continue
+      fi
+      nic="$(jq -r 'select(.return != null and .id != null) | .id' <<<"$line")"
+      if [ -n "$nic" ]; then
+        apply "$nic" "$(jq -c '.return[0]' <<<"$line")"
+        continue
+      fi
+      if jq -e '.error' <<<"$line" >/dev/null; then
+        echo "QMP error: $line" >&2
+      fi
+    done
   '';
 
   # Same VF bookkeeping as the sriov host driver (and under its lock), so
@@ -239,7 +321,7 @@ let
           "-netdev"
           "tap,id=net-${net.ifName},fd=${toString fd},vhost=on"
           "-device"
-          "virtio-net-pci,netdev=net-${net.ifName},mac=${mac},${mkAddr unit}"
+          "virtio-net-pci,id=nic-${net.ifName},netdev=net-${net.ifName},mac=${mac},${mkAddr unit}"
         ];
       }
     else if net.type == "sriov" then
@@ -328,6 +410,13 @@ let
         "strict=on"
         "-qmp"
         "unix:${runDir}/qmp.sock,server=on,wait=off"
+      ]
+      # Own monitor, a QMP socket only takes one client at a time
+      ++ lib.lists.optionals (trustedNetworks vm != [ ]) [
+        "-qmp"
+        "unix:${rxFilterQmpPath vm},server=on,wait=off"
+      ]
+      ++ [
         "-chardev"
         "socket,id=serial0,path=${runDir}/serial.sock,server=on,wait=off"
         "-serial"
@@ -499,6 +588,32 @@ let
           // lib.attrsets.optionalAttrs (hw.vcpuPinning != null) {
             # Unpinned beats a VM stuck in a restart loop
             ExecStartPost = "-${pinScript}";
+          };
+        };
+      }
+      // lib.attrsets.optionalAttrs (trustedNetworks vm != [ ]) {
+        "vm-${vm.name}-rxfilter" = {
+          description = "Guest RX filter sync for VM ${vm.name}";
+          wantedBy = [ "vm-${vm.name}.service" ];
+          partOf = [ "vm-${vm.name}.service" ];
+          after = [ "vm-${vm.name}.service" ];
+
+          path = with pkgs; [
+            coreutils
+            iproute2
+            jq
+            socat
+          ];
+
+          serviceConfig = {
+            Type = "simple";
+            ExecStart = "${rxFilterScript} ${rxFilterQmpPath vm} ${
+              lib.concatMapStringsSep " " (net: "nic-${net.ifName}=${mkTapName vm net.ifName}") (
+                trustedNetworks vm
+              )
+            }";
+            Restart = "always";
+            RestartSec = "5s";
           };
         };
       }

@@ -10,6 +10,7 @@
       network.default = {
         type = "macvtap";
         parent = "ens1np0";
+        trustGuestRxFilters = true;
       };
     };
     devices.usb = [
