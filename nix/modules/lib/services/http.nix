@@ -451,14 +451,19 @@ in
             ssl_conf_command Options KTLS;
           '';
 
-      package = pkgs.nginx.override {
-        modules = nixpkgs.lib.lists.unique (
-          [
-            (mkNginxAcmeModule pkgs)
-          ]
-          ++ modules
-        );
-      };
+      package =
+        (pkgs.nginx.override {
+          modules = nixpkgs.lib.lists.unique (
+            [
+              (mkNginxAcmeModule pkgs)
+            ]
+            ++ modules
+          );
+        }).overrideAttrs
+          (prev: {
+            # nixpkgs no longer pulls in libxcrypt, so auth_basic would 500 on any crypt() hash ($2y$, $6$, ...)
+            buildInputs = prev.buildInputs ++ [ pkgs.libxcrypt ];
+          });
 
       storageRoot = "/var/lib/foxden/${name}";
 
