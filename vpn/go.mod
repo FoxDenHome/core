@@ -10,7 +10,7 @@ require (
 	github.com/quic-go/quic-go v0.64.1
 	github.com/vishvananda/netlink v1.3.1
 	golang.org/x/crypto v0.58.0
-	golang.org/x/net v0.61.0
+	golang.org/x/net v0.62.0
 	golang.org/x/oauth2 v0.37.0
 	golang.org/x/sys v0.49.0
 	golang.zx2c4.com/wireguard v0.0.0-20261024220952-b3bc704ef0ee
