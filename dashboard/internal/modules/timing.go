@@ -12,14 +12,19 @@ import (
 	"github.com/FoxDenHome/core/dashboard/internal/rack"
 )
 
-// Time servers export chrony's tracking and sources (chrony_*) and the GNSS
-// receiver's state (gpsd_*) through node_exporter's textfile collector. The
-// server module adds these sections whenever the metrics are there.
+// Time servers export chrony's tracking and sources (chrony_*), the GNSS
+// receiver's state (gpsd_*) and the PTP grandmaster (ptp4l_*) through
+// node_exporter's textfile collector. The server module adds these sections
+// whenever the metrics are there.
 
 const (
 	// clockOffsetWarn/Crit judge chrony's estimate of the system clock offset.
 	clockOffsetWarn = 1e-3
 	clockOffsetCrit = 100e-3
+
+	// phcOffsetWarn/Crit judge ts2phc's offset of the NIC clock from GPS PPS.
+	phcOffsetWarn = 1e-6
+	phcOffsetCrit = 100e-6
 )
 
 // timing is what a time server adds to the server module's state.
@@ -78,7 +83,11 @@ func timingState(node promtext.Metrics) timing {
 			t.groups = append(t.groups, sats)
 		}
 	}
+	if p, ok := ptp(node, &t); ok {
+		led.Slots = append(led.Slots, p)
+	}
 	if len(led.Slots) > 0 {
+		led.Rows = max(led.Rows, len(led.Slots))
 		t.groups = append([]rack.Group{led}, t.groups...)
 	}
 	return t
@@ -417,4 +426,108 @@ func gnss(node promtext.Metrics, t *timing) (rack.Slot, rack.Group, bool) {
 
 	t.add(sec)
 	return led, sats, true
+}
+
+// ptp4l port states, by the value of ptp4l_port_state.
+var ptpPortStates = []string{
+	"initializing", "faulty", "disabled", "listening", "pre-master", "master", "passive", "uncalibrated", "slave",
+}
+
+// ptp shows the PTP grandmaster (ntpi always is its own): ts2phc disciplining the NIC clock to GPS
+// (ptp4l_sync_*), and ptp4l serving it (ptp4l_*).
+func ptp(node promtext.Metrics, t *timing) (rack.Slot, bool) {
+	up, ok := node.Value("ptp4l_up", nil)
+	if !ok {
+		return rack.Slot{}, false
+	}
+	sec := rack.Section{Title: "PTP"}
+	led := rack.Slot{ID: "ptp", Label: "PTP", Status: rack.StatusOK}
+	if up != 1 {
+		sec.AddStatus("ptp4l", "not responding", rack.StatusCrit)
+		led.Status = rack.StatusCrit
+		t.add(sec)
+		return led, true
+	}
+
+	infos := node.Find("ptp4l_port_info", nil)
+	sort.Slice(infos, func(i, j int) bool { return infos[i].Labels["interface"] < infos[j].Labels["interface"] })
+	for _, info := range infos {
+		iface, state := info.Labels["interface"], strings.ToLower(info.Labels["state"])
+		m := map[string]string{"port": info.Labels["port"]}
+		st := rack.StatusOK
+		switch state {
+		case "master":
+		case "faulty":
+			st = rack.StatusCrit
+		default:
+			st = rack.StatusWarn
+		}
+		parts := []string{strings.ReplaceAll(state, "_", "-")}
+		if ts := info.Labels["timestamping"]; ts != "" {
+			parts = append(parts, strings.ToLower(ts)+" timestamping")
+		}
+		if v, ok := node.Value("ptp4l_port_tx_messages_total", map[string]string{"port": m["port"], "type": "Sync"}); ok {
+			parts = append(parts, formatFloat(v, "")+" syncs sent")
+		}
+		if v, ok := node.Value("ptp4l_port_rx_messages_total", map[string]string{"port": m["port"], "type": "Delay_Req"}); ok {
+			parts = append(parts, formatFloat(v, "")+" delay requests")
+		}
+		sec.AddStatus("Port "+iface, strings.Join(parts, " · "), st)
+		led.Status = rack.Worst(led.Status, st)
+	}
+
+	// ts2phc, through ptp4l-sync-monitor: offset in ns, frequency in ppb.
+	if state, ok := node.Value("ptp4l_sync_state", nil); ok {
+		st, text := rack.StatusOK, "locked"
+		if state != 2 {
+			st, text = rack.StatusWarn, "unlocked"
+		}
+		sec.AddStatus("NIC clock to GPS", text, st)
+		led.Status = rack.Worst(led.Status, st)
+	}
+	if off, ok := node.Value("ptp4l_sync_offset", nil); ok {
+		off /= 1e9
+		st := rack.StatusOK
+		switch a := math.Abs(off); {
+		case a >= phcOffsetCrit:
+			st = rack.StatusCrit
+		case a >= phcOffsetWarn:
+			st = rack.StatusWarn
+		}
+		sec.AddStatus("NIC clock offset", formatSeconds(off), st)
+		led.Status = rack.Worst(led.Status, st)
+		led.Value = formatSeconds(off)
+		t.summary = append(t.summary, "PTP "+formatSeconds(off))
+	}
+	if v, ok := node.Value("ptp4l_sync_frequency", nil); ok {
+		sec.Add("NIC clock frequency", formatPPM(v/1e3))
+	}
+
+	if v, ok := node.Value("ptp4l_clock_class", nil); ok {
+		sec.Add("Clock class", formatFloat(v, ""))
+	}
+	if v, ok := node.Value("ptp4l_clock_accuracy", nil); ok {
+		sec.Add("Clock accuracy", fmt.Sprintf("0x%02X", int(v)))
+	}
+	if v, ok := node.Value("ptp4l_utc_offset_seconds", nil); ok {
+		st, text := rack.StatusOK, formatFloat(v, " s")
+		if valid, ok := node.Value("ptp4l_utc_offset_valid", nil); ok && valid != 1 {
+			st, text = rack.StatusWarn, text+" (not valid)"
+		}
+		sec.AddStatus("UTC offset", text, st)
+		led.Status = rack.Worst(led.Status, st)
+	}
+	if v, ok := node.Value("ptp4l_time_traceable", nil); ok {
+		text := "yes"
+		if v != 1 {
+			text = "no"
+		}
+		sec.Add("Time traceable", text)
+	}
+	if v, ok := node.Value("ptp4l_domain_number", nil); ok {
+		sec.Add("Domain", formatFloat(v, ""))
+	}
+
+	t.add(sec)
+	return led, true
 }

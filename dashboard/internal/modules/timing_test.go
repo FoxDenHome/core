@@ -63,6 +63,20 @@ func TestTimingState(t *testing.T) {
 		t.Errorf("GPS constellation = %+v", r)
 	}
 
+	ptp := rowsOf(ts, "PTP")
+	if r := ptp["Port eth0.2"]; r.Status != rack.StatusOK || r.Value != "master · hardware timestamping · 74 syncs sent · 0 delay requests" {
+		t.Errorf("PTP port = %+v", r)
+	}
+	if r := ptp["NIC clock offset"]; r.Value != "129 ns" || r.Status != rack.StatusOK {
+		t.Errorf("NIC clock offset = %+v", r)
+	}
+	if r := ptp["NIC clock to GPS"]; r.Value != "locked" {
+		t.Errorf("NIC clock lock = %+v", r)
+	}
+	if r := ptp["UTC offset"]; r.Value != "37 s" || r.Status != rack.StatusOK {
+		t.Errorf("UTC offset = %+v", r)
+	}
+
 	if len(ts.groups) != 2 || ts.groups[0].ID != "timing" || ts.groups[1].ID != "satellites" {
 		t.Fatalf("groups = %+v", ts.groups)
 	}
@@ -70,7 +84,7 @@ func TestTimingState(t *testing.T) {
 	for _, s := range ts.groups[0].Slots {
 		labels = append(labels, s.Label)
 	}
-	if len(labels) != 3 || labels[0] != "GPS" || labels[1] != "Sync" || labels[2] != "PPS" {
+	if len(labels) != 4 || labels[0] != "GPS" || labels[1] != "Sync" || labels[2] != "PPS" || labels[3] != "PTP" {
 		t.Errorf("timing LEDs = %v", labels)
 	}
 	sats := ts.groups[1].Slots

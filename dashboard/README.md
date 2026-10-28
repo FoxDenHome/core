@@ -7,7 +7,7 @@ It polls devices directly and has no Prometheus dependency, so it keeps working 
 | Source | Used by |
 |---|---|
 | SNMP v2c | UPS, ATS, switches, routers, tape library status, NVR sensors and disk I/O |
-| node_exporter (`:9100`) | servers: load, memory, ZFS pools, disk inventory; time servers: chrony and gpsd via the textfile collector |
+| node_exporter (`:9100`) | servers: load, memory, ZFS pools, disk inventory; time servers: chrony, gpsd and ptp4l via the textfile collector |
 | smartctl_exporter (`:9633`) | disk health, on by default wherever node-exporter is |
 | UniFi Network API (local console) | PDU per-outlet power and switch PoE (their own SNMP has neither) |
 | UniFi Protect API (on the NVR) | NVR disks, RAID, recording and cameras |
