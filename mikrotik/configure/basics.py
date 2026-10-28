@@ -1,6 +1,6 @@
 from collections.abc import Callable
 from dataclasses import dataclass, field
-from ipaddress import ip_interface, ip_network
+from ipaddress import IPv6Address, ip_interface, ip_network
 from json import load as json_load
 from json import loads as json_loads
 from subprocess import check_output
@@ -117,6 +117,18 @@ def _host(address: str) -> str:
 
 def _is_ipv4(address: str) -> bool:
     return ip_interface(address).version == 4
+
+
+def _dhcp6_dns_value(servers: list[str]) -> str:
+    # Option 23, the addresses back to back
+    return "0x" + "".join(IPv6Address(server).packed.hex() for server in servers)
+
+
+def _dhcp6_ntp_value(servers: list[str]) -> str:
+    # Option 56, an NTP_SUBOPTION_SRV_ADDR (1, 16 bytes) per server
+    return "0x" + "".join(
+        "00010010" + IPv6Address(server).packed.hex() for server in servers
+    )
 
 
 def _router_s2s(cfg: dict[str, Any]) -> str:
@@ -597,6 +609,8 @@ def make_internal_basics(
     servers = []
     networks = []
     nds = []
+    servers6 = []
+    options6 = []
     for vlan in vlans:
         mine = vlan["routers"][name]
         iface = f"vlan-{vlan['name']}"
@@ -629,14 +643,40 @@ def make_internal_basics(
                 "ntp-server": ",".join(ipv4["ntp"] or []),
             }
         )
-        if vlan["ipv6"] is not None:
+        ipv6 = vlan["ipv6"]
+        if ipv6 is not None:
+            # SLAAC for addresses, stateless DHCPv6 (O flag) for the rest
             nds.append(
                 {
                     "interface": iface,
                     "advertise-dns": "yes",
-                    "dns": ",".join(vlan["ipv6"]["dns"]),
+                    "dns": ",".join(ipv6["dns"]),
                     "ra-interval": "1m-3m",
                     "ra-preference": "high" if primary else "medium",
+                    "managed-address-configuration": FALSE,
+                    "other-configuration": TRUE,
+                }
+            )
+            options6 += [
+                {
+                    "name": f"dns-{vlan['name']}",
+                    "code": "23",
+                    "value": _dhcp6_dns_value(ipv6["dns"]),
+                },
+                {
+                    "name": f"ntp-{vlan['name']}",
+                    "code": "56",
+                    "value": _dhcp6_ntp_value(ipv6["ntp"]),
+                },
+            ]
+            # Only answers information requests, no address or prefix pools
+            servers6.append(
+                {
+                    "name": f"dhcp-{vlan['name']}",
+                    "interface": iface,
+                    "address-pool": "static-only",
+                    "prefix-pool": "static-only",
+                    "dhcp-option": f"dns-{vlan['name']},ntp-{vlan['name']}",
                 }
             )
     servers.append(
@@ -661,6 +701,9 @@ def make_internal_basics(
     basics.table("/ip/dhcp-server", ("name",), servers, prune=_prune_all)
     basics.table("/ip/dhcp-server/network", ("address",), networks)
     basics.settings("/ip/dhcp-server/config", **{"store-leases-disk": "never"})
+    basics.table("/ipv6/dhcp-server/option", ("name",), options6, prune=_prune_all)
+    basics.table("/ipv6/dhcp-server/option/sets", ("name",), [], prune=_prune_all)
+    basics.table("/ipv6/dhcp-server", ("name",), servers6, prune=_prune_all)
     basics.table("/ipv6/nd", ("interface",), nds, prune=_prune_all)
     basics.table(
         "/ipv6/nd", ("default",), [{"default": TRUE, "disabled": TRUE}], can_add=False
@@ -848,14 +891,11 @@ def make_internal_basics(
     )
     basics.settings("/system/routerboard/settings", **{"auto-upgrade": TRUE})
     # Leftovers of RADIUS logins, an SMB share for IPMI, IPFIX export, a CAKE
-    # queue and DHCP options/DHCPv6 servers. Option sets go before their options.
+    # queue and DHCP options. Option sets go before their options.
     basics.table("/queue/type", ("name",), [], prune=_prune_all)
     basics.table("/queue/simple", ("name",), [], prune=_prune_all)
     basics.table("/ip/dhcp-server/option", ("name",), [], prune=_prune_all)
     basics.table("/ip/dhcp-server/option/sets", ("name",), [], prune=_prune_all)
-    basics.table("/ipv6/dhcp-server/option", ("name",), [], prune=_prune_all)
-    basics.table("/ipv6/dhcp-server/option/sets", ("name",), [], prune=_prune_all)
-    basics.table("/ipv6/dhcp-server", ("name",), [], prune=_prune_all)
     basics.settings("/user/aaa", **{"use-radius": FALSE})
     basics.table("/radius", ("address",), [], prune=_prune_all)
     basics.settings("/ip/smb", enabled="no")

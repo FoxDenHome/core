@@ -44,8 +44,9 @@ let
       ipv6 ? true,
       leaseTime ? "1h",
       interfaceList ? "iface-${name}",
-      # Preferred NTP servers handed out over DHCPv4, ahead of the routers
+      # Preferred NTP servers handed out over DHCPv4/DHCPv6, ahead of the routers
       ntp ? [ ],
+      ntp6 ? [ ],
     }:
     let
       net = "10.${toString id}";
@@ -86,6 +87,7 @@ let
           {
             network = "${net6}:/64";
             dns = lib.unique ((lib.optional redundant "${net6}:1") ++ routerAddrs6);
+            ntp = ntp6 ++ routerAddrs6;
           }
         else
           null;
@@ -130,8 +132,9 @@ let
       name = "lan";
       id = 2;
       leaseTime = "1d";
-      # ntpi, falling back to the routers (IPv6 would need DHCPv6)
+      # ntpi, falling back to the routers
       ntp = [ "10.2.1.123" ];
+      ntp6 = [ "${ula}:2::17b" ];
     })
     (mkPlanVlan {
       name = "dmz";

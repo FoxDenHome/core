@@ -78,6 +78,7 @@ PLAN: dict[str, Any] = {
                     "fd2c:f4cb:63be:1::101",
                     "fd2c:f4cb:63be:1::102",
                 ],
+                "ntp": ["fd2c:f4cb:63be:1::101", "fd2c:f4cb:63be:1::102"],
             },
             "vips": [
                 {
@@ -244,6 +245,31 @@ class TestMakeInternalBasics(unittest.TestCase):
         self.assertEqual(servers["dhcp-mgmt"]["authoritative"], "after-10sec-delay")
         pools = [row["name"] for row in rows(basics, "/ip/pool")]
         self.assertEqual(pools, ["pool-mgmt", "pool-oob"])
+
+    def test_stateless_dhcpv6(self) -> None:
+        basics = make_internal_basics(PLAN, mtik_router("router"), "community")
+        [nd] = [row for row in rows(basics, "/ipv6/nd") if "interface" in row]
+        self.assertEqual(nd["managed-address-configuration"], "false")
+        self.assertEqual(nd["other-configuration"], "true")
+        options = {row["name"]: row for row in rows(basics, "/ipv6/dhcp-server/option")}
+        self.assertEqual(options["dns-mgmt"]["code"], "23")
+        self.assertEqual(
+            options["dns-mgmt"]["value"],
+            "0xfd2cf4cb63be00010000000000000001"
+            "fd2cf4cb63be00010000000000000101"
+            "fd2cf4cb63be00010000000000000102",
+        )
+        self.assertEqual(options["ntp-mgmt"]["code"], "56")
+        self.assertEqual(
+            options["ntp-mgmt"]["value"],
+            "0x00010010fd2cf4cb63be00010000000000000101"
+            "00010010fd2cf4cb63be00010000000000000102",
+        )
+        [server] = rows(basics, "/ipv6/dhcp-server")
+        self.assertEqual(server["interface"], "vlan-mgmt")
+        self.assertEqual(server["address-pool"], "static-only")
+        self.assertEqual(server["prefix-pool"], "static-only")
+        self.assertEqual(server["dhcp-option"], "dns-mgmt,ntp-mgmt")
 
     def test_public_ipv6_on_primary_only(self) -> None:
         primary = make_internal_basics(PLAN, mtik_router("router"), "community")
