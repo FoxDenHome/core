@@ -25,7 +25,6 @@ in
     (lib.mkIf config.foxDen.mlx5.enable {
       boot.kernelModules = [
         "mlx5_core"
-        "mlx5_en"
         "rdma_cm"
       ];
       boot.kernelPatches = [
