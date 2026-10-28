@@ -49,12 +49,7 @@ in
     sshd.enable = true;
     fwupd.enable = true;
     redis.vmOverCommit = false; # We set this sysctl manually
-    # Same order as DHCP on LAN: ntpi, then each router directly
-    timesyncd.servers = lib.mkDefault [
-      "ntpi.foxden.network"
-      "router.foxden.network"
-      "router-backup.foxden.network"
-    ];
+    timesyncd.servers = lib.mkDefault (foxDenLib.hosts.helpers.lan.mkTimeServers 2);
     openssh = {
       enable = true;
       settings = {

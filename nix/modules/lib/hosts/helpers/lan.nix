@@ -18,6 +18,18 @@ let
     else
       [ ];
 
+  # Same as DHCP hands out: ntpi on LAN, then each router directly
+  mkTimeServers =
+    vlan:
+    if isNativeVLAN vlan then
+      (if vlan == 2 then [ "10.2.1.123" ] else [ ])
+      ++ [
+        "10.${toString vlan}.1.1"
+        "10.${toString vlan}.1.2"
+      ]
+    else
+      [ ];
+
   mkRoutes =
     vlan:
     if isNativeVLAN vlan then
@@ -31,7 +43,7 @@ let
       [ ];
 in
 {
-  inherit mkNameservers mkRoutes;
+  inherit mkNameservers mkTimeServers mkRoutes;
 
   mkVlanHost = (
     ifcfg: vlan: cfg:

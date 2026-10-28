@@ -14,6 +14,7 @@ in
 {
   foxDen.hosts.index = 5;
   foxDen.hosts.gateway = "router";
+  services.timesyncd.servers = foxDenLib.hosts.helpers.lan.mkTimeServers 4;
 
   services.avahi.enable = true;
   networking.firewall.allowedTCPPorts = [ 5900 ];
