@@ -61,24 +61,35 @@ in
     environment.etc."foxden/nixos/prune-all.sh".source =
       pkgs.writeShellScript "nixos-prune-all.sh" pruneAllScript;
     environment.etc."foxden/nixos/update.sh".source = pkgs.writeShellScript "nixos-update.sh" ''
-      set -xeuo pipefail
+      set -euo pipefail
+      # No set -x: trace lines would interleave with the journal output below.
+
+      # Print the journal of nixos-update starting at $1 until that run ends.
+      # Exits non-zero if the run failed.
+      follow_run() {
+        journalctl --unit nixos-update --since="$1" --no-hostname -f |
+          awk '/: nixos-update.service: Deactivated successfully/ { print; exit; }; /: nixos-update.service: Failed with result/ { print; exit 1; }; { print; }'
+      }
+
       # A start on an already-running unit is a no-op, which would just attach to
-      # an update that may predate the newest commit. Wait for it to finish first.
+      # an update that may predate the newest commit. Wait for it to finish first,
+      # showing its output meanwhile.
       while true; do
         state="$(systemctl show --property=ActiveState --value nixos-update)"
         case "$state" in
           active | activating | deactivating | reloading | refreshing)
-            echo "nixos-update is $state, waiting for it to finish..."
-            sleep 5
+            echo "nixos-update is $state, showing its output until it finishes..."
+            follow_run "$(systemctl show --timestamp=unix --property=InactiveExitTimestamp --value nixos-update)" || :
+            echo "Previous nixos-update finished, starting a new one..."
             ;;
           *)
             break
             ;;
         esac
       done
+      since="@$(date +%s)"
       systemctl --no-block start nixos-update
-      journalctl --unit nixos-update --since=now --no-hostname -f |
-          awk '/: nixos-update.service: Deactivated successfully/ { print; exit; }; /: nixos-update.service: Failed with result/ { print; exit 1; }; { print; }'
+      follow_run "$since"
     '';
 
     users.groups.maintainers = { };
