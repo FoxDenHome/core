@@ -104,6 +104,8 @@ in
           proxy_ssl_verify off;
           # OAuth2 resume responses carry large Set-Cookie headers
           proxy_buffer_size 32k;
+          # busy_buffers_size defaults to 2x buffer_size and must fit in proxy_buffers minus one
+          proxy_buffers 4 32k;
         '';
       }).config
       {
