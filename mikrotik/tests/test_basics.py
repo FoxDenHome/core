@@ -286,6 +286,34 @@ class TestMakeInternalBasics(unittest.TestCase):
         run(basics, {"/ip/route": res})
         self.assertEqual(res.ops, [])
 
+    def test_added_rows_survive_later_tables_of_path(self) -> None:
+        # /ipv6/address is split over a static and a from-pool table
+        basics = MTikBasics(
+            config=[
+                MTikTable(
+                    path=ADDRESSES,
+                    key=("address",),
+                    rows=[{"address": "10.0.0.1/32"}],
+                    prune=lambda _: True,
+                ),
+                MTikTable(path=ADDRESSES, key=("from-pool",), rows=[]),
+            ]
+        )
+        res = FakeResource([])
+        run(basics, {ADDRESSES: res})
+        self.assertEqual([row["address"] for row in res.rows], ["10.0.0.1/32"])
+
+    def test_dhcp_network_flags_in_sync_without_false(self) -> None:
+        # The API only reads ntp-none back when it's set
+        full = make_internal_basics(PLAN, mtik_router("router"), "community")
+        path = "/ip/dhcp-server/network"
+        basics = MTikBasics(config=[item for item in full.config if item.path == path])
+        res = FakeResource(
+            [{k: v for k, v in row.items() if v != "false"} for row in rows(full, path)]
+        )
+        run(basics, {path: res})
+        self.assertEqual(res.ops, [])
+
     def test_bgp_uses_own_s2s_address(self) -> None:
         basics = make_internal_basics(PLAN, mtik_router("router-backup"), "community")
         [instance] = rows(basics, "/routing/bgp/instance")

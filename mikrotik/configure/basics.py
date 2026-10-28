@@ -130,10 +130,13 @@ def _router_s2s(cfg: dict[str, Any]) -> str:
     )
 
 
-def _sync_table(api: Any, table: MTikTable, matched: set[str], seen: set[str]) -> None:
+def _sync_table(
+    api: Any, table: MTikTable, matched: set[str], seen: dict[str, set[str]]
+) -> None:
     resource = api.get_resource(table.path)
     rows = resource.get()
-    seen.update(row["id"] for row in rows)
+    # Only the rows from before syncing, not those added by an earlier table of the path
+    seen.setdefault(table.path, {row["id"] for row in rows})
     deployed = [
         row
         for row in rows
@@ -165,7 +168,8 @@ def _sync_table(api: Any, table: MTikTable, matched: set[str], seen: set[str]) -
             for k, v in wanted.items()
             if k not in table.key
             and k not in table.create_only
-            and not _same(match.get(k, ""), v)
+            # Flags like ntp-none only read back when set
+            and not _same(match.get(k, FALSE if v == FALSE else ""), v)
         }
         if changes:
             print(
@@ -212,12 +216,7 @@ def refresh_basics_router(basics: MTikBasics, router: MTikRouter) -> None:
         if isinstance(item, MTikSettings):
             _sync_settings(api, item)
         else:
-            _sync_table(
-                api,
-                item,
-                matched.setdefault(item.path, set()),
-                seen.setdefault(item.path, set()),
-            )
+            _sync_table(api, item, matched.setdefault(item.path, set()), seen)
     # Backwards, so references (list members, addresses, ...) go before what they reference
     for item in reversed(basics.config):
         if isinstance(item, MTikTable):
@@ -625,9 +624,9 @@ def make_internal_basics(
                 "dns-server": ipv4["dns"],
                 "netmask": str(network.prefixlen),
                 "domain": ipv4["domain"] or "",
+                # Has to be cleared for ntp-server to take
+                "ntp-none": format_mtik_bool(ipv4["ntp"] is None),
                 "ntp-server": ipv4["ntp"] or "",
-                # Only reads back when set
-                **({"ntp-none": TRUE} if ipv4["ntp"] is None else {}),
             }
         )
         if vlan["ipv6"] is not None:
