@@ -30,6 +30,14 @@ let
     "ubuntu-26.04"
   ];
 
+  # /etc/containers entries are symlinks into /etc/static, which confinement hides,
+  # so bind each one from its store path. Follows the nixpkgs layout (*.conf.d etc.).
+  containersEtcBinds = lib.mapAttrsToList (_: entry: "${entry.source}:/etc/${entry.target}") (
+    lib.filterAttrs (
+      name: entry: entry.enable && lib.hasPrefix "containers/" name
+    ) config.environment.etc
+  );
+
   mkDir = (
     dir: {
       directory = dir;
@@ -51,11 +59,7 @@ let
       BindPaths = [
         "/run/user-podman-forgejo-runner:/run/user"
       ];
-      BindReadOnlyPaths = [
-        "/etc/containers/containers.conf"
-        "/etc/containers/policy.json"
-        "/etc/containers/registries.conf"
-        "/etc/containers/storage.conf"
+      BindReadOnlyPaths = containersEtcBinds ++ [
         "/run/wrappers/bin/newgidmap"
         "/run/wrappers/bin/newuidmap"
         "/usr/bin/env"
@@ -213,11 +217,7 @@ in
             Environment = [
               "DOCKER_HOST=unix:///var/lib/forgejo-runner/podman.sock"
             ];
-            BindReadOnlyPaths = [
-              "/etc/containers/containers.conf"
-              "/etc/containers/policy.json"
-              "/etc/containers/registries.conf"
-              "/etc/containers/storage.conf"
+            BindReadOnlyPaths = containersEtcBinds ++ [
               "/usr/bin/env"
               "${pkgs.writers.writeYAML "config.yml" runnerConfigYaml}:/config.yml"
               "${config.sops.secrets."forgejo-runner-registration".path}:/registration.json"
