@@ -28,9 +28,8 @@ in
           superfan.interfaces = { };
         };
 
-        systemd.tmpfiles.rules = [
-          "d /run/lock/superfan - - - - -"
-        ];
+        # Shared with ipmiconfig, which holds the same lock around its IPMI calls
+        systemd.tmpfiles.settings.ipmi-lock."/run/lock/superfan".d = { };
 
         systemd.services.superfan = {
           description = "SuperMicro fan controller daemon";
