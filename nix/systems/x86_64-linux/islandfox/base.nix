@@ -13,10 +13,13 @@
   boot.kernelModules = [
     "kvm-amd"
     "mlx5_core"
-    "mlx5_en"
     "r8169"
     "rdma_cm"
   ];
+  # The BIOS already tunnels the thunderbolt NIC. Resetting the USB4 host
+  # router when the driver loads drops that tunnel in the middle of the mlx5
+  # probe, which either wedges the NIC or sync-floods the data fabric (hard reset)
+  boot.kernelParams = [ "thunderbolt.host_reset=0" ];
   foxDen.amdgpu.enable = true;
   services.hardware.bolt.enable = true;
   powerManagement.cpuFreqGovernor = "performance";
