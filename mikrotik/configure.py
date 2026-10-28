@@ -3,6 +3,7 @@
 from contextlib import contextmanager
 from subprocess import CalledProcessError
 
+from configure.basics import refresh_basics
 from configure.containers import refresh_containers
 from configure.dashboard import refresh_dashboard
 from configure.dhcp import refresh_dhcp
@@ -32,6 +33,9 @@ def mtik_router_admin():
 
 def main():
     with mtik_router_admin():
+        # Must run first as it creates the interfaces, lists and DHCP servers the others use
+        print("# Basic configuration")
+        refresh_basics()
         print("# DynDNS configuration")
         refresh_dyndns()
         print("# foxIngress configuration")

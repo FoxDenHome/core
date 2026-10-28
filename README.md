@@ -2,9 +2,7 @@
 
 This is the monorepo to control the FoxDen homelab pretty much in its entirety.
 
-A from-zero setup of `router`, `router-backup` or `redfox` is currently impossible. Hence we keep regular backups of those devices around.
-
-I am not sure whether I plan to instrument RouterOS enough to make this possible or not, especially since dynamic portions of RouterOS config, such as DynDNS keys, DNS entries and even firewall rules are already under management.
+`router`, `router-backup` and `redfox` can be rebuilt from a reset by `mikrotik/configure.py`, except for users, passwords, certificates and WireGuard keys and peers (the VPN portal manages the `wg-vpn` peers itself). The addressing plan (VLANs, VRRP addresses, router addresses) lives in `nix/modules/lib/routers.nix`. We still keep regular backups of those devices around.
 
 ## Machines
 

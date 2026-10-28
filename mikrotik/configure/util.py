@@ -135,6 +135,10 @@ class MTikRouter:
     _username: str = "foxden-core-configure"
     _password: str | None = None
 
+    @property
+    def name(self) -> str:
+        return self.host.split(".")[0]
+
     def connection(self) -> RouterOsApiPool:
         if self._connection_cache is None:
             if self._password is None:

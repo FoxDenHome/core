@@ -102,6 +102,7 @@ let
   kerberos = foxDenLib.global.kerberos.mkConfig nixosConfigurations;
   launcher = foxDenLib.global.launcher.mkConfig nixosConfigurations;
   sshHostDnsNames = foxDenLib.global.ssh.sshHostDnsNames nixosConfigurations;
+  routers = foxDenLib.routers.mkConfig;
 
   mkSystemConfig = system: {
     name = system.name;
@@ -154,6 +155,10 @@ in
   sshHostDnsNames = {
     attrset = sshHostDnsNames;
     json = builtins.toFile "sshHostDnsNames.json" (builtins.toJSON sshHostDnsNames);
+  };
+  routers = {
+    attrset = routers;
+    json = builtins.toFile "routers.json" (builtins.toJSON routers);
   };
   foxIngress = {
     attrset = foxIngress;

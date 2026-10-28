@@ -66,5 +66,5 @@ Typical service pattern (see `systems/x86_64-linux/islandfox/rmfakecloud.nix` + 
 
 - ZFS datasets must use `mountpoint=legacy`.
 - Never use `/var/run`; always use `/run`.
-- RouterOS devices can't be rebuilt from zero; `mikrotik/` only manages their dynamic config (DNS, DHCP, firewall, DynDNS, VRRP, scripts).
+- `mikrotik/` manages nearly all RouterOS config. `configure/basics.py` handles interfaces, VLANs, VRRP, addresses, DHCP servers, routing and system settings, using the addressing plan in `nix/modules/lib/routers.nix` (flake output `routers.json`). Users, passwords, certificates and WireGuard keys/peers are set by hand. Basics prunes rows it doesn't know in the tables it owns, so add new router config there rather than by hand.
 - The `vpn/` Go vendor hash lives in `vpn/vendor-hash.txt`. Renovate regenerates it on Go dep bumps; after changing deps by hand, run `../maid/tools/auto-nix-hash vpn/vendor-hash.txt './nix#nixosConfigurations.islandfox.pkgs.foxden-vpn.goModules'` from the repo root (FoxDen/maid checked out alongside core).

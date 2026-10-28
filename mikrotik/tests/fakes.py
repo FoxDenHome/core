@@ -46,9 +46,11 @@ class FakeResource:
             self.rows.insert(self._index(place_before), row)
         self.ops.append(("add", row["id"]))
 
-    def set(self, id: str, **attribs: str) -> None:
-        self.rows[self._index(id)].update(attribs)
-        self.ops.append(("set", id))
+    def set(self, id: str | None = None, **attribs: str) -> None:
+        # Without an id, it's a settings menu (e.g. /system/identity) with a single row
+        rid = id if id is not None else self.rows[0]["id"]
+        self.rows[self._index(rid)].update(attribs)
+        self.ops.append(("set", rid))
 
     def remove(self, id: str) -> None:
         del self.rows[self._index(id)]
