@@ -2,12 +2,18 @@
 let
   isNativeVLAN = vlan: vlan < 16;
 
+  # The gateway VIP, then each router's own address in case VRRP breaks.
+  # IPv4 goes first as glibc only reads the first three nameservers.
   mkNameservers =
     vlan:
     if isNativeVLAN vlan then
       [
         "10.${toString vlan}.0.1"
+        "10.${toString vlan}.1.1"
+        "10.${toString vlan}.1.2"
         "fd2c:f4cb:63be:${toString vlan}\::1"
+        "fd2c:f4cb:63be:${toString vlan}\::101"
+        "fd2c:f4cb:63be:${toString vlan}\::102"
       ]
     else
       [ ];
