@@ -352,7 +352,7 @@
                       },
                       "spec": {
                         "editorMode": "code",
-                        "expr": "ptp4l_sync_state{instance=\"ntpi.foxden.network:9100\"}",
+                        "expr": "avg without (slave) (ptp4l_sync_state{instance=\"ntpi.foxden.network:9100\"})",
                         "legendFormat": " ",
                         "range": true
                       }
@@ -486,7 +486,7 @@
                       },
                       "spec": {
                         "editorMode": "code",
-                        "expr": "ptp4l_sync_offset{instance=\"ntpi.foxden.network:9100\"}",
+                        "expr": "avg without (slave) (ptp4l_sync_offset{instance=\"ntpi.foxden.network:9100\"})",
                         "instant": false,
                         "legendFormat": "eth0 <- GPS",
                         "range": true

@@ -64,7 +64,7 @@ func TestTimingState(t *testing.T) {
 	}
 
 	ptp := rowsOf(ts, "PTP")
-	if r := ptp["Port eth0.2"]; r.Status != rack.StatusOK || r.Value != "master · hardware timestamping · 74 syncs sent · 0 delay requests" {
+	if r := ptp["Port eth0"]; r.Status != rack.StatusOK || r.Value != "master · hardware timestamping · 74 syncs sent · 0 delay requests" {
 		t.Errorf("PTP port = %+v", r)
 	}
 	if r := ptp["NIC clock offset"]; r.Value != "129 ns" || r.Status != rack.StatusOK {
