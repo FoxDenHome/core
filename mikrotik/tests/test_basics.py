@@ -271,6 +271,21 @@ class TestMakeInternalBasics(unittest.TestCase):
             {"10.1.1.1", "10.1.0.53", "10.7.1.1", "10.99.1.1", "10.99.0.1"},
         )
 
+    def test_blackhole_routes_in_sync_without_flag(self) -> None:
+        # The API reads blackhole back as an empty flag
+        full = make_internal_basics(PLAN, mtik_router("router"), "community")
+        basics = MTikBasics(
+            config=[item for item in full.config if item.path == "/ip/route"]
+        )
+        res = FakeResource(
+            [
+                {k: v for k, v in row.items() if k != "blackhole"}
+                for row in rows(full, "/ip/route")
+            ]
+        )
+        run(basics, {"/ip/route": res})
+        self.assertEqual(res.ops, [])
+
     def test_bgp_uses_own_s2s_address(self) -> None:
         basics = make_internal_basics(PLAN, mtik_router("router-backup"), "community")
         [instance] = rows(basics, "/routing/bgp/instance")

@@ -43,6 +43,8 @@ REDFOX_CUSTOMER6 = "2a0e:7d44:f069:800::/53"
 VULTR_AS = "64515"
 VULTR_PREFIXES6 = ["2a0e:7d44:f069::/48", "2a0e:7d44:f000::/40"]
 NTP_POOL = [{"address": f"{i}.pool.ntp.org"} for i in range(4)]
+# Valueless flag, the API doesn't read it back as "true"
+ROUTE_CREATE_ONLY = frozenset({"blackhole"})
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -169,7 +171,7 @@ def _sync_table(api: Any, table: MTikTable, matched: set[str], seen: set[str]) -
             print(
                 f"### Updating {table.path} entry",
                 {k: wanted[k] for k in table.key},
-                changes,
+                {k: (match.get(k, ""), v) for k, v in changes.items()},
             )
             resource.set(id=match["id"], **changes)
 
@@ -738,7 +740,13 @@ def make_internal_basics(
     )
     if primary:
         routes.append({"dst-address": "100.64.0.0/10", "gateway": "wg-cghmn"})
-    basics.table("/ip/route", ("dst-address",), routes, prune=_prune_all)
+    basics.table(
+        "/ip/route",
+        ("dst-address",),
+        routes,
+        create_only=ROUTE_CREATE_ONLY,
+        prune=_prune_all,
+    )
     tunnel_gateway = f"{cfg['tunnelIpv6']}::1"
     basics.table(
         "/ipv6/route",
@@ -748,6 +756,7 @@ def make_internal_basics(
             {"dst-address": ULA_RANGE, "blackhole": TRUE},
             {"dst-address": str(public6), "blackhole": TRUE, "distance": "100"},
         ],
+        create_only=ROUTE_CREATE_ONLY,
         prune=_prune_all,
     )
     basics.table(
@@ -1083,6 +1092,7 @@ def make_redfox_basics(plan: dict[str, Any]) -> MTikBasics:
             {"dst-address": "10.0.0.0/8", "gateway": "wg-s2s"},
             {"dst-address": "192.168.0.0/16", "blackhole": TRUE},
         ],
+        create_only=ROUTE_CREATE_ONLY,
         prune=_prune_all,
     )
     basics.table(
@@ -1093,6 +1103,7 @@ def make_redfox_basics(plan: dict[str, Any]) -> MTikBasics:
             {"dst-address": net, "blackhole": TRUE, "distance": "100"}
             for net in VULTR_PREFIXES6
         ],
+        create_only=ROUTE_CREATE_ONLY,
         prune=_prune_all,
     )
 
