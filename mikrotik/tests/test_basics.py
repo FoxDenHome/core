@@ -71,7 +71,14 @@ PLAN: dict[str, Any] = {
                 "ntp": ["10.1.1.1", "10.1.1.2"],
                 "domain": "foxden.network",
             },
-            "ipv6": {"network": "fd2c:f4cb:63be:1::/64", "dns": "fd2c:f4cb:63be:1::1"},
+            "ipv6": {
+                "network": "fd2c:f4cb:63be:1::/64",
+                "dns": [
+                    "fd2c:f4cb:63be:1::1",
+                    "fd2c:f4cb:63be:1::101",
+                    "fd2c:f4cb:63be:1::102",
+                ],
+            },
             "vips": [
                 {
                     "name": "gateway",

@@ -634,7 +634,7 @@ def make_internal_basics(
                 {
                     "interface": iface,
                     "advertise-dns": "yes",
-                    "dns": vlan["ipv6"]["dns"],
+                    "dns": ",".join(vlan["ipv6"]["dns"]),
                     "ra-interval": "1m-3m",
                     "ra-preference": "high" if primary else "medium",
                 }

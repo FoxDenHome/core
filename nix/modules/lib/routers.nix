@@ -53,13 +53,17 @@ let
       primaryAddr = "${net}.1.1";
       gateway = if redundant then "${net}.0.1" else primaryAddr;
       # Each router's own address in index order, as fallback for when VRRP breaks
+      sortedRouters = lib.sort (a: b: a.index < b.index) (lib.attrValues routers);
       routerAddrs =
         if redundant then
-          map (router: "${net}.1.${toString router.index}") (
-            lib.sort (a: b: a.index < b.index) (lib.attrValues routers)
-          )
+          map (router: "${net}.1.${toString router.index}") sortedRouters
         else
           [ primaryAddr ];
+      routerAddrs6 =
+        if redundant then
+          map (router: "${net6}:10${toString router.index}") sortedRouters
+        else
+          [ "${net6}:101" ];
     in
     {
       inherit
@@ -81,7 +85,7 @@ let
         if ipv6 then
           {
             network = "${net6}:/64";
-            dns = if redundant then "${net6}:1" else "${net6}:101";
+            dns = lib.unique ((lib.optional redundant "${net6}:1") ++ routerAddrs6);
           }
         else
           null;
