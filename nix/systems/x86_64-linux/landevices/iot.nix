@@ -30,6 +30,15 @@
           "10.2.12.31/16"
         ];
       };
+      custom-linescope = mkIntf {
+        dns = {
+          fqdns = [ "custom-linescope.foxden.network" ];
+        };
+        mac = "58:E6:C5:68:92:A4";
+        addresses = [
+          "10.2.12.8/16"
+        ];
+      };
       hue = mkIntf {
         dns = {
           fqdns = [ "hue.foxden.network" ];
@@ -54,7 +63,7 @@
         };
         mac = "C4:DE:E2:B2:D2:C7";
         addresses = [
-          "10.2.13.21/16"
+          "10.2.12.7/16"
         ];
       };
       nanoleaf-lines-wizzy = mkIntf {
