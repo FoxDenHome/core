@@ -44,6 +44,8 @@ let
       ipv6 ? true,
       leaseTime ? "1h",
       interfaceList ? "iface-${name}",
+      # Preferred NTP servers handed out over DHCPv4, ahead of the gateway
+      ntp ? [ ],
     }:
     let
       net = "10.${toString id}";
@@ -64,7 +66,7 @@ let
         network = "${net}.0.0/16";
         inherit gateway;
         dns = gateway;
-        ntp = gateway;
+        ntp = ntp ++ [ gateway ];
         domain = "foxden.network";
       };
       ipv6 =
@@ -116,6 +118,8 @@ let
       name = "lan";
       id = 2;
       leaseTime = "1d";
+      # ntpi, falling back to the gateway (IPv6 would need DHCPv6)
+      ntp = [ "10.2.1.123" ];
     })
     (mkPlanVlan {
       name = "dmz";

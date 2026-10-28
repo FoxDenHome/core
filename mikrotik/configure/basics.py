@@ -626,7 +626,7 @@ def make_internal_basics(
                 "domain": ipv4["domain"] or "",
                 # Has to be cleared for ntp-server to take
                 "ntp-none": format_mtik_bool(ipv4["ntp"] is None),
-                "ntp-server": ipv4["ntp"] or "",
+                "ntp-server": ",".join(ipv4["ntp"] or []),
             }
         )
         if vlan["ipv6"] is not None:
