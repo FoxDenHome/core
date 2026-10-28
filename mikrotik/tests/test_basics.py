@@ -105,22 +105,6 @@ PLAN: dict[str, Any] = {
 }
 
 
-# Redfox syncs its clock from the dmz NTP VIP
-PLAN["vlans"].append(
-    {
-        **PLAN["vlans"][0],
-        "name": "dmz",
-        "vlanId": 3,
-        "native": False,
-        "interfaceList": "iface-dmz",
-        "ipv4": {**PLAN["vlans"][0]["ipv4"], "ntp": "10.3.0.123"},
-        "ipv6": None,
-        "vips": [],
-        "routers": plan_vlan_routers(3, True),
-    }
-)
-
-
 def rows(basics: MTikBasics, path: str) -> list[dict[str, str]]:
     return [
         row
@@ -252,7 +236,7 @@ class TestMakeInternalBasics(unittest.TestCase):
         self.assertEqual(servers["dhcp-retro"]["address-pool"], "static-only")
         self.assertEqual(servers["dhcp-mgmt"]["authoritative"], "after-10sec-delay")
         pools = [row["name"] for row in rows(basics, "/ip/pool")]
-        self.assertEqual(pools, ["pool-mgmt", "pool-dmz", "pool-oob"])
+        self.assertEqual(pools, ["pool-mgmt", "pool-oob"])
 
     def test_public_ipv6_on_primary_only(self) -> None:
         primary = make_internal_basics(PLAN, mtik_router("router"), "community")
@@ -284,7 +268,7 @@ class TestMakeInternalBasics(unittest.TestCase):
         local = {row["address"] for row in rows(basics, "/ip/firewall/address-list")}
         self.assertEqual(
             local,
-            {"10.1.1.1", "10.1.0.53", "10.7.1.1", "10.3.1.1", "10.99.1.1", "10.99.0.1"},
+            {"10.1.1.1", "10.1.0.53", "10.7.1.1", "10.99.1.1", "10.99.0.1"},
         )
 
     def test_bgp_uses_own_s2s_address(self) -> None:
@@ -298,8 +282,6 @@ class TestMakeInternalBasics(unittest.TestCase):
 class TestMakeRedfoxBasics(unittest.TestCase):
     def test_prefers_primary_router(self) -> None:
         basics = make_redfox_basics(PLAN)
-        [ntp] = rows(basics, "/system/ntp/client/servers")
-        self.assertEqual(ntp["address"], "10.3.0.123")
         filters = {
             row["chain"]: row["rule"] for row in rows(basics, "/routing/filter/rule")
         }

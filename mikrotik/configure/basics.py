@@ -42,6 +42,7 @@ REDFOX_S2S6 = "fd2c:f4cb:63be::a63:a01/112"
 REDFOX_CUSTOMER6 = "2a0e:7d44:f069:800::/53"
 VULTR_AS = "64515"
 VULTR_PREFIXES6 = ["2a0e:7d44:f069::/48", "2a0e:7d44:f000::/40"]
+NTP_POOL = [{"address": f"{i}.pool.ntp.org"} for i in range(4)]
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -834,8 +835,7 @@ def make_internal_basics(
         "/system/ntp/client/servers",
         ("address",),
         # ntpi
-        [{"address": "10.1.1.123"}]
-        + [{"address": f"{i}.pool.ntp.org"} for i in range(4)],
+        [{"address": "10.1.1.123"}] + NTP_POOL,
         prune=_prune_all,
     )
     basics.settings("/system/routerboard/settings", **{"auto-upgrade": TRUE})
@@ -1205,13 +1205,7 @@ def make_redfox_basics(plan: dict[str, Any]) -> MTikBasics:
         prune=_prune_all,
     )
 
-    dmz = next(vlan for vlan in plan["vlans"] if vlan["name"] == "dmz")
-    basics.table(
-        "/system/ntp/client/servers",
-        ("address",),
-        [{"address": dmz["ipv4"]["ntp"]}],
-        prune=_prune_all,
-    )
+    basics.table("/system/ntp/client/servers", ("address",), NTP_POOL, prune=_prune_all)
     basics.settings("/ip/settings", **{"tcp-syncookies": TRUE})
     basics.settings(
         "/ipv6/settings",
