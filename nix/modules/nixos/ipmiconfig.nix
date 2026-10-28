@@ -70,11 +70,6 @@ in
     };
     # BMC user for this host to log in to Redfish with, managed over the KCS
     user = {
-      id = lib.mkOption {
-        type = ints.between 3 16;
-        default = 3;
-        description = "User slot. Only claimed when empty or already named `name`.";
-      };
       name = lib.mkOption {
         type = str;
         default = "ipmiconfig";
@@ -215,33 +210,43 @@ in
             ipmi exec "$RUNTIME_DIRECTORY/ipmi-exec"
           }
 
-          access="$(ipmi channel getaccess 1 ${toString user.id})"
-          if [ "$(colonval 'User ID' "$access")" != "${toString user.id}" ]; then
-            echo "BMC user: could not parse user ${toString user.id}, not touching it" >&2
+          # Reuse the slot already named ${user.name}, or claim the highest empty
+          # one: other users (ADMIN, fwupd, ...) fill up the low slots. Slot 1
+          # is the anonymous user and always has an empty name.
+          users="$(ipmi -c user list 1)"
+          if ! grep -q '^2,' <<<"$users"; then
+            echo "BMC user: could not parse user list, not touching it" >&2
             exit 1
           fi
-          username="$(colonval 'User Name' "$access")"
+          uid="$(awk -F , '$2 == "${user.name}" { print $1; exit }' <<<"$users")"
           claimed=0
-          if [ "$username" = "${user.name}" ]; then
-            echo "BMC user ${toString user.id}: ${user.name}"
-          elif [ -z "$username" ]; then
-            echo "BMC user ${toString user.id}: claiming empty slot as ${user.name}"
-            ipmi user set name ${toString user.id} "${user.name}"
-            claimed=1
+          if [ -n "$uid" ]; then
+            echo "BMC user $uid: ${user.name}"
           else
-            echo "BMC user ${toString user.id}: slot belongs to $username, not touching it" >&2
+            uid="$(awk -F , '$1 > 2 && $2 == "" { uid = $1 } END { print uid }' <<<"$users")"
+            if [ -z "$uid" ]; then
+              echo "BMC user: no empty slot left for ${user.name}" >&2
+              exit 1
+            fi
+            echo "BMC user $uid: claiming empty slot as ${user.name}"
+            ipmi user set name "$uid" "${user.name}"
+            claimed=1
+          fi
+          access="$(ipmi channel getaccess 1 "$uid")"
+          if [ "$(colonval 'User ID' "$access")" != "$uid" ]; then
+            echo "BMC user $uid: could not parse its access, not touching it" >&2
             exit 1
           fi
 
           # "user test" checks the password without changing anything
-          pwtest="$(ipmiexec "user test ${toString user.id} 16 $password")" || true
+          pwtest="$(ipmiexec "user test $uid 16 $password")" || true
           case "$pwtest" in
             *Success*)
               echo "BMC user password: matches"
               ;;
             *"Failure: password incorrect"* | *"Failure: wrong password size"*)
               echo "BMC user password: differs, setting it"
-              ipmiexec "user set password ${toString user.id} $password 16" >/dev/null
+              ipmiexec "user set password $uid $password 16" >/dev/null
               ;;
             *)
               echo "BMC user password: could not test it ($pwtest), not touching it" >&2
@@ -250,16 +255,16 @@ in
           esac
 
           ensure "BMC user privilege" "$(colonval 'Privilege Level' "$access")" "ADMINISTRATOR" \
-            channel setaccess 1 ${toString user.id} privilege=4
+            channel setaccess 1 "$uid" privilege=4
           ensure "BMC user IPMI messaging" "$(colonval 'IPMI Messaging' "$access")" "enabled" \
-            channel setaccess 1 ${toString user.id} ipmi=on
+            channel setaccess 1 "$uid" ipmi=on
 
           # Many BMCs report "unknown" here. Only enable a user we did not
           # just create when the BMC says it is disabled.
           enabled="$(colonval 'Enable Status' "$access")"
           if [ "$enabled" = "disabled" ] || [ "$claimed" = 1 ]; then
             echo "BMC user enable status: $enabled -> enabled"
-            ipmi user enable ${toString user.id}
+            ipmi user enable "$uid"
           else
             echo "BMC user enable status: $enabled"
           fi
