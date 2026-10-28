@@ -57,8 +57,8 @@ in
 
           package =
             (mkFactorioHeadless {
-              version = "2.1.17";
-              sha256 = "20159feb205cb28c5660b91437dd2659468b41f7836e5e777f6f592a2f51b00b";
+              version = "2.1.24";
+              sha256 = "c49b66cff90aceff87b30f2973af0df7f51712cb2ee3153e0169d9bed46a964f";
             }).overrideAttrs
               (old: {
                 installPhase = old.installPhase + ''
