@@ -32,15 +32,14 @@ let
     }
   ];
 
-  # A VLAN of the 10.<id>.0.0/16 + <ula>:<id>::/64 plan. Redundant ones get the
-  # VIPs above, the others are routed by the primary router only.
+  # A VLAN of the 10.<id>.0.0/16 + <ula>:<id>::/64 plan, served by both routers
+  # behind the VIPs above.
   mkPlanVlan =
     {
       name,
       id,
       mtu ? 9000,
       native ? false,
-      redundant ? true,
       ipv6 ? true,
       leaseTime ? "1h",
       interfaceList ? "iface-${name}",
@@ -51,20 +50,11 @@ let
     let
       net = "10.${toString id}";
       net6 = "${ula}:${toString id}:";
-      primaryAddr = "${net}.1.1";
-      gateway = if redundant then "${net}.0.1" else primaryAddr;
+      gateway = "${net}.0.1";
       # Each router's own address in index order, as fallback for when VRRP breaks
       sortedRouters = lib.sort (a: b: a.index < b.index) (lib.attrValues routers);
-      routerAddrs =
-        if redundant then
-          map (router: "${net}.1.${toString router.index}") sortedRouters
-        else
-          [ primaryAddr ];
-      routerAddrs6 =
-        if redundant then
-          map (router: "${net6}:10${toString router.index}") sortedRouters
-        else
-          [ "${net6}:101" ];
+      routerAddrs = map (router: "${net}.1.${toString router.index}") sortedRouters;
+      routerAddrs6 = map (router: "${net6}:10${toString router.index}") sortedRouters;
     in
     {
       inherit
@@ -86,38 +76,32 @@ let
         if ipv6 then
           {
             network = "${net6}:/64";
-            dns = lib.unique ((lib.optional redundant "${net6}:1") ++ routerAddrs6);
+            dns = [ "${net6}:1" ] ++ routerAddrs6;
             ntp = ntp6 ++ routerAddrs6;
           }
         else
           null;
-      vips =
-        if redundant then
-          map (
-            vip:
-            {
-              inherit (vip) name vrid;
-              ipv4 = "${net}.${vip.ipv4}";
-            }
-            // lib.optionalAttrs (vip ? vrid6) {
-              inherit (vip) vrid6;
-              ipv6 = "${net6}:${vip.ipv6}";
-            }
-          ) vips
-        else
-          [ ];
+      vips = map (
+        vip:
+        {
+          inherit (vip) name vrid;
+          ipv4 = "${net}.${vip.ipv4}";
+        }
+        // lib.optionalAttrs (ipv6 && vip ? vrid6) {
+          inherit (vip) vrid6;
+          ipv6 = "${net6}:${vip.ipv6}";
+        }
+      ) vips;
       routers = lib.mapAttrs (
         _: router:
         let
           idx = router.index;
           poolStart = 50 + 50 * idx;
-          hasPool = redundant || idx == 1;
         in
         {
           ipv4 = "${net}.1.${toString idx}/16";
           ipv6 = if ipv6 then "${net6}:10${toString idx}/64" else null;
-          pool =
-            if hasPool then "${net}.${toString poolStart}.0-${net}.${toString (poolStart + 49)}.255" else null;
+          pool = "${net}.${toString poolStart}.0-${net}.${toString (poolStart + 49)}.255";
         }
       ) routers;
     };
@@ -156,9 +140,7 @@ let
       name = "retro";
       id = 7;
       mtu = 1500;
-      redundant = false;
       ipv6 = false;
-      interfaceList = "zone-local";
     })
     # Cursed Silicon's homelab network, see bengalfox/cghmn.nix
     {

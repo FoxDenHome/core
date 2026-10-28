@@ -1,3 +1,4 @@
+import copy
 import unittest
 from typing import Any
 
@@ -41,14 +42,12 @@ def plan_router(index: int) -> dict[str, Any]:
     }
 
 
-def plan_vlan_routers(vlan: int, redundant: bool) -> dict[str, Any]:
+def plan_vlan_routers(vlan: int, ipv6: bool) -> dict[str, Any]:
     return {
         name: {
             "ipv4": f"10.{vlan}.1.{index}/16",
-            "ipv6": f"fd2c:f4cb:63be:{vlan}::10{index}/64" if redundant else None,
-            "pool": f"10.{vlan}.{50 + 50 * index}.0-10.{vlan}.{99 + 50 * index}.255"
-            if redundant or index == 1
-            else None,
+            "ipv6": f"fd2c:f4cb:63be:{vlan}::10{index}/64" if ipv6 else None,
+            "pool": f"10.{vlan}.{50 + 50 * index}.0-10.{vlan}.{99 + 50 * index}.255",
         }
         for name, index in (("router", 1), ("router-backup", 2))
     }
@@ -97,16 +96,16 @@ PLAN: dict[str, Any] = {
             "mtu": 1500,
             "native": False,
             "leaseTime": "1h",
-            "interfaceList": "zone-local",
+            "interfaceList": "iface-retro",
             "ipv4": {
                 "network": "10.7.0.0/16",
-                "gateway": "10.7.1.1",
-                "dns": ["10.7.1.1"],
-                "ntp": ["10.7.1.1"],
+                "gateway": "10.7.0.1",
+                "dns": ["10.7.0.1", "10.7.1.1", "10.7.1.2"],
+                "ntp": ["10.7.1.1", "10.7.1.2"],
                 "domain": "foxden.network",
             },
             "ipv6": None,
-            "vips": [],
+            "vips": [{"name": "gateway", "vrid": 1, "ipv4": "10.7.0.1"}],
             "routers": plan_vlan_routers(7, False),
         },
     ],
@@ -237,14 +236,21 @@ class TestMakeInternalBasics(unittest.TestCase):
         self.assertEqual(vrrp["vrrp-mgmt-gateway6"]["v3-protocol"], "ipv6")
         self.assertEqual(vrrp["vrrp-mgmt-gateway6"]["vrid"], "2")
 
-    def test_backup_serves_redundant_vlans_only(self) -> None:
+    def test_backup_serves_its_pools(self) -> None:
         basics = make_internal_basics(PLAN, mtik_router("router-backup"), "community")
         servers = {row["name"]: row for row in rows(basics, "/ip/dhcp-server")}
         self.assertEqual(servers["dhcp-mgmt"]["address-pool"], "pool-mgmt")
-        self.assertEqual(servers["dhcp-retro"]["address-pool"], "static-only")
+        self.assertEqual(servers["dhcp-retro"]["address-pool"], "pool-retro")
         self.assertEqual(servers["dhcp-mgmt"]["authoritative"], "after-10sec-delay")
         pools = [row["name"] for row in rows(basics, "/ip/pool")]
-        self.assertEqual(pools, ["pool-mgmt", "pool-oob"])
+        self.assertEqual(pools, ["pool-mgmt", "pool-retro", "pool-oob"])
+
+    def test_static_only_without_pool(self) -> None:
+        plan = copy.deepcopy(PLAN)
+        plan["vlans"][1]["routers"]["router-backup"]["pool"] = None
+        basics = make_internal_basics(plan, mtik_router("router-backup"), "community")
+        servers = {row["name"]: row for row in rows(basics, "/ip/dhcp-server")}
+        self.assertEqual(servers["dhcp-retro"]["address-pool"], "static-only")
 
     def test_stateless_dhcpv6(self) -> None:
         basics = make_internal_basics(PLAN, mtik_router("router"), "community")
@@ -301,7 +307,7 @@ class TestMakeInternalBasics(unittest.TestCase):
         local = {row["address"] for row in rows(basics, "/ip/firewall/address-list")}
         self.assertEqual(
             local,
-            {"10.1.1.1", "10.1.0.1", "10.7.1.1", "10.99.1.1", "10.99.0.1"},
+            {"10.1.1.1", "10.1.0.1", "10.7.1.1", "10.7.0.1", "10.99.1.1", "10.99.0.1"},
         )
 
     def test_blackhole_routes_in_sync_without_flag(self) -> None:
