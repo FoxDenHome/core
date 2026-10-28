@@ -3,9 +3,9 @@
 
   inputs = {
     # Basics
-    # Pinned to a nixos-unstable-small rev the NixOS-CUDA Hydra has built, so cache.nixos-cuda.org
-    # has our CUDA packages. Bump with ./pin-cuda-nixpkgs.sh, not by hand.
-    nixpkgs.url = "github:NixOS/nixpkgs/679429ff581232d6927f59c362bd670c40b2fcdb";
+    # Pinned to a nixpkgs-unstable rev the NixOS-CUDA Hydra has also built, so both cache.nixos.org
+    # and cache.nixos-cuda.org have our packages. Bump with ./pin-cuda-nixpkgs.sh, not by hand.
+    nixpkgs.url = "github:NixOS/nixpkgs/fa45202b90a351983649116adb577827b2a9a679";
 
     home-manager = {
       url = "github:nix-community/home-manager";
