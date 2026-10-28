@@ -621,7 +621,7 @@ def make_internal_basics(
             {
                 "address": str(network),
                 "gateway": ipv4["gateway"],
-                "dns-server": ipv4["dns"],
+                "dns-server": ",".join(ipv4["dns"]),
                 "netmask": str(network.prefixlen),
                 "domain": ipv4["domain"] or "",
                 # Has to be cleared for ntp-server to take

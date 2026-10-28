@@ -67,8 +67,8 @@ PLAN: dict[str, Any] = {
             "ipv4": {
                 "network": "10.1.0.0/16",
                 "gateway": "10.1.0.1",
-                "dns": "10.1.0.1",
-                "ntp": ["10.1.0.1"],
+                "dns": ["10.1.0.1", "10.1.1.1", "10.1.1.2"],
+                "ntp": ["10.1.1.1", "10.1.1.2"],
                 "domain": "foxden.network",
             },
             "ipv6": {"network": "fd2c:f4cb:63be:1::/64", "dns": "fd2c:f4cb:63be:1::1"},
@@ -93,7 +93,7 @@ PLAN: dict[str, Any] = {
             "ipv4": {
                 "network": "10.7.0.0/16",
                 "gateway": "10.7.1.1",
-                "dns": "10.7.1.1",
+                "dns": ["10.7.1.1"],
                 "ntp": ["10.7.1.1"],
                 "domain": "foxden.network",
             },

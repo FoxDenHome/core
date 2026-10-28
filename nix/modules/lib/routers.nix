@@ -44,7 +44,7 @@ let
       ipv6 ? true,
       leaseTime ? "1h",
       interfaceList ? "iface-${name}",
-      # Preferred NTP servers handed out over DHCPv4, ahead of the gateway
+      # Preferred NTP servers handed out over DHCPv4, ahead of the routers
       ntp ? [ ],
     }:
     let
@@ -52,6 +52,14 @@ let
       net6 = "${ula}:${toString id}:";
       primaryAddr = "${net}.1.1";
       gateway = if redundant then "${net}.0.1" else primaryAddr;
+      # Each router's own address in index order, as fallback for when VRRP breaks
+      routerAddrs =
+        if redundant then
+          map (router: "${net}.1.${toString router.index}") (
+            lib.sort (a: b: a.index < b.index) (lib.attrValues routers)
+          )
+        else
+          [ primaryAddr ];
     in
     {
       inherit
@@ -65,8 +73,8 @@ let
       ipv4 = {
         network = "${net}.0.0/16";
         inherit gateway;
-        dns = gateway;
-        ntp = ntp ++ [ gateway ];
+        dns = lib.unique ([ gateway ] ++ routerAddrs);
+        ntp = ntp ++ routerAddrs;
         domain = "foxden.network";
       };
       ipv6 =
@@ -118,7 +126,7 @@ let
       name = "lan";
       id = 2;
       leaseTime = "1d";
-      # ntpi, falling back to the gateway (IPv6 would need DHCPv6)
+      # ntpi, falling back to the routers (IPv6 would need DHCPv6)
       ntp = [ "10.2.1.123" ];
     })
     (mkPlanVlan {
@@ -156,7 +164,7 @@ let
       ipv4 = {
         network = "100.68.41.0/24";
         gateway = "100.68.41.1";
-        dns = "100.68.41.1";
+        dns = [ "100.68.41.1" ];
         ntp = null;
         domain = null;
       };
