@@ -20,33 +20,15 @@ let
     };
   };
 
-  # Addresses held by whichever router is VRRP master, as 10.<vlan>.<ipv4> and <ula>:<vlan>::<ipv6>
+  # Addresses held by whichever router is VRRP master, as 10.<vlan>.<ipv4> and <ula>:<vlan>::<ipv6>.
+  # The gateway VIP also serves DNS, NTP and the mailer.
   vips = [
     {
       name = "gateway";
       vrid = 1;
       ipv4 = "0.1";
-    }
-    {
-      name = "dns";
-      vrid = 53;
-      ipv4 = "0.53";
-      vrid6 = 54;
-      ipv6 = "35";
-    }
-    {
-      name = "ntp";
-      vrid = 123;
-      ipv4 = "0.123";
-      vrid6 = 124;
-      ipv6 = "7b";
-    }
-    {
-      name = "mailer";
-      vrid = 25;
-      ipv4 = "0.25";
-      vrid6 = 26;
-      ipv6 = "19";
+      vrid6 = 2;
+      ipv6 = "1";
     }
   ];
 
@@ -67,6 +49,7 @@ let
       net = "10.${toString id}";
       net6 = "${ula}:${toString id}:";
       primaryAddr = "${net}.1.1";
+      gateway = if redundant then "${net}.0.1" else primaryAddr;
     in
     {
       inherit
@@ -79,16 +62,16 @@ let
       vlanId = id;
       ipv4 = {
         network = "${net}.0.0/16";
-        gateway = if redundant then "${net}.0.1" else primaryAddr;
-        dns = if redundant then "${net}.0.53" else primaryAddr;
-        ntp = if redundant then "${net}.0.123" else null;
+        inherit gateway;
+        dns = gateway;
+        ntp = gateway;
         domain = "foxden.network";
       };
       ipv6 =
         if ipv6 then
           {
             network = "${net6}:/64";
-            dns = "${net6}:35";
+            dns = if redundant then "${net6}:1" else "${net6}:101";
           }
         else
           null;

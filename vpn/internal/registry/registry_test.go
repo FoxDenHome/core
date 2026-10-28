@@ -157,7 +157,7 @@ func TestConfig(t *testing.T) {
 		t.Fatalf("networks = %+v", cfg.Networks)
 	}
 	got := fmt.Sprint(cfg.Networks[0].Prefixes, cfg.Networks[0].DNS, cfg.VPNPrefixes, cfg.DNS.Servers)
-	want := "[10.2.0.0/16 2a0e:7d44:f069:a02::/64] [10.2.0.53] [10.100.0.0/16 fd2c:f4cb:63be::a64:0/112] [10.100.0.1 fd2c:f4cb:63be::a64:1]"
+	want := "[10.2.0.0/16 2a0e:7d44:f069:a02::/64] [10.2.0.1] [10.100.0.0/16 fd2c:f4cb:63be::a64:0/112] [10.100.0.1 fd2c:f4cb:63be::a64:1]"
 	if got != want {
 		t.Fatalf("got  %s\nwant %s", got, want)
 	}

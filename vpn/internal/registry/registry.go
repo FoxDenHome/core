@@ -43,7 +43,7 @@ type Settings struct {
 	DNSDomains       []string       `json:"dns_domains"`
 	InternalPrefixes []netip.Prefix `json:"internal_prefixes"`
 	// Networks are the VLAN names offered to clients, in display order. Each
-	// maps to interface vlan-<name>, with resolvers on vrrp-<name>-dns(6).
+	// maps to interface vlan-<name>, with resolvers on vrrp-<name>-gateway(6).
 	Networks []string `json:"networks"`
 	// StaticNetworks are offered after Networks with fixed prefixes, for
 	// what is not a router VLAN (e.g. sites behind the wg-s2s tunnel).
@@ -301,7 +301,7 @@ func (s *Snapshot) Config(p Peer, set Settings) *provision.Config {
 		if len(prefixes) == 0 {
 			continue
 		}
-		dns := append(hosts(s.addrs["vrrp-"+name+"-dns"]), hosts(s.addrs["vrrp-"+name+"-dns6"])...)
+		dns := append(hosts(s.addrs["vrrp-"+name+"-gateway"]), hosts(s.addrs["vrrp-"+name+"-gateway6"])...)
 		cfg.Networks = append(cfg.Networks, provision.Network{Name: name, Prefixes: prefixes, DNS: dns})
 	}
 	cfg.Networks = append(cfg.Networks, set.StaticNetworks...)

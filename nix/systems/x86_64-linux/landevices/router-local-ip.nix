@@ -30,9 +30,9 @@ in
   config.foxDen.dns.records = lib.flatten [
     (mkDevice "gateway" "0.1" "1")
     # TODO: E-Mail uses IP-based auth, but IPv6 has RA provided dyanmic IPv6 which is prefers to use...
-    (mkDevice "mailer" "0.25" "") # "19")
-    (mkDevice "dns" "0.53" "35")
-    (mkDevice "ntp" "0.123" "7b")
+    (mkDevice "mailer" "0.1" "") # "1")
+    (mkDevice "dns" "0.1" "1")
+    (mkDevice "ntp" "0.1" "1")
     (mkDevice "router" "1.1" "101")
     (mkDevice "router-backup" "1.2" "102")
     (mkDevice "ntpi" "1.123" "17b")

@@ -6,8 +6,8 @@ let
     vlan:
     if isNativeVLAN vlan then
       [
-        "10.${toString vlan}.0.53"
-        "fd2c:f4cb:63be:${toString vlan}\::35"
+        "10.${toString vlan}.0.1"
+        "fd2c:f4cb:63be:${toString vlan}\::1"
       ]
     else
       [ ];

@@ -844,7 +844,7 @@ def make_internal_basics(
         "/system/ntp/client/servers",
         ("address",),
         # ntpi
-        [{"address": "10.1.1.123"}] + NTP_POOL,
+        [{"address": "10.2.1.123"}] + NTP_POOL,
         prune=_prune_all,
     )
     basics.settings("/system/routerboard/settings", **{"auto-upgrade": TRUE})

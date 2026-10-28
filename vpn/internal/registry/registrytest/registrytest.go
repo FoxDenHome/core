@@ -29,7 +29,7 @@ func New() *Router {
 		{"address": "10.100.0.1/16", "interface": "wg-vpn"},
 		{"address": "10.2.1.1/16", "interface": "vlan-lan"},
 		{"address": "10.2.6.1/24", "interface": "vlan-lan"},
-		{"address": "10.2.0.53/32", "interface": "vrrp-lan-dns"},
+		{"address": "10.2.0.1/32", "interface": "vrrp-lan-gateway"},
 		{"address": "10.1.1.1/16", "interface": "vlan-mgmt", "disabled": "true"},
 	}
 	f.Tables["/ipv6/address"] = []routeros.Row{

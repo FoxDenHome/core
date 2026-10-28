@@ -67,18 +67,18 @@ PLAN: dict[str, Any] = {
             "ipv4": {
                 "network": "10.1.0.0/16",
                 "gateway": "10.1.0.1",
-                "dns": "10.1.0.53",
-                "ntp": None,
+                "dns": "10.1.0.1",
+                "ntp": "10.1.0.1",
                 "domain": "foxden.network",
             },
-            "ipv6": {"network": "fd2c:f4cb:63be:1::/64", "dns": "fd2c:f4cb:63be:1::35"},
+            "ipv6": {"network": "fd2c:f4cb:63be:1::/64", "dns": "fd2c:f4cb:63be:1::1"},
             "vips": [
                 {
-                    "name": "dns",
-                    "vrid": 53,
-                    "ipv4": "10.1.0.53",
-                    "vrid6": 54,
-                    "ipv6": "fd2c:f4cb:63be:1::35",
+                    "name": "gateway",
+                    "vrid": 1,
+                    "ipv4": "10.1.0.1",
+                    "vrid6": 2,
+                    "ipv6": "fd2c:f4cb:63be:1::1",
                 }
             ],
             "routers": plan_vlan_routers(1, True),
@@ -94,7 +94,7 @@ PLAN: dict[str, Any] = {
                 "network": "10.7.0.0/16",
                 "gateway": "10.7.1.1",
                 "dns": "10.7.1.1",
-                "ntp": None,
+                "ntp": "10.7.1.1",
                 "domain": "foxden.network",
             },
             "ipv6": None,
@@ -224,10 +224,10 @@ class TestMakeInternalBasics(unittest.TestCase):
     def test_vrrp_group_authority(self) -> None:
         basics = make_internal_basics(PLAN, mtik_router("router"), "community")
         vrrp = {row["name"]: row for row in rows(basics, "/interface/vrrp")}
-        self.assertEqual(vrrp["vrrp-mgmt-dns"]["group-authority"], "self")
-        self.assertEqual(vrrp["vrrp-mgmt-dns"]["version"], "2")
-        self.assertEqual(vrrp["vrrp-mgmt-dns6"]["v3-protocol"], "ipv6")
-        self.assertEqual(vrrp["vrrp-mgmt-dns6"]["vrid"], "54")
+        self.assertEqual(vrrp["vrrp-mgmt-gateway"]["group-authority"], "self")
+        self.assertEqual(vrrp["vrrp-mgmt-gateway"]["version"], "2")
+        self.assertEqual(vrrp["vrrp-mgmt-gateway6"]["v3-protocol"], "ipv6")
+        self.assertEqual(vrrp["vrrp-mgmt-gateway6"]["vrid"], "2")
 
     def test_backup_serves_redundant_vlans_only(self) -> None:
         basics = make_internal_basics(PLAN, mtik_router("router-backup"), "community")
@@ -268,7 +268,7 @@ class TestMakeInternalBasics(unittest.TestCase):
         local = {row["address"] for row in rows(basics, "/ip/firewall/address-list")}
         self.assertEqual(
             local,
-            {"10.1.1.1", "10.1.0.53", "10.7.1.1", "10.99.1.1", "10.99.0.1"},
+            {"10.1.1.1", "10.1.0.1", "10.7.1.1", "10.99.1.1", "10.99.0.1"},
         )
 
     def test_blackhole_routes_in_sync_without_flag(self) -> None:
