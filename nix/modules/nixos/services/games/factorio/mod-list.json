@@ -26,9 +26,9 @@
         {
             "name": "aai-industry",
             "enabled": true,
-            "sha1": "0f6df0890c92033c43897ff9ab467729fc82a66e",
-            "url": "https://mods.factorio.com/download/aai-industry/6a7648869acc92b0767415fa",
-            "version": "0.7.4"
+            "sha1": "0bffb441c09775dcb9dd3e2d403849ccc53e6841",
+            "url": "https://mods.factorio.com/download/aai-industry/6ab323a2e236a1d2410f88d1",
+            "version": "0.7.5"
         },
         {
             "name": "aai-signal-transmission",
@@ -96,9 +96,9 @@
         {
             "name": "even-pickier-dollies",
             "enabled": true,
-            "sha1": "258b855c4649c2c6b8b52cd1e8005fc65186a0f5",
-            "url": "https://mods.factorio.com/download/even-pickier-dollies/6a63ab18d1754912a27de802",
-            "version": "3.0.2"
+            "sha1": "3fd27356736036d07710e0c1bc4d64cb0aadac28",
+            "url": "https://mods.factorio.com/download/even-pickier-dollies/6adbf54468c94a04fa6fbe77",
+            "version": "3.2.0"
         },
         {
             "name": "flib",
@@ -131,9 +131,9 @@
         {
             "name": "InserterFuelLeech",
             "enabled": true,
-            "sha1": "20d6f1eaca48a8237e4add4b127601a9c555c96d",
-            "url": "https://mods.factorio.com/download/InserterFuelLeech/6a4524723cbb3669cd0de864",
-            "version": "1.0.5"
+            "sha1": "b66b7641df920c99ab077a3270b997a24ac94644",
+            "url": "https://mods.factorio.com/download/InserterFuelLeech/6ab83193c31eb9405ff7681f",
+            "version": "1.0.6"
         },
         {
             "name": "jetpack",
@@ -145,9 +145,9 @@
         {
             "name": "LogisticTrainNetwork",
             "enabled": true,
-            "sha1": "aadb2ff74b0336e0af69555536b8f4b7fe6bb1be",
-            "url": "https://mods.factorio.com/download/LogisticTrainNetwork/6aa2f9e1538e80e36dedff83",
-            "version": "3.2.1"
+            "sha1": "91b073da98eca690102e3fb4ed1d1fc82cbffc42",
+            "url": "https://mods.factorio.com/download/LogisticTrainNetwork/6adfb268f160050b818ec112",
+            "version": "3.4.2"
         },
         {
             "name": "LtnManager",
@@ -159,9 +159,9 @@
         {
             "name": "LTN_Combinator_Modernized",
             "enabled": true,
-            "sha1": "47a6680748e4dec5b191724312700b8bbf9d84e0",
-            "url": "https://mods.factorio.com/download/LTN_Combinator_Modernized/6a3db7f2b47877e4de0fddba",
-            "version": "2.5.0"
+            "sha1": "55f9141b300c0ac99eae86e05ff8db3ea880ddf0",
+            "url": "https://mods.factorio.com/download/LTN_Combinator_Modernized/6ac53647684dda7ecab9c6f5",
+            "version": "2.5.1"
         },
         {
             "name": "Milestones",
@@ -215,9 +215,9 @@
         {
             "name": "space-exploration",
             "enabled": true,
-            "sha1": "57e8de0cc8fef1efcbca538bdefa0e190ba63430",
-            "url": "https://mods.factorio.com/download/space-exploration/6a763c8451ecf92677c663e4",
-            "version": "0.7.61"
+            "sha1": "b6778f96ce2a9334b7b4585349d2844894a892a7",
+            "url": "https://mods.factorio.com/download/space-exploration/6ad165ed032bb672e99b49eb",
+            "version": "0.7.63"
         },
         {
             "name": "space-exploration-graphics",
@@ -271,16 +271,16 @@
         {
             "name": "space-exploration-postprocess",
             "enabled": true,
-            "sha1": "e400b86014cdc3c4d3d1e1097c3a688c74c12bcd",
-            "url": "https://mods.factorio.com/download/space-exploration-postprocess/6a549dbc20094db02ee637d2",
-            "version": "0.7.6"
+            "sha1": "354dd6dc0229001b9dcf4dbb0e51be478c43ce03",
+            "url": "https://mods.factorio.com/download/space-exploration-postprocess/6ad1661c33d361d81af7e67b",
+            "version": "0.7.7"
         },
         {
             "name": "squeak-through-2",
             "enabled": true,
-            "sha1": "d42bf7473824710189ae219c6ee660cd17e9d9af",
-            "url": "https://mods.factorio.com/download/squeak-through-2/6a3a78fac23b446555185a9c",
-            "version": "0.2.0"
+            "sha1": "dfe5b808c864643a3e256f1fa5a957a6e47f801b",
+            "url": "https://mods.factorio.com/download/squeak-through-2/6ac2d3e4b6fa35675345b78b",
+            "version": "0.2.1"
         },
         {
             "name": "textplates",
