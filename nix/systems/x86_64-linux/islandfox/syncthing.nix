@@ -8,6 +8,11 @@ in
       enable = true;
       host = "syncthing";
       tls.enable = true;
+      oAuth = {
+        enable = true;
+        clientId = "syncthing-islandfox";
+        displayName = "Syncthing (islandfox)";
+      };
       syncthingHost = "syncthing.foxden.network";
       webdavHost = "webdav.syncthing.foxden.network";
     };
@@ -23,16 +28,6 @@ in
         dynDns = true;
       };
       webservice.enable = true;
-      firewall.portForwards = [
-        {
-          protocol = "tcp";
-          port = 22000;
-        }
-        {
-          protocol = "udp";
-          port = 22000;
-        }
-      ];
       addresses = [
         "10.2.11.2/16"
         "fd2c:f4cb:63be:2::b02/64"

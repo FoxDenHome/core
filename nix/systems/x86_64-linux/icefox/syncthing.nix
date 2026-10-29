@@ -11,6 +11,11 @@ in
         enable = true;
         hsts = "preload";
       };
+      oAuth = {
+        enable = true;
+        clientId = "syncthing-icefox";
+        displayName = "Syncthing (icefox)";
+      };
       syncthingHost = "syncthing.doridian.net";
       webdavHost = "webdav.syncthing.doridian.net";
     };
@@ -24,16 +29,6 @@ in
           "webdav.syncthing.doridian.net"
         ];
       };
-      firewall.portForwards = [
-        {
-          protocol = "tcp";
-          port = 22000;
-        }
-        {
-          protocol = "udp";
-          port = 22000;
-        }
-      ];
       webservice.enable = true;
       addresses = [
         "2607:5300:60:7065::1:6/112"

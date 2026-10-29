@@ -317,7 +317,7 @@ in
         };
     };
 
-  inherit mkOauthConfig;
+  inherit mkOauthConfig mkNginxHandler;
 
   mkOptions = (
     inputs:
