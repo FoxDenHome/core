@@ -26,7 +26,7 @@ in
     };
 
     systemd.tmpfiles.rules = [
-      "D /run/tapemgr-mount 0700 root root"
+      "d /run/tapemgr-mount 0700 root root"
     ];
 
     environment.persistence."/nix/persist/tapemgr" = {

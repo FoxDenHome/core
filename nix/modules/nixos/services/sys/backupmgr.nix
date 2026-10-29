@@ -98,7 +98,7 @@ in
         sops.secrets.backupmgr = config.lib.foxDen.sops.mkIfAvailable { };
 
         systemd.tmpfiles.rules = [
-          "D /run/backupmgr-mount 0700 root root"
+          "d /run/backupmgr-mount 0700 root root"
         ];
 
         environment.etc."backupmgr/config.json" = config.lib.foxDen.sops.mkIfAvailable {
