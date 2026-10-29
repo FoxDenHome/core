@@ -162,6 +162,7 @@ def eaton(fqdn: str, lego_dir: Path) -> None:
     subprocess.run(
         [
             "lego",
+            "run",
             "--accept-tos",
             "--email",
             "ssl@foxden.network",
@@ -171,11 +172,12 @@ def eaton(fqdn: str, lego_dir: Path) -> None:
             str(lego_dir),
             "--csr",
             str(lego_dir / "card.csr"),
-            "run",
+            "--cert.name",
+            fqdn,
+            "--no-random-sleep",
         ],
         check=True,
     )
-    # lego names its files after the CSR's common name, or its first DNS name
     issued = (lego_dir / "certificates" / f"{fqdn}.crt").read_bytes()
     leaf = x509.load_pem_x509_certificates(issued)[0]
     log(f"Certificate: Let's Encrypt issued {fingerprint(leaf)}")
@@ -200,8 +202,8 @@ class CyberPower:
     """The RMCARD web UI. Its session is tied to the client's address and
     User-Agent, so everything has to go through this one opener."""
 
-    def __init__(self, fqdn: str) -> None:
-        self.base = f"https://{fqdn}/"
+    def __init__(self, fqdn: str, scheme: str) -> None:
+        self.base = f"{scheme}://{fqdn}/"
         # Until it serves our certificate, the card's own is self-signed
         ctx = ssl.create_default_context()
         ctx.check_hostname = False
@@ -300,21 +302,28 @@ def cyberpower(fqdn: str, cert_dir: Path) -> None:
     cert = x509.load_pem_x509_certificate((cert_dir / "cert.pem").read_bytes())
     desired = fingerprint(cert)
     served = served_cert(fqdn)
-    if served is None:
-        raise CardError("card does not serve HTTPS, enable it under Web Service")
     current = fingerprint(served)
-    if current == desired:
+    # The card keeps its old key when it can't read the new one, so the
+    # certificate matching isn't enough
+    if current == desired and trusted(fqdn):
         log(f"Certificate: {current}")
         return
     log(f"Certificate: {current} -> {desired}")
 
-    card = CyberPower(fqdn)
+    # A card whose HTTPS is broken (Web Service set to HTTP over Telnet to
+    # recover it) takes the upload over HTTP
+    card = CyberPower(fqdn, "https" if served else "http")
     card.login(*credentials())
     try:
         upload_cyberpower(card, cert_dir)
     finally:
         card.logout()
+    if not served:
+        log("Certificate: uploaded over HTTP, switch Web Service to HTTPS to use it")
+        return
     wait_served(fqdn, desired)
+    if not trusted(fqdn):
+        raise CardError("card serves the certificate, but not with its key")
 
 
 def upload_cyberpower(card: CyberPower, cert_dir: Path) -> None:
@@ -332,7 +341,15 @@ def upload_cyberpower(card: CyberPower, cert_dir: Path) -> None:
             'Content-Disposition: form-data; name="upfile"; filename="RMC.crt"\r\n'
             "Content-Type: application/x-x509-ca-cert\r\n\r\n"
         ).encode()
-        + (cert_dir / "full.pem").read_bytes()
+        # Only a PKCS#1 key, lego writes PKCS#8
+        + serialization.load_pem_private_key(
+            (cert_dir / "key.pem").read_bytes(), password=None
+        ).private_bytes(
+            serialization.Encoding.PEM,
+            serialization.PrivateFormat.TraditionalOpenSSL,
+            serialization.NoEncryption(),
+        )
+        + (cert_dir / "fullchain.pem").read_bytes()
         + f"\r\n--{boundary}--\r\n".encode()
     )
     req = urllib.request.Request(
