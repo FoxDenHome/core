@@ -18,6 +18,11 @@ let
   # Inside http-syncthing's private /tmp
   forbiddenSocket = "/tmp/syncthing-forbidden.sock";
 
+  # WebDAV logins are kanidm application passwords for this application
+  webdavApplication = "syncthing-webdav";
+  webdavAuthDir = "/run/syncthing-webdav-auth";
+  webdavAuthSocket = "${webdavAuthDir}/auth.sock";
+
   # One instance per login-users member, each with its own sync port, GUI socket and WebDAV root
   users = lib.genAttrs (kanidm.groups.login-users.members or [ ]) (
     user:
@@ -67,6 +72,11 @@ in
       type = lib.types.str;
       description = "Host to run webdav in (empty for host)";
     };
+    kanidmLdapUrl = lib.mkOption {
+      type = lib.types.str;
+      default = "ldaps://auth.foxden.network";
+      description = "kanidm LDAPS gateway that checks WebDAV application passwords";
+    };
   }
   // (services.http.mkOptions {
     name = "Syncthing server";
@@ -105,8 +115,8 @@ in
             ${lib.concatMapAttrsStringSep "\n" (user: _: "  ${user} syncthing_${user};") users}
             }
 
-            # $remote_user is read from the Authorization header before auth_basic verifies it.
-            # Empty falls through to auth_basic (401); a name outside login-users is refused.
+            # $remote_user is read from the Authorization header before auth_request verifies it.
+            # Empty falls through to auth_request (401); a name outside login-users is refused.
             map $remote_user $syncthing_webdav_denied {
               default 1;
               "" 0;
@@ -131,20 +141,25 @@ in
               server_name ${svcConfig.webdavHost};
               ${baseWebConfig}
 
-              auth_basic "Syncthing WebDAV";
-              auth_basic_user_file ${
-                if config.foxDen.sops.available then config.sops.secrets.http-syncthing.path else "/dev/null"
-              };
               root /syncthing/users/$syncthing_webdav_user;
               # These values must be defined outside of the location block
               # otherwise, WebDAV will somehow ignore them...
               client_body_temp_path /syncthing/tmp;
               client_max_body_size 0;
 
+              # Named so it can't shadow a file in a user's WebDAV root
+              location = /.syncthing-webdav-auth {
+                internal;
+                proxy_pass http://unix:${webdavAuthSocket}:;
+                proxy_pass_request_body off;
+                proxy_set_header Content-Length "";
+              }
+
               location / {
                 if ($syncthing_webdav_denied) {
                   return 403;
                 }
+                auth_request /.syncthing-webdav-auth;
                 autoindex on;
                 dav_methods PUT DELETE MKCOL COPY MOVE;
                 dav_ext_methods PROPFIND OPTIONS;
@@ -153,6 +168,10 @@ in
               }
             }
           '';
+      }).config
+      (services.make {
+        name = "syncthing-webdav-auth";
+        inherit svcConfig pkgs config;
       }).config
       {
         assertions = lib.mapAttrsToList (user: userCfg: {
@@ -186,14 +205,9 @@ in
         };
         users.groups.syncthing.gid = config.ids.gids.syncthing;
 
-        sops.secrets.http-syncthing = config.lib.foxDen.sops.mkIfAvailable {
-          mode = "0400";
-          owner = "syncthing";
-          group = "syncthing";
-        };
-
         systemd.tmpfiles.rules = [
           "d ${guiSocketDir} 0700 syncthing syncthing -"
+          "d ${webdavAuthDir} 0700 syncthing syncthing -"
           "d ${svcConfig.dataDir}/config 0700 syncthing syncthing -"
           "d ${svcConfig.dataDir}/users 0700 syncthing syncthing -"
           "d ${svcConfig.dataDir}/tmp 0700 syncthing syncthing -"
@@ -213,11 +227,25 @@ in
               BindPaths = [
                 "${svcConfig.dataDir}:/syncthing"
                 guiSocketDir
-              ];
-              BindReadOnlyPaths = config.lib.foxDen.sops.mkIfAvailable [
-                config.sops.secrets.http-syncthing.path
+                webdavAuthDir
               ];
             };
+          };
+
+          syncthing-webdav-auth = {
+            serviceConfig = {
+              User = "syncthing";
+              Group = "syncthing";
+              BindPaths = [ webdavAuthDir ];
+              ExecStart = lib.escapeShellArgs [
+                (lib.getExe pkgs.kanidm-app-auth)
+                webdavAuthSocket
+                svcConfig.kanidmLdapUrl
+                webdavApplication
+                "Syncthing WebDAV"
+              ];
+            };
+            wantedBy = [ "multi-user.target" ];
           };
         }
         // lib.mapAttrs' (

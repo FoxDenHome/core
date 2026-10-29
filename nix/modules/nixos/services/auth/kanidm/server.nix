@@ -182,6 +182,8 @@ in
 
               origin = "https://${hostName}";
               domain = hostName;
+              # For application passwords (e.g. syncthing-webdav), with the same certificate as HTTPS
+              ldapbindaddress = "[::]:636";
 
               tls_chain = "${certBase}/${certFiles.cert}";
               tls_key = "${certBase}/${certFiles.key}";
@@ -192,6 +194,21 @@ in
               ];
             };
         };
+
+        foxDen.hosts.hosts.${svcConfig.host}.interfaces.default.firewall.ingressAcceptRules = [
+          {
+            protocol = "tcp";
+            source = "10.0.0.0/8";
+            port = 636;
+            comment = "kanidm-ldaps";
+          }
+          {
+            protocol = "tcp";
+            source = "fd2c:f4cb:63be::/48";
+            port = 636;
+            comment = "kanidm-ldaps";
+          }
+        ];
 
         systemd.services.http-kanidm = {
           serviceConfig = {
