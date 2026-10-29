@@ -42,7 +42,7 @@
         }
         // {
           launcher.webUI = {
-            url = "http://ups-rack.foxden.network/";
+            url = "https://ups-rack.foxden.network/";
             radius = true;
           };
         };
@@ -58,7 +58,7 @@
         }
         // {
           launcher.webUI = {
-            url = "http://ats-rack.foxden.network/";
+            url = "https://ats-rack.foxden.network/";
             radius = true;
           };
         };

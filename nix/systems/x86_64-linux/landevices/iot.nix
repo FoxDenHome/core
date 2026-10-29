@@ -148,7 +148,7 @@
         }
         // {
           launcher.webUI = {
-            url = "http://ups-dori-office.foxden.network/";
+            url = "https://ups-dori-office.foxden.network/";
             radius = true;
           };
         };

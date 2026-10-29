@@ -59,6 +59,12 @@ let
     radius = {
       password_expiry = "1h";
     };
+    static_users = lib.mapAttrsToList (username: user: {
+      inherit username;
+      inherit (user) groups;
+      password = "$\{${user.passwordVariable}}";
+      allowed_ips = user.allowedIPs;
+    }) svcConfig.staticUsers;
     oauth = {
       userinfo_url = "https://auth.foxden.network/oauth2/openid/${svcConfig.oAuth.clientId}/userinfo";
       token_url = "https://auth.foxden.network/oauth2/token";
@@ -91,6 +97,31 @@ in
       type = lib.types.str;
       default = "radius";
       description = "OAuth Client ID for oauth-jit-radius";
+    };
+    staticUsers = lib.mkOption {
+      type = lib.types.attrsOf (
+        lib.types.submodule {
+          options = {
+            groups = lib.mkOption {
+              type = lib.types.listOf lib.types.str;
+            };
+            allowedIPs = lib.mkOption {
+              type = lib.types.listOf foxDenLib.types.ipWithoutCidr;
+              description = "RADIUS clients (devices) the user may log in to";
+            };
+            passwordVariable = lib.mkOption {
+              type = lib.types.str;
+              description = "Environment variable with the password, set by one of environmentFiles";
+            };
+          };
+        }
+      );
+      default = { };
+      description = "RADIUS users with a fixed password, for services rather than people";
+    };
+    environmentFiles = lib.mkOption {
+      type = lib.types.listOf lib.types.str;
+      default = [ ];
     };
   }
   // (services.http.mkOptions {
@@ -151,7 +182,9 @@ in
               "${configFile}:/etc/oauth-jit-radius/config.yml"
             ];
 
-            EnvironmentFile = config.lib.foxDen.sops.mkIfAvailable config.sops.secrets.oauth-jit-radius.path;
+            EnvironmentFile = config.lib.foxDen.sops.mkIfAvailable (
+              [ config.sops.secrets.oauth-jit-radius.path ] ++ svcConfig.environmentFiles
+            );
             LoadCredential = "keytab:${keytab.path}";
             WorkingDirectory = "/etc/oauth-jit-radius";
 
