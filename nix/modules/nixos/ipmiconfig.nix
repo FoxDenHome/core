@@ -402,11 +402,20 @@ in
         password="$(<${lib.escapeShellArg user.passwordFile})"
         printf '%s' "$password" >"$RUNTIME_DIRECTORY/password"
         : >"$RUNTIME_DIRECTORY/cookies"
+        # The URL goes last. On an error, what the BMC answered goes to the log.
         web() {
-          curl --silent --show-error --fail --insecure \
+          local status=0
+          curl --silent --show-error --fail-with-body --insecure \
             --cookie "$RUNTIME_DIRECTORY/cookies" --cookie-jar "$RUNTIME_DIRECTORY/cookies" \
             --header "Referer: https://${ipv4Address}/cgi/url_redirect.cgi?url_name=config_ssl" \
-            ''${token:+--header "CSRF_TOKEN: $token"} "$@"
+            ''${token:+--header "CSRF_TOKEN: $token"} \
+            --output "$RUNTIME_DIRECTORY/body" "$@" || status=$?
+          if [ "$status" != 0 ]; then
+            echo "Certificate: ''${!#} failed, the BMC answered:" >&2
+            head -c 2000 "$RUNTIME_DIRECTORY/body" >&2
+            return "$status"
+          fi
+          cat "$RUNTIME_DIRECTORY/body"
         }
 
         token=""
@@ -417,16 +426,32 @@ in
           exit 1
         fi
         trap 'web https://${ipv4Address}/cgi/logout.cgi >/dev/null || true; rm -f "$RUNTIME_DIRECTORY"/*' EXIT
-        # Newer firmware wants the token the pages embed on every request
-        token="$(web 'https://${ipv4Address}/cgi/url_redirect.cgi?url_name=topmenu' |
-          sed -n 's/.*SmcCsrfInsert *( *"CSRF_TOKEN" *, *"\([^"]*\)".*/\1/p' | head -n 1)"
+        echo "Certificate: logged in to the web UI"
+        # Newer firmware wants the token the pages embed on every request: as a
+        # header from scripts, as a form field from forms
+        csrftoken() {
+          local page
+          page="$(web "https://${ipv4Address}/cgi/url_redirect.cgi?url_name=$1")"
+          sed -n 's/.*SmcCsrfInsert *( *"CSRF_TOKEN" *, *"\([^"]*\)".*/\1/p' <<<"$page" | head -n 1
+        }
+        token="$(csrftoken config_ssl)"
+        if [ -z "$token" ]; then
+          token="$(csrftoken topmenu)"
+        fi
+        if [ -n "$token" ]; then
+          echo "Certificate: found the CSRF token"
+        else
+          echo "Certificate: no CSRF token, trying without"
+        fi
 
         # Some firmware only takes the leaf certificate, without the chain
         accepted=""
         for file in fullchain.pem cert.pem; do
           web --form "cert_file=@${certDir}/$file;type=application/octet-stream" \
             --form "key_file=@${certDir}/key.pem;type=application/octet-stream" \
+            ''${token:+--form "CSRF_TOKEN=$token"} \
             https://${ipv4Address}/cgi/upload_ssl.cgi >/dev/null
+          echo "Certificate: uploaded $file"
           validate="$(web --data-urlencode 'SSL_VALIDATE.XML=(0,0)' --data-urlencode "time_stamp=$(date -u)" \
             https://${ipv4Address}/cgi/ipmi.cgi)"
           if grep -q 'VALIDATE="1"' <<<"$validate"; then
