@@ -32,7 +32,7 @@ import time
 import urllib.error
 import urllib.parse
 import urllib.request
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 from cryptography import x509
@@ -72,9 +72,11 @@ def served_cert(fqdn: str) -> x509.Certificate | None:
     ctx.check_hostname = False
     ctx.verify_mode = ssl.CERT_NONE
     try:
-        with socket.create_connection((fqdn, 443), timeout=10) as sock:
-            with ctx.wrap_socket(sock, server_hostname=fqdn) as tls:
-                der = tls.getpeercert(binary_form=True)
+        with (
+            socket.create_connection((fqdn, 443), timeout=10) as sock,
+            ctx.wrap_socket(sock, server_hostname=fqdn) as tls,
+        ):
+            der = tls.getpeercert(binary_form=True)
     except OSError:
         return None
     return x509.load_der_x509_certificate(der) if der else None
@@ -83,9 +85,11 @@ def served_cert(fqdn: str) -> x509.Certificate | None:
 def trusted(fqdn: str) -> bool:
     """Whether the card's certificate verifies against the system CAs."""
     try:
-        with socket.create_connection((fqdn, 443), timeout=10) as sock:
-            with tls_context().wrap_socket(sock, server_hostname=fqdn):
-                return True
+        with (
+            socket.create_connection((fqdn, 443), timeout=10) as sock,
+            tls_context().wrap_socket(sock, server_hostname=fqdn),
+        ):
+            return True
     except (OSError, ssl.SSLError):
         return False
 
@@ -135,6 +139,7 @@ def acme_fingerprint(cert_dir: Path) -> str | None:
                 str(cert_dir / "cert.pem"),
             ],
             capture_output=True,
+            check=False,
         ).returncode
         != 0
     ):
@@ -158,7 +163,7 @@ def eaton(fqdn: str, lego_dir: Path) -> None:
     if (
         current
         and fingerprint(current) == fingerprint(last)
-        and current.not_valid_after_utc - datetime.now(timezone.utc) > RENEW_BEFORE
+        and current.not_valid_after_utc - datetime.now(UTC) > RENEW_BEFORE
     ):
         log(f"Certificate: valid until {current.not_valid_after_utc}")
         return

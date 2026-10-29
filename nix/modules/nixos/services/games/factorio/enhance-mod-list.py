@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import json
-from urllib import request
 from os import path
+from urllib import request
 
 # This script is used to enhance the mod-list.json file with hashes for each mod, so that we can download the correct version of each mod when installing them.
 FILE = path.join(path.dirname(__file__), "mod-list.json")

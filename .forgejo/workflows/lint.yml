@@ -35,10 +35,9 @@ jobs:
         run: |
           cd ./nix
           nix run --inputs-from . 'nixpkgs#nixfmt-tree' -- --ci
-      - name: Lint mikrotik
+      - name: Lint python
         run: |
-          cd ./mikrotik
-          uv run ruff check
+          uv run --project mikrotik ruff check
 
       - uses: https://github.com/terraform-linters/setup-tflint@v6
         name: Setup TFLint
