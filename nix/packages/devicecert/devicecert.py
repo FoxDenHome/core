@@ -97,10 +97,18 @@ def credentials() -> tuple[str, str]:
 
 
 def eaton(fqdn: str, lego_dir: Path) -> None:
+    # The card serves the certificate without its chain, so it doesn't
+    # verify on its own. Compare it with what lego last issued instead.
     current = served_cert(fqdn)
+    issued_file = lego_dir / "certificates" / f"{fqdn}.crt"
+    last = (
+        x509.load_pem_x509_certificates(issued_file.read_bytes())[0]
+        if issued_file.exists()
+        else None
+    )
     if (
         current
-        and trusted(fqdn)
+        and fingerprint(current) == fingerprint(last)
         and current.not_valid_after_utc - datetime.now(timezone.utc) > RENEW_BEFORE
     ):
         log(f"Certificate: valid until {current.not_valid_after_utc}")
@@ -202,8 +210,8 @@ class CyberPower:
     """The RMCARD web UI. Its session is tied to the client's address and
     User-Agent, so everything has to go through this one opener."""
 
-    def __init__(self, fqdn: str, scheme: str) -> None:
-        self.base = f"{scheme}://{fqdn}/"
+    def __init__(self, fqdn: str) -> None:
+        self.base = f"https://{fqdn}/"
         # Until it serves our certificate, the card's own is self-signed
         ctx = ssl.create_default_context()
         ctx.check_hostname = False
@@ -310,17 +318,17 @@ def cyberpower(fqdn: str, cert_dir: Path) -> None:
         return
     log(f"Certificate: {current} -> {desired}")
 
-    # A card whose HTTPS is broken (Web Service set to HTTP over Telnet to
-    # recover it) takes the upload over HTTP
-    card = CyberPower(fqdn, "https" if served else "http")
+    # Only HTTPS is let through from here. A card that broke it (an empty
+    # certificate after an upload it couldn't read) has to be recovered on its
+    # console: web access http, upload a certificate, web access https
+    if served is None:
+        raise CardError("card has no working HTTPS, recover it on its console")
+    card = CyberPower(fqdn)
     card.login(*credentials())
     try:
         upload_cyberpower(card, cert_dir)
     finally:
         card.logout()
-    if not served:
-        log("Certificate: uploaded over HTTP, switch Web Service to HTTPS to use it")
-        return
     wait_served(fqdn, desired)
     if not trusted(fqdn):
         raise CardError("card serves the certificate, but not with its key")
