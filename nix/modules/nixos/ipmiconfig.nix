@@ -115,6 +115,12 @@ in
       ipv6Static = "enable ${lib.replaceString "/" " " netconfig.ipv6.address}";
       interfaceMode = rawInterfaceModeMap.${netconfig.interface};
 
+      oemNtp = {
+        NTPEnable = true;
+        PrimaryNTPServer = lib.elemAt netconfig.ntp 0;
+        SecondaryNTPServer = lib.elemAt netconfig.ntp (if lib.length netconfig.ntp > 1 then 1 else 0);
+      };
+
       redfishEnabled =
         user.passwordFile != null
         && netconfig.ipv4.address != null
@@ -295,8 +301,7 @@ in
               echo "$name: $current"
               return
             elif [ "$current" = null ]; then
-              echo "$name: not supported by the BMC, not touching it" >&2
-              failed=1
+              echo "$name: not supported by the BMC, skipping it" >&2
               return
             fi
             echo "$name: $current -> $desired"
@@ -312,27 +317,37 @@ in
           }
 
           ${lib.optionalString (netconfig.ntp != [ ]) ''
-            redfishensure "NTP" /redfish/v1/Managers/1/NetworkProtocol \
-              '.NTP | if . == null then null else {ProtocolEnabled, NTPServers: ((.NTPServers // []) | map(select(. != "")))} end' \
-              ${
-                lib.escapeShellArg (
+            # Older Supermicro firmware (like X10) only has NTP as an OEM resource
+            # with exactly two server fields
+            if [ "$(redfishget /redfish/v1/Managers/1/NetworkProtocol '.NTP != null')" = true ]; then
+              redfishensure "NTP" /redfish/v1/Managers/1/NetworkProtocol \
+                '.NTP | {ProtocolEnabled, NTPServers: ((.NTPServers // []) | map(select(. != "")))}' \
+                ${
+                  lib.escapeShellArg (
+                    builtins.toJSON {
+                      ProtocolEnabled = true;
+                      NTPServers = netconfig.ntp;
+                    }
+                  )
+                } \
+                ${lib.escapeShellArg (
                   builtins.toJSON {
-                    ProtocolEnabled = true;
-                    NTPServers = netconfig.ntp;
+                    NTP = {
+                      ProtocolEnabled = true;
+                      NTPServers = netconfig.ntp;
+                    };
                   }
-                )
-              } \
-              ${lib.escapeShellArg (
-                builtins.toJSON {
-                  NTP = {
-                    ProtocolEnabled = true;
-                    NTPServers = netconfig.ntp;
-                  };
-                }
-              )}
+                )}
+            else
+              redfishensure "NTP" /redfish/v1/Managers/1/NTP \
+                '{NTPEnable, PrimaryNTPServer, SecondaryNTPServer}' \
+                ${lib.escapeShellArg (builtins.toJSON oemNtp)} \
+                ${lib.escapeShellArg (builtins.toJSON oemNtp)}
+            fi
           ''}
 
           ${lib.optionalString (netconfig.dns != [ ]) ''
+            # Before EthernetInterface v1.4 there is only the read-only NameServers
             redfishensure "DNS" /redfish/v1/Managers/1/EthernetInterfaces/1 \
               '.StaticNameServers | if . == null then null else map(select(. != "" and . != "0.0.0.0")) end' \
               ${lib.escapeShellArg (builtins.toJSON netconfig.dns)} \
