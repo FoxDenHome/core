@@ -425,6 +425,9 @@ def netcmdr(fqdn: str, cert_dir: Path) -> None:
         subprocess.run(
             [
                 "netcmdr",
+                # The KVM may be on its factory self-signed certificate, which
+                # netcmdr would refuse to verify
+                "--insecure",
                 "certificate",
                 "--certificate",
                 str(cert_dir / "fullchain.pem"),

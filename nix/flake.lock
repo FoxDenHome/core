@@ -312,11 +312,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1793247837,
-        "narHash": "sha256-SK1ENCpXl8MpyW7VgdKckp6MfNYaG9cZ+sIQIIChjQE=",
+        "lastModified": 1793251375,
+        "narHash": "sha256-lArKlei16k8rbGIFClMmWsYfsyaG2P/mtjHQ2p/i8wA=",
         "ref": "refs/heads/main",
-        "rev": "cd62876555af197eb371dafcc5d41860011201d8",
-        "revCount": 62,
+        "rev": "f4cda10fdf251191cd2636aeb44e0e47ec3a1229",
+        "revCount": 63,
         "type": "git",
         "url": "https://git.foxden.network/FoxDen/NetCmdr"
       },
