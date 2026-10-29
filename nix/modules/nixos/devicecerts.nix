@@ -78,6 +78,9 @@ in
             email = "ssl@foxden.network";
             # The cards only take RSA keys
             keyType = "rsa2048";
+            # After an upload the cards serve the new certificate with their
+            # old key for ~10 minutes, so keep the key the same across renewals
+            extraLegoRenewFlags = [ "--reuse-key" ];
             dnsProvider = "hurricane";
             environmentFile = config.sops.secrets.devicecerts-acme.path;
           }
