@@ -102,17 +102,6 @@ in
             environmentFile = config.sops.secrets.foxden-vpn-edge-acme.path;
           };
         };
-        environment.persistence."/nix/persist/foxden/services".directories =
-          config.lib.foxDen.sops.mkIfAvailable
-            [
-              {
-                directory = "/var/lib/acme";
-                user = "acme";
-                group = "acme";
-                mode = "u=rwx,g=rx,o=rx";
-              }
-            ];
-
         foxDen.dns.records = [
           # Terraform cannot create wildcards at HE; this one is made by hand.
           {

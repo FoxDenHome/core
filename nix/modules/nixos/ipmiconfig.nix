@@ -68,6 +68,12 @@ in
         default = [ ];
       };
     };
+    acme.enable = lib.mkEnableOption ''
+      a Let's Encrypt certificate for the BMC's web UI. DNS-01 goes through the
+      dynamic TXT record _acme-challenge.<hostName>.<hostZone> at dns.he.net. The
+      ipmiconfig-acme secret holds its DDNS key as
+      HURRICANE_TOKENS=<hostName>.<hostZone>:<key> (tofu output he_dynamic_keys)
+    '';
     # BMC user for this host to log in to Redfish with, managed over the KCS
     user = {
       name = lib.mkOption {
@@ -125,6 +131,11 @@ in
         user.passwordFile != null
         && netconfig.ipv4.address != null
         && (netconfig.dns != [ ] || netconfig.ntp != [ ]);
+
+      fqdn = "${netconfig.hostName}.${netconfig.hostZone}";
+      certDir = "/var/lib/acme/${fqdn}";
+      # Without sops there is no DDNS key, and so no certificate
+      certEnabled = ipmiconfig.acme.enable && config.foxDen.sops.available;
 
       # Each ipmitool call takes superfan's IPMI lock on its own, so the fan
       # control loop never waits long for the KCS. Settings are only written
@@ -357,8 +368,102 @@ in
 
         exit $failed
       '';
+
+      # Older Supermicro BMCs (like X10) have no Redfish CertificateService, so
+      # this goes through the web UI's CGIs. The BMC is only touched when it
+      # serves a different certificate than the one lego has, and it needs a
+      # reset to pick up the new one.
+      certScript = pkgs.writeShellScript "ipmiconfig-cert.sh" ''
+        set -euo pipefail
+        trap 'rm -f "$RUNTIME_DIRECTORY"/*' EXIT
+
+        fingerprint() {
+          openssl x509 -noout -fingerprint -sha256
+        }
+        served() {
+          openssl s_client -connect ${ipv4Address}:443 </dev/null 2>/dev/null | fingerprint
+        }
+
+        # Until lego has a certificate, the directory holds a self-signed
+        # placeholder
+        if ! openssl verify -CAfile /etc/ssl/certs/ca-certificates.crt \
+          -untrusted ${certDir}/chain.pem ${certDir}/cert.pem >/dev/null 2>&1; then
+          echo "Certificate: not issued yet, leaving the BMC alone"
+          exit 0
+        fi
+        desired="$(fingerprint <${certDir}/cert.pem)"
+        current="$(served)"
+        if [ "$current" = "$desired" ]; then
+          echo "Certificate: $current"
+          exit 0
+        fi
+        echo "Certificate: $current -> $desired"
+
+        password="$(<${lib.escapeShellArg user.passwordFile})"
+        printf '%s' "$password" >"$RUNTIME_DIRECTORY/password"
+        : >"$RUNTIME_DIRECTORY/cookies"
+        web() {
+          curl --silent --show-error --fail --insecure \
+            --cookie "$RUNTIME_DIRECTORY/cookies" --cookie-jar "$RUNTIME_DIRECTORY/cookies" \
+            --header "Referer: https://${ipv4Address}/cgi/url_redirect.cgi?url_name=config_ssl" \
+            ''${token:+--header "CSRF_TOKEN: $token"} "$@"
+        }
+
+        token=""
+        web --data-urlencode "name=${user.name}" --data-urlencode "pwd@$RUNTIME_DIRECTORY/password" \
+          https://${ipv4Address}/cgi/login.cgi >/dev/null
+        if ! awk '$6 == "SID" && $7 != "" { found = 1 } END { exit !found }' "$RUNTIME_DIRECTORY/cookies"; then
+          echo "Certificate: could not log in to the web UI" >&2
+          exit 1
+        fi
+        trap 'web https://${ipv4Address}/cgi/logout.cgi >/dev/null || true; rm -f "$RUNTIME_DIRECTORY"/*' EXIT
+        # Newer firmware wants the token the pages embed on every request
+        token="$(web 'https://${ipv4Address}/cgi/url_redirect.cgi?url_name=topmenu' |
+          sed -n 's/.*SmcCsrfInsert *( *"CSRF_TOKEN" *, *"\([^"]*\)".*/\1/p' | head -n 1)"
+
+        # Some firmware only takes the leaf certificate, without the chain
+        accepted=""
+        for file in fullchain.pem cert.pem; do
+          web --form "cert_file=@${certDir}/$file;type=application/octet-stream" \
+            --form "key_file=@${certDir}/key.pem;type=application/octet-stream" \
+            https://${ipv4Address}/cgi/upload_ssl.cgi >/dev/null
+          validate="$(web --data-urlencode 'SSL_VALIDATE.XML=(0,0)' --data-urlencode "time_stamp=$(date -u)" \
+            https://${ipv4Address}/cgi/ipmi.cgi)"
+          if grep -q 'VALIDATE="1"' <<<"$validate"; then
+            accepted="$file"
+            break
+          fi
+          echo "Certificate: BMC rejected $file: $validate" >&2
+        done
+        if [ -z "$accepted" ]; then
+          exit 1
+        fi
+        web https://${ipv4Address}/cgi/logout.cgi >/dev/null || true
+        trap 'rm -f "$RUNTIME_DIRECTORY"/*' EXIT
+
+        echo "Certificate: BMC took $accepted, resetting it"
+        ipmilocked ipmitool mc reset cold
+        for _ in $(seq 30); do
+          sleep 10
+          current="$(served)" || continue
+          if [ "$current" = "$desired" ]; then
+            echo "Certificate: BMC now serves $current"
+            exit 0
+          fi
+        done
+        echo "Certificate: BMC serves $current after its reset" >&2
+        exit 1
+      '';
     in
     lib.mkIf ipmiconfig.enable {
+      assertions = [
+        {
+          assertion =
+            !ipmiconfig.acme.enable || (user.passwordFile != null && netconfig.ipv4.address != null);
+          message = "foxDen.ipmiconfig.acme needs user.passwordFile and network.ipv4.address";
+        }
+      ];
+
       foxDen.ipmiconfig = {
         network = lib.mkIf (netconfig.vlan != null) {
           ipv4.gateway = lib.mkDefault vlanConfig.ipv4.gateway;
@@ -374,14 +479,50 @@ in
       };
 
       sops.secrets.ipmiconfig-password = config.lib.foxDen.sops.mkIfAvailable { };
+      sops.secrets.ipmiconfig-acme = lib.mkIf ipmiconfig.acme.enable (
+        config.lib.foxDen.sops.mkIfAvailable { }
+      );
+
+      security.acme = lib.mkIf ipmiconfig.acme.enable (
+        config.lib.foxDen.sops.mkIfAvailable {
+          acceptTerms = true;
+          certs.${fqdn} = {
+            email = "ssl@foxden.network";
+            # The BMC only takes RSA keys
+            keyType = "rsa2048";
+            dnsProvider = "hurricane";
+            environmentFile = config.sops.secrets.ipmiconfig-acme.path;
+            # Renew during the day, ahead of ipmiconfig-cert.timer
+            renewInterval = "*-*-* 14:00:00";
+            renewJitter = "30m";
+          };
+        }
+      );
+      # nixpkgs lets systemd move the renewal anywhere within the day
+      systemd.timers."acme-renew-${fqdn}".timerConfig.AccuracySec = lib.mkIf certEnabled (
+        lib.mkForce "1m"
+      );
+
+      foxDen.dns.records = lib.mkIf ipmiconfig.acme.enable [
+        {
+          fqdn = "_acme-challenge.${fqdn}";
+          type = "TXT";
+          value = "acme";
+          ttl = 300; # dns.he.net's minimum
+          dynDns = true;
+          horizon = "external";
+        }
+      ];
 
       foxDen.hosts.hosts.${netconfig.hostName} = {
-        launcher.webUI.url = lib.mkDefault "http://${netconfig.hostName}.${netconfig.hostZone}/";
+        launcher.webUI.url = lib.mkDefault "${
+          if ipmiconfig.acme.enable then "https" else "http"
+        }://${fqdn}/";
         interfaces.default = {
           driver.name = "null";
           useDHCP = false;
           dns = {
-            fqdns = [ "${netconfig.hostName}.${netconfig.hostZone}" ];
+            fqdns = [ fqdn ];
           };
           addresses = lib.lists.filter (val: val != null) [
             netconfig.ipv4.address
@@ -391,7 +532,7 @@ in
         };
       };
 
-      foxDen.firewall.rules = lib.mkIf redfishEnabled [
+      foxDen.firewall.rules = lib.mkIf (redfishEnabled || ipmiconfig.acme.enable) [
         {
           table = "filter";
           chain = "forward";
@@ -440,6 +581,43 @@ in
           ExecStart = [ configScript ];
         };
         wantedBy = [ "multi-user.target" ];
+      };
+
+      # The upload resets the BMC, which spins the fans up, so it runs from its
+      # own afternoon timer instead of on every renewal. A missed run catches
+      # up on boot, when the fans spin up anyway.
+      systemd.timers.ipmiconfig-cert = lib.mkIf certEnabled {
+        wantedBy = [ "timers.target" ];
+        timerConfig = {
+          OnCalendar = "*-*-* 14:45:00";
+          Persistent = true;
+        };
+      };
+      systemd.services.ipmiconfig-cert = lib.mkIf certEnabled {
+        description = "BMC web UI certificate";
+        after = [
+          "ipmiconfig.service"
+          "network-online.target"
+        ];
+        wants = [ "network-online.target" ];
+        path = [
+          pkgs.coreutils
+          pkgs.curl
+          pkgs.gawk
+          pkgs.gnugrep
+          pkgs.gnused
+          pkgs.ipmitool
+          pkgs.openssl
+          pkgs.superfan
+        ];
+
+        serviceConfig = {
+          Type = "oneshot";
+          Restart = "no";
+          RuntimeDirectory = "ipmiconfig-cert";
+          UMask = "0077";
+          ExecStart = [ certScript ];
+        };
       };
     };
 }
