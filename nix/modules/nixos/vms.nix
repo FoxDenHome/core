@@ -506,6 +506,11 @@ let
 
       stopScript = pkgs.writeShellScript "vm-${vm.name}-stop" ''
         set -uo pipefail
+        # Some guests (HAOS) ignore the ACPI power button but obey the
+        # guest agent. It sends no reply on success, and a guest without
+        # an agent leaves this unread, so press the button as well.
+        printf '{"execute":"guest-shutdown"}\n' |
+          socat -t2 - UNIX-CONNECT:${runDir}/qga.sock >/dev/null || true
         printf '{"execute":"qmp_capabilities"}\n{"execute":"system_powerdown"}\n' |
           socat -t5 - UNIX-CONNECT:${runDir}/qmp.sock >/dev/null || exit 0
         # TimeoutStopSec kills QEMU if the guest ignores the power button
