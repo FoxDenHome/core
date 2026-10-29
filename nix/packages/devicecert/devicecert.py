@@ -153,15 +153,9 @@ def eaton(fqdn: str, lego_dir: Path) -> None:
         csr = json.loads(csr).encode()
     except ValueError:
         pass
-    try:
-        names = (
-            x509.load_pem_x509_csr(csr)
-            .extensions.get_extension_for_class(x509.SubjectAlternativeName)
-            .value.get_values_for_type(x509.DNSName)
-        )
-    except x509.ExtensionNotFound:
-        names = []
-    log(f"Certificate: card made a CSR, names {names}")
+    # The card says version 2 in its CSR, which cryptography refuses to load
+    # but lego (Go) takes
+    log("Certificate: card made a CSR")
 
     lego_dir.mkdir(parents=True, exist_ok=True)
     (lego_dir / "card.csr").write_bytes(csr)
@@ -216,6 +210,15 @@ class CyberPower:
             urllib.request.HTTPCookieProcessor(http.cookiejar.CookieJar()),
             urllib.request.HTTPSHandler(context=ctx),
         )
+        # The card drops the certificate upload from clients that don't look
+        # like a browser
+        self.opener.addheaders = [
+            (
+                "User-Agent",
+                "Mozilla/5.0 (X11; Linux x86_64; rv:140.0) Gecko/20100101 Firefox/140.0",
+            ),
+            ("Accept", "text/html,application/xhtml+xml,*/*;q=0.8"),
+        ]
 
     def get(self, path: str):
         return self.opener.open(self.base + path, timeout=30)
@@ -275,10 +278,26 @@ class CyberPower:
 
 
 def cyberpower(fqdn: str, cert_dir: Path) -> None:
-    cert = x509.load_pem_x509_certificate((cert_dir / "cert.pem").read_bytes())
-    if cert.issuer == cert.subject:
+    # Until lego has a certificate, the directory holds a placeholder signed
+    # by a throwaway CA
+    if (
+        subprocess.run(
+            [
+                "openssl",
+                "verify",
+                "-CAfile",
+                "/etc/ssl/certs/ca-certificates.crt",
+                "-untrusted",
+                str(cert_dir / "chain.pem"),
+                str(cert_dir / "cert.pem"),
+            ],
+            capture_output=True,
+        ).returncode
+        != 0
+    ):
         log("Certificate: not issued yet, leaving the card alone")
         return
+    cert = x509.load_pem_x509_certificate((cert_dir / "cert.pem").read_bytes())
     desired = fingerprint(cert)
     served = served_cert(fqdn)
     if served is None:
@@ -299,14 +318,19 @@ def cyberpower(fqdn: str, cert_dir: Path) -> None:
 
 
 def upload_cyberpower(card: CyberPower, cert_dir: Path) -> None:
-    # Network > Web Service > Upload Certificate: one PEM file with the key
-    # and the chain
-    boundary = os.urandom(16).hex()
+    # Network > Web Service > Upload Certificate takes one PEM file with the
+    # key, the certificate and its chain, in that order (the manual's RMC.crt).
+    # The card only switches to it when it reboots, which logging out does.
+    # What it says right after the upload ("Uploaded an invalid certificate")
+    # is no indication either way.
+    with card.get("cert_modify.html") as res:
+        res.read()
+    boundary = "----WebKitFormBoundary" + os.urandom(8).hex()
     body = (
         (
             f"--{boundary}\r\n"
-            'Content-Disposition: form-data; name="upfile"; filename="full.pem"\r\n'
-            "Content-Type: application/octet-stream\r\n\r\n"
+            'Content-Disposition: form-data; name="upfile"; filename="RMC.crt"\r\n'
+            "Content-Type: application/x-x509-ca-cert\r\n\r\n"
         ).encode()
         + (cert_dir / "full.pem").read_bytes()
         + f"\r\n--{boundary}--\r\n".encode()
@@ -314,12 +338,17 @@ def upload_cyberpower(card: CyberPower, cert_dir: Path) -> None:
     req = urllib.request.Request(
         card.base + "cert_modify.cgi",
         data=body,
-        headers={"Content-Type": f"multipart/form-data; boundary={boundary}"},
+        headers={
+            "Content-Type": f"multipart/form-data; boundary={boundary}",
+            "Origin": card.base.rstrip("/"),
+            "Referer": card.base + "cert_modify.html",
+        },
     )
     with card.opener.open(req, timeout=60) as res:
+        res.read()
         if res.url.endswith("/error.html"):
             raise CardError("card refused the upload")
-        log(f"Certificate: uploaded, card went on to {res.url}")
+    log("Certificate: uploaded, logging out so the card reboots into it")
 
 
 def main() -> None:

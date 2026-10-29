@@ -127,7 +127,10 @@ in
           ]
           ++ lib.optional (device.type == "cyberpower") "acme-${device.fqdn}.service";
           wants = [ "network-online.target" ];
-          path = [ pkgs.lego ];
+          path = [
+            pkgs.lego
+            pkgs.openssl
+          ];
           startAt = "*-*-* 04:00:00";
           serviceConfig = {
             Type = "oneshot";
