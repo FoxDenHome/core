@@ -15,6 +15,10 @@
         type = "cyberpower";
         address = "10.1.11.4";
       };
+      kvm-rack = {
+        type = "netcmdr";
+        address = "10.1.13.2";
+      };
     };
   };
 }

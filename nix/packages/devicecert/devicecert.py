@@ -9,8 +9,12 @@ devicecert cyberpower <fqdn> <cert dir>
     CyberPower RMCARD, with HTTPS already enabled. Uploads the certificate and
     key security.acme keeps in <cert dir>.
 
-Both log in with DEVICECERTS_USERNAME/DEVICECERTS_PASSWORD (a static RADIUS
-user) and leave the card alone while it serves a certificate that is good
+devicecert netcmdr <fqdn> <cert dir>
+    Tripp Lite NetCommander IP KVM, through the netcmdr CLI. Same as
+    cyberpower otherwise.
+
+All log in with DEVICECERTS_USERNAME/DEVICECERTS_PASSWORD (a static RADIUS
+user) and leave the device alone while it serves a certificate that is good
 for a while longer, or that already matches the one in <cert dir>.
 """
 
@@ -23,6 +27,7 @@ import socket
 import ssl
 import subprocess
 import sys
+import tempfile
 import time
 import urllib.error
 import urllib.parse
@@ -54,8 +59,16 @@ def fatal(msg: str) -> None:
     sys.exit(1)
 
 
-def served_cert(fqdn: str) -> x509.Certificate | None:
+def tls_context() -> ssl.SSLContext:
     ctx = ssl.create_default_context()
+    # The KVM prefers DHE with a 1024-bit group, which OpenSSL refuses, over
+    # the plain RSA it also offers
+    ctx.set_ciphers("DEFAULT:!kDHE")
+    return ctx
+
+
+def served_cert(fqdn: str) -> x509.Certificate | None:
+    ctx = tls_context()
     ctx.check_hostname = False
     ctx.verify_mode = ssl.CERT_NONE
     try:
@@ -71,7 +84,7 @@ def trusted(fqdn: str) -> bool:
     """Whether the card's certificate verifies against the system CAs."""
     try:
         with socket.create_connection((fqdn, 443), timeout=10) as sock:
-            with ssl.create_default_context().wrap_socket(sock, server_hostname=fqdn):
+            with tls_context().wrap_socket(sock, server_hostname=fqdn):
                 return True
     except (OSError, ssl.SSLError):
         return False
@@ -94,6 +107,42 @@ def wait_served(fqdn: str, want: str) -> None:
 
 def credentials() -> tuple[str, str]:
     return os.environ["DEVICECERTS_USERNAME"], os.environ["DEVICECERTS_PASSWORD"]
+
+
+def pkcs1_key(key_file: Path) -> bytes:
+    """The devices only read PKCS#1 keys, lego writes PKCS#8."""
+    return serialization.load_pem_private_key(
+        key_file.read_bytes(), password=None
+    ).private_bytes(
+        serialization.Encoding.PEM,
+        serialization.PrivateFormat.TraditionalOpenSSL,
+        serialization.NoEncryption(),
+    )
+
+
+def acme_fingerprint(cert_dir: Path) -> str | None:
+    """The certificate security.acme keeps in cert_dir, unless it's still the
+    placeholder it signs with a throwaway CA until lego has one."""
+    if (
+        subprocess.run(
+            [
+                "openssl",
+                "verify",
+                "-CAfile",
+                "/etc/ssl/certs/ca-certificates.crt",
+                "-untrusted",
+                str(cert_dir / "chain.pem"),
+                str(cert_dir / "cert.pem"),
+            ],
+            capture_output=True,
+        ).returncode
+        != 0
+    ):
+        log("Certificate: not issued yet, leaving the device alone")
+        return None
+    return fingerprint(
+        x509.load_pem_x509_certificate((cert_dir / "cert.pem").read_bytes())
+    )
 
 
 def eaton(fqdn: str, lego_dir: Path) -> None:
@@ -288,27 +337,9 @@ class CyberPower:
 
 
 def cyberpower(fqdn: str, cert_dir: Path) -> None:
-    # Until lego has a certificate, the directory holds a placeholder signed
-    # by a throwaway CA
-    if (
-        subprocess.run(
-            [
-                "openssl",
-                "verify",
-                "-CAfile",
-                "/etc/ssl/certs/ca-certificates.crt",
-                "-untrusted",
-                str(cert_dir / "chain.pem"),
-                str(cert_dir / "cert.pem"),
-            ],
-            capture_output=True,
-        ).returncode
-        != 0
-    ):
-        log("Certificate: not issued yet, leaving the card alone")
+    desired = acme_fingerprint(cert_dir)
+    if desired is None:
         return
-    cert = x509.load_pem_x509_certificate((cert_dir / "cert.pem").read_bytes())
-    desired = fingerprint(cert)
     served = served_cert(fqdn)
     current = fingerprint(served)
     # The card keeps its old key when it can't read the new one, so the
@@ -349,14 +380,7 @@ def upload_cyberpower(card: CyberPower, cert_dir: Path) -> None:
             'Content-Disposition: form-data; name="upfile"; filename="RMC.crt"\r\n'
             "Content-Type: application/x-x509-ca-cert\r\n\r\n"
         ).encode()
-        # Only a PKCS#1 key, lego writes PKCS#8
-        + serialization.load_pem_private_key(
-            (cert_dir / "key.pem").read_bytes(), password=None
-        ).private_bytes(
-            serialization.Encoding.PEM,
-            serialization.PrivateFormat.TraditionalOpenSSL,
-            serialization.NoEncryption(),
-        )
+        + pkcs1_key(cert_dir / "key.pem")
         + (cert_dir / "fullchain.pem").read_bytes()
         + f"\r\n--{boundary}--\r\n".encode()
     )
@@ -376,12 +400,57 @@ def upload_cyberpower(card: CyberPower, cert_dir: Path) -> None:
     log("Certificate: uploaded, logging out so the card reboots into it")
 
 
+def netcmdr(fqdn: str, cert_dir: Path) -> None:
+    desired = acme_fingerprint(cert_dir)
+    if desired is None:
+        return
+    # The KVM serves the certificate without its chain, so it doesn't verify
+    # on its own. With DHE off it uses RSA key exchange, so a handshake only
+    # works with the certificate's key: matching it is enough.
+    served = served_cert(fqdn)
+    current = fingerprint(served)
+    if current == desired:
+        log(f"Certificate: {current}")
+        return
+    log(f"Certificate: {current} -> {desired}")
+
+    # netcmdr only talks HTTPS, so a KVM that lost it needs its reset button
+    if served is None:
+        raise CardError("KVM has no working HTTPS")
+    username, password = credentials()
+    with tempfile.TemporaryDirectory() as tmp:
+        key = Path(tmp) / "key.pem"
+        key.write_bytes(pkcs1_key(cert_dir / "key.pem"))
+        # The KVM reboots into it, which takes about a minute
+        subprocess.run(
+            [
+                "netcmdr",
+                "certificate",
+                "--certificate",
+                str(cert_dir / "fullchain.pem"),
+                "--key",
+                str(key),
+                "--confirm",
+            ],
+            env=os.environ
+            | {
+                "NETCMDR_HOST": fqdn,
+                "NETCMDR_USER": username,
+                "NETCMDR_PASSWORD": password,
+            },
+            check=True,
+        )
+    log("Certificate: uploaded, the KVM reboots into it")
+    wait_served(fqdn, desired)
+
+
 def main() -> None:
-    if len(sys.argv) != 4 or sys.argv[1] not in ("eaton", "cyberpower"):
-        fatal(f"usage: {sys.argv[0]} eaton|cyberpower <fqdn> <dir>")
+    handlers = {"eaton": eaton, "cyberpower": cyberpower, "netcmdr": netcmdr}
+    if len(sys.argv) != 4 or sys.argv[1] not in handlers:
+        fatal(f"usage: {sys.argv[0]} {'|'.join(handlers)} <fqdn> <dir>")
     kind, fqdn, path = sys.argv[1], sys.argv[2], Path(sys.argv[3])
     try:
-        (eaton if kind == "eaton" else cyberpower)(fqdn, path)
+        handlers[kind](fqdn, path)
     except CardError as e:
         fatal(f"Certificate: {e}")
 

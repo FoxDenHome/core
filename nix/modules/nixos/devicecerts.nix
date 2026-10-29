@@ -9,14 +9,15 @@
 let
   cfg = config.foxDen.deviceCerts;
 
-  # Eaton cards make their own key and get a CSR signed, so only the
-  # CyberPower ones get a certificate from security.acme
-  acmeDevices = lib.filterAttrs (_: device: device.type == "cyberpower") cfg.devices;
+  # Eaton cards make their own key and get a CSR signed, everything else gets
+  # a certificate from security.acme
+  acmeDevices = lib.filterAttrs (_: device: device.type != "eaton") cfg.devices;
 in
 {
   options.foxDen.deviceCerts = with lib.types; {
     enable = lib.mkEnableOption ''
-      Let's Encrypt certificates for the web UIs of UPS/ATS network cards.
+      Let's Encrypt certificates for the web UIs of UPS/ATS network cards and
+      NetCmdr KVM switches.
       DNS-01 goes through the dynamic TXT records _acme-challenge.<fqdn> at
       dns.he.net. The devicecerts-acme secret holds their DDNS keys as
       HURRICANE_TOKENS=<fqdn>:<key>,<fqdn>:<key>,... (tofu output
@@ -34,6 +35,7 @@ in
                 type = enum [
                   "eaton"
                   "cyberpower"
+                  "netcmdr"
                 ];
               };
               fqdn = lib.mkOption {
@@ -78,8 +80,9 @@ in
             email = "ssl@foxden.network";
             # The cards only take RSA keys
             keyType = "rsa2048";
-            # After an upload the cards serve the new certificate with their
-            # old key for ~10 minutes, so keep the key the same across renewals
+            # After an upload the CyberPower cards serve the new certificate
+            # with their old key for ~10 minutes, so keep the key the same
+            # across renewals
             extraLegoRenewFlags = [ "--reuse-key" ];
             dnsProvider = "hurricane";
             environmentFile = config.sops.secrets.devicecerts-acme.path;
@@ -128,12 +131,13 @@ in
           after = [
             "network-online.target"
           ]
-          ++ lib.optional (device.type == "cyberpower") "acme-${device.fqdn}.service";
+          ++ lib.optional (device.type != "eaton") "acme-${device.fqdn}.service";
           wants = [ "network-online.target" ];
           path = [
             pkgs.lego
             pkgs.openssl
-          ];
+          ]
+          ++ lib.optional (device.type == "netcmdr") pkgs.netcmdr;
           startAt = "*-*-* 04:00:00";
           serviceConfig = {
             Type = "oneshot";

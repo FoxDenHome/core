@@ -302,6 +302,29 @@
         "type": "github"
       }
     },
+    "netcmdr": {
+      "inputs": {
+        "flake-utils": [
+          "flake-utils"
+        ],
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1793247837,
+        "narHash": "sha256-SK1ENCpXl8MpyW7VgdKckp6MfNYaG9cZ+sIQIIChjQE=",
+        "ref": "refs/heads/main",
+        "rev": "cd62876555af197eb371dafcc5d41860011201d8",
+        "revCount": 62,
+        "type": "git",
+        "url": "https://git.foxden.network/FoxDen/NetCmdr"
+      },
+      "original": {
+        "type": "git",
+        "url": "https://git.foxden.network/FoxDen/NetCmdr"
+      }
+    },
     "nixpkgs": {
       "locked": {
         "lastModified": 1793166571,
@@ -449,6 +472,7 @@
         "gitbackup": "gitbackup",
         "home-manager": "home-manager",
         "impermanence": "impermanence",
+        "netcmdr": "netcmdr",
         "nixpkgs": "nixpkgs",
         "nvfw-mirror": "nvfw-mirror",
         "oauth-jit-radius": "oauth-jit-radius",

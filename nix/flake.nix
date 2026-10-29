@@ -105,6 +105,13 @@
         pyproject-build-systems.follows = "pyproject-build-systems";
       };
     };
+    netcmdr = {
+      url = "git+https://git.foxden.network/FoxDen/NetCmdr";
+      inputs = {
+        nixpkgs.follows = "nixpkgs";
+        flake-utils.follows = "flake-utils";
+      };
+    };
     oauth-jit-radius = {
       url = "git+https://git.foxden.network/FoxDen/oauth-jit-radius";
       inputs = {
