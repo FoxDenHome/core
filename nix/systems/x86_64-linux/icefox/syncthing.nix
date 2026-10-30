@@ -7,17 +7,14 @@ in
     syncthing = {
       enable = true;
       host = "syncthing";
-      tls = {
-        enable = true;
-        hsts = "preload";
-      };
+      tls.enable = true;
       oAuth = {
         enable = true;
         clientId = "syncthing-icefox";
         displayName = "Syncthing (icefox)";
       };
-      syncthingHost = "syncthing.doridian.net";
-      webdavHost = "webdav.syncthing.doridian.net";
+      syncthingHost = "syncthing-offsite.foxden.network";
+      webdavHost = "webdav.syncthing-offsite.foxden.network";
     };
   };
 
@@ -25,8 +22,8 @@ in
     syncthing = mkV6Host {
       dns = {
         fqdns = [
-          "syncthing.doridian.net"
-          "webdav.syncthing.doridian.net"
+          "syncthing-offsite.foxden.network"
+          "webdav.syncthing-offsite.foxden.network"
         ];
       };
       webservice.enable = true;

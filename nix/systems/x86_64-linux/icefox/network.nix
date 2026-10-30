@@ -286,7 +286,7 @@ in
               "10.99.10.1/32"
               "fd2c:f4cb:63be::a63:a01/128"
             ];
-            endpoint = "redfox.doridian.net:13232";
+            endpoint = "redfox.foxden.network:13232";
             persistentKeepalive = 25;
             publicKey = "s1COjkpfpzfQ05ZLNLGQrlEhomlzwHv+APvUABzbSh8=";
           }
@@ -297,11 +297,18 @@ in
 
   foxDen.dns.records = [
     {
-      fqdn = "v4-icefox.doridian.net";
+      fqdn = "ext-icefox.foxden.network";
       type = "A";
       ttl = 3600;
       value = mainIPv4;
-      horizon = "*";
+      horizon = "internal";
+    }
+    {
+      fqdn = "ext-icefox.foxden.network";
+      type = "CNAME";
+      ttl = 3600;
+      value = "icefox.foxden.network";
+      horizon = "external";
     }
   ];
 
@@ -319,7 +326,6 @@ in
           email.allowedFrom = [ "icefox@foxden.network" ];
           dns.fqdns = [
             "icefox.foxden.network"
-            "icefox.doridian.net"
           ];
         };
       in

@@ -102,7 +102,7 @@ def refresh_foxmail():
         router.firewall_rules.extend(FIREWALL_RULES)
 
         config["sender"]["proxy"] = "socks5://10.99.10.1:1080"
-        config["sender"]["domain"] = "redfox.doridian.net"
+        config["sender"]["domain"] = "redfox.foxden.network"
         config["sender"]["dkim"]["selector"] = router.host.split(".")[0]
         config["receiver"]["smtp"]["domain"] = router.host
 

@@ -64,7 +64,7 @@ in
           value = {
             inherit recursive;
             source = "zhdd/ROOT/${name}";
-            target = "bengalfox@v4-icefox.doridian.net:ztank/ROOT/BENGALFOX/zhdd/${name}";
+            target = "bengalfox@ext-icefox.foxden.network:ztank/ROOT/BENGALFOX/zhdd/${name}";
             sshKey = config.sops.secrets."syncoid-ssh-key".path;
           };
         }

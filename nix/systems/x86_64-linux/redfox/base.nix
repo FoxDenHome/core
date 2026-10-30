@@ -23,7 +23,6 @@
         dns = {
           fqdns = [
             "redfox.foxden.network"
-            "redfox.doridian.net"
           ];
         };
         email.allowedFrom = [ "redfox@foxden.network" ];
@@ -38,14 +37,14 @@
 
   foxDen.dns.records = [
     {
-      fqdn = "v4-redfox.doridian.net";
+      fqdn = "v4-redfox.foxden.network";
       type = "A";
       ttl = 3600;
       value = "45.76.246.55";
       horizon = "external";
     }
     {
-      fqdn = "v4-redfox.doridian.net";
+      fqdn = "v4-redfox.foxden.network";
       type = "CNAME";
       ttl = 3600;
       value = "redfox.foxden.network.";

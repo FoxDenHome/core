@@ -9,17 +9,14 @@ in
       enable = true;
       host = "restic";
       dataDir = "/mnt/ztank/restic";
-      tls = {
-        enable = true;
-        hsts = "preload";
-      };
+      tls.enable = true;
     };
   };
 
   foxDen.hosts.hosts = {
     restic = mkV6Host {
       dns = {
-        fqdns = [ "restic.doridian.net" ];
+        fqdns = [ "restic-offsite.foxden.network" ];
       };
       webservice.enable = true;
       addresses = [

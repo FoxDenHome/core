@@ -49,7 +49,7 @@ class TestFoxmail(unittest.TestCase):
             dest, config = router.synced[0]
             self.assertEqual(dest, "/foxmail")
             self.assertEqual(config["sender"]["proxy"], "socks5://10.99.10.1:1080")
-            self.assertEqual(config["sender"]["domain"], "redfox.doridian.net")
+            self.assertEqual(config["sender"]["domain"], "redfox.foxden.network")
             self.assertEqual(
                 config["sender"]["dkim"]["selector"], router.host.split(".")[0]
             )
