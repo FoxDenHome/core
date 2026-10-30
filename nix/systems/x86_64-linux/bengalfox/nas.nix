@@ -52,9 +52,9 @@ in
               "::/0"
               "10.64.0.1/32"
             ];
-            endpoint = "23.234.81.127:51820";
+            endpoint = "138.199.43.78:51820";
             persistentKeepalive = 25;
-            publicKey = "G6+A375GVmuFCAtvwgx3SWCWhrMvdQ+cboXQ8zp2ang=";
+            publicKey = "Xt80FGN9eLy1vX3F29huj6oW2MnQt7ne3DMBpo525Qw=";
           }
         ];
       };
