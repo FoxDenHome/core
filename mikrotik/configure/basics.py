@@ -890,8 +890,8 @@ def make_internal_basics(
         prune=_prune_all,
     )
     basics.settings("/system/routerboard/settings", **{"auto-upgrade": TRUE})
-    # Leftovers of RADIUS logins, an SMB share for IPMI, IPFIX export, a CAKE
-    # queue and DHCP options. Option sets go before their options.
+    # Leftovers of RADIUS logins, an SMB share for IPMI, a CAKE queue and DHCP
+    # options. Option sets go before their options.
     basics.table("/queue/type", ("name",), [], prune=_prune_all)
     basics.table("/queue/simple", ("name",), [], prune=_prune_all)
     basics.table("/ip/dhcp-server/option", ("name",), [], prune=_prune_all)
@@ -900,8 +900,27 @@ def make_internal_basics(
     basics.table("/radius", ("address",), [], prune=_prune_all)
     basics.settings("/ip/smb", enabled="no")
     basics.table("/ip/smb/users", ("name",), [], prune=_prune_all)
-    basics.settings("/ip/traffic-flow", enabled=FALSE)
-    basics.table("/ip/traffic-flow/target", ("dst-address",), [], prune=_prune_all)
+    # IPFIX export to the netflow collector on islandfox. The short active
+    # timeout keeps long-lived connections visible in per-minute rollups.
+    collector = plan["flowCollector"]
+    basics.settings(
+        "/ip/traffic-flow",
+        enabled=TRUE,
+        interfaces="all",
+        **{"active-flow-timeout": "1m", "inactive-flow-timeout": "15s"},
+    )
+    basics.table(
+        "/ip/traffic-flow/target",
+        ("dst-address",),
+        [
+            {
+                "dst-address": collector["address"],
+                "port": str(collector["port"]),
+                "version": "ipfix",
+            }
+        ],
+        prune=_prune_all,
+    )
     basics.settings(
         "/snmp",
         contact="admin@foxden.network",

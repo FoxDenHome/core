@@ -247,6 +247,11 @@ in
 
   mkConfig = {
     inherit vlans;
+    # IPFIX collector the routers export traffic-flow to, see foxDen.services.netflow on islandfox
+    flowCollector = {
+      address = "10.2.11.45";
+      port = 2055;
+    };
     routers = lib.mapAttrs (
       _: router:
       router

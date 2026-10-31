@@ -61,6 +61,7 @@ in
         services.grafana = {
           dataDir = "/var/lib/grafana";
           enable = true;
+          declarativePlugins = [ pkgs.grafanaPlugins.grafana-clickhouse-datasource ];
           provision = {
             alerting = {
               contactPoints.path =
@@ -95,6 +96,18 @@ in
                   type = "prometheus";
                   uid = "prometheus";
                   url = "http://prometheus.foxden.network:9090";
+                }
+                {
+                  name = "ClickHouse";
+                  type = "grafana-clickhouse-datasource";
+                  uid = "clickhouse";
+                  jsonData = {
+                    host = "netflow.foxden.network";
+                    port = 8123;
+                    protocol = "http";
+                    username = "grafana";
+                    defaultDatabase = "netflow";
+                  };
                 }
               ];
             };

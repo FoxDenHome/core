@@ -1,0 +1,839 @@
+{
+  "apiVersion": "dashboard.grafana.app/v2",
+  "kind": "Dashboard",
+  "metadata": {
+    "name": "foxden-traffic-anomalies",
+    "uid": "foxden-traffic-anomalies"
+  },
+  "spec": {
+    "annotations": [
+      {
+        "kind": "AnnotationQuery",
+        "spec": {
+          "builtIn": true,
+          "enable": true,
+          "hide": true,
+          "iconColor": "rgba(0, 211, 255, 1)",
+          "name": "Annotations & Alerts",
+          "query": {
+            "datasource": {
+              "name": "-- Grafana --"
+            },
+            "group": "grafana",
+            "kind": "DataQuery",
+            "spec": {},
+            "version": "v0"
+          }
+        }
+      }
+    ],
+    "cursorSync": "Crosshair",
+    "editable": true,
+    "elements": {
+      "panel-1": {
+        "kind": "Panel",
+        "spec": {
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "clickhouse"
+                      },
+                      "group": "grafana-clickhouse-datasource",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "editorType": "sql",
+                        "format": 1,
+                        "pluginVersion": "4.23.2",
+                        "queryType": "table",
+                        "rawSql": "SELECT max(ratio) AS ratio FROM (WITH\n  recent AS (\n    SELECT proto, dst_port, uniqMerge(sources) AS sources, uniqMerge(prefixes) AS prefixes, sum(flows) AS flows\n    FROM netflow.inbound_1m\n    WHERE minute >= now() - INTERVAL 10 MINUTE\n    GROUP BY proto, dst_port\n  ),\n  baseline AS (\n    SELECT proto, dst_port, quantile(0.95)(sources) AS p95\n    FROM (\n      SELECT proto, dst_port, toStartOfTenMinutes(minute) AS bucket, uniqMerge(sources) AS sources\n      FROM netflow.inbound_1m\n      WHERE minute BETWEEN now() - INTERVAL 7 DAY AND now() - INTERVAL 1 HOUR\n      GROUP BY proto, dst_port, bucket\n    )\n    GROUP BY proto, dst_port\n  )\nSELECT\n  concat(r.proto, '/', toString(r.dst_port)) AS service,\n  r.sources AS sources,\n  r.prefixes AS prefixes,\n  r.flows AS flows,\n  round(b.p95) AS baseline_p95,\n  round(r.sources / greatest(b.p95, 20), 1) AS ratio\nFROM recent AS r\nLEFT JOIN baseline AS b ON r.proto = b.proto AND r.dst_port = b.dst_port)"
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "A"
+                  }
+                }
+              ],
+              "queryOptions": {},
+              "transformations": []
+            }
+          },
+          "description": "Worst service: unique external sources in the last 10 minutes divided by its 7-day p95 (floor 20). Alerts at 5 with at least 200 sources.",
+          "id": 1,
+          "links": [],
+          "title": "Highest anomaly ratio (10m)",
+          "vizConfig": {
+            "group": "stat",
+            "kind": "VizConfig",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {
+                  "unit": "x",
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "green",
+                        "value": 0
+                      },
+                      {
+                        "color": "orange",
+                        "value": 3
+                      },
+                      {
+                        "color": "red",
+                        "value": 5
+                      }
+                    ]
+                  }
+                },
+                "overrides": []
+              },
+              "options": {
+                "reduceOptions": {
+                  "calcs": [
+                    "lastNotNull"
+                  ]
+                },
+                "colorMode": "background"
+              }
+            },
+            "version": "13.0.2"
+          }
+        }
+      },
+      "panel-2": {
+        "kind": "Panel",
+        "spec": {
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "clickhouse"
+                      },
+                      "group": "grafana-clickhouse-datasource",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "editorType": "sql",
+                        "format": 1,
+                        "pluginVersion": "4.23.2",
+                        "queryType": "table",
+                        "rawSql": "SELECT uniqMerge(sources) AS sources FROM netflow.inbound_1m WHERE minute >= now() - INTERVAL 10 MINUTE"
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "A"
+                  }
+                }
+              ],
+              "queryOptions": {},
+              "transformations": []
+            }
+          },
+          "description": "Unique external addresses opening inbound connections in the last 10 minutes.",
+          "id": 2,
+          "links": [],
+          "title": "External sources (10m)",
+          "vizConfig": {
+            "group": "stat",
+            "kind": "VizConfig",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {
+                  "unit": "short"
+                },
+                "overrides": []
+              },
+              "options": {
+                "reduceOptions": {
+                  "calcs": [
+                    "lastNotNull"
+                  ]
+                }
+              }
+            },
+            "version": "13.0.2"
+          }
+        }
+      },
+      "panel-3": {
+        "kind": "Panel",
+        "spec": {
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "clickhouse"
+                      },
+                      "group": "grafana-clickhouse-datasource",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "editorType": "sql",
+                        "format": 1,
+                        "pluginVersion": "4.23.2",
+                        "queryType": "table",
+                        "rawSql": "SELECT sum(flows) / 600 AS flows FROM netflow.inbound_1m WHERE minute >= now() - INTERVAL 10 MINUTE"
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "A"
+                  }
+                }
+              ],
+              "queryOptions": {},
+              "transformations": []
+            }
+          },
+          "description": "New inbound flows per second, averaged over the last 10 minutes.",
+          "id": 3,
+          "links": [],
+          "title": "Inbound flows/s (10m)",
+          "vizConfig": {
+            "group": "stat",
+            "kind": "VizConfig",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {
+                  "unit": "short"
+                },
+                "overrides": []
+              },
+              "options": {
+                "reduceOptions": {
+                  "calcs": [
+                    "lastNotNull"
+                  ]
+                }
+              }
+            },
+            "version": "13.0.2"
+          }
+        }
+      },
+      "panel-4": {
+        "kind": "Panel",
+        "spec": {
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "clickhouse"
+                      },
+                      "group": "grafana-clickhouse-datasource",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "editorType": "sql",
+                        "format": 0,
+                        "pluginVersion": "4.23.2",
+                        "queryType": "timeseries",
+                        "rawSql": "SELECT toStartOfInterval(time_received, INTERVAL $__interval_s second) AS time, IPv6NumToString(sampler) AS router, count() / $__interval_s AS records\nFROM netflow.flows\nWHERE $__timeFilter(time_received)\nGROUP BY time, router ORDER BY time"
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "A"
+                  }
+                }
+              ],
+              "queryOptions": {},
+              "transformations": []
+            }
+          },
+          "description": "Exporter health: records received per router. Flat zero means traffic-flow or goflow2 broke.",
+          "id": 4,
+          "links": [],
+          "title": "Flow records/s by router",
+          "vizConfig": {
+            "group": "timeseries",
+            "kind": "VizConfig",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {
+                  "unit": "short"
+                },
+                "overrides": []
+              },
+              "options": {}
+            },
+            "version": "13.0.2"
+          }
+        }
+      },
+      "panel-5": {
+        "kind": "Panel",
+        "spec": {
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "clickhouse"
+                      },
+                      "group": "grafana-clickhouse-datasource",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "editorType": "sql",
+                        "format": 0,
+                        "pluginVersion": "4.23.2",
+                        "queryType": "timeseries",
+                        "rawSql": "SELECT toStartOfInterval(minute, INTERVAL $__interval_s second) AS time, concat(proto, '/', toString(dst_port)) AS service, uniqMerge(sources) AS sources\nFROM netflow.inbound_1m\nWHERE $__timeFilter(minute) AND dst_port IN (\n    SELECT dst_port FROM netflow.inbound_1m\n    WHERE $__timeFilter(minute)\n    GROUP BY dst_port ORDER BY sum(flows) DESC LIMIT 8\n  )\nGROUP BY time, service ORDER BY time"
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "A"
+                  }
+                }
+              ],
+              "queryOptions": {},
+              "transformations": []
+            }
+          },
+          "description": "The botnet signal: how many distinct addresses hit each listening port, top 8 ports by flows.",
+          "id": 5,
+          "links": [],
+          "title": "Unique external sources per service",
+          "vizConfig": {
+            "group": "timeseries",
+            "kind": "VizConfig",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {
+                  "unit": "short"
+                },
+                "overrides": []
+              },
+              "options": {}
+            },
+            "version": "13.0.2"
+          }
+        }
+      },
+      "panel-6": {
+        "kind": "Panel",
+        "spec": {
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "prometheus"
+                      },
+                      "group": "prometheus",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "editorMode": "code",
+                        "expr": "sum by (host) (rate(foxingress_connections_total[$__rate_interval])) > 0.05",
+                        "legendFormat": "{{host}}",
+                        "range": true
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "A"
+                  }
+                }
+              ],
+              "queryOptions": {},
+              "transformations": []
+            }
+          },
+          "description": "Per-hostname view from the SNI ingress (what caught the 2026-10-31 Forgejo flood: 1/s to 407/s).",
+          "id": 6,
+          "links": [],
+          "title": "foxIngress connections/s by host",
+          "vizConfig": {
+            "group": "timeseries",
+            "kind": "VizConfig",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {
+                  "unit": "reqps"
+                },
+                "overrides": []
+              },
+              "options": {}
+            },
+            "version": "13.0.2"
+          }
+        }
+      },
+      "panel-7": {
+        "kind": "Panel",
+        "spec": {
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "clickhouse"
+                      },
+                      "group": "grafana-clickhouse-datasource",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "editorType": "sql",
+                        "format": 0,
+                        "pluginVersion": "4.23.2",
+                        "queryType": "timeseries",
+                        "rawSql": "SELECT toStartOfInterval(minute, INTERVAL $__interval_s second) AS time, concat(proto, '/', toString(dst_port)) AS service, sum(flows) / $__interval_s AS flows\nFROM netflow.inbound_1m\nWHERE $__timeFilter(minute) AND dst_port IN (\n    SELECT dst_port FROM netflow.inbound_1m\n    WHERE $__timeFilter(minute)\n    GROUP BY dst_port ORDER BY sum(flows) DESC LIMIT 8\n  )\nGROUP BY time, service ORDER BY time"
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "A"
+                  }
+                }
+              ],
+              "queryOptions": {},
+              "transformations": []
+            }
+          },
+          "description": "New inbound flows per second, top 8 ports.",
+          "id": 7,
+          "links": [],
+          "title": "Inbound flows/s per service",
+          "vizConfig": {
+            "group": "timeseries",
+            "kind": "VizConfig",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {
+                  "unit": "short"
+                },
+                "overrides": []
+              },
+              "options": {}
+            },
+            "version": "13.0.2"
+          }
+        }
+      },
+      "panel-8": {
+        "kind": "Panel",
+        "spec": {
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "clickhouse"
+                      },
+                      "group": "grafana-clickhouse-datasource",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "editorType": "sql",
+                        "format": 0,
+                        "pluginVersion": "4.23.2",
+                        "queryType": "timeseries",
+                        "rawSql": "SELECT toStartOfInterval(time_received, INTERVAL $__interval_s second) AS time,\n  sumIf(bytes, src_external) * 8 / $__interval_s AS inbound,\n  sumIf(bytes, NOT src_external AND dst_external) * 8 / $__interval_s AS outbound\nFROM netflow.flows\nWHERE $__timeFilter(time_received)\nGROUP BY time ORDER BY time"
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "A"
+                  }
+                }
+              ],
+              "queryOptions": {},
+              "transformations": []
+            }
+          },
+          "description": "Bytes from external addresses (inbound) and from our own addresses to external ones (outbound). Our dynamic public IPv4 counts as external, so check this against the routers' WAN counters once real IPFIX data is in.",
+          "id": 8,
+          "links": [],
+          "title": "WAN throughput",
+          "vizConfig": {
+            "group": "timeseries",
+            "kind": "VizConfig",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {
+                  "unit": "bps"
+                },
+                "overrides": []
+              },
+              "options": {}
+            },
+            "version": "13.0.2"
+          }
+        }
+      },
+      "panel-9": {
+        "kind": "Panel",
+        "spec": {
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "clickhouse"
+                      },
+                      "group": "grafana-clickhouse-datasource",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "editorType": "sql",
+                        "format": 1,
+                        "pluginVersion": "4.23.2",
+                        "queryType": "table",
+                        "rawSql": "SELECT * FROM (WITH\n  recent AS (\n    SELECT proto, dst_port, uniqMerge(sources) AS sources, uniqMerge(prefixes) AS prefixes, sum(flows) AS flows\n    FROM netflow.inbound_1m\n    WHERE minute >= now() - INTERVAL 10 MINUTE\n    GROUP BY proto, dst_port\n  ),\n  baseline AS (\n    SELECT proto, dst_port, quantile(0.95)(sources) AS p95\n    FROM (\n      SELECT proto, dst_port, toStartOfTenMinutes(minute) AS bucket, uniqMerge(sources) AS sources\n      FROM netflow.inbound_1m\n      WHERE minute BETWEEN now() - INTERVAL 7 DAY AND now() - INTERVAL 1 HOUR\n      GROUP BY proto, dst_port, bucket\n    )\n    GROUP BY proto, dst_port\n  )\nSELECT\n  concat(r.proto, '/', toString(r.dst_port)) AS service,\n  r.sources AS sources,\n  r.prefixes AS prefixes,\n  r.flows AS flows,\n  round(b.p95) AS baseline_p95,\n  round(r.sources / greatest(b.p95, 20), 1) AS ratio\nFROM recent AS r\nLEFT JOIN baseline AS b ON r.proto = b.proto AND r.dst_port = b.dst_port) ORDER BY ratio DESC LIMIT 20"
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "A"
+                  }
+                }
+              ],
+              "queryOptions": {},
+              "transformations": []
+            }
+          },
+          "description": "Same query as the alert. ratio = sources / max(p95, 20). prefixes close to sources means the traffic is spread across many networks.",
+          "id": 9,
+          "links": [],
+          "title": "Anomaly score by service (10m vs 7d p95)",
+          "vizConfig": {
+            "group": "table",
+            "kind": "VizConfig",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {
+                  "unit": "short"
+                },
+                "overrides": []
+              },
+              "options": {}
+            },
+            "version": "13.0.2"
+          }
+        }
+      },
+      "panel-10": {
+        "kind": "Panel",
+        "spec": {
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "clickhouse"
+                      },
+                      "group": "grafana-clickhouse-datasource",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "editorType": "sql",
+                        "format": 1,
+                        "pluginVersion": "4.23.2",
+                        "queryType": "table",
+                        "rawSql": "SELECT IPv6NumToString(src_addr) AS source, count() AS flows, sum(bytes) AS bytes, uniq(dst_port) AS ports, min(time_received) AS first_seen, max(time_received) AS last_seen\nFROM netflow.flows\nWHERE $__timeFilter(time_received) AND inbound\nGROUP BY src_addr ORDER BY flows DESC LIMIT 25"
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "A"
+                  }
+                }
+              ],
+              "queryOptions": {},
+              "transformations": []
+            }
+          },
+          "description": "Busiest external addresses in the selected range.",
+          "id": 10,
+          "links": [],
+          "title": "Top external sources",
+          "vizConfig": {
+            "group": "table",
+            "kind": "VizConfig",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {
+                  "unit": "short"
+                },
+                "overrides": []
+              },
+              "options": {}
+            },
+            "version": "13.0.2"
+          }
+        }
+      },
+      "panel-11": {
+        "kind": "Panel",
+        "spec": {
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "clickhouse"
+                      },
+                      "group": "grafana-clickhouse-datasource",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "editorType": "sql",
+                        "format": 1,
+                        "pluginVersion": "4.23.2",
+                        "queryType": "table",
+                        "rawSql": "SELECT cutIPv6(src_addr, 10, 1) AS network, uniq(src_addr) AS sources, count() AS flows, groupUniqArray(5)(dst_port) AS ports\nFROM netflow.flows\nWHERE $__timeFilter(time_received) AND inbound\nGROUP BY network ORDER BY flows DESC LIMIT 25"
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "A"
+                  }
+                }
+              ],
+              "queryOptions": {},
+              "transformations": []
+            }
+          },
+          "description": "Inbound flows grouped by source prefix. Many prefixes with a handful of addresses each looks like a residential proxy botnet.",
+          "id": 11,
+          "links": [],
+          "title": "Top source networks (/24, /48)",
+          "vizConfig": {
+            "group": "table",
+            "kind": "VizConfig",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {
+                  "unit": "short"
+                },
+                "overrides": []
+              },
+              "options": {}
+            },
+            "version": "13.0.2"
+          }
+        }
+      }
+    },
+    "layout": {
+      "kind": "GridLayout",
+      "spec": {
+        "items": [
+          {
+            "kind": "GridLayoutItem",
+            "spec": {
+              "element": {
+                "kind": "ElementReference",
+                "name": "panel-1"
+              },
+              "x": 0,
+              "y": 0,
+              "width": 6,
+              "height": 4
+            }
+          },
+          {
+            "kind": "GridLayoutItem",
+            "spec": {
+              "element": {
+                "kind": "ElementReference",
+                "name": "panel-2"
+              },
+              "x": 6,
+              "y": 0,
+              "width": 6,
+              "height": 4
+            }
+          },
+          {
+            "kind": "GridLayoutItem",
+            "spec": {
+              "element": {
+                "kind": "ElementReference",
+                "name": "panel-3"
+              },
+              "x": 12,
+              "y": 0,
+              "width": 6,
+              "height": 4
+            }
+          },
+          {
+            "kind": "GridLayoutItem",
+            "spec": {
+              "element": {
+                "kind": "ElementReference",
+                "name": "panel-4"
+              },
+              "x": 18,
+              "y": 0,
+              "width": 6,
+              "height": 4
+            }
+          },
+          {
+            "kind": "GridLayoutItem",
+            "spec": {
+              "element": {
+                "kind": "ElementReference",
+                "name": "panel-5"
+              },
+              "x": 0,
+              "y": 4,
+              "width": 12,
+              "height": 9
+            }
+          },
+          {
+            "kind": "GridLayoutItem",
+            "spec": {
+              "element": {
+                "kind": "ElementReference",
+                "name": "panel-6"
+              },
+              "x": 12,
+              "y": 4,
+              "width": 12,
+              "height": 9
+            }
+          },
+          {
+            "kind": "GridLayoutItem",
+            "spec": {
+              "element": {
+                "kind": "ElementReference",
+                "name": "panel-7"
+              },
+              "x": 0,
+              "y": 13,
+              "width": 12,
+              "height": 8
+            }
+          },
+          {
+            "kind": "GridLayoutItem",
+            "spec": {
+              "element": {
+                "kind": "ElementReference",
+                "name": "panel-8"
+              },
+              "x": 12,
+              "y": 13,
+              "width": 12,
+              "height": 8
+            }
+          },
+          {
+            "kind": "GridLayoutItem",
+            "spec": {
+              "element": {
+                "kind": "ElementReference",
+                "name": "panel-9"
+              },
+              "x": 0,
+              "y": 21,
+              "width": 12,
+              "height": 10
+            }
+          },
+          {
+            "kind": "GridLayoutItem",
+            "spec": {
+              "element": {
+                "kind": "ElementReference",
+                "name": "panel-10"
+              },
+              "x": 12,
+              "y": 21,
+              "width": 12,
+              "height": 10
+            }
+          },
+          {
+            "kind": "GridLayoutItem",
+            "spec": {
+              "element": {
+                "kind": "ElementReference",
+                "name": "panel-11"
+              },
+              "x": 0,
+              "y": 31,
+              "width": 24,
+              "height": 9
+            }
+          }
+        ]
+      }
+    },
+    "links": [],
+    "liveNow": false,
+    "preload": false,
+    "tags": [
+      "network",
+      "security"
+    ],
+    "timeSettings": {
+      "autoRefresh": "1m",
+      "autoRefreshIntervals": [
+        "30s",
+        "1m",
+        "5m",
+        "15m",
+        "30m",
+        "1h"
+      ],
+      "fiscalYearStartMonth": 0,
+      "from": "now-6h",
+      "hideTimepicker": false,
+      "timezone": "browser",
+      "to": "now"
+    },
+    "title": "Traffic anomalies",
+    "variables": []
+  }
+}

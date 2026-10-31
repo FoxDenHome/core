@@ -1,0 +1,113 @@
+apiVersion: 1
+groups:
+    - orgId: 1
+      name: Traffic anomalies
+      folder: General Alerting
+      interval: 1m
+      rules:
+        # Per-hostname connection rate from foxIngress. This is the signal that
+        # jumped from ~1/s to 407/s for git.foxden.network on 2026-10-31.
+        - uid: foxden-ingress-surge
+          title: Ingress connection surge
+          condition: B
+          data:
+            - refId: A
+              relativeTimeRange:
+                from: 600
+                to: 0
+              datasourceUid: "prometheus"
+              model:
+                refId: A
+                instant: true
+                range: false
+                expr: >-
+                  sum by (host) (rate(foxingress_connections_total[5m])) > 20
+                  and
+                  sum by (host) (rate(foxingress_connections_total[5m]))
+                  > 10 * sum by (host) (rate(foxingress_connections_total[7d] offset 1h))
+            - refId: B
+              datasourceUid: __expr__
+              model:
+                refId: B
+                type: threshold
+                expression: A
+                conditions:
+                    - evaluator:
+                        type: gt
+                        params:
+                            - 0
+          # The query only returns hosts that are surging
+          noDataState: OK
+          execErrState: Error
+          for: 2m
+          annotations:
+            summary: "{{ $labels.host }}: {{ humanize $values.A.Value }} connections/s, over 10x its 7-day average"
+            __dashboardUid__: foxden-traffic-anomalies
+            __panelId__: "6"
+          labels: {}
+          isPaused: false
+        # Unique external sources per service port from the router IPFIX export,
+        # vs the p95 of 10-minute windows over the past week. Catches floods on
+        # ports foxIngress doesn't see.
+        - uid: foxden-source-surge
+          title: External source surge
+          condition: B
+          data:
+            - refId: A
+              relativeTimeRange:
+                from: 600
+                to: 0
+              datasourceUid: "clickhouse"
+              model:
+                refId: A
+                editorType: sql
+                format: 1
+                queryType: table
+                rawSql: |-
+                  SELECT service, ratio FROM (WITH
+                    recent AS (
+                      SELECT proto, dst_port, uniqMerge(sources) AS sources, uniqMerge(prefixes) AS prefixes, sum(flows) AS flows
+                      FROM netflow.inbound_1m
+                      WHERE minute >= now() - INTERVAL 10 MINUTE
+                      GROUP BY proto, dst_port
+                    ),
+                    baseline AS (
+                      SELECT proto, dst_port, quantile(0.95)(sources) AS p95
+                      FROM (
+                        SELECT proto, dst_port, toStartOfTenMinutes(minute) AS bucket, uniqMerge(sources) AS sources
+                        FROM netflow.inbound_1m
+                        WHERE minute BETWEEN now() - INTERVAL 7 DAY AND now() - INTERVAL 1 HOUR
+                        GROUP BY proto, dst_port, bucket
+                      )
+                      GROUP BY proto, dst_port
+                    )
+                  SELECT
+                    concat(r.proto, '/', toString(r.dst_port)) AS service,
+                    r.sources AS sources,
+                    r.prefixes AS prefixes,
+                    r.flows AS flows,
+                    round(b.p95) AS baseline_p95,
+                    round(r.sources / greatest(b.p95, 20), 1) AS ratio
+                  FROM recent AS r
+                  LEFT JOIN baseline AS b ON r.proto = b.proto AND r.dst_port = b.dst_port) WHERE sources >= 200
+            - refId: B
+              datasourceUid: __expr__
+              model:
+                refId: B
+                type: threshold
+                expression: A
+                conditions:
+                    - evaluator:
+                        type: gt
+                        params:
+                            - 5
+          # The query only returns services with at least 200 sources
+          noDataState: OK
+          execErrState: Error
+          for: 2m
+          annotations:
+            summary: "{{ $labels.service }}: {{ $values.A.Value }}x the usual number of external sources"
+            __dashboardUid__: foxden-traffic-anomalies
+            __panelId__: "9"
+          labels: {}
+          isPaused: false

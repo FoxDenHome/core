@@ -19,6 +19,10 @@ in
       enable = true;
       host = "mktxp";
     };
+    netflow = {
+      enable = true;
+      host = "netflow";
+    };
     prometheus = {
       enable = true;
       host = "prometheus";
@@ -66,6 +70,16 @@ in
       addresses = [
         "10.2.11.22/16"
         "fd2c:f4cb:63be:2::b16/64"
+      ];
+    };
+    # Also hardcoded as flowCollector in modules/lib/routers.nix
+    netflow = mkVlanHost 2 {
+      dns = {
+        fqdns = [ "netflow.foxden.network" ];
+      };
+      addresses = [
+        "10.2.11.45/16"
+        "fd2c:f4cb:63be:2::b2d/64"
       ];
     };
   };

@@ -55,6 +55,7 @@ def plan_vlan_routers(vlan: int, ipv6: bool) -> dict[str, Any]:
 
 PLAN: dict[str, Any] = {
     "routers": {"router": plan_router(1), "router-backup": plan_router(2)},
+    "flowCollector": {"address": "10.2.11.45", "port": 2055},
     "vlans": [
         {
             "name": "mgmt",
@@ -235,6 +236,13 @@ class TestMakeInternalBasics(unittest.TestCase):
         self.assertEqual(vrrp["vrrp-mgmt-gateway"]["version"], "2")
         self.assertEqual(vrrp["vrrp-mgmt-gateway6"]["v3-protocol"], "ipv6")
         self.assertEqual(vrrp["vrrp-mgmt-gateway6"]["vrid"], "2")
+
+    def test_traffic_flow_export(self) -> None:
+        basics = make_internal_basics(PLAN, mtik_router("router"), "community")
+        [target] = rows(basics, "/ip/traffic-flow/target")
+        self.assertEqual(target["dst-address"], "10.2.11.45")
+        self.assertEqual(target["port"], "2055")
+        self.assertEqual(target["version"], "ipfix")
 
     def test_backup_serves_its_pools(self) -> None:
         basics = make_internal_basics(PLAN, mtik_router("router-backup"), "community")
