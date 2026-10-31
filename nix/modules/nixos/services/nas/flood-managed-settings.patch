@@ -1,0 +1,140 @@
+diff --git a/client/src/javascript/components/modals/settings-modal/SettingsModal.tsx b/client/src/javascript/components/modals/settings-modal/SettingsModal.tsx
+index 6f29828..c33eb4d 100644
+--- a/client/src/javascript/components/modals/settings-modal/SettingsModal.tsx
++++ b/client/src/javascript/components/modals/settings-modal/SettingsModal.tsx
+@@ -2,18 +2,13 @@ import {FC, useState} from 'react';
+ import {observer} from 'mobx-react-lite';
+ import {useLingui} from '@lingui/react';
+ 
+-import type {ClientSettings} from '@shared/types/ClientSettings';
+ import type {FloodSettings} from '@shared/types/FloodSettings';
+ 
+ import AboutTab from './AboutTab';
+ import AuthTab from './AuthTab';
+-import BandwidthTab from './BandwidthTab';
+ import ConfigStore from '../../../stores/ConfigStore';
+-import ConnectivityTab from './ConnectivityTab';
+-import ClientActions from '../../../actions/ClientActions';
+ import DiskUsageTab from './DiskUsageTab';
+ import Modal from '../Modal';
+-import ResourcesTab from './ResourcesTab';
+ import SettingActions from '../../../actions/SettingActions';
+ import UITab from './UITab';
+ import UIStore from '../../../stores/UIStore';
+@@ -21,17 +16,9 @@ import UIStore from '../../../stores/UIStore';
+ const SettingsModal: FC = observer(() => {
+   const {i18n} = useLingui();
+ 
+-  const [changedClientSettings, setChangedClientSettings] = useState<Partial<ClientSettings>>({});
+   const [changedFloodSettings, setChangedFloodSettings] = useState<Partial<FloodSettings>>({});
+   const [isSavingSettings, setSavingSettings] = useState<boolean>(false);
+ 
+-  const handleClientSettingsChange = (changedSettings: Partial<ClientSettings>) => {
+-    setChangedClientSettings({
+-      ...changedClientSettings,
+-      ...changedSettings,
+-    });
+-  };
+-
+   const handleFloodSettingsChange = (changedSettings: Partial<FloodSettings>) => {
+     setChangedFloodSettings({
+       ...changedFloodSettings,
+@@ -40,28 +27,8 @@ const SettingsModal: FC = observer(() => {
+   };
+ 
+   const tabs = {
+-    bandwidth: {
+-      content: BandwidthTab,
+-      props: {
+-        onClientSettingsChange: handleClientSettingsChange,
+-        onSettingsChange: handleFloodSettingsChange,
+-      },
+-      label: i18n._('settings.tabs.bandwidth'),
+-    },
+-    connectivity: {
+-      content: ConnectivityTab,
+-      props: {
+-        onClientSettingsChange: handleClientSettingsChange,
+-      },
+-      label: i18n._('settings.tabs.connectivity'),
+-    },
+-    resources: {
+-      content: ResourcesTab,
+-      props: {
+-        onClientSettingsChange: handleClientSettingsChange,
+-      },
+-      label: i18n._('settings.tabs.resources'),
+-    },
++    // FoxDen: Bandwidth, Connectivity and Resources edit deluged's global
++    // settings, which are provisioned declaratively.
+     ...(ConfigStore.authMethod !== 'none'
+       ? {
+           authentication: {
+@@ -102,14 +69,9 @@ const SettingsModal: FC = observer(() => {
+         {
+           clickHandler: () => {
+             setSavingSettings(true);
+-            Promise.all([
+-              SettingActions.saveSettings(changedFloodSettings, {
+-                alert: true,
+-              }),
+-              ClientActions.saveSettings(changedClientSettings, {
+-                alert: true,
+-              }),
+-            ]).then(() => {
++            SettingActions.saveSettings(changedFloodSettings, {
++              alert: true,
++            }).then(() => {
+               setSavingSettings(false);
+               UIStore.setActiveModal(null);
+             });
+diff --git a/client/src/javascript/components/sidebar/Sidebar.tsx b/client/src/javascript/components/sidebar/Sidebar.tsx
+index b272ade..d44f370 100644
+--- a/client/src/javascript/components/sidebar/Sidebar.tsx
++++ b/client/src/javascript/components/sidebar/Sidebar.tsx
+@@ -9,7 +9,6 @@ import NotificationsButton from './NotificationsButton';
+ import SearchBox from './SearchBox';
+ import SettingsButton from './SettingsButton';
+ import SidebarActions from './SidebarActions';
+-import SpeedLimitDropdown from './SpeedLimitDropdown';
+ import StatusFilters from './StatusFilters';
+ import TagFilters from './TagFilters';
+ import ThemeSwitchButton from './ThemeSwitchButton';
+@@ -34,7 +33,6 @@ const Sidebar: FC = () => (
+   >
+     <div style={{display: 'flex', flexDirection: 'column'}}>
+       <SidebarActions>
+-        <SpeedLimitDropdown />
+         <SettingsButton />
+         <FeedsButton />
+         <NotificationsButton />
+diff --git a/server/services/Deluge/clientGatewayService.ts b/server/services/Deluge/clientGatewayService.ts
+index adac970..97a1d67 100644
+--- a/server/services/Deluge/clientGatewayService.ts
++++ b/server/services/Deluge/clientGatewayService.ts
+@@ -457,21 +457,10 @@ class DelugeClientGatewayService extends BaseClientGatewayService implements Cli
+       }));
+   }
+ 
+-  async setClientSettings(settings: SetClientSettingsOptions): Promise<void> {
+-    return this.clientRequestManager
+-      .coreSetConfig({
+-        dht: settings.dht,
+-        download_location: settings.directoryDefault,
+-        listen_interface: settings.networkLocalAddress?.[0],
+-        listen_ports: settings.networkPortRange?.split('-').map((port) => Number(port)),
+-        max_download_speed: settings.throttleGlobalDownSpeed,
+-        max_upload_speed: settings.throttleGlobalUpSpeed,
+-        max_upload_slots_per_torrent: settings.throttleMaxUploads,
+-        max_upload_slots_global: settings.throttleMaxUploadsGlobal,
+-        random_port: settings.networkPortRandom,
+-        utpex: settings.protocolPex,
+-      })
+-      .then(this.processClientRequestSuccess, this.processClientRequestError);
++  async setClientSettings(_settings: SetClientSettingsOptions): Promise<void> {
++    // FoxDen: deluged's global settings are provisioned declaratively. Flood
++    // sends every key on each save, unset ones as null, which breaks deluged.
++    throw new Error('Deluge client settings are managed outside Flood');
+   }
+ 
+   async testGateway(): Promise<void> {

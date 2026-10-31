@@ -22,6 +22,12 @@ let
   dataDir = config.services.deluge.dataDir;
   floodPort = 3000;
 
+  # deluged's global settings are provisioned in core.conf below, so drop
+  # Flood's pages and controls that edit them and refuse the API call.
+  flood = pkgs.flood.overrideAttrs (old: {
+    patches = (old.patches or [ ]) ++ [ ./flood-managed-settings.patch ];
+  });
+
   # Flood talks to deluged as localclient. deluged adds that account to the auth
   # file it loads if missing, so read it from there, not services.deluge.authFile.
   floodStart = pkgs.writeShellScript "flood-start" ''
@@ -35,7 +41,7 @@ let
       echo "localclient not found in deluge auth file" >&2
       exit 1
     fi
-    exec ${lib.getExe pkgs.flood} \
+    exec ${lib.getExe flood} \
       --host 127.0.0.1 \
       --port ${toString floodPort} \
       --rundir ${dataDir}/flood \
