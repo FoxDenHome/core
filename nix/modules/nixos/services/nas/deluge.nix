@@ -102,8 +102,18 @@ in
             random_port = true;
             max_download_speed = -1.0;
             max_upload_speed = -1.0;
-            max_upload_slots_global = 4;
             max_upload_slots_per_torrent = -1;
+
+            # Sized for a gigabit link; Deluge's defaults assume a slow DSL line.
+            max_upload_slots_global = 50;
+            max_connections_global = 1000;
+            max_connections_per_second = 50;
+            max_active_downloading = 10;
+            max_active_seeding = 20;
+            max_active_limit = 30;
+            # Stalled downloads (e.g. stuck at 99.98% with no seeds) would
+            # otherwise hold every active slot and leave new torrents queued.
+            dont_count_slow_torrents = true;
           };
           declarative = true;
           group = "share";
