@@ -6,7 +6,8 @@
 //	foxden-vpnd status     print the daemon's status as JSON
 //	foxden-vpnd expose     publish a local port (see `foxden-vpnd expose -h`)
 //
-// Started as foxden-vpn-tray (a symlink), it runs the tray. Being one
+// Started as foxden-vpn-tray (a symlink), or by opening FoxDen VPN.app on
+// macOS, it runs the tray. Being one
 // binary keeps the tray in lock step with the daemon: it restarts into the
 // daemon's executable whenever their builds differ.
 package main
@@ -73,7 +74,12 @@ func main() {
 
 	cmd := flag.Arg(0)
 	args := os.Args[1:]
-	if filepath.Base(os.Args[0]) == "foxden-vpn-tray" && cmd == "" {
+	// LaunchServices (Finder, Spotlight, open) runs the bundle's executable
+	// without arguments and resolves symlinks, so app launches are told
+	// apart by the bundle ID it puts in the environment. Shells inherit
+	// their terminal's ID instead, and launchd jobs none.
+	appLaunch := os.Getenv("__CFBundleIdentifier") == "network.foxden.vpn-tray"
+	if (filepath.Base(os.Args[0]) == "foxden-vpn-tray" || appLaunch) && cmd == "" {
 		cmd, args = "tray", append(args, "tray")
 	}
 	switch cmd {

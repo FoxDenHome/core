@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"net"
 	"net/netip"
 	"os"
 	"os/exec"
@@ -99,6 +100,7 @@ func (t *Tunnel) setRoutes(cfg Config) error {
 	for _, old := range t.plat.routes {
 		if !containsPrefix(want, old) {
 			_ = run("route", "-q", "-n", "delete", family(old), old.String(), "-interface", t.name)
+			restoreConnected(old)
 		}
 	}
 	for _, p := range want {
@@ -141,6 +143,48 @@ func (t *Tunnel) setRoutes(cfg Config) error {
 		t.plat.bypass = bypass
 	}
 	return nil
+}
+
+// restoreConnected puts back the on-link route of a physical interface
+// whose subnet is p. Arriving home, DHCP configures the LAN while our
+// tunnel route for it still exists, so macOS adds no route of its own; with
+// ours gone, the LAN would be reached through the gateway, which sees only
+// one direction of each connection and drops it.
+func restoreConnected(p netip.Prefix) {
+	iface := connectedIface(p)
+	if iface == "" {
+		return
+	}
+	// Fails harmlessly if macOS did add its route.
+	if run("route", "-q", "-n", "add", family(p), p.String(), "-interface", iface) == nil {
+		log.Printf("tunnel: restored the %s route on %s", p, iface)
+	}
+}
+
+// connectedIface is the physical interface whose subnet is p, or "".
+func connectedIface(p netip.Prefix) string {
+	ifaces, err := net.Interfaces()
+	if err != nil {
+		return ""
+	}
+	for _, ifc := range ifaces {
+		if ifc.Flags&net.FlagUp == 0 || ifc.Flags&net.FlagLoopback != 0 || strings.HasPrefix(ifc.Name, "utun") {
+			continue
+		}
+		addrs, _ := ifc.Addrs()
+		for _, a := range addrs {
+			ipn, ok := a.(*net.IPNet)
+			if !ok {
+				continue
+			}
+			addr, ok := netip.AddrFromSlice(ipn.IP)
+			ones, _ := ipn.Mask.Size()
+			if ok && netip.PrefixFrom(addr.Unmap(), ones).Masked() == p {
+				return ifc.Name
+			}
+		}
+	}
+	return ""
 }
 
 func containsPrefix(ps []netip.Prefix, p netip.Prefix) bool {

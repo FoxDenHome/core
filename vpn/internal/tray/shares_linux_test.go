@@ -43,9 +43,13 @@ func (f *fakeMounts) client(t *testing.T) *api.Client {
 		var req api.MountRequest
 		_ = json.NewDecoder(r.Body).Decode(&req)
 		f.mu.Lock()
+		defer f.mu.Unlock()
+		if _, ok := f.mounts[req.Path]; ok {
+			http.Error(w, "the folder is not empty", http.StatusConflict)
+			return
+		}
 		f.mounts[req.Path] = req.Share
 		f.log = append(f.log, "mount "+req.Share+" "+req.Path)
-		f.mu.Unlock()
 		_ = json.NewEncoder(w).Encode(api.Mount{Path: req.Path, Transport: "SMB Direct"})
 	})
 	mux.HandleFunc("POST /v1/mounts/unmount", func(w http.ResponseWriter, r *http.Request) {
@@ -231,5 +235,65 @@ func TestSharesAutoMount(t *testing.T) {
 	b, _ := os.ReadFile(cfg)
 	if json.Unmarshal(b, &saved) != nil || saved["share"]["automount"] != false || saved["share"]["enabled"] != nil {
 		t.Fatalf("saved: %s", b)
+	}
+}
+
+// Two shares given the same folder (older versions allowed it): the one
+// mounted there keeps it, the other is neither claimed nor mounted over it
+// and has to get a new folder, which may not overlap.
+func TestSharesSameFolder(t *testing.T) {
+	home := t.TempDir()
+	dir := filepath.Join(home, "nas")
+	cfg := filepath.Join(t.TempDir(), "mounts.json")
+	old := `{"share": {"path": "` + dir + `", "automount": true}, "dori": {"path": "` + dir + `", "automount": true}}`
+	if err := os.WriteFile(cfg, []byte(old), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	f := &fakeMounts{mounts: map[string]string{dir: "dori"}}
+	var picks []string
+	s := newTestShares(t, f, cfg, &picks)
+	s.progress = (&fakeNotes{}).progress
+	if _, ok := s.mountOf("share"); ok {
+		t.Fatal("share claims dori's mount")
+	}
+	s.reconcile()
+	if len(f.log) != 0 || s.state["share"] != (shareState{}) || s.state["dori"].Path != dir || !s.state["dori"].Enabled {
+		t.Fatalf("after start: %v %+v", f.log, s.state)
+	}
+	var saved map[string]map[string]any
+	b, _ := os.ReadFile(cfg)
+	if json.Unmarshal(b, &saved) != nil || saved["share"]["path"] != "" || saved["dori"]["path"] != dir {
+		t.Fatalf("saved: %s", b)
+	}
+
+	// Neither the same folder, one inside it, nor one around it.
+	for _, p := range []string{dir, filepath.Join(dir, "sub"), home} {
+		picks = []string{p}
+		if got, err := s.choose("share", ""); err == nil {
+			t.Errorf("choose %s: got %s, want an error", p, got)
+		}
+	}
+	other := filepath.Join(home, "other")
+	picks = []string{other}
+	if got, err := s.choose("share", ""); err != nil || got != other {
+		t.Fatalf("choose %s: %s %v", other, got, err)
+	}
+}
+
+func TestIsShare(t *testing.T) {
+	for _, c := range []struct {
+		source, name string
+		want         bool
+	}{
+		{"//nas/share", "share", true},
+		{"//wizzy@nas-smb.foxden.network/wizzy", "wizzy", true},
+		{"//wizzy@nas-smb.foxden.network/wizzy", "share", false},
+		{"//nas-rdma/Share", "share", true},
+		{"//u@nas/my%20files", "my files", true},
+		{"//nas/share2", "share", false},
+	} {
+		if got := isShare(c.source, c.name); got != c.want {
+			t.Errorf("isShare(%q, %q) = %v", c.source, c.name, got)
+		}
 	}
 }

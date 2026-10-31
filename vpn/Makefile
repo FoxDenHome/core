@@ -28,6 +28,7 @@ install-linux: all
 # binary, inside the app bundle: the tray must run from there to stay out of
 # the Dock, and daemon and tray are the same binary.
 macos:
+	rm -rf "$(APP)"
 	mkdir -p "$(APP)/Contents/MacOS"
 	for arch in arm64 amd64; do \
 		GOARCH=$$arch CGO_ENABLED=1 go build -o $(BIN)/foxden-vpnd-$$arch ./cmd/foxden-vpnd || exit 1; \

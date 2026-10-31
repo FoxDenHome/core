@@ -5,8 +5,12 @@ package tray
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
+	"maps"
+	"net/url"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 	"sync"
 	"time"
@@ -168,21 +172,30 @@ func (s *shares) reconcile() {
 	}
 	s.refresh()
 	s.mu.Lock()
+	var moved []string
+	var saveErr error
 	if !s.started {
 		s.started = true
+		if moved = s.separate(); len(moved) > 0 {
+			saveErr = s.save()
+		}
 		for name, cur := range s.state {
-			_, mounted := s.mounted[cur.Path]
-			cur.Enabled = cur.AutoMount || (cur.Path != "" && mounted)
+			_, mounted := s.mountOf(name)
+			cur.Enabled = cur.AutoMount || mounted
 			s.state[name] = cur
 		}
 	}
 	s.mu.Unlock()
+	if len(moved) > 0 {
+		notify(sharesTitle, strings.Join(moved, ", ")+" shared a folder with another share; choose a new one")
+	}
+	if saveErr != nil {
+		notify(appName, saveErr.Error())
+	}
 	for _, sh := range st.Shares {
 		s.mu.Lock()
-		cur, mounted := s.state[sh.Name], false
-		if cur.Path != "" {
-			_, mounted = s.mounted[cur.Path]
-		}
+		cur := s.state[sh.Name]
+		_, mounted := s.mountOf(sh.Name)
 		s.mu.Unlock()
 		if !cur.Enabled || cur.Path == "" || mounted {
 			continue
@@ -255,7 +268,7 @@ func (s *shares) render() {
 	for _, sh := range st.Shares {
 		it := s.items[sh.Name]
 		cur := s.state[sh.Name]
-		m, mounted := s.mounted[cur.Path]
+		m, mounted := s.mountOf(sh.Name)
 		title, info := shareLabel(sh), ""
 		switch {
 		case mounted:
@@ -323,8 +336,76 @@ func (s *shares) addItem(sh api.Share) *shareItem {
 	return it
 }
 
+// mountOf is the share's mount: what is mounted at its folder, if that is
+// this share and not another one given the same folder. Needs s.mu.
+func (s *shares) mountOf(name string) (api.Mount, bool) {
+	p := s.state[name].Path
+	m, ok := s.mounted[p]
+	if p == "" || !ok || !isShare(m.Source, name) {
+		return api.Mount{}, false
+	}
+	return m, true
+}
+
+// isShare tells whether a mount source, //[user@]host/share, is the named
+// share. Hosts differ (SMB Direct mounts the RDMA host), share names do not.
+func isShare(source, name string) bool {
+	last := source[strings.LastIndexByte(source, '/')+1:]
+	if u, err := url.PathUnescape(last); err == nil {
+		last = u // macOS escapes the share in the mount URL
+	}
+	return strings.EqualFold(last, name)
+}
+
+// overlaps tells whether two folders are the same or one is inside the
+// other. Shares must not overlap: one would show the other's mount, be
+// hidden by it, or be mounted onto a folder on the NAS.
+func overlaps(a, b string) bool {
+	a, b = filepath.Clean(a), filepath.Clean(b)
+	in := func(x, y string) bool { return x == y || strings.HasPrefix(x, y+"/") }
+	return in(a, b) || in(b, a)
+}
+
+// overlapping is another share whose folder overlaps dir, or "". Needs s.mu.
+func (s *shares) overlapping(name, dir string) string {
+	for _, other := range slices.Sorted(maps.Keys(s.state)) {
+		if p := s.state[other].Path; other != name && p != "" && overlaps(p, dir) {
+			return other
+		}
+	}
+	return ""
+}
+
+// separate takes the folder from shares that overlap another's, which
+// older versions allowed: a share mounted there keeps it, otherwise the
+// first by name. It returns the shares that lost theirs. Needs s.mu.
+func (s *shares) separate() []string {
+	names := slices.Sorted(maps.Keys(s.state))
+	mounted := map[string]bool{}
+	for _, n := range names {
+		_, mounted[n] = s.mountOf(n)
+	}
+	var kept, moved []string
+	for _, pass := range []bool{true, false} {
+		for _, n := range names {
+			p := s.state[n].Path
+			if mounted[n] != pass || p == "" {
+				continue
+			}
+			if slices.ContainsFunc(kept, func(k string) bool { return overlaps(s.state[k].Path, p) }) {
+				s.state[n] = shareState{}
+				moved = append(moved, n)
+				continue
+			}
+			kept = append(kept, n)
+		}
+	}
+	return moved
+}
+
 // choose asks where to mount name. A folder that is not empty gets a
-// subfolder named after the share.
+// subfolder named after the share. Folders overlapping another share's are
+// refused.
 func (s *shares) choose(name, current string) (string, error) {
 	start := current
 	if start == "" {
@@ -334,26 +415,35 @@ func (s *shares) choose(name, current string) (string, error) {
 	if err != nil || dir == "" {
 		return "", err
 	}
+	dir = filepath.Clean(dir)
 	if entries, err := os.ReadDir(dir); err == nil && len(entries) > 0 && dir != current {
 		dir = filepath.Join(dir, name)
 	}
-	return filepath.Clean(dir), nil
+	s.mu.Lock()
+	other := s.overlapping(name, dir)
+	otherPath := s.state[other].Path
+	s.mu.Unlock()
+	if other != "" {
+		return "", fmt.Errorf("%s overlaps %s, the folder of the %s share; choose another", homeShort(dir), homeShort(otherPath), other)
+	}
+	return dir, nil
 }
 
 // checked is what the Mounted box shows: mounted, or about to be. A share
 // whose mount failed shows unchecked, so a click retries. Needs s.mu.
 func (s *shares) checked(name string) bool {
 	cur := s.state[name]
-	_, mounted := s.mounted[cur.Path]
-	return (cur.Path != "" && mounted) || (cur.Enabled && s.errs[name] == "")
+	_, mounted := s.mountOf(name)
+	return mounted || (cur.Enabled && s.errs[name] == "")
 }
 
 func (s *shares) toggle(name string) {
 	s.mu.Lock()
 	cur, on := s.state[name], s.checked(name)
+	_, mounted := s.mountOf(name)
 	s.mu.Unlock()
 	if on {
-		if cur.Path != "" {
+		if mounted {
 			if err := s.unmountShowing(name, cur.Path); err != nil {
 				s.poke()
 				return
@@ -419,7 +509,7 @@ func (s *shares) toggleAuto(name string) {
 func (s *shares) changeFolder(name string) {
 	s.mu.Lock()
 	cur := s.state[name]
-	_, mounted := s.mounted[cur.Path]
+	_, mounted := s.mountOf(name)
 	s.mu.Unlock()
 	p, err := s.choose(name, cur.Path)
 	if err != nil {
