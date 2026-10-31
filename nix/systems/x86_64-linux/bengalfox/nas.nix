@@ -62,6 +62,7 @@ in
     deluge = {
       enable = true;
       host = "deluge";
+      interface = "wg-deluge";
       downloadsDir = "/mnt/zssd/nas/torrent";
       tls.enable = true;
       oAuth = {

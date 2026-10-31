@@ -53,6 +53,11 @@ in
       default = "/var/lib/deluge/downloads";
       description = "Directory to store Deluge downloads";
     };
+    interface = lib.mkOption {
+      type = lib.types.str;
+      default = "";
+      description = "Interface (name or IP) to bind BitTorrent traffic to, empty for any";
+    };
   }
   // (services.http.mkOptions {
     name = "Deluge BitTorrent Client";
@@ -81,8 +86,24 @@ in
         services.deluge = {
           enable = true;
           dataDir = "/var/lib/deluge";
+          # Pin every key Flood's client settings page writes: it sends them
+          # all on each save, as null if unchanged, which breaks deluged until
+          # a restart restores this file.
           config = {
             download_location = "/downloads";
+            dht = true;
+            utpex = true;
+            listen_interface = svcConfig.interface;
+            outgoing_interface = svcConfig.interface;
+            listen_ports = [
+              6881
+              6891
+            ];
+            random_port = true;
+            max_download_speed = -1.0;
+            max_upload_speed = -1.0;
+            max_upload_slots_global = 4;
+            max_upload_slots_per_torrent = -1;
           };
           declarative = true;
           group = "share";
