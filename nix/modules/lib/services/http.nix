@@ -391,6 +391,11 @@ in
           default = null;
         };
         default = nixpkgs.lib.mkEnableOption "Enable Anubis by default on all routes";
+        bypassRoutes = nixpkgs.lib.mkOption {
+          type = listOf str;
+          description = "List of route prefixes that skip Anubis when it is enabled by default";
+          default = [ ];
+        };
       };
       oAuth = {
         enable = nixpkgs.lib.mkEnableOption "OAuth2 support";
@@ -493,6 +498,11 @@ in
 
       anubisConfig = ''
         proxy_pass http://127.0.0.1:9899;
+
+        proxy_http_version 1.1;
+        proxy_request_buffering off;
+        proxy_buffering off;
+        client_max_body_size 0;
 
         proxy_set_header X-Real-Ip $remote_addr;
         proxy_set_header X-Forwarded-For $remote_addr;
@@ -642,6 +652,14 @@ in
               location / {
                 ${anubisConfig}
               }
+              ${nixpkgs.lib.concatStringsSep "\n" (
+                map (route: ''
+                  location ${route} {
+                    ${proxyConfig}
+                    proxy_pass http://127.0.0.1:9898;
+                  }
+                '') svcConfig.anubis.bypassRoutes
+              )}
             }
             ${anubisNormalConfig}
           ''
@@ -811,7 +829,7 @@ in
             services.anubis.instances.${name} = nixpkgs.lib.mkIf svcConfig.anubis.enable {
               enable = true;
               user = "anubis-${name}";
-              group = config.systemd.services.${name}.serviceConfig.Group;
+              group = config.systemd.services.${name}.serviceConfig.Group or "anubis-${name}";
               extraFlags = [ "--xff-strip-private=false" ];
               settings = {
                 BIND = "127.0.0.1:9899";
@@ -822,18 +840,23 @@ in
                 COOKIE_SECURE = if svcConfig.tls.enable then "true" else "false";
                 WEBMASTER_EMAIL = "webmaster@foxden.network";
               };
-              botPolicy =
-                if svcConfig.anubis.customBotPolicy != null then
-                  svcConfig.anubis.customBotPolicy
-                else
-                  botPolicyPresets.${svcConfig.anubis.botPolicy};
+              policy.settings =
+                let
+                  botPolicy =
+                    if svcConfig.anubis.customBotPolicy != null then
+                      svcConfig.anubis.customBotPolicy
+                    else
+                      botPolicyPresets.${svcConfig.anubis.botPolicy};
+                in
+                # null keeps Anubis' built-in default policy
+                nixpkgs.lib.mkIf (botPolicy != null) botPolicy;
             };
 
             systemd.services."anubis-${name}" = nixpkgs.lib.mkIf svcConfig.anubis.enable {
               serviceConfig =
                 let
                   stockSvc = config.systemd.services."anubis-${name}";
-                  policyFile = stockSvc.environment.POLICY_FNAME;
+                  policyFile = stockSvc.environment.POLICY_FNAME or null;
                 in
                 {
                   BindReadOnlyPaths = nixpkgs.lib.mkIf (policyFile != null) [ policyFile ];

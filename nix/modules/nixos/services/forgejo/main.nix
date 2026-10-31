@@ -88,6 +88,18 @@ in
       {
         foxDen.services.forgejo.oAuth.overrideService = true;
 
+        # Scrapers flooding the web UI exhaust Forgejo's threads with git helper procs.
+        # Non-browser clients (git, runners, API users) pass Anubis' default policy anyway,
+        # so let git/LFS/API traffic skip it to keep pushes and uploads off the extra hop.
+        foxDen.services.forgejo.anubis = {
+          enable = true;
+          default = true;
+          bypassRoutes = [
+            "~ ^/[^/]+/[^/]+/(info/refs|git-upload-pack|git-receive-pack|info/lfs/)"
+            "/api/"
+          ];
+        };
+
         foxDen.services.kanidm.oauth2 = lib.mkIf svcConfig.oAuth.enable {
           ${svcConfig.oAuth.clientId} =
             (services.http.mkOauthConfig {
