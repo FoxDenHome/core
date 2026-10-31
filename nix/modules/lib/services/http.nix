@@ -839,6 +839,7 @@ in
                 TARGET = "http://127.0.0.1:9898";
                 COOKIE_SECURE = if svcConfig.tls.enable then "true" else "false";
                 WEBMASTER_EMAIL = "webmaster@foxden.network";
+                REDIRECT_DOMAINS = builtins.concatStringsSep "," hostMatchers;
               };
               policy.settings =
                 let
