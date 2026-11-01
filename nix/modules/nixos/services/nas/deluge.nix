@@ -22,10 +22,16 @@ let
   dataDir = config.services.deluge.dataDir;
   floodPort = 3000;
 
+  ttlEnabled = svcConfig.ttlDays > 0;
+  ttlSeconds = svcConfig.ttlDays * 86400;
+
   # deluged's global settings are provisioned in core.conf below, so drop
   # Flood's pages and controls that edit them and refuse the API call.
   flood = pkgs.flood.overrideAttrs (old: {
-    patches = (old.patches or [ ]) ++ [ ./flood-managed-settings.patch ];
+    patches = (old.patches or [ ]) ++ [
+      ./flood-managed-settings.patch
+      ./flood-torrent-ttl.patch
+    ];
   });
 
   # Flood talks to deluged as localclient. deluged adds that account to the auth
@@ -51,6 +57,12 @@ let
       --deuser localclient \
       --allowedpath /downloads
   '';
+
+  delugeTTL = pkgs.writers.writePython3 "deluge-ttl" {
+    libraries = [ pkgs.python3Packages.deluge-client ];
+    # Formatted by ruff with the repo-wide line length
+    flakeIgnore = [ "E501" ];
+  } (builtins.readFile ./deluge-ttl.py);
 in
 {
   options.foxDen.services.deluge = {
@@ -63,6 +75,16 @@ in
       type = lib.types.str;
       default = "";
       description = "Interface (name or IP) to bind BitTorrent traffic to, empty for any";
+    };
+    ttlDays = lib.mkOption {
+      type = lib.types.ints.unsigned;
+      default = 180;
+      description = "Remove torrents, including their data, this many days after they were added. 0 disables";
+    };
+    ttlWarnDays = lib.mkOption {
+      type = lib.types.ints.unsigned;
+      default = 14;
+      description = "Tag torrents as expiring in Flood this many days before they are removed";
     };
   }
   // (services.http.mkOptions {
@@ -83,6 +105,12 @@ in
         name = "flood";
         inherit svcConfig pkgs config;
       }).config
+      (lib.mkIf ttlEnabled
+        (services.make {
+          name = "deluge-ttl";
+          inherit svcConfig pkgs config;
+        }).config
+      )
       (services.http.make {
         inherit svcConfig pkgs config;
         name = "http-deluge";
@@ -174,6 +202,40 @@ in
             Group = config.services.deluge.group;
 
             ExecStart = floodStart;
+          };
+
+          environment = lib.mkIf ttlEnabled {
+            FLOOD_TORRENT_TTL_SECONDS = toString ttlSeconds;
+            FLOOD_TORRENT_TTL_WARN_SECONDS = toString (svcConfig.ttlWarnDays * 86400);
+          };
+        };
+
+        systemd.services.deluge-ttl = lib.mkIf ttlEnabled {
+          requires = [ "deluged.service" ];
+          after = [ "deluged.service" ];
+
+          environment = {
+            DELUGE_TTL_SECONDS = toString ttlSeconds;
+            DELUGE_AUTH_FILE = "${dataDir}/.config/deluge/auth";
+          };
+
+          serviceConfig = {
+            BindReadOnlyPaths = [ dataDir ];
+
+            User = config.services.deluge.user;
+            Group = config.services.deluge.group;
+
+            Type = "oneshot";
+            Restart = "no";
+            ExecStart = delugeTTL;
+          };
+        };
+
+        systemd.timers.deluge-ttl = lib.mkIf ttlEnabled {
+          wantedBy = [ "timers.target" ];
+          timerConfig = {
+            OnCalendar = "hourly";
+            RandomizedDelaySec = "5m";
           };
         };
 
