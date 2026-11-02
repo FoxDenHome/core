@@ -35,8 +35,9 @@ in
         extraHttpConfig =
           { ... }:
           ''
-            js_shared_dict_zone zone=state:1m;
-            js_shared_dict_zone zone=shares_revocations:1m timeout=30d;
+            # Persisted so share links (and their revocations) survive restarts
+            js_shared_dict_zone zone=state:1m state=/var/lib/foxden/nasweb/state.json;
+            js_shared_dict_zone zone=shares_revocations:1m timeout=30d state=/var/lib/foxden/nasweb/shares_revocations.json;
             js_import files from files.js;
             js_import shares from shares.js;
           '';
