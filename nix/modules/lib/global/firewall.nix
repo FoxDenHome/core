@@ -75,6 +75,8 @@ let
                       port = webservice.httpProxyPort;
                       protocol = "tcp";
                       comment = "auto-http-proxy-${iface.host}-${iface.name}";
+                      # foxIngress only reaches backends over IPv4
+                      ipv4Only = true;
                     }
                   ]
                 else
@@ -91,6 +93,8 @@ let
                       port = webservice.httpsProxyPort;
                       protocol = "tcp";
                       comment = "auto-https-proxy-${iface.host}-${iface.name}";
+                      # foxIngress only reaches backends over IPv4
+                      ipv4Only = true;
                     }
                   ]
                 else
@@ -124,7 +128,7 @@ let
               protocol = rule.protocol or null;
               inherit (rule) comment;
               inherit (iface) gateway;
-            }) addresses)
+            }) (if rule.ipv4Only or false then lib.filter util.isIPv4 addresses else addresses))
           ) (iface.firewall.ingressAcceptRules ++ iface.firewall.portForwards ++ webserviceRules)
         )
       ) interfaces

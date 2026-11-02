@@ -589,7 +589,6 @@ in
         listen 80;
         listen [::]:80;
         listen 81;
-        listen [::]:81;
 
         ${headerConfig}
 
@@ -610,7 +609,6 @@ in
             ""
         }
         listen 444;
-        listen [::]:444;
         http2 ${if http2 then "on" else "off"};
 
         acme_certificate letsencrypt key=${nginxAcmeAlg};
@@ -770,7 +768,6 @@ in
                     listen 80 default_server;
                     listen [::]:80 default_server;
                     listen 81 default_server proxy_protocol;
-                    listen [::]:81 default_server proxy_protocol;
                     ${anubisListener "default_server"}
 
                     include ${pkgs.foxden-http-errors.passthru.nginxConf};
@@ -794,7 +791,6 @@ in
                               ""
                           }
                           listen 444 ssl default_server proxy_protocol;
-                          listen [::]:444 ssl default_server proxy_protocol;
                           http2 ${if http2 then "on" else "off"};
 
                           include ${pkgs.foxden-http-errors.passthru.nginxConf};
