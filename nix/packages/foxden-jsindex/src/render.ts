@@ -1,16 +1,18 @@
 import fs from 'fs';
 import util from './util.js';
-import state from './state.js';
 
 const VARIABLE_REGEX = /(\{\{\{?)\s*([^\}]+)\s*(\}\}\}?)/g;
 const INCLUDE_REGEX = /\[\[\s*([^\]]+)\s*\]\]/g;
 
+// Separate from the (possibly persisted) state dict so cached templates never outlive a deploy
+const CACHE_DICT = 'render_cache';
+
 export type RequestContext = Record<string, any>;
 
 async function load(file: string): Promise<string> {
-  const sharedKey = `render:${file}`;
+  const cache = ngx.shared[CACHE_DICT];
 
-  const cachedTemplate = await state.get(sharedKey);
+  const cachedTemplate = cache.get(file);
   if (cachedTemplate) {
     return cachedTemplate as string;
   }
@@ -25,7 +27,7 @@ async function load(file: string): Promise<string> {
     respData = respData.replace(m[0], includeResp || '');
   }
 
-  await state.set(sharedKey, respData);
+  cache.set(file, respData);
   return respData;
 }
 
