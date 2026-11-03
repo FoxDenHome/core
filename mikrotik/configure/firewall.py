@@ -18,6 +18,24 @@ from configure.util import (
 IGNORE_CHANGES = {"id", "invalid", "packets", "bytes", "dynamic"}
 
 DEFAULT_RULES_HEAD: list[MTikFirewallRule] = [
+    # LAN VLANs run at MTU 9000, so hosts advertise MSS 8960. Some remote
+    # servers (e.g. secure.store.apple.com) trust that and send >1500 byte
+    # segments with broken PMTUD, stalling the connection. Clamp SYN/SYN-ACK
+    # leaving via WAN to the route MTU (covers port-forwarded hosts too).
+    MTikFirewallRule(
+        families=["ip", "ipv6"],
+        table="mangle",
+        attribs={
+            "action": "change-mss",
+            "chain": "forward",
+            "comment": "MSS clamp",
+            "new-mss": "clamp-to-pmtu",
+            "out-interface-list": "zone-wan",
+            "passthrough": format_mtik_bool(True),
+            "protocol": "tcp",
+            "tcp-flags": "syn",
+        },
+    ),
     MTikFirewallRule(
         families=["ip", "ipv6"],
         table="filter",
