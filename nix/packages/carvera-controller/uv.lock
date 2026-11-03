@@ -250,14 +250,14 @@ wheels = [
 
 [[package]]
 name = "kivy-deps-sdl2"
-version = "0.8.0"
+version = "0.8.1"
 source = { registry = "https://pypi.org/simple" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/d1/f0/aacffedca14a6fdb258da7062ba36635faaa1ae084c6b7fb5e9042a441b4/kivy_deps.sdl2-0.8.0-cp310-cp310-win_amd64.whl", hash = "sha256:5af0a3b318a6ec9e0f0c1d476a4af4b2d0cbcce4dbfd89bc4681c33bcd6b3bcd", size = 4182250, upload-time = "2024-10-05T09:06:12.754Z" },
-    { url = "https://files.pythonhosted.org/packages/4d/a5/d0605aea79495cc430807fb33f0615fe0a9cadb05da45fc6faa6f126a9fd/kivy_deps.sdl2-0.8.0-cp311-cp311-win_amd64.whl", hash = "sha256:ae3735480841ec9a57c0fb26e8647adee474a3d746147e3d75a1fc177c0fbc01", size = 4182250, upload-time = "2024-10-05T09:06:27.444Z" },
-    { url = "https://files.pythonhosted.org/packages/6e/0a/f34b1593977443e02e83343afb80d4a7d06fac394c1c60ac8590ed0e27c5/kivy_deps.sdl2-0.8.0-cp312-cp312-win_amd64.whl", hash = "sha256:bfe0cfca77883dde7e297b3b6039fa9cd7ee8df6b0d12516b38addb0551a574c", size = 4182249, upload-time = "2024-10-05T09:07:11.952Z" },
-    { url = "https://files.pythonhosted.org/packages/9f/94/ef03ca62e042cd8e6a1455279622648c22cd891577b4ad980e1322dcb4ee/kivy_deps.sdl2-0.8.0-cp313-cp313-win_amd64.whl", hash = "sha256:56b1c44565b5e8cfc510585db13396edfc605965254f49ed8931189c546d481f", size = 4182250, upload-time = "2024-10-05T09:07:33.029Z" },
-    { url = "https://files.pythonhosted.org/packages/4e/22/3ece654ede080ae87fd7f99057012f30a8e679714f9c5ed2956836d8a9b2/kivy_deps.sdl2-0.8.0-cp39-cp39-win_amd64.whl", hash = "sha256:dbaa6718e66e8cd4967c2d4021e05114c558342e2468a86c0bce917bea10003f", size = 4182252, upload-time = "2024-10-05T09:06:45.728Z" },
+    { url = "https://files.pythonhosted.org/packages/60/7c/b1581ad5a88693baa8a046dc2a95b83b81a830ea53276364e6424d1d6e43/kivy_deps_sdl2-0.8.1-cp310-cp310-win_amd64.whl", hash = "sha256:15369e36335d426e3f6ce52fc96bf59effd8de621026c908d5703e88fb423070", size = 4182280, upload-time = "2026-10-30T09:02:55.347Z" },
+    { url = "https://files.pythonhosted.org/packages/10/b4/6b8c1192789f73ac3ab36404c416a548ff13c295b652bf45ef8fb3d085b4/kivy_deps_sdl2-0.8.1-cp311-cp311-win_amd64.whl", hash = "sha256:b2af6a5e0117fa1ea39b108b69f4bf9fd34553b062bf776413169e537ae3d2fa", size = 4182279, upload-time = "2026-10-30T09:02:15.973Z" },
+    { url = "https://files.pythonhosted.org/packages/cb/0c/bf00459c0e07545f6fee7003b53dc75c6b14b946e2091646dfe0cecd5fa8/kivy_deps_sdl2-0.8.1-cp312-cp312-win_amd64.whl", hash = "sha256:6b7e8e6aa2baf83402e08af19e090c66587b4520fedc2ee9807d21f193858dc2", size = 4182279, upload-time = "2026-10-30T09:02:11.212Z" },
+    { url = "https://files.pythonhosted.org/packages/fe/f3/466adde17ab2e47b23021ac3260142f5aaf00a62f4e467d898ea77d64ebe/kivy_deps_sdl2-0.8.1-cp313-cp313-win_amd64.whl", hash = "sha256:9944a9b583b0e1789f4d7f99265303f4f694394b0706f2c0e4cbe5605d2e8431", size = 4182282, upload-time = "2026-10-30T09:02:24.812Z" },
+    { url = "https://files.pythonhosted.org/packages/db/53/9c9c42f1674625cfac0ce0ed84cba8f395cd0dc6b53d9b6899ba9fe16904/kivy_deps_sdl2-0.8.1-cp39-cp39-win_amd64.whl", hash = "sha256:3a14b487dbfe4921b198966b973eaa4075eb2debb7327d418b12c1db05539c01", size = 4182281, upload-time = "2026-10-30T09:02:50.325Z" },
 ]
 
 [[package]]
