@@ -55,15 +55,6 @@
           "10.2.12.31/16"
         ];
       };
-      custom-linescope = mkIntf {
-        dns = {
-          fqdns = [ "custom-linescope.foxden.network" ];
-        };
-        mac = "58:E6:C5:68:92:A4";
-        addresses = [
-          "10.2.12.8/16"
-        ];
-      };
       hue = mkIntf {
         dns = {
           fqdns = [ "hue.foxden.network" ];
@@ -82,15 +73,6 @@
           "10.2.12.18/16"
         ];
       };
-      led-strip-dori-office-ceiling = mkIntf {
-        dns = {
-          fqdns = [ "led-strip-dori-office-ceiling.foxden.network" ];
-        };
-        mac = "C4:DE:E2:B2:D2:C7";
-        addresses = [
-          "10.2.12.7/16"
-        ];
-      };
       nanoleaf-lines-wizzy = mkIntf {
         dns = {
           fqdns = [ "nanoleaf-lines-wizzy.foxden.network" ];
@@ -107,15 +89,6 @@
         mac = "64:C6:D2:E5:91:45";
         addresses = [
           "10.2.12.3/16"
-        ];
-      };
-      upsmon-living-room = mkIntf {
-        dns = {
-          fqdns = [ "upsmon-living-room.foxden.network" ];
-        };
-        mac = "80:F1:B2:D6:8B:33";
-        addresses = [
-          "10.2.12.30/16"
         ];
       };
       tesla-wall-charger = mkIntf {
