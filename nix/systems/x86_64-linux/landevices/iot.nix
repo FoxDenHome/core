@@ -113,7 +113,7 @@
         dns = {
           fqdns = [ "upsmon-living-room.foxden.network" ];
         };
-        mac = "D8:3A:DD:40:CA:F1";
+        mac = "80:F1:B2:D6:8B:33";
         addresses = [
           "10.2.12.30/16"
         ];
