@@ -145,9 +145,9 @@
         {
             "name": "LogisticTrainNetwork",
             "enabled": true,
-            "sha1": "91b073da98eca690102e3fb4ed1d1fc82cbffc42",
-            "url": "https://mods.factorio.com/download/LogisticTrainNetwork/6adfb268f160050b818ec112",
-            "version": "3.4.2"
+            "sha1": "4697f4f811d15595b072c3f295ed0d7581f7ebc2",
+            "url": "https://mods.factorio.com/download/LogisticTrainNetwork/6ae941d4157f779ff1d9f181",
+            "version": "3.5.2"
         },
         {
             "name": "LtnManager",
@@ -215,9 +215,9 @@
         {
             "name": "space-exploration",
             "enabled": true,
-            "sha1": "b6778f96ce2a9334b7b4585349d2844894a892a7",
-            "url": "https://mods.factorio.com/download/space-exploration/6ad165ed032bb672e99b49eb",
-            "version": "0.7.63"
+            "sha1": "ab8f1026dc7a751b7b0a69662fd6fd26927d8051",
+            "url": "https://mods.factorio.com/download/space-exploration/6ae5e777c7d15dd9c83e484e",
+            "version": "0.7.64"
         },
         {
             "name": "space-exploration-graphics",
@@ -271,9 +271,9 @@
         {
             "name": "space-exploration-postprocess",
             "enabled": true,
-            "sha1": "354dd6dc0229001b9dcf4dbb0e51be478c43ce03",
-            "url": "https://mods.factorio.com/download/space-exploration-postprocess/6ad1661c33d361d81af7e67b",
-            "version": "0.7.7"
+            "sha1": "cae79eb2808e9fb0d8b915fa551d434b551e9d07",
+            "url": "https://mods.factorio.com/download/space-exploration-postprocess/6ae5e72923118f38e8d43b55",
+            "version": "0.7.8"
         },
         {
             "name": "squeak-through-2",
