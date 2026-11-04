@@ -180,6 +180,15 @@
           "10.1.11.1/16"
         ];
       });
+      superlink = mkIntf {
+        dns = {
+          fqdns = [ "superlink.foxden.network" ];
+        };
+        mac = "90:41:B2:B0:0F:80";
+        addresses = [
+          "10.5.10.2/16"
+        ];
+      };
       switch-den = {
         ssh = true;
       }
