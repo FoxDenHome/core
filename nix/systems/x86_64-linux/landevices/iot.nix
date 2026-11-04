@@ -109,9 +109,9 @@
           "10.2.12.3/16"
         ];
       };
-      streamdeckpi = mkIntf {
+      upsmon-living-room = mkIntf {
         dns = {
-          fqdns = [ "streamdeckpi.foxden.network" ];
+          fqdns = [ "upsmon-living-room.foxden.network" ];
         };
         mac = "D8:3A:DD:40:CA:F1";
         addresses = [
