@@ -1,5 +1,30 @@
 { ... }:
 {
+  # The UPSes and the ATS (mgmt VLAN) send SNMP traps to the line scope
+  # (HomeAssistant/config, esphome/custom-linescope.yaml), which captures the
+  # mains waveform around them. mgmt -> lan isn't allowed by default.
+  config.foxDen.firewall.rules =
+    map
+      (source: {
+        table = "filter";
+        chain = "forward";
+        action = "accept";
+        source = {
+          host = source;
+        };
+        destination = {
+          host = "custom-linescope";
+        };
+        dstport = 162;
+        protocol = "udp";
+        comment = "snmptrap-${source}-custom-linescope";
+      })
+      [
+        "ups-rack"
+        "ats-rack"
+        "ups-dori-office"
+      ];
+
   # ESPHome devices (HomeAssistant/config, esphome/*.yaml) live in 10.2.13.0/16
   config.foxDen.hosts.hosts =
     let

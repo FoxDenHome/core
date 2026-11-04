@@ -1,147 +1,39 @@
 { ... }:
 {
-  # The UPSes and the ATS (mgmt VLAN) send SNMP traps to the line scope
-  # (HomeAssistant/config, esphome/custom-linescope.yaml), which captures the
-  # mains waveform around them. mgmt -> lan isn't allowed by default.
-  config.foxDen.firewall.rules =
-    map
-      (source: {
-        table = "filter";
-        chain = "forward";
-        action = "accept";
-        source = {
-          host = source;
-        };
-        destination = {
-          host = "custom-linescope";
-        };
-        dstport = 162;
-        protocol = "udp";
-        comment = "snmptrap-${source}-custom-linescope";
-      })
-      [
-        "ups-rack"
-        "ats-rack"
-        "ups-dori-office"
-      ];
-
   config.foxDen.hosts.hosts =
     let
-      mkIntf = (
-        intf: {
+      mkHost = (
+        name: mac: idx: {
           interfaces.default = {
             driver.name = "null";
-          }
-          // intf;
+            dns.fqdns = [ "${name}.foxden.network" ];
+            inherit mac;
+            addresses = [ "10.2.12.${toString idx}/16" ];
+          };
         }
       );
     in
     {
-      amp-living-room = mkIntf {
-        dns = {
-          fqdns = [ "amp-living-room.foxden.network" ];
-        };
-        mac = "EC:F4:51:D0:8C:AF";
-        addresses = [
-          "10.2.12.10/16"
-        ];
-      };
-      ecoflow-delta-pro = mkIntf {
-        dns = {
-          fqdns = [ "ecoflow-delta-pro.foxden.network" ];
-        };
-        mac = "4C:EB:D6:D6:3C:9C";
-        addresses = [
-          "10.2.12.31/16"
-        ];
-      };
-      hue = mkIntf {
-        dns = {
-          fqdns = [ "hue.foxden.network" ];
-        };
-        mac = "C4:29:96:B5:2B:8F";
-        addresses = [
-          "10.2.12.1/16"
-        ];
-      };
-      hue-sync-box = mkIntf {
-        dns = {
-          fqdns = [ "hue-sync-box.foxden.network" ];
-        };
-        mac = "C4:29:96:0B:9C:82";
-        addresses = [
-          "10.2.12.18/16"
-        ];
-      };
-      nanoleaf-lines-wizzy = mkIntf {
-        dns = {
-          fqdns = [ "nanoleaf-lines-wizzy.foxden.network" ];
-        };
-        mac = "80:8A:F7:03:55:58";
-        addresses = [
-          "10.2.12.19/16"
-        ];
-      };
-      printer = mkIntf {
-        dns = {
-          fqdns = [ "printer.foxden.network" ];
-        };
-        mac = "64:C6:D2:E5:91:45";
-        addresses = [
-          "10.2.12.3/16"
-        ];
-      };
-      tesla-wall-charger = mkIntf {
-        dns = {
-          fqdns = [ "tesla-wall-charger.foxden.network" ];
-        };
-        mac = "98:ED:5C:9B:79:CF";
-        addresses = [
-          "10.2.12.16/16"
-        ];
-      };
-      remarkable = mkIntf {
-        dns = {
-          fqdns = [ "remarkable.foxden.network" ];
-        };
-        mac = "c0:84:7d:20:57:c0";
-        addresses = [
-          "10.2.10.5/16"
-        ];
-      };
-      ups-dori-office =
-        mkIntf {
-          dns = {
-            fqdns = [ "ups-dori-office.foxden.network" ];
-          };
-          mac = "00:0C:15:03:74:03";
-          addresses = [
-            "10.1.11.3/16"
-          ];
-        }
-        // {
-          launcher.webUI = {
-            url = "https://ups-dori-office.foxden.network/";
-            radius = true;
-          };
-        };
-      washing-machine = mkIntf {
-        dns = {
-          fqdns = [ "washing-machine.foxden.network" ];
-        };
-        mac = "88:57:1D:85:70:9A";
-        addresses = [
-          "10.2.12.5/16"
-        ];
-      };
-      dryer = mkIntf {
-        dns = {
-          fqdns = [ "dryer.foxden.network" ];
-        };
-        mac = "88:57:1D:85:70:A1";
-        addresses = [
-          "10.2.12.6/16"
-        ];
-      };
+      amp-living-room = mkHost "amp-living-room" "EC:F4:51:D0:8C:AF" 10;
+      ecoflow-delta-pro = mkHost "ecoflow-delta-pro" "4C:EB:D6:D6:3C:9C" 31;
+      hue = mkHost "hue" "C4:29:96:B5:2B:8F" 1;
+      hue-sync-box = mkHost "hue-sync-box" "C4:29:96:0B:9C:82" 18;
+      nanoleaf-lines-wizzy = mkHost "nanoleaf-lines-wizzy" "80:8A:F7:03:55:58" 19;
+      printer = mkHost "printer" "64:C6:D2:E5:91:45" 3;
+      tesla-wall-charger = mkHost "tesla-wall-charger" "98:ED:5C:9B:79:CF" 16;
+      washing-machine = mkHost "washing-machine" "88:57:1D:85:70:9A" 5;
+      dryer = mkHost "dryer" "88:57:1D:85:70:A1" 6;
+      dishwasher = mkHost "dishwasher" "64:CB:E9:D7:B5:89" 7;
+      switchbot-hub = mkHost "switchbot-hub" "24:EC:4A:8D:3A:38" 8;
+      vacuum-robot = mkHost "vacuum-robot" "50:F1:4A:6D:81:0D" 9;
+      nest-thermostat = mkHost "nest-thermostat" "64:16:66:9F:DE:CA" 11;
+      zen-nixie-clock = mkHost "zen-nixie-clock" "E0:4F:43:C2:BA:C2" 12;
+      apple-tv-den = mkHost "apple-tv-den" "9C:3E:53:1C:20:C0" 13;
+      apple-tv-living-room = mkHost "apple-tv-living-room" "58:D3:49:E4:02:2D" 14;
+      thotmobile = mkHost "thotmobile" "CC:88:26:27:41:29" 17;
+      homepod-bedroom = mkHost "homepod-bedroom" "94:EA:32:84:DB:90" 20;
+      homepod-den-right = mkHost "homepod-den-right" "F4:34:F0:4B:87:1A" 21;
+      homepod-dori-office = mkHost "homepod-dori-office" "04:99:B9:66:DE:D0" 22;
+      homepod-living-room = mkHost "homepod-living-room" "AC:BC:B5:D0:56:AE" 23;
     };
 }
