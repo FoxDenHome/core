@@ -466,6 +466,7 @@ def make_internal_basics(
         [{"name": list_name} for list_name in vlan_lists]
         + [
             {"name": "zone-wan"},
+            {"name": "zone-vpn"},
             {"name": "no-internet"},
             {"name": "zone-local", "include": ",".join(vlan_lists)},
         ],
@@ -482,8 +483,11 @@ def make_internal_basics(
         ("6to4-redfox", "zone-wan"),
         ("wg-cghmn", "iface-cghmn"),
         ("wg-cghmn", "no-internet"),
+        ("wg-cghmn", "zone-vpn"),
         ("wg-s2s", "zone-local"),
+        ("wg-s2s", "zone-vpn"),
         ("wg-vpn", "zone-local"),
+        ("wg-vpn", "zone-vpn"),
     ]
     basics.table(
         "/interface/list/member",

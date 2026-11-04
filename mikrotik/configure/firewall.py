@@ -36,6 +36,22 @@ DEFAULT_RULES_HEAD: list[MTikFirewallRule] = [
             "tcp-flags": "syn",
         },
     ),
+    # WireGuard tunnels run at MTU 1280. Clamp SYN/SYN-ACK entering them so
+    # peers (notably hosts behind wg-cghmn at MTU 1500) don't depend on PMTUD.
+    MTikFirewallRule(
+        families=["ip", "ipv6"],
+        table="mangle",
+        attribs={
+            "action": "change-mss",
+            "chain": "forward",
+            "comment": "MSS clamp VPN",
+            "new-mss": "clamp-to-pmtu",
+            "out-interface-list": "zone-vpn",
+            "passthrough": format_mtik_bool(True),
+            "protocol": "tcp",
+            "tcp-flags": "syn",
+        },
+    ),
     MTikFirewallRule(
         families=["ip", "ipv6"],
         table="filter",
