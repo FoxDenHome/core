@@ -1,2 +1,2 @@
 #!/bin/sh
-exec ./tf.sh apply tf.plan
+exec ./tf.sh apply tf.plan "$@"

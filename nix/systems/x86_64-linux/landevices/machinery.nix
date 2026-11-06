@@ -1,4 +1,4 @@
-{ foxDenLib, ... }:
+{ ... }:
 {
   config.foxDen.hosts.hosts =
     let
@@ -12,25 +12,6 @@
       );
     in
     {
-      bambu-x1 = mkIntf {
-        dns = {
-          fqdns = [ "bambu-x1.foxden.network" ];
-        };
-        firewall.ingressAcceptRules = foxDenLib.firewall.templates.trusted "bambu-x1";
-        mac = "08:FB:EA:02:64:96";
-        addresses = [
-          "10.4.10.1/16"
-        ];
-      };
-      carvera = mkIntf {
-        dns = {
-          fqdns = [ "carvera.foxden.network" ];
-        };
-        mac = "EC:C7:00:1C:E3:2D";
-        addresses = [
-          "10.4.10.3/16"
-        ];
-      };
       laser-controller = mkIntf {
         dns = {
           fqdns = [ "laser-controller.foxden.network" ];

@@ -1,5 +1,16 @@
 { ... }:
 {
+  config.foxDen.dns.records = [
+    {
+      fqdn = "_acme-challenge.bambu-x1.foxden.network";
+      type = "TXT";
+      value = "acme";
+      ttl = 300; # dns.he.net's minimum
+      dynDns = true;
+      horizon = "external";
+    }
+  ];
+
   config.foxDen.hosts.hosts =
     let
       mkHost = (
@@ -15,6 +26,7 @@
     in
     {
       amp-living-room = mkHost "amp-living-room" "EC:F4:51:D0:8C:AF" 10;
+      bambu-x1 = mkHost "bambu-x1" "08:FB:EA:02:64:96" 15;
       ecoflow-delta-pro = mkHost "ecoflow-delta-pro" "4C:EB:D6:D6:3C:9C" 31;
       hue = mkHost "hue" "C4:29:96:B5:2B:8F" 1;
       hue-sync-box = mkHost "hue-sync-box" "C4:29:96:0B:9C:82" 18;
