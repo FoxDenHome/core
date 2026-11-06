@@ -40,7 +40,10 @@
       );
     in
     {
+      custom-bench-psu = mkHost "custom-bench-psu" "E0:98:06:24:8D:06" 17;
       custom-linescope = mkHost "custom-linescope" "58:E6:C5:68:92:A4" 1;
+      custom-starlight = mkHost "custom-starlight" "0C:B8:15:D8:B0:CC" 19;
+      led-strip-bambu-x1 = mkHost "led-strip-bambu-x1" "0C:B8:15:C3:24:2C" 18;
       led-strip-dori-office-ceiling = mkHost "led-strip-dori-office-ceiling" "C4:DE:E2:B2:D2:C7" 2;
       airgradient-bedroom = mkHost "airgradient-bedroom" "94:B5:55:2D:82:54" 3;
       airgradient-den = mkHost "airgradient-den" "0C:B8:15:C4:B3:74" 4;

@@ -64,5 +64,6 @@
       homepod-dori-office = mkHost "homepod-dori-office" "04:99:B9:66:DE:D0" 22;
       homepod-living-room = mkHost "homepod-living-room" "AC:BC:B5:D0:56:AE" 23;
       homepod-wizzy-office = mkHost "homepod-wizzy-office" "14:14:7D:46:20:44" 24;
+      withings-scale = mkHost "withings-scale" "00:24:E4:7E:2C:FE" 25;
     };
 }
