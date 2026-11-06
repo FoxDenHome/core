@@ -51,7 +51,7 @@
       custom-current-clamp-main = mkHost "custom-current-clamp-main" "40:91:51:51:D0:A6" 9;
       custom-garage-door = mkHost "custom-garage-door" "4C:EB:D6:0B:80:73" 10;
       custom-shaving-mirror = mkHost "custom-shaving-mirror" "44:17:93:16:03:94" 11;
-      custom-streamdeck = mkHost "custom-streamdeck" "9C:13:9E:D7:02:70" 12;
+      custom-streamdeck = mkHost "custom-streamdeck" "80:F1:B2:D6:8B:5F" 12;
       uplift-den-desk = mkHost "uplift-den-desk" "40:91:51:45:98:06" 13;
       uplift-dori-desk = mkHost "uplift-dori-desk" "40:91:51:51:E8:B6" 14;
       uplift-wizzy-desk = mkHost "uplift-wizzy-desk" "40:91:51:52:11:F7" 15;

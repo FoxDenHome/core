@@ -63,5 +63,6 @@
       homepod-den-right = mkHost "homepod-den-right" "F4:34:F0:4B:87:1A" 21;
       homepod-dori-office = mkHost "homepod-dori-office" "04:99:B9:66:DE:D0" 22;
       homepod-living-room = mkHost "homepod-living-room" "AC:BC:B5:D0:56:AE" 23;
+      homepod-wizzy-office = mkHost "homepod-wizzy-office" "14:14:7D:46:20:44" 24;
     };
 }
