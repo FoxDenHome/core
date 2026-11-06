@@ -11,6 +11,22 @@
     }
   ];
 
+  config.foxDen.services.kanidm.oauth2.bambu-x1 = {
+    present = true;
+    public = true;
+    displayName = "Bambu X1";
+    preferShortUsername = true;
+    originUrl = "https://bambu-x1.foxden.network/api/auth/oidc/callback";
+    originLanding = "https://bambu-x1.foxden.network";
+    imageFile = ../../../files/icons/bambu-x1.svg;
+    scopeMaps.login-users = [
+      "email"
+      "groups"
+      "openid"
+      "profile"
+    ];
+  };
+
   config.foxDen.hosts.hosts =
     let
       mkHost = (
