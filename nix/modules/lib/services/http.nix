@@ -722,6 +722,9 @@ in
                   client_body_timeout 12s;
                   client_header_timeout 12s;
                   send_timeout 10s;
+                  # Subrequests (auth_request, error_page) check the body size against
+                  # their own location, so a per-location 0 still 413s large uploads
+                  client_max_body_size 0;
 
                   sendfile on;
                   sendfile_max_chunk 1m;
