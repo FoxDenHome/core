@@ -396,6 +396,14 @@ in
           description = "List of route prefixes that skip Anubis when it is enabled by default";
           default = [ ];
         };
+        bypassNetworks = nixpkgs.lib.mkOption {
+          type = listOf foxDenLib.types.ip;
+          description = "Client networks that skip Anubis on every route";
+          default = [
+            "10.0.0.0/8"
+            "fd2c:f4cb:63be::/48"
+          ];
+        };
       };
       oAuth = {
         enable = nixpkgs.lib.mkEnableOption "OAuth2 support";
@@ -496,8 +504,9 @@ in
             # Normal /readyz handling disabled
           '';
 
+      # $foxden_anubis_upstream skips Anubis for bypassNetworks, see anubisNormalConfig
       anubisConfig = ''
-        proxy_pass http://127.0.0.1:9899;
+        proxy_pass http://$foxden_anubis_upstream;
 
         proxy_http_version 1.1;
         proxy_request_buffering off;
@@ -629,6 +638,14 @@ in
       anubisNormalConfig =
         if svcConfig.anubis.enable then
           ''
+            # Internal clients (runners pushing large blobs, etc.) go straight to the inner server
+            geo $foxden_anubis_upstream {
+              default 127.0.0.1:9899;
+              ${nixpkgs.lib.concatMapStringsSep "\n  " (
+                net: "${net} 127.0.0.1:9898;"
+              ) svcConfig.anubis.bypassNetworks}
+            }
+
             server {
               server_name ${builtins.concatStringsSep " " hostMatchers};
               ${anubisListener ""}
