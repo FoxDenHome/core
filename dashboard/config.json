@@ -1,7 +1,7 @@
 {
   "title": "FoxDen Rack",
   "listen": ":8080",
-  "units": 23,
+  "units": 25,
   "interval": "15s",
   "timeout": "10s",
   "snmp": {
@@ -17,10 +17,18 @@
   },
   "devices": [
     {
+      "id": "unifi",
+      "name": "unifi",
+      "module": "unifi-cloud-key-gen2-plus",
+      "u": 25,
+      "address": "unifi.foxden.network"
+    },
+    {
       "id": "spares",
       "name": "spares shelf",
       "module": "shelf",
-      "u": 22
+      "height": 2,
+      "u": 23
     },
     {
       "id": "kvm-rack",

@@ -11,6 +11,7 @@ It polls devices directly and has no Prometheus dependency, so it keeps working 
 | smartctl_exporter (`:9633`) | disk health, on by default wherever node-exporter is |
 | UniFi Network API (local console) | PDU per-outlet power and switch PoE (their own SNMP has neither) |
 | UniFi Protect API (on the NVR) | NVR disks, RAID, recording and cameras |
+| UniFi OS API (on the Cloud Key) | Cloud Key system health and apps |
 
 ## Running
 
@@ -140,6 +141,10 @@ A `server` whose node_exporter has `chrony_*` metrics gets **Time sync** and **T
 ### NVR
 
 `unifi-unvr` reads disks (health, temperature, power-on hours, bad sectors), RAID, recording and cameras from the Protect API on the NVR itself, at `https://<address>`. It logs in with `$UNIFI_USERNAME`/`$UNIFI_PASSWORD`, so the same local view-only user has to exist on the NVR, or it uses an API key from `$NVR_API_KEY`. SNMP adds load, memory, temperatures, fans, voltages and per-disk I/O rates.
+
+### Cloud Key
+
+`unifi-cloud-key-gen2-plus` reads the console's own `/api/system` and the Network app's sysinfo at `https://<address>`, with the same UniFi credentials as the other UniFi modules. It has no SNMP agent. It shows firmware, uptime, CPU load and temperature, memory, eMMC usage, link, internet reachability and the installed apps, with Console, Network and Internet LEDs on the faceplate. The HDD bay and battery aren't reported (ours has neither).
 
 ## Adding a module
 
