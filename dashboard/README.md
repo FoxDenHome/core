@@ -6,12 +6,11 @@ It polls devices directly and has no Prometheus dependency, so it keeps working 
 
 | Source | Used by |
 |---|---|
-| SNMP v2c | UPS, ATS, switches, routers, tape library status, NVR sensors and disk I/O |
+| SNMP v2c | UPS, ATS, switches, routers, tape library, NVR sensors and disk I/O |
 | node_exporter (`:9100`) | servers: load, memory, ZFS pools, disk inventory; time servers: chrony, gpsd and ptp4l via the textfile collector |
 | smartctl_exporter (`:9633`) | disk health, on by default wherever node-exporter is |
 | UniFi Network API (local console) | PDU per-outlet power and switch PoE (their own SNMP has neither) |
 | UniFi Protect API (on the NVR) | NVR disks, RAID, recording and cameras |
-| Telnet (`:23`, FLMON monitor) | tape library drives, magazines, robotics counters and error log |
 
 ## Running
 
@@ -136,9 +135,7 @@ A `server` whose node_exporter has `chrony_*` metrics gets **Time sync** and **T
 
 ### Tape library
 
-`ibm-ts3100` reads the global status over SNMP and everything else from the library's FLMON telnet monitor (`stat`, `inv`, `fst`, `rets`, `adir`, `dra`, `edp`), which needs no login. The faceplate shows the magazines on the left (the left one above the mail slot, the right one at full height), the LEDs centered and the drives on the right. Magazines show how full they are and list their cartridges in the details. `magazines` sets the slots per magazine (default `[11, 12]`).
-
-The monitor serves one session at a time, and both routers poll it. A poll that finds it busy retries once, then shows the last data for up to 5 minutes. Retry counters and new error log entries only warn when they appear while the dashboard is running.
+`ibm-ts3100` shows the library's global status (BDT-MIB) and uptime over SNMP, with the status on a single faceplate LED. The library's SNMP agent exposes nothing more detailed.
 
 ### NVR
 
