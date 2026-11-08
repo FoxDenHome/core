@@ -17,20 +17,11 @@ concurrency:
 jobs:
   lint:
     runs-on: ubuntu-26.04
+    env:
+      # Nix, uv and the Nix substituters come pre-configured in the runner image
+      NIX_CONFIG: access-tokens = github.com=${{ secrets.EXT_GITHUB_TOKEN }}
     steps:
       - uses: https://data.forgejo.org/actions/checkout@v7
-      - uses: https://github.com/astral-sh/setup-uv@v10.3.3
-        with:
-          github-token: ${{ secrets.EXT_GITHUB_TOKEN }}
-      - uses: https://github.com/cachix/install-nix-action@v31
-        with:
-          github_access_token: ${{ secrets.EXT_GITHUB_TOKEN }}
-          enable_kvm: false
-          install_options: --no-daemon
-          extra_nix_config: |
-            trusted-public-keys = cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY= cache.nixos-cuda.org:74DUi4Ye579gUqzH4ziL9IyiJBlDpMRn9MBN8oNan9M=
-            trusted-substituters = http://host.docker.internal:1111?trusted=true https://cache.nixos-cuda.org https://cache.nixos.org/
-            substituters = http://host.docker.internal:1111?trusted=true https://cache.nixos-cuda.org https://cache.nixos.org/
       - name: Lint nix
         run: |
           cd ./nix

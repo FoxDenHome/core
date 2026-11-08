@@ -49,8 +49,6 @@ jobs:
           username: forgejo
           password: ${{ steps.jwt.outputs.jwt }}
         if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
-      - name: Set up Docker Buildx
-        uses: https://data.forgejo.org/docker/setup-buildx-action@v4
       - name: Build container image
         uses: https://data.forgejo.org/docker/build-push-action@v7
         with:
