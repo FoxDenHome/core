@@ -135,7 +135,7 @@ A `server` whose node_exporter has `chrony_*` metrics gets **Time sync** and **T
 
 ### Tape library
 
-`ibm-ts3100` shows the library's global status (BDT-MIB) and uptime over SNMP, with the status on a single faceplate LED. The library's SNMP agent exposes nothing more detailed.
+`ibm-ts3100` shows the library's global status, model, serial, firmware revisions (BDT-MIB) and uptime over SNMP, with the status on a single faceplate LED. Its agent serves nothing else beyond MIB-II: no IBM-3100-MIB, and no drive, slot or cartridge tables.
 
 ### NVR
 
