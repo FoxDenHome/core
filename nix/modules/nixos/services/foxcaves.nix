@@ -35,6 +35,8 @@ in
         name = "foxcaves";
       }).config
       {
+        sops.secrets.foxcaves = config.lib.foxDen.sops.mkIfAvailable { };
+
         environment.etc."foxcaves/production.lua".text = ''
           return {
             redis = {
@@ -78,6 +80,7 @@ in
               login = false,
               forgot_password = false,
               resend_activation = false,
+              root_key = os.getenv("CAPTCHA_ROOT_KEY"),
             },
             storage = {
               default = "fs",
@@ -128,6 +131,9 @@ in
 
             Environment = [
               "ENVIRONMENT=production"
+            ];
+            EnvironmentFile = config.lib.foxDen.sops.mkIfAvailable [
+              config.sops.secrets.foxcaves.path
             ];
             BindReadOnlyPaths = foxDenLib.services.mkEtcPaths [
               "foxcaves/production.lua"
