@@ -57,11 +57,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1793251889,
-        "narHash": "sha256-YFQp4BX6+PVwQYTFJGBPyJ7KQycLrjhoAxewpcKQtM8=",
+        "lastModified": 1794186434,
+        "narHash": "sha256-kf4AUUjN4Ys7jzjlxVv8aIi7seN0LNdk2JtxcC5HmAc=",
         "owner": "Doridian",
         "repo": "DarkSignsOnline",
-        "rev": "f4c0ba5d1a65c0a8b30c8c37478d1bde53786307",
+        "rev": "9c2b756b9457fda7c2f18e7341402b5d5735ece4",
         "type": "github"
       },
       "original": {
@@ -168,11 +168,11 @@
         "nixpkgs-acme": "nixpkgs-acme"
       },
       "locked": {
-        "lastModified": 1794164200,
-        "narHash": "sha256-b7otxN2RoouTnIv2qJQauZApzlyGmYzESTuBhiePWfc=",
+        "lastModified": 1794177328,
+        "narHash": "sha256-SnGd1olcQXAcDYW96Ykls2UgeMdcedXPjt/MxNCADls=",
         "ref": "refs/heads/main",
-        "rev": "f024492eba64d5ebed93e9893a772097b1e255dc",
-        "revCount": 4250,
+        "rev": "dde6cb4711575907dc6f9a4ba4cc6f10206a027d",
+        "revCount": 4251,
         "type": "git",
         "url": "https://git.foxden.network/foxCaves/foxCaves"
       },
@@ -266,11 +266,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1793979366,
-        "narHash": "sha256-7OoWDsYO9teiPxl0QdlS5lYE20Pue8/5mpscSL32FUA=",
+        "lastModified": 1794260194,
+        "narHash": "sha256-jmaqtyhtPFNgK52WZo33PRvNPPs8AjOWBeCc07nTAM8=",
         "owner": "nix-community",
         "repo": "home-manager",
-        "rev": "2c0c1f01521469cf0271180c453c79782d53c2f6",
+        "rev": "a9752a621164e9f84eb2a15858f1d54fd3cedab8",
         "type": "github"
       },
       "original": {
