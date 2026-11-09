@@ -177,7 +177,7 @@ class TestRefreshDns(unittest.TestCase):
                 other_zone: [
                     rec("tunnel", "A", "10.2.11.43"),
                     rec("tunnel", "AAAA", "fd2c:f4cb:63be:2::b2b"),
-                    rec("@", "MX", "mail.example.com."),
+                    {**rec("@", "MX", "mail.example.com."), "priority": 10},
                 ]
             },
             subdomain_hosts=[f"tunnel.{other_zone}"],
@@ -194,11 +194,26 @@ class TestRefreshDns(unittest.TestCase):
                 ("AAAA", "fd2c:f4cb:63be:2::b2b", "true"),
             ],
         )
-        # Only the listed host comes from a zone that is not internal.
-        self.assertNotIn(other_zone, {r["name"] for r in router.resources[STATIC].rows})
+        names = {r["name"] for r in router.resources[STATIC].rows}
+        # Every non-excluded zone is served, not just foxden.network.
+        self.assertIn(other_zone, names)
 
         with self.assertRaises(RuntimeError):
             self.run_dns([], FakeRouter(), subdomain_hosts=["missing.example.es"])
+
+    def test_excluded_zones(self) -> None:
+        router = FakeRouter()
+        self.run_dns(
+            [],
+            router,
+            other={
+                zone: [{**raw("www", "A", "10.2.0.1"), "zone": zone}]
+                for zone in dns.EXCLUDED_ZONES
+            },
+        )
+        names = {r["name"] for r in router.resources[STATIC].rows}
+        for zone in dns.EXCLUDED_ZONES:
+            self.assertNotIn(f"www.{zone}", names)
 
     def test_creates_records_and_is_idempotent(self) -> None:
         router = FakeRouter()

@@ -54,13 +54,16 @@ FIXED_FORWARDERS = [
     },
 ]
 
-INTERNAL_ZONES = [
-    "foxden.network",
-]
+# Zones whose internal records are not served by the routers (family domains),
+# so LAN clients resolve them through public DNS like everyone else.
+EXCLUDED_ZONES = {
+    "zoofaeth.de",
+    "candy-girl.net",
+}
 
-# Hosts outside INTERNAL_ZONES whose internal addresses answer for them and
-# every name below them, so LAN clients do not get the prefix-translated
-# public IPv6 address. tunnel.f0x.es is foxden-vpn-edge (*.tunnel.f0x.es).
+# Hosts whose internal addresses also answer for every name below them, so LAN
+# clients do not get the prefix-translated public IPv6 address.
+# tunnel.f0x.es is foxden-vpn-edge (*.tunnel.f0x.es).
 INTERNAL_SUBDOMAIN_HOSTS = [
     "tunnel.f0x.es",
 ]
@@ -192,27 +195,32 @@ def refresh_dns():
     mikrotik_records = []
     mikrotik_forwarders = []
 
-    for zone in INTERNAL_ZONES:
-        for record_raw in INTERNAL_RECORDS[zone]:
+    subdomain_hosts = set(INTERNAL_SUBDOMAIN_HOSTS)
+    found_subdomain_hosts = set()
+
+    for zone, zone_records in INTERNAL_RECORDS.items():
+        if zone in EXCLUDED_ZONES:
+            continue
+        for record_raw in zone_records:
             rec_type = record_raw["type"].upper()
             if rec_type in MTIK_IGNORED_RECORD_TYPES:
                 # MTik does not support those atm, also PTR is auto-created, so we got those
                 continue
 
-            mikrotik_records += mtik_process(record_raw)
-
-    for host in INTERNAL_SUBDOMAIN_HOSTS:
-        found = False
-        for rec_type in ("A", "AAAA"):
-            record_raw = find_record(host, rec_type)
-            if record_raw is None:
-                continue
-            found = True
             for record in mtik_process(record_raw):
-                record["match-subdomain"] = "true"
+                if record["name"] in subdomain_hosts and record["type"] in (
+                    "A",
+                    "AAAA",
+                ):
+                    record["match-subdomain"] = "true"
+                    found_subdomain_hosts.add(record["name"])
                 mikrotik_records.append(record)
-        if not found:
-            raise RuntimeError(f"No internal A or AAAA record for {host}")
+
+    missing_subdomain_hosts = subdomain_hosts - found_subdomain_hosts
+    if missing_subdomain_hosts:
+        raise RuntimeError(
+            f"No internal A or AAAA record for {sorted(missing_subdomain_hosts)}"
+        )
 
     mikrotik_records += FIXED_RECORDS
     mikrotik_forwarders += FIXED_FORWARDERS
