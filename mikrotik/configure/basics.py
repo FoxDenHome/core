@@ -243,6 +243,10 @@ def _ethernet(default_name: str, name: str, **attribs: str) -> dict[str, str]:
     return {"default-name": default_name, "name": name, **attribs}
 
 
+# The port carrying all VLANs (native one untagged) into the bridge
+TRUNK = "trunk"
+BRIDGE = "bridge"
+
 # Physical ports per board, renamed so the rest of the config is board independent
 FLOW_CONTROL = {"rx-flow-control": "on", "tx-flow-control": "on"}
 ETHERNET: dict[str, list[dict[str, str]]] = {
@@ -251,7 +255,7 @@ ETHERNET: dict[str, list[dict[str, str]]] = {
         _ethernet("ether1", "oob", comment="eth1", l2mtu="1514", **FLOW_CONTROL),
         _ethernet(
             "sfp28-1",
-            "vlan-mgmt",
+            TRUNK,
             mtu="9000",
             l2mtu="9092",
             **{"auto-negotiation": FALSE, "fec-mode": "fec91"},
@@ -289,7 +293,7 @@ ETHERNET: dict[str, list[dict[str, str]]] = {
         _ethernet("ether8", "oob", comment="eth8", l2mtu="1514", **FLOW_CONTROL),
         _ethernet(
             "sfp-sfpplus1",
-            "vlan-mgmt",
+            TRUNK,
             comment="sfp1",
             mtu="9000",
             l2mtu="9092",
@@ -360,6 +364,64 @@ def _add_common(basics: MTikBasics, name: str) -> None:
     )
 
 
+def _add_bridge(basics: MTikBasics, vlans: list[dict[str, Any]]) -> None:
+    # A VLAN-filtering bridge with the trunk as its only port, so tunnels
+    # (L2TP, EoIP, ...) and veths can later join VLANs as further ports.
+    # Every VLAN, the native one included, is a VLAN interface on the bridge;
+    # the bridge itself carries nothing untagged.
+    native = next(vlan for vlan in vlans if vlan["native"])
+    basics.table(
+        "/interface/bridge",
+        ("name",),
+        [
+            {
+                "name": BRIDGE,
+                "vlan-filtering": TRUE,
+                "frame-types": "admit-only-vlan-tagged",
+                "ingress-filtering": TRUE,
+                # An unused VLAN, so untagged frames from the router never land
+                # in mgmt should frame-types ever be relaxed
+                "pvid": "4094",
+                # Single port, and BPDUs have no business reaching the switch
+                "protocol-mode": "none",
+                "igmp-snooping": FALSE,
+                # Takes the MAC of the first added port, the trunk
+                "auto-mac": TRUE,
+                "mtu": "9000",
+            }
+        ],
+        prune=_prune_all,
+    )
+    basics.table(
+        "/interface/bridge/port",
+        ("bridge", "interface"),
+        [
+            {
+                "bridge": BRIDGE,
+                "interface": TRUNK,
+                "pvid": str(native["vlanId"]),
+                "frame-types": "admit-all",
+                "ingress-filtering": TRUE,
+            }
+        ],
+        prune=_prune_all,
+    )
+    basics.table(
+        "/interface/bridge/vlan",
+        ("bridge", "vlan-ids"),
+        [
+            {
+                "bridge": BRIDGE,
+                "vlan-ids": str(vlan["vlanId"]),
+                "tagged": BRIDGE if vlan["native"] else f"{BRIDGE},{TRUNK}",
+                "untagged": TRUNK if vlan["native"] else "",
+            }
+            for vlan in vlans
+        ],
+        prune=_prune_all,
+    )
+
+
 def make_internal_basics(
     plan: dict[str, Any], router: MTikRouter, snmp_community: str
 ) -> MTikBasics:
@@ -372,7 +434,6 @@ def make_internal_basics(
     _add_common(basics, name)
 
     native = next(vlan for vlan in vlans if vlan["native"])
-    trunk = f"vlan-{native['name']}"
     public6 = ip_network(cfg["publicIpv6"])
     s2s = _router_s2s(cfg)
 
@@ -385,18 +446,18 @@ def make_internal_basics(
         )
 
     # Interfaces
+    _add_bridge(basics, vlans)
     basics.table(
         "/interface/vlan",
         ("name",),
         [
             {
                 "name": f"vlan-{vlan['name']}",
-                "interface": trunk,
+                "interface": BRIDGE,
                 "vlan-id": str(vlan["vlanId"]),
                 "mtu": str(vlan["mtu"]),
             }
             for vlan in vlans
-            if not vlan["native"]
         ],
         prune=_prune_all,
     )
@@ -847,7 +908,7 @@ def make_internal_basics(
     basics.settings("/ip/settings", **{"rp-filter": "loose", "tcp-syncookies": TRUE})
     basics.settings(
         "/ipv6/settings",
-        **{"accept-redirects": "no", "accept-router-advertisements": "no"},
+        **{"accept-redirects": "no", "accept-router-advertisements": "yes", "accept-router-advertisements-on": "zone-wan"},
     )
     basics.settings(
         "/ip/neighbor/discovery-settings",

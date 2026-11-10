@@ -236,6 +236,27 @@ class TestMakeInternalBasics(unittest.TestCase):
         self.assertEqual(vrrp["vrrp-mgmt-gateway6"]["v3-protocol"], "ipv6")
         self.assertEqual(vrrp["vrrp-mgmt-gateway6"]["vrid"], "2")
 
+    def test_vlans_on_bridge(self) -> None:
+        basics = make_internal_basics(PLAN, mtik_router("router"), "community")
+        vlan_ifaces = {row["name"]: row for row in rows(basics, "/interface/vlan")}
+        self.assertEqual(vlan_ifaces["vlan-mgmt"]["vlan-id"], "1")
+        self.assertTrue(
+            all(row["interface"] == "bridge" for row in vlan_ifaces.values())
+        )
+        (port,) = rows(basics, "/interface/bridge/port")
+        self.assertEqual((port["interface"], port["pvid"]), ("trunk", "1"))
+        bridge_vlans = {
+            row["vlan-ids"]: row for row in rows(basics, "/interface/bridge/vlan")
+        }
+        self.assertEqual(
+            (bridge_vlans["1"]["tagged"], bridge_vlans["1"]["untagged"]),
+            ("bridge", "trunk"),
+        )
+        self.assertEqual(
+            (bridge_vlans["7"]["tagged"], bridge_vlans["7"]["untagged"]),
+            ("bridge,trunk", ""),
+        )
+
     def test_backup_serves_its_pools(self) -> None:
         basics = make_internal_basics(PLAN, mtik_router("router-backup"), "community")
         servers = {row["name"]: row for row in rows(basics, "/ip/dhcp-server")}
