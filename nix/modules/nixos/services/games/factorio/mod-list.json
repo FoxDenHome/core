@@ -47,9 +47,9 @@
         {
             "name": "alien-biomes",
             "enabled": true,
-            "sha1": "2d28415ca54b129a8c000a8d1de7bf16b2773185",
-            "url": "https://mods.factorio.com/download/alien-biomes/6a3b94c51370f054aa144608",
-            "version": "0.8.0"
+            "sha1": "9cc4794899da1a5d33d341c9035199c8d7245788",
+            "url": "https://mods.factorio.com/download/alien-biomes/6aedc8b83346a120de83a01a",
+            "version": "0.8.1"
         },
         {
             "name": "alien-biomes-graphics",
