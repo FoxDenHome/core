@@ -68,7 +68,8 @@ output "cloudns_dynamic_keys" {
 }
 
 # _acme-challenge.<name> => ClouDNS zone its TXT record goes into. Each zone
-# needs an API sub-user (made by hand) for whoever requests the certificate.
+# needs an API sub-user for whoever requests the certificate; acme-subusers.sh
+# makes them and stores their credentials in sops.
 output "acme_zones" {
   value = local.acme_challenges
 }
