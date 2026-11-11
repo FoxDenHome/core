@@ -2,8 +2,8 @@
 
 devicecert eaton <fqdn> <lego dir>
     Eaton Network-M2. The card keeps its private key: it makes a CSR, lego
-    gets it signed over DNS-01 (HURRICANE_TOKENS) and the result goes back to
-    the card.
+    gets it signed over DNS-01 (CLOUDNS_SUB_AUTH_ID, CLOUDNS_AUTH_PASSWORD)
+    and the result goes back to the card.
 
 devicecert cyberpower <fqdn> <cert dir>
     CyberPower RMCARD, with HTTPS already enabled. Uploads the certificate and
@@ -229,7 +229,7 @@ def eaton(fqdn: str, lego_dir: Path) -> None:
             "--email",
             "ssl@foxden.network",
             "--dns",
-            "hurricane",
+            "cloudns",
             "--path",
             str(lego_dir),
             "--csr",

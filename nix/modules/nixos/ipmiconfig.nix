@@ -69,10 +69,11 @@ in
       };
     };
     acme.enable = lib.mkEnableOption ''
-      a Let's Encrypt certificate for the BMC's web UI. DNS-01 goes through the
-      dynamic TXT record _acme-challenge.<hostName>.<hostZone> at dns.he.net. The
-      ipmiconfig-acme secret holds its DDNS key as
-      HURRICANE_TOKENS=<hostName>.<hostZone>:<key> (tofu output he_dynamic_keys)
+      a Let's Encrypt certificate for the BMC's web UI. DNS-01 goes through
+      _acme-challenge.<hostName>.<hostZone>, a CNAME into its own ClouDNS zone
+      (tofu output acme_zones). The ipmiconfig-acme secret holds the API
+      sub-user that may write that zone as CLOUDNS_SUB_AUTH_ID=<id> and
+      CLOUDNS_AUTH_PASSWORD=<password>
     '';
     # BMC user for this host to log in to Redfish with, managed over the KCS
     user = {
@@ -515,7 +516,7 @@ in
             email = "ssl@foxden.network";
             # The BMC only takes RSA keys
             keyType = "rsa2048";
-            dnsProvider = "hurricane";
+            dnsProvider = "cloudns";
             environmentFile = config.sops.secrets.ipmiconfig-acme.path;
             # Renew during the day, ahead of ipmiconfig-cert.timer
             renewInterval = "*-*-* 14:00:00";
@@ -533,7 +534,7 @@ in
           fqdn = "_acme-challenge.${fqdn}";
           type = "TXT";
           value = "acme";
-          ttl = 300; # dns.he.net's minimum
+          ttl = 300;
           dynDns = true;
           horizon = "external";
         }

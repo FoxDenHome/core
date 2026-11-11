@@ -6,14 +6,16 @@ from os.path import join as path_join
 from shutil import copyfile, rmtree
 from subprocess import check_output
 
-from configure.dyndns import load_dyndns_hosts
+from configure.dyndns import load_acme_zones
 from configure.util import ROUTERS, MTikContainer, MTikFirewallRule, mtik_path
 
 OUT_PATH = mtik_path("out/dashboard")
 CONFIG_PATH = mtik_path("../dashboard/config.json")
-# Flat map of environment variables (SNMP_COMMUNITY, UNIFI_USERNAME, ...)
+# Flat map of environment variables (SNMP_COMMUNITY, UNIFI_USERNAME, ...).
+# ACME_DNS_AUTH_ID and ACME_DNS_PASSWORD are the ClouDNS API sub-user that may
+# write the ACME zone of ACME_TXT_HOST.
 SECRETS_PATH = mtik_path("secrets/dashboard.yaml")
-# dns.he.net dynamic TXT record the dashboard writes for DNS-01
+# DNS-01 challenge of the dashboard, a CNAME into a ClouDNS zone of its own
 ACME_TXT_HOST = "_acme-challenge.status.foxden.network"
 
 CONTAINER = MTikContainer(
@@ -97,17 +99,17 @@ def load_secrets() -> tuple[tuple[str, str], ...]:
     return tuple(sorted(secrets.items()))
 
 
-def load_acme_dns_key() -> tuple[tuple[str, str], ...]:
-    host = load_dyndns_hosts().get(ACME_TXT_HOST)
-    if host is None:
-        # The dashboard serves plain HTTP only until terraform has made the record
-        print(f"### WARNING: No DDNS key for {ACME_TXT_HOST}, HTTPS stays off")
+def load_acme_dns_zone() -> tuple[tuple[str, str], ...]:
+    zone = load_acme_zones().get(ACME_TXT_HOST)
+    if zone is None:
+        # The dashboard serves plain HTTP only until terraform has made the zone
+        print(f"### WARNING: No ACME zone for {ACME_TXT_HOST}, HTTPS stays off")
         return ()
-    return (("ACME_DNS_KEY", host["key"]),)
+    return (("ACME_DNS_ZONE", zone),)
 
 
 def refresh_dashboard():
-    env = load_secrets() + load_acme_dns_key()
+    env = load_secrets() + load_acme_dns_zone()
     container = replace(CONTAINER, env=tuple(sorted(env)))
 
     rmtree(OUT_PATH, ignore_errors=True)

@@ -163,16 +163,17 @@ Nix: `pkgs.foxden-vpn` (`nix/packages/foxden-vpn`) contains `foxden-vpnd` (daemo
 
 - **Routing:** foxIngress sends `tunnel.f0x.es` and `_.tunnel.f0x.es` (every name below it) to the edge's PROXY ports 81/444. The routers forward TCP 30000-30199 to it directly. `*.tunnel.f0x.es` is a CNAME to `tunnel.f0x.es`, whose address dyndns keeps current. On the LAN, the routers answer `tunnel.f0x.es` and every name below it with the edge's internal addresses (`match-subdomain`, `INTERNAL_SUBDOMAIN_HOSTS` in `mikrotik/configure/dns.py`), not the prefix-translated public IPv6 address.
 - **Control service:** UDP port 4443 (QUIC) is neither forwarded nor behind foxIngress. VPN clients reach it like any LAN host. The portal puts its location into every device's configuration, along with the TCP port range, which the tray offers in its form.
-- **Certificate:** the wildcard needs DNS-01. `_acme-challenge.tunnel.f0x.es` is a dynamic TXT record at dns.he.net, and lego's `hurricane` provider updates it with that record's DDNS key. The edge picks up renewals by itself.
+- **Certificate:** the wildcard needs DNS-01. `_acme-challenge.tunnel.f0x.es` is a CNAME into the ClouDNS zone `tunnel-f0x-es.acme.foxden.network`, and lego's `cloudns` provider writes the challenge there as an API sub-user that may only edit that zone. The edge picks up renewals by itself.
 
 To set it up:
 
-1. `tofu apply` in `terraform/`, which creates the dynamic TXT record and its key.
-2. In the dns.he.net web UI, add the CNAME `*.tunnel.f0x.es` → `tunnel.f0x.es`. Terraform skips it: its provider rejects wildcard names.
-3. Add a `foxden-vpn-edge-acme` entry to `nix/secrets/islandfox.yaml` with that key, taken from `tofu output -json he_dynamic_keys`:
+1. `terraform/tf.sh apply`, which creates the CNAME, the ACME zone and the wildcard CNAME `*.tunnel.f0x.es` → `tunnel.f0x.es`.
+2. In the ClouDNS panel, add an API sub-user and delegate the zone `tunnel-f0x-es.acme.foxden.network` to it (see `tofu output acme_zones`).
+3. Add a `foxden-vpn-edge-acme` entry to `nix/secrets/islandfox.yaml` with that sub-user:
 
    ```
-   HURRICANE_TOKENS=tunnel.f0x.es:<key of _acme-challenge.tunnel.f0x.es>
+   CLOUDNS_SUB_AUTH_ID=<id>
+   CLOUDNS_AUTH_PASSWORD=<password>
    ```
 
 4. Run `mikrotik/configure.py`, which pushes the port forwards, foxIngress and dyndns. The dyndns script skips TXT records.

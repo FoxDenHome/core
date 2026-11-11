@@ -55,16 +55,18 @@ func main() {
 
 	handler := web.Handler(p)
 	servers := []*http.Server{{Addr: cfg.Listen, Handler: handler}}
-	if t := cfg.TLS; t != nil && t.DNSKey == "" {
-		log.Printf("tls: no dns_key, not serving HTTPS for %s", t.Domain)
+	if t := cfg.TLS; t != nil && t.DNSAuthID == "" {
+		log.Printf("tls: no dns_auth_id, not serving HTTPS for %s", t.Domain)
 	} else if t != nil {
 		certs, err := tlscert.New(tlscert.Options{
-			Domain:    t.Domain,
-			Email:     t.Email,
-			Directory: t.Directory,
-			CacheDir:  t.CacheDir,
-			DNSKey:    t.DNSKey,
-			HTTP:      &http.Client{Timeout: time.Minute},
+			Domain:      t.Domain,
+			Email:       t.Email,
+			Directory:   t.Directory,
+			CacheDir:    t.CacheDir,
+			DNSAuthID:   t.DNSAuthID,
+			DNSPassword: t.DNSPassword,
+			DNSZone:     t.DNSZone,
+			HTTP:        &http.Client{Timeout: time.Minute},
 		})
 		if err != nil {
 			log.Fatal(err)

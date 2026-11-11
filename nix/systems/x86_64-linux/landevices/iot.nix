@@ -5,7 +5,7 @@
       fqdn = "_acme-challenge.bambu-x1.foxden.network";
       type = "TXT";
       value = "acme";
-      ttl = 300; # dns.he.net's minimum
+      ttl = 300;
       dynDns = true;
       horizon = "external";
     }

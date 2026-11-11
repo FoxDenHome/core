@@ -8,7 +8,7 @@ Monorepo controlling the FoxDen homelab. Four independent subprojects, all drive
 
 - `nix/` — NixOS configs for all Linux hosts (bengalfox, islandfox, icefox, …), plus flake outputs (`dns`, `dhcp`, `firewall`, `foxIngress`, `foxMail`, `ipReverses`, …) that the other subprojects consume.
 - `mikrotik/` — Python (uv) tool that pushes the generated config to the RouterOS routers (`router`, `router-backup`, `redfox`) over the RouterOS API.
-- `terraform/` — Public DNS (OVH, dns.he.net), DKIM, reverse DNS and the Fastly CDN. The `*.sh` scripts are `external` data sources that `nix build` the flake JSON outputs.
+- `terraform/` — Public DNS (ClouDNS), DKIM, reverse DNS and the Fastly CDN. The `*.sh` scripts are `external` data sources that `nix build` the flake JSON outputs.
 - `vpn/` — Go WireGuard client daemon/tray (`foxden-vpnd`), self-service portal and expose edge. See `vpn/README.md` for the design. Packaged into nix as `nix/packages/foxden-vpn`.
 - `packetfox/` — PacketFox (`pfox`, https://pfox.foxden.network): captures on the routers (mangle `sniff-tzsp`), UniFi APs and NixOS hosts (`pfox-agent`) at once and follows packets across them, in a Wireshark-like UI backed by `sharkd`. See `packetfox/README.md`. Packaged into nix as `nix/packages/packetfox`.
 
@@ -72,4 +72,6 @@ Typical service pattern (see `systems/x86_64-linux/islandfox/rmfakecloud.nix` + 
 - Never use `/var/run`; always use `/run`.
 - `mikrotik/` manages nearly all RouterOS config. `configure/basics.py` handles interfaces, VLANs, VRRP, addresses, DHCP servers, routing and system settings, using the addressing plan in `nix/modules/lib/routers.nix` (flake output `routers.json`). Users, passwords, certificates and WireGuard keys/peers are set by hand. Basics prunes rows it doesn't know in the tables it owns, so add new router config there rather than by hand.
 - PacketFox creates and removes RouterOS rows commented `pfox` (mangle, filter, address list `pfox`) while capturing; `configure/firewall.py` skips them. Don't use that comment for anything else.
+- Public zones are delegated to the vanity nameservers `ns1.doridian.net`, `ns2.doridian.de`, `ns3.foxden.network` and `ns4.f0x.es` (`foxDen.dns.authorities` in `nix/systems/x86_64-linux/landevices/domains.nix`), which are ALIASes to ClouDNS's pns41-44, with glue at the registrars. Never enable DNSSEC on them: the routers override names in these zones for the LAN.
+- ACME DNS-01 goes through dynamic TXT records (`dynDns = true`). At ClouDNS each becomes a CNAME into a zone `<acmeGroup>.acme.foxden.network` (tofu output `acme_zones`), and whoever requests the certificate writes it as an API sub-user delegated only that zone. Sub-users are made by hand in the ClouDNS panel; the Terraform provider can't manage them.
 - The `vpn/` Go vendor hash lives in `vpn/vendor-hash.txt`. Renovate regenerates it on Go dep bumps; after changing deps by hand, run `../maid/tools/auto-nix-hash vpn/vendor-hash.txt './nix#nixosConfigurations.islandfox.pkgs.foxden-vpn.goModules'` from the repo root (FoxDen/maid checked out alongside core).

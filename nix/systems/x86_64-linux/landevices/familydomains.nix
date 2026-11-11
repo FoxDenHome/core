@@ -4,6 +4,7 @@ let
   serverDomain = "arcticfox.doridian.net";
   familyZoneCfg = {
     email = "arcticfox";
+    authority = "upstream";
   };
   subCnamesRaw = [
     "ftp"

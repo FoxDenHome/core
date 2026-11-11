@@ -46,10 +46,13 @@ type TLS struct {
 	Directory string `json:"directory,omitempty"`
 	// CacheDir keeps the account key and certificate across restarts.
 	CacheDir string `json:"cache_dir"`
-	// DNSKey is the dns.he.net DDNS key of _acme-challenge.<domain>. HTTPS
-	// is off while it's empty, so the same config runs locally.
-	DNSKey string `json:"dns_key"`
-	Listen string `json:"listen"`
+	// DNSAuthID and DNSPassword are the ClouDNS API sub-user that may write
+	// DNSZone, the zone _acme-challenge.<domain> is CNAMEd into. HTTPS is off
+	// while DNSAuthID is empty, so the same config runs locally.
+	DNSAuthID   string `json:"dns_auth_id"`
+	DNSPassword string `json:"dns_password"`
+	DNSZone     string `json:"dns_zone"`
+	Listen      string `json:"listen"`
 	// HTTPListen redirects plain HTTP to HTTPS. Empty disables it.
 	HTTPListen string `json:"http_listen"`
 }

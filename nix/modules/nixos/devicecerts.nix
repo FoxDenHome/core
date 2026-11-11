@@ -18,10 +18,10 @@ in
     enable = lib.mkEnableOption ''
       Let's Encrypt certificates for the web UIs of UPS/ATS network cards and
       NetCmdr KVM switches.
-      DNS-01 goes through the dynamic TXT records _acme-challenge.<fqdn> at
-      dns.he.net. The devicecerts-acme secret holds their DDNS keys as
-      HURRICANE_TOKENS=<fqdn>:<key>,<fqdn>:<key>,... (tofu output
-      he_dynamic_keys). The cards log in to oauth-jit-radius (which has to run
+      DNS-01 goes through _acme-challenge.<fqdn>, a CNAME into the ClouDNS zone
+      devicecerts-<hostName>.acme.foxden.network (tofu output acme_zones). The
+      devicecerts-acme secret holds the API sub-user that may write that zone
+      as CLOUDNS_SUB_AUTH_ID=<id> and CLOUDNS_AUTH_PASSWORD=<password>. The cards log in to oauth-jit-radius (which has to run
       on this host) as the static RADIUS user devicecerts, whose password is
       DEVICECERTS_PASSWORD=<password> in the devicecerts-radius secret
     '';
@@ -84,7 +84,7 @@ in
             # with their old key for ~10 minutes, so keep the key the same
             # across renewals
             extraLegoRenewFlags = [ "--reuse-key" ];
-            dnsProvider = "hurricane";
+            dnsProvider = "cloudns";
             environmentFile = config.sops.secrets.devicecerts-acme.path;
           }
         ) acmeDevices;
@@ -95,8 +95,9 @@ in
       fqdn = "_acme-challenge.${device.fqdn}";
       type = "TXT";
       value = "acme";
-      ttl = 300; # dns.he.net's minimum
+      ttl = 300;
       dynDns = true;
+      acmeGroup = "devicecerts-${hostName}";
       horizon = "external";
     }) cfg.devices;
 

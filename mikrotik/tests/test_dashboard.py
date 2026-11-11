@@ -25,7 +25,7 @@ class TestDashboard(unittest.TestCase):
         self,
         routers: list[SyncRouter],
         secrets: dict[str, object],
-        dyndns: dict[str, dict[str, str]] | None = None,
+        acme_zones: dict[str, str] | None = None,
     ) -> None:
         with TemporaryDirectory() as tmp:
             config = path_join(tmp, "config.json")
@@ -41,7 +41,9 @@ class TestDashboard(unittest.TestCase):
                 patch.object(dashboard, "SECRETS_PATH", secrets_path),
                 patch.object(dashboard, "OUT_PATH", path_join(tmp, "out")),
                 patch.object(dashboard, "ROUTERS", routers),
-                patch.object(dashboard, "load_dyndns_hosts", return_value=dyndns or {}),
+                patch.object(
+                    dashboard, "load_acme_zones", return_value=acme_zones or {}
+                ),
             ):
                 quiet(dashboard.refresh_dashboard)
 
@@ -53,7 +55,7 @@ class TestDashboard(unittest.TestCase):
         self.run_refresh(
             routers,
             {"UNIFI_PASSWORD": "pw", "SNMP_COMMUNITY": "c"},
-            {dashboard.ACME_TXT_HOST: {"key": "ddns"}},
+            {dashboard.ACME_TXT_HOST: "status.acme.example.com"},
         )
 
         for router in routers:
@@ -63,7 +65,7 @@ class TestDashboard(unittest.TestCase):
             self.assertEqual(
                 container.env,
                 (
-                    ("ACME_DNS_KEY", "ddns"),
+                    ("ACME_DNS_ZONE", "status.acme.example.com"),
                     ("SNMP_COMMUNITY", "c"),
                     ("UNIFI_PASSWORD", "pw"),
                 ),
@@ -71,7 +73,7 @@ class TestDashboard(unittest.TestCase):
         self.assertEqual(routers[0].container_restarts, {"dashboard"})
         self.assertEqual(routers[1].container_restarts, set())
 
-    def test_no_acme_key_yet(self) -> None:
+    def test_no_acme_zone_yet(self) -> None:
         routers = [SyncRouter("router.foxden.network", [])]
         self.run_refresh(routers, {"SNMP_COMMUNITY": "c"})
         (container,) = routers[0].containers

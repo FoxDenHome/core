@@ -11,7 +11,9 @@
     "domain": "status.foxden.network",
     "email": "ssl@foxden.network",
     "cache_dir": "/data",
-    "dns_key": "${ACME_DNS_KEY}",
+    "dns_auth_id": "${ACME_DNS_AUTH_ID}",
+    "dns_password": "${ACME_DNS_PASSWORD}",
+    "dns_zone": "${ACME_DNS_ZONE}",
     "listen": ":443",
     "http_listen": ":80"
   },

@@ -61,18 +61,12 @@ resource "fastly_tls_subscription" "cdn_foxden" {
   depends_on = [fastly_domain.cdn_foxden]
 }
 
-resource "dns-he-net_cname" "cdn_foxden" {
-  for_each = toset([for dom in local.domains : dom if dom != "foxden.network"])
-  zone_id  = local.he_zone_ids["foxden.network"]
-  domain   = each.key
-  ttl      = 300
-  data     = trimsuffix(local.cname_record, ".")
-}
+resource "cloudns_dns_record" "cdn_foxden" {
+  for_each = local.domains
 
-resource "dns-he-net_alias" "cdn_foxden" {
-  for_each = toset([for dom in local.domains : dom if dom == "foxden.network"])
-  zone_id  = local.he_zone_ids["foxden.network"]
-  domain   = each.key
-  ttl      = 300
-  data     = trimsuffix(local.cname_record, ".")
+  zone  = module.cloudns_domain["foxden.network"].zone
+  type  = each.key == "foxden.network" ? "ALIAS" : "CNAME"
+  name  = each.key == "foxden.network" ? "" : trimsuffix(each.key, ".foxden.network")
+  ttl   = 300
+  value = trimsuffix(local.cname_record, ".")
 }

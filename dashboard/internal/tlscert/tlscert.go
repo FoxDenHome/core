@@ -1,7 +1,8 @@
 // Package tlscert keeps a Let's Encrypt certificate for one domain. It is
-// issued over DNS-01 through the dns.he.net dynamic TXT record at
-// _acme-challenge.<domain>, so it works no matter which router the domain
-// currently points at.
+// issued over DNS-01, so it works no matter which router the domain currently
+// points at. _acme-challenge.<domain> is a CNAME to
+// _acme-challenge.<domain>.<zone>, where zone is a ClouDNS zone that an API
+// sub-user may write.
 package tlscert
 
 import (
@@ -12,6 +13,7 @@ import (
 	"crypto/rand"
 	"crypto/tls"
 	"crypto/x509"
+	"encoding/json"
 	"encoding/pem"
 	"errors"
 	"fmt"
@@ -41,11 +43,14 @@ const (
 )
 
 var (
-	heUpdateURL   = "https://dyn.dns.he.net/nic/update"
-	heNameservers = []string{"ns1.he.net:53", "ns2.he.net:53", "ns3.he.net:53", "ns4.he.net:53", "ns5.he.net:53"}
-	propagation   = 2 * time.Minute
-	pollInterval  = 5 * time.Second
+	cloudnsAPI         = "https://api.cloudns.net/dns"
+	cloudnsNameservers = []string{"pns41.cloudns.net:53", "pns42.cloudns.net:53", "pns43.cloudns.net:53", "pns44.cloudns.net:53"}
+	propagation        = 5 * time.Minute
+	pollInterval       = 5 * time.Second
 )
+
+// txtTTL is the lowest TTL ClouDNS takes.
+const txtTTL = 60
 
 type Options struct {
 	Domain string
@@ -54,9 +59,12 @@ type Options struct {
 	Directory string
 	// CacheDir holds the account key and the issued certificate.
 	CacheDir string
-	// DNSKey is the dns.he.net DDNS key of _acme-challenge.<Domain>.
-	DNSKey string
-	HTTP   *http.Client
+	// DNSAuthID and DNSPassword are the ClouDNS API sub-user that may write
+	// DNSZone, the zone _acme-challenge.<Domain> is CNAMEd into.
+	DNSAuthID   string
+	DNSPassword string
+	DNSZone     string
+	HTTP        *http.Client
 }
 
 type Manager struct {
@@ -66,8 +74,8 @@ type Manager struct {
 
 // New loads a cached certificate if there is one.
 func New(opts Options) (*Manager, error) {
-	if opts.Domain == "" || opts.CacheDir == "" || opts.DNSKey == "" {
-		return nil, errors.New("tls: domain, cache_dir and dns_key are required")
+	if opts.Domain == "" || opts.CacheDir == "" || opts.DNSAuthID == "" || opts.DNSPassword == "" || opts.DNSZone == "" {
+		return nil, errors.New("tls: domain, cache_dir, dns_auth_id, dns_password and dns_zone are required")
 	}
 	if opts.Directory == "" {
 		opts.Directory = acme.LetsEncryptURL
@@ -194,10 +202,19 @@ func (m *Manager) authorize(ctx context.Context, client *acme.Client, authzURL s
 	if err != nil {
 		return err
 	}
-	if err := m.setTXT(ctx, value); err != nil {
-		return fmt.Errorf("setting TXT record: %w", err)
+	if err := m.addTXT(ctx, value); err != nil {
+		return fmt.Errorf("adding TXT record: %w", err)
 	}
-	if err := waitTXT(ctx, "_acme-challenge."+m.opts.Domain, value); err != nil {
+	defer func() {
+		// The other router may be validating at the same time, so only
+		// this value goes
+		ctx, cancel := context.WithTimeout(context.WithoutCancel(ctx), time.Minute)
+		defer cancel()
+		if err := m.deleteTXT(ctx, value); err != nil {
+			log.Printf("tls: removing TXT record: %v", err)
+		}
+	}()
+	if err := waitTXT(ctx, m.txtHost()+"."+m.opts.DNSZone, value); err != nil {
 		return err
 	}
 	if _, err := client.Accept(ctx, challenge); err != nil {
@@ -209,35 +226,98 @@ func (m *Manager) authorize(ctx context.Context, client *acme.Client, authzURL s
 	return nil
 }
 
-// setTXT updates the dynamic TXT record through dns.he.net's DDNS API.
-func (m *Manager) setTXT(ctx context.Context, value string) error {
-	form := url.Values{
-		"hostname": {"_acme-challenge." + m.opts.Domain},
-		"password": {m.opts.DNSKey},
-		"txt":      {value},
-	}
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, heUpdateURL, strings.NewReader(form.Encode()))
+// txtHost is the challenge's name inside DNSZone.
+func (m *Manager) txtHost() string {
+	return "_acme-challenge." + m.opts.Domain
+}
+
+// cloudns calls one endpoint of the ClouDNS API as the sub-user and returns
+// the response body. Failures come back as HTTP 200 with status "Failed".
+func (m *Manager) cloudns(ctx context.Context, endpoint string, params url.Values) ([]byte, error) {
+	params.Set("sub-auth-id", m.opts.DNSAuthID)
+	params.Set("auth-password", m.opts.DNSPassword)
+	params.Set("domain-name", m.opts.DNSZone)
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, cloudnsAPI+"/"+endpoint, strings.NewReader(params.Encode()))
 	if err != nil {
-		return err
+		return nil, err
 	}
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	resp, err := m.opts.HTTP.Do(req)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	defer resp.Body.Close()
-	body, _ := io.ReadAll(io.LimitReader(resp.Body, 1024))
-	reply := strings.TrimSpace(string(body))
-	if resp.StatusCode != http.StatusOK || !(strings.HasPrefix(reply, "good") || strings.HasPrefix(reply, "nochg")) {
-		return fmt.Errorf("HTTP %d: %q", resp.StatusCode, reply)
+	body, err := io.ReadAll(io.LimitReader(resp.Body, 1<<20))
+	if err != nil {
+		return nil, err
+	}
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("%s: HTTP %d: %q", endpoint, resp.StatusCode, body)
+	}
+	var status struct {
+		Status      string `json:"status"`
+		Description string `json:"statusDescription"`
+	}
+	if json.Unmarshal(body, &status) == nil && status.Status == "Failed" {
+		return nil, fmt.Errorf("%s: %s", endpoint, status.Description)
+	}
+	return body, nil
+}
+
+// addTXT adds value next to any TXT records already there.
+func (m *Manager) addTXT(ctx context.Context, value string) error {
+	body, err := m.cloudns(ctx, "add-record.json", url.Values{
+		"record-type": {"TXT"},
+		"host":        {m.txtHost()},
+		"record":      {value},
+		"ttl":         {fmt.Sprint(txtTTL)},
+	})
+	if err != nil {
+		return err
+	}
+	var status struct {
+		Status string `json:"status"`
+	}
+	if err := json.Unmarshal(body, &status); err != nil || status.Status != "Success" {
+		return fmt.Errorf("add-record.json: unexpected reply %q", body)
 	}
 	return nil
 }
 
-// waitTXT waits until every dns.he.net nameserver serves value for name.
+// deleteTXT removes the TXT records holding value.
+func (m *Manager) deleteTXT(ctx context.Context, value string) error {
+	body, err := m.cloudns(ctx, "records.json", url.Values{
+		"host": {m.txtHost()},
+		"type": {"TXT"},
+	})
+	if err != nil {
+		return err
+	}
+	// An object keyed by record ID, or [] when there are none
+	var records map[string]struct {
+		ID     json.Number `json:"id"`
+		Record string      `json:"record"`
+	}
+	if strings.TrimSpace(string(body)) != "[]" {
+		if err := json.Unmarshal(body, &records); err != nil {
+			return fmt.Errorf("records.json: %w", err)
+		}
+	}
+	for _, record := range records {
+		if record.Record != value {
+			continue
+		}
+		if _, err := m.cloudns(ctx, "delete-record.json", url.Values{"record-id": {record.ID.String()}}); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// waitTXT waits until every ClouDNS nameserver serves value for name.
 func waitTXT(ctx context.Context, name, value string) error {
 	deadline := time.Now().Add(propagation)
-	pending := slices.Clone(heNameservers)
+	pending := slices.Clone(cloudnsNameservers)
 	for {
 		pending = slices.DeleteFunc(pending, func(ns string) bool {
 			records, err := resolverFor(ns).LookupTXT(ctx, name)

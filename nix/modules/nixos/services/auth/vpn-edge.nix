@@ -90,20 +90,20 @@ in
       }).config
       {
         # Wildcard certificates need DNS-01. _acme-challenge.<domain> is a
-        # dynamic TXT record at dns.he.net; this secret holds its DDNS key as
-        # HURRICANE_TOKENS=<domain>:<key> (tofu output he_dynamic_keys).
+        # CNAME into its own ClouDNS zone (tofu output acme_zones); this secret
+        # holds the API sub-user that may write that zone as
+        # CLOUDNS_SUB_AUTH_ID=<id> and CLOUDNS_AUTH_PASSWORD=<password>.
         sops.secrets.foxden-vpn-edge-acme = config.lib.foxDen.sops.mkIfAvailable { };
         security.acme = config.lib.foxDen.sops.mkIfAvailable {
           acceptTerms = true;
           certs.${domain} = {
             email = "ssl@foxden.network";
             extraDomainNames = [ "*.${domain}" ];
-            dnsProvider = "hurricane";
+            dnsProvider = "cloudns";
             environmentFile = config.sops.secrets.foxden-vpn-edge-acme.path;
           };
         };
         foxDen.dns.records = [
-          # Terraform cannot create wildcards at HE; this one is made by hand.
           {
             fqdn = "*.${domain}";
             type = "CNAME";
@@ -114,7 +114,7 @@ in
             fqdn = "_acme-challenge.${domain}";
             type = "TXT";
             value = "acme";
-            ttl = 300; # dns.he.net's minimum
+            ttl = 300;
             dynDns = true;
             horizon = "external";
           }

@@ -18,9 +18,9 @@ terraform {
       source  = "fastly/fastly"
       version = "~> 10.1.0"
     }
-    dns-he-net = {
-      source  = "SuperBuker/dns-he-net"
-      version = "~> 0.1.1"
+    cloudns = {
+      source  = "ClouDNS/cloudns"
+      version = "~> 1.3"
     }
   }
 
@@ -54,23 +54,4 @@ variable "state_passphrase" {
   sensitive = true
 }
 
-variable "he_net_username" {
-  type = string
-}
-
-variable "he_net_password" {
-  type      = string
-  sensitive = true
-}
-
-variable "he_net_otp_secret" {
-  type      = string
-  sensitive = true
-}
-
-provider "dns-he-net" {
-  username   = var.he_net_username
-  password   = var.he_net_password
-  otp_secret = var.he_net_otp_secret
-  store_type = "dummy"
-}
+provider "cloudns" {}

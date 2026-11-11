@@ -44,6 +44,14 @@ let
           type = bool;
           default = false;
         };
+        # Only for dynDns TXT records (ACME DNS-01). At ClouDNS the record
+        # becomes a CNAME into the zone <acmeGroup>.acme.foxden.network, which
+        # one API sub-user can write. Records with the same group share that
+        # zone. Unset, every record gets a group of its own.
+        acmeGroup = lib.mkOption {
+          type = nullOr str;
+          default = null;
+        };
         horizon = lib.mkOption {
           type = enum [
             "internal"
@@ -60,6 +68,17 @@ let
       options = {
         registrar = lib.mkOption {
           type = str;
+        };
+        # Key into foxDen.dns.authorities, for the zone's NS records
+        authority = lib.mkOption {
+          type = str;
+          default = "default";
+        };
+        # Adds ns<N>.<zone> as ALIASes to the upstream nameservers, so the
+        # default authority's vanity names resolve
+        generateNSRecords = lib.mkOption {
+          type = bool;
+          default = false;
         };
         fastmail = lib.mkOption {
           type = bool;
@@ -78,7 +97,21 @@ let
       };
     };
 
+  authorityType =
+    with lib.types;
+    submodule {
+      options = {
+        nameservers = lib.mkOption {
+          type = uniq (listOf str);
+        };
+        admin = lib.mkOption {
+          type = str;
+        };
+      };
+    };
+
   emptyRecord = {
+    acmeGroup = null;
     algorithm = null;
     dynDns = false;
     fptype = null;
@@ -88,13 +121,35 @@ let
     weight = null;
   };
 
-  mkAuxRecords = fqdn: zone: map (record: emptyRecord // record) (mkAuxRecordsInt fqdn zone);
+  mkAuxRecords =
+    fqdn: zone: authorities:
+    map (record: emptyRecord // record) (mkAuxRecordsInt fqdn zone authorities);
 
   # These records are currently not validated or post-processed
   # so be careful changing anything here. In particular, none of the core fields have defaults.
   mkAuxRecordsInt =
-    fqdn: zone:
-    (
+    fqdn: zone: authorities:
+    (map (ns: {
+      inherit fqdn;
+      type = "NS";
+      ttl = 86400;
+      value = ns;
+      # The routers don't need to claim the delegation
+      horizon = "external";
+    }) authorities.${zone.authority}.nameservers)
+    ++ (
+      if zone.generateNSRecords then
+        lib.imap1 (idx: ns: {
+          fqdn = "ns${toString idx}.${fqdn}";
+          type = "ALIAS";
+          ttl = 86400;
+          value = ns;
+          horizon = "*";
+        }) authorities.upstream.nameservers
+      else
+        [ ]
+    )
+    ++ (
       if zone.email != null then
         [
           {
@@ -290,16 +345,29 @@ in
           type = attrsOf zoneType;
           default = { };
         };
+      options.foxDen.dns.authorities =
+        with lib.types;
+        lib.mkOption {
+          type = attrsOf authorityType;
+          default = { };
+        };
     };
 
   mkConfig = (
     nixosConfigurations:
     let
-      zones = globalConfig.getAttrSet [ "foxDen" "dns" "zones" ] nixosConfigurations;
+      authorities = globalConfig.getAttrSet [ "foxDen" "dns" "authorities" ] nixosConfigurations;
+      zones = lib.mapAttrs (
+        name: zone:
+        zone
+        // {
+          nameserverList = authorities.${zone.authority}.nameservers;
+        }
+      ) (globalConfig.getAttrSet [ "foxDen" "dns" "zones" ] nixosConfigurations);
       records =
         (globalConfig.getList [ "foxDen" "dns" "records" ] nixosConfigurations)
         ++ nixpkgs.lib.flatten (
-          map ({ name, value }: mkAuxRecords name value) (lib.attrsets.attrsToList zones)
+          map ({ name, value }: mkAuxRecords name value authorities) (lib.attrsets.attrsToList zones)
         );
       horizons = lib.filter (h: h != "*") (
         lib.lists.uniqueStrings (map (record: record.horizon) records)
@@ -320,7 +388,7 @@ in
       ) records;
     in
     {
-      inherit zones;
+      inherit authorities zones;
 
       records = (
         lib.attrsets.genAttrs horizons (

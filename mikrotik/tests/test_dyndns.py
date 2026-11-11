@@ -20,18 +20,25 @@ def make_router() -> MTikRouter:
     )
 
 
-HOSTS = {
-    ROUTER_HOST: {"key": "rkey"},
-    f"v4-{ROUTER_HOST}": {"key": "r4key"},
-    "router-backup.foxden.network": {"key": "otherkey"},
-    "zeta.foxden.network": {"key": "zkey"},
-    "alpha.foxden.network": {"key": "akey", "ipv6": "::a"},
+OUTPUTS = {
+    "cloudns_dynamic_keys": {
+        ROUTER_HOST: {"ipv4": "c4", "ipv6": "c6", "ipv6_suffix": "::99"},
+        f"v4-{ROUTER_HOST}": {"ipv4": "cv4", "ipv6": None, "ipv6_suffix": None},
+        "alpha.foxden.network": {"ipv4": "a4", "ipv6": "a6", "ipv6_suffix": "::a"},
+        "beta.foxden.network": {"ipv4": "b4", "ipv6": None, "ipv6_suffix": None},
+        "router-backup.foxden.network": {
+            "ipv4": "other4",
+            "ipv6": None,
+            "ipv6_suffix": None,
+        },
+        "zeta.foxden.network": {"ipv4": "z4", "ipv6": "z6", "ipv6_suffix": "::5"},
+    },
 }
 
 
 class TestDyndns(unittest.TestCase):
     def setUp(self) -> None:
-        patcher = patch.object(dyndns, "_dyndns_hosts_value", HOSTS)
+        patcher = patch.object(dyndns, "_tofu_outputs_value", OUTPUTS)
         patcher.start()
         self.addCleanup(patcher.stop)
 
@@ -39,8 +46,9 @@ class TestDyndns(unittest.TestCase):
         self.assertEqual(
             dyndns.write_all_hosts("  "),
             [
-                '  $dyndnsUpdate host="alpha.foxden.network" key="akey" priv6addr="::a" ip6addr=$ip6addr ipaddr=$ipaddr\n',
-                '  $dyndnsUpdate host="zeta.foxden.network" key="zkey" ipaddr=$ipaddr\n',
+                '  $dyndnsUpdate host="alpha.foxden.network" key4="a4" key6="a6" priv6addr="::a" ip6addr=$ip6addr ipaddr=$ipaddr\n',
+                '  $dyndnsUpdate host="beta.foxden.network" key4="b4" ipaddr=$ipaddr\n',
+                '  $dyndnsUpdate host="zeta.foxden.network" key4="z4" key6="z6" priv6addr="::5" ip6addr=$ip6addr ipaddr=$ipaddr\n',
             ],
         )
 
@@ -53,16 +61,17 @@ class TestDyndns(unittest.TestCase):
         self.assertEqual(script.schedule, "5m")
         self.assertNotIn("# HOSTS #", script.source)
         self.assertNotIn("# SPECIAL HOSTS #", script.source)
+        # The router's own suffix wins over the one from terraform
         self.assertIn(
-            f'$dyndnsUpdate host="{ROUTER_HOST}" key="rkey" priv6addr="::1" ip6addr=$ip6addr ipaddr=$ipaddr\n',
+            f'$dyndnsUpdate host="{ROUTER_HOST}" key4="c4" key6="c6" priv6addr="::1" ip6addr=$ip6addr ipaddr=$ipaddr\n',
             script.source,
         )
         self.assertIn(
-            f'$dyndnsUpdate host="v4-{ROUTER_HOST}" key="r4key" ipaddr=$ipaddr\n',
+            f'$dyndnsUpdate host="v4-{ROUTER_HOST}" key4="cv4" ipaddr=$ipaddr\n',
             script.source,
         )
         self.assertIn('host="zeta.foxden.network"', script.source)
-        self.assertNotIn("otherkey", script.source)
+        self.assertNotIn("other4", script.source)
 
     def make_with_template(self, template: str) -> MTikRouter:
         router = make_router()
@@ -79,10 +88,11 @@ class TestDyndns(unittest.TestCase):
         lines = next(iter(router.scripts)).source.splitlines()
         self.assertEqual(lines[0], "a")
         self.assertTrue(lines[1].startswith('    $dyndnsUpdate host="alpha'))
-        self.assertTrue(lines[2].startswith('    $dyndnsUpdate host="zeta'))
-        self.assertTrue(lines[3].startswith(f'\t$dyndnsUpdate host="{ROUTER_HOST}"'))
-        self.assertTrue(lines[4].startswith(f'\t$dyndnsUpdate host="v4-{ROUTER_HOST}"'))
-        self.assertEqual(lines[5], "b")
+        self.assertTrue(lines[2].startswith('    $dyndnsUpdate host="beta'))
+        self.assertTrue(lines[3].startswith('    $dyndnsUpdate host="zeta'))
+        self.assertTrue(lines[4].startswith(f'\t$dyndnsUpdate host="{ROUTER_HOST}"'))
+        self.assertTrue(lines[5].startswith(f'\t$dyndnsUpdate host="v4-{ROUTER_HOST}"'))
+        self.assertEqual(lines[6], "b")
 
     def test_template_errors(self) -> None:
         with self.assertRaises(RuntimeError):

@@ -47,7 +47,7 @@ in
       fqdn = "_acme-challenge.${fqdn}";
       type = "TXT";
       value = "acme";
-      ttl = 300; # dns.he.net's minimum
+      ttl = 300;
       dynDns = true;
       horizon = "external";
     }
