@@ -80,7 +80,6 @@ in
         target = ''
           proxy_pass http://127.0.0.1:${toString port};
           proxy_read_timeout 120s;
-          client_max_body_size 1m;
         '';
       }).config
       {
