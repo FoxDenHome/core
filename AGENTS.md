@@ -10,6 +10,7 @@ Monorepo controlling the FoxDen homelab. Four independent subprojects, all drive
 - `mikrotik/` — Python (uv) tool that pushes the generated config to the RouterOS routers (`router`, `router-backup`, `redfox`) over the RouterOS API.
 - `terraform/` — Public DNS (OVH, dns.he.net), DKIM, reverse DNS and the Fastly CDN. The `*.sh` scripts are `external` data sources that `nix build` the flake JSON outputs.
 - `vpn/` — Go WireGuard client daemon/tray (`foxden-vpnd`), self-service portal and expose edge. See `vpn/README.md` for the design. Packaged into nix as `nix/packages/foxden-vpn`.
+- `packetfox/` — PacketFox (`pfox`, https://pfox.foxden.network): captures on the routers (mangle `sniff-tzsp`), UniFi APs and NixOS hosts (`pfox-agent`) at once and follows packets across them, in a Wireshark-like UI backed by `sharkd`. See `packetfox/README.md`. Packaged into nix as `nix/packages/packetfox`.
 
 ## Commands
 
@@ -36,6 +37,9 @@ terraform/tf.sh plan                                           # tofu wrapper: s
 make            # go build ./cmd/... into bin/
 make test       # go vet + go test
 go test ./internal/<pkg> -run <TestName>
+
+# PacketFox (run from packetfox/)
+make test       # go vet + go test; SHARKD=<path> adds the sharkd end-to-end test
 
 ./update-all.sh   # flake update + factorio mod list + mikrotik configure
 ```
@@ -67,4 +71,5 @@ Typical service pattern (see `systems/x86_64-linux/islandfox/rmfakecloud.nix` + 
 - ZFS datasets must use `mountpoint=legacy`.
 - Never use `/var/run`; always use `/run`.
 - `mikrotik/` manages nearly all RouterOS config. `configure/basics.py` handles interfaces, VLANs, VRRP, addresses, DHCP servers, routing and system settings, using the addressing plan in `nix/modules/lib/routers.nix` (flake output `routers.json`). Users, passwords, certificates and WireGuard keys/peers are set by hand. Basics prunes rows it doesn't know in the tables it owns, so add new router config there rather than by hand.
+- PacketFox creates and removes RouterOS rows commented `pfox` (mangle, filter, address list `pfox`) while capturing; `configure/firewall.py` skips them. Don't use that comment for anything else.
 - The `vpn/` Go vendor hash lives in `vpn/vendor-hash.txt`. Renovate regenerates it on Go dep bumps; after changing deps by hand, run `../maid/tools/auto-nix-hash vpn/vendor-hash.txt './nix#nixosConfigurations.islandfox.pkgs.foxden-vpn.goModules'` from the repo root (FoxDen/maid checked out alongside core).

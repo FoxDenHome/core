@@ -4,6 +4,7 @@ on:
       - '.forgejo/workflows/deploy.yml'
       - 'nix/**'
       - 'vpn/**'
+      - 'packetfox/**'
     branches:
       - main
 

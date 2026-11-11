@@ -16,6 +16,8 @@ from configure.util import (
 )
 
 IGNORE_CHANGES = {"id", "invalid", "packets", "bytes", "dynamic"}
+# Rows packetfox (pfox) manages itself, see packetfox/internal/sources/routeros.go
+PACKETFOX_COMMENT = "pfox"
 
 DEFAULT_RULES_HEAD: list[MTikFirewallRule] = [
     # LAN VLANs run at MTU 9000, so hosts advertise MSS 8960. Some remote
@@ -547,6 +549,10 @@ def refresh_firewall_router(
     for key, rules in table_rules.items():
         api_rule = api.get_resource(key)
         deployed = api_rule.get(dynamic=format_mtik_bool(False))
+        # PacketFox adds and removes its own rules while capturing
+        deployed = [
+            rule for rule in deployed if rule.get("comment", "") != PACKETFOX_COMMENT
+        ]
         _sync_firewall_table(api_rule, deployed, rules)
 
 

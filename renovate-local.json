@@ -25,6 +25,16 @@
         ],
         "executionMode": "branch"
       }
+    },
+    {
+      "matchManagers": ["gomod"],
+      "matchFileNames": ["packetfox/**"],
+      "postUpgradeTasks": {
+        "commands": [
+          "/repo/tools/auto-nix-hash packetfox/vendor-hash.txt ./nix#nixosConfigurations.islandfox.pkgs.packetfox.goModules"
+        ],
+        "executionMode": "branch"
+      }
     }
   ]
 }

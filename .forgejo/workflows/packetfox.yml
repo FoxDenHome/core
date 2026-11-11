@@ -1,0 +1,36 @@
+name: PacketFox
+
+concurrency:
+  group: packetfox-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  pull_request:
+    paths:
+      - '.forgejo/workflows/packetfox.yml'
+      - 'packetfox/**'
+  push:
+    paths:
+      - '.forgejo/workflows/packetfox.yml'
+      - 'packetfox/**'
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-26.04
+    env:
+      NIX_CONFIG: access-tokens = github.com=${{ secrets.EXT_GITHUB_TOKEN }}
+    steps:
+      - uses: https://data.forgejo.org/actions/checkout@v7
+      - uses: https://data.forgejo.org/actions/setup-go@v7
+        with:
+          go-version-file: packetfox/go.mod
+          check-latest: true
+          cache: false
+      - name: Test
+        working-directory: packetfox
+        run: |
+          # The session test drives the same sharkd the host runs
+          export SHARKD="$(nix build --no-link --print-out-paths --inputs-from ../nix 'nixpkgs#wireshark-cli')/bin/sharkd"
+          make test

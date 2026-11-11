@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PacketFox</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="style.css">
+<script src="app.js" defer></script>
+</head>
+<body>
+<header class="bar">
+  <span class="brand">PacketFox</span>
+  <select id="session-select" title="Session"></select>
+  <button id="btn-new" class="primary">New capture…</button>
+  <button id="btn-stop" class="danger" hidden>Stop</button>
+  <span id="capture-status" class="status"></span>
+  <span class="spacer"></span>
+  <a id="btn-download" class="button" href="#" download hidden>Download pcapng</a>
+  <button id="btn-delete" hidden>Delete</button>
+  <span id="whoami" class="muted"></span>
+</header>
+
+<div class="bar filterbar">
+  <input id="dfilter" type="text" spellcheck="false" autocomplete="off" placeholder="Apply a display filter … (Wireshark syntax, e.g. tcp.port == 443 &amp;&amp; ip.addr == 10.2.0.0/16)">
+  <button id="btn-apply">Apply</button>
+  <button id="btn-clear">Clear</button>
+  <label class="check"><input id="follow" type="checkbox" checked> Follow live</label>
+  <label class="check"><input id="insights-toggle" type="checkbox" checked> Insights</label>
+</div>
+
+<main id="main">
+  <section id="left">
+    <div id="list" class="pane">
+      <table id="list-head">
+        <colgroup id="cols-head"></colgroup>
+        <thead><tr>
+          <th>No.</th><th>Time</th><th>Seen at</th><th>Source</th><th>Destination</th><th>Protocol</th><th>Length</th><th>Path</th><th>Info</th>
+        </tr></thead>
+      </table>
+      <div id="list-scroll">
+        <div id="list-spacer"></div>
+        <table id="list-body"><colgroup id="cols-body"></colgroup><tbody id="rows"></tbody></table>
+      </div>
+      <div id="list-empty" class="empty"></div>
+    </div>
+    <div class="splitter" data-target="list"></div>
+    <div id="path" class="pane"><div class="empty">Select a packet to follow it through the network.</div></div>
+    <div class="splitter" data-target="path"></div>
+    <div id="detail-wrap">
+      <div id="tree" class="pane"></div>
+      <div id="hex" class="pane"></div>
+    </div>
+  </section>
+  <aside id="insights" class="pane"></aside>
+</main>
+
+<footer class="bar statusbar">
+  <span id="sb-frames"></span>
+  <span id="sb-sources" class="sources"></span>
+  <span class="spacer"></span>
+  <span id="sb-msg" class="muted"></span>
+</footer>
+
+<dialog id="capture-dialog">
+  <form id="capture-form" method="dialog">
+    <h2>New capture</h2>
+    <div class="grid">
+      <label>Name <input name="name" type="text" placeholder="optional"></label>
+
+      <fieldset>
+        <legend>Filter</legend>
+        <div class="target-picker">
+          <input id="target-input" type="text" list="endpoint-list" placeholder="Host (fennec, bengalfox, …), IP or CIDR" autocomplete="off">
+          <datalist id="endpoint-list"></datalist>
+          <button type="button" id="btn-add-target">Add</button>
+        </div>
+        <div id="targets" class="chips"></div>
+        <div class="row">
+          <label>Ports <input name="ports" type="text" placeholder="e.g. 53, 443"></label>
+          <label>Protocol
+            <select name="protocol">
+              <option value="">any</option><option>tcp</option><option>udp</option><option>icmp</option>
+            </select>
+          </label>
+        </div>
+        <label>Extra BPF <span class="muted">(hosts and APs only)</span>
+          <input name="bpf" type="text" spellcheck="false" placeholder="e.g. not port 22"></label>
+      </fieldset>
+
+      <fieldset>
+        <legend>Capture points <button type="button" id="btn-suggest" class="small">Suggest for targets</button></legend>
+        <div id="devices"></div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Limits</legend>
+        <div class="row">
+          <label>Duration <input name="duration" type="text" value="5m"></label>
+          <label>Max packets <input name="max_packets" type="number" min="1"></label>
+          <label>Snaplen <input name="snaplen" type="number" min="64" value="262144"></label>
+        </div>
+      </fieldset>
+    </div>
+    <p id="capture-error" class="error"></p>
+    <div class="actions">
+      <button value="cancel" formnovalidate>Cancel</button>
+      <button id="btn-start" value="start" class="primary">Start capture</button>
+    </div>
+  </form>
+</dialog>
+</body>
+</html>
