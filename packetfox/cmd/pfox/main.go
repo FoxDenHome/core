@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"syscall"
 	"time"
 
@@ -31,13 +32,14 @@ func main() {
 		log.Fatal(err)
 	}
 
-	agentAuth := sources.SSHAuth{User: "pfox"}
+	knownHosts := &sources.KnownHosts{Path: filepath.Join(cfg.DataDir, "known_hosts")}
+	agentAuth := sources.SSHAuth{User: "pfox", KnownHosts: knownHosts}
 	if cfg.SSHKeyFile != "" {
 		if agentAuth.Signer, err = sources.LoadSigner(cfg.SSHKeyFile); err != nil {
 			log.Printf("SSH key: %v (host captures will fail)", err)
 		}
 	}
-	apAuth := sources.SSHAuth{User: cfg.UniFiSSHUser, Password: cfg.UniFiSSHPassword}
+	apAuth := sources.SSHAuth{User: cfg.UniFiSSHUser, Password: cfg.UniFiSSHPassword, KnownHosts: knownHosts}
 
 	inv := session.NewInventory(cfg, agentAuth, apAuth)
 	mgr := session.NewManager(cfg, inv)

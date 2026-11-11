@@ -37,7 +37,7 @@ It answers questions like:
 
   Each interface is tagged with its kind (physical, `sriov-vf`, `sriov-pf`, macvlan, macvtap, veth, …). On SR-IOV hosts, VF traffic is switched inside the NIC and never reaches the PF, so capture the VF in the service's netns. The UI warns when you pick a PF, and "Suggest for targets" picks a service's own netns. Only tcpdump gets `CAP_NET_RAW` and `CAP_NET_ADMIN`; `CAP_SYS_ADMIN` (`setns`) and `CAP_SYS_PTRACE` (opening other processes' namespaces) stay with `pfox-agent`. Every argument is validated, and the BPF expression can't contain quotes or start with a dash.
 - **UniFi APs** (hosts named `ap-*`). tcpdump runs over SSH with the controller's device credentials. The bridge (`br0`) sees all wireless clients.
-- **Host keys** are checked against the SSHFP records in `nix/systems/x86_64-linux/landevices/sshfp/records`. There is no trust on first use.
+- **Host keys** matching an SSHFP record in `nix/systems/x86_64-linux/landevices/sshfp/records` are accepted. Any other key is pinned on first use in `/var/lib/packetfox/known_hosts` (UniFi regenerates its keys on firmware updates, and the routers can't serve SSHFP anyway). A pinned key that changes is rejected; delete its line from that file to re-pin.
 - **Switches** are not captured. They forward in hardware, so tcpdump on a switch only sees its CPU's traffic. Port mirroring to a capture NIC could be added later.
 
 Every capture point becomes one interface of a single pcapng file (`router|prerouting`, `bengalfox|host-immich|eth0`, …). The file opens as-is in Wireshark ("Download pcapng"). The UI's packet list, detail tree, hex view, display filters and colouring come from Wireshark's own `sharkd` working on that file.

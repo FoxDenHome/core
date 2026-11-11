@@ -10,6 +10,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log"
 	"net"
 	"os"
 	"sort"
@@ -20,6 +21,7 @@ import (
 
 	"github.com/gopacket/gopacket/pcapgo"
 	"golang.org/x/crypto/ssh"
+	"golang.org/x/crypto/ssh/knownhosts"
 
 	"github.com/FoxDenHome/core/packetfox/internal/config"
 	"github.com/FoxDenHome/core/packetfox/internal/filter"
@@ -33,22 +35,62 @@ var sshfpAlgos = map[string]string{
 	"4": ssh.KeyAlgoED25519,
 }
 
-// sshfpCallback accepts only host keys with a SHA-256 SSHFP record in the
-// repo; there is no trust on first use.
-func sshfpCallback(records []string) ssh.HostKeyCallback {
-	return func(hostname string, _ net.Addr, key ssh.PublicKey) error {
-		sum := sha256.Sum256(key.Marshal())
-		fp := hex.EncodeToString(sum[:])
-		for _, r := range records {
-			f := strings.Fields(r)
-			if len(f) != 3 || f[1] != "2" {
-				continue
-			}
-			if sshfpAlgos[f[0]] == key.Type() && strings.EqualFold(f[2], fp) {
-				return nil
-			}
+// sshfpMatch reports whether key has a SHA-256 SSHFP record in the repo.
+func sshfpMatch(records []string, key ssh.PublicKey) bool {
+	sum := sha256.Sum256(key.Marshal())
+	fp := hex.EncodeToString(sum[:])
+	for _, r := range records {
+		f := strings.Fields(r)
+		if len(f) == 3 && f[1] == "2" && sshfpAlgos[f[0]] == key.Type() && strings.EqualFold(f[2], fp) {
+			return true
 		}
-		return fmt.Errorf("%s: host key %s SHA256:%s matches no SSHFP record", hostname, key.Type(), fp)
+	}
+	return false
+}
+
+// KnownHosts pins host keys on first use, like OpenSSH's
+// StrictHostKeyChecking=accept-new. SSHFP records can't be served over the
+// network (RouterOS doesn't do SSHFP, and there's no DNSSEC to trust anyway),
+// and UniFi regenerates its keys on firmware updates, so the repo's records
+// are only a shortcut: a key matching one is accepted without pinning.
+type KnownHosts struct {
+	Path string
+	mu   sync.Mutex
+}
+
+func (k *KnownHosts) callback(records []string) ssh.HostKeyCallback {
+	return func(hostname string, remote net.Addr, key ssh.PublicKey) error {
+		if sshfpMatch(records, key) {
+			return nil
+		}
+		if k == nil {
+			return fmt.Errorf("%s: host key %s %s matches no SSHFP record", hostname, key.Type(), ssh.FingerprintSHA256(key))
+		}
+		k.mu.Lock()
+		defer k.mu.Unlock()
+		f, err := os.OpenFile(k.Path, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0o600)
+		if err != nil {
+			return err
+		}
+		defer f.Close()
+		cb, err := knownhosts.New(k.Path)
+		if err != nil {
+			return err
+		}
+		err = cb(hostname, remote, key)
+		var ke *knownhosts.KeyError
+		if err == nil || !errors.As(err, &ke) {
+			return err
+		}
+		if len(ke.Want) > 0 {
+			return fmt.Errorf("%s: host key changed to %s %s; if expected, remove its line from %s (line %d)",
+				hostname, key.Type(), ssh.FingerprintSHA256(key), k.Path, ke.Want[0].Line)
+		}
+		if _, err := f.WriteString(knownhosts.Line([]string{knownhosts.Normalize(hostname)}, key) + "\n"); err != nil {
+			return err
+		}
+		log.Printf("%s: pinned new host key %s %s", hostname, key.Type(), ssh.FingerprintSHA256(key))
+		return nil
 	}
 }
 
@@ -57,6 +99,8 @@ type SSHAuth struct {
 	User     string
 	Signer   ssh.Signer
 	Password string
+	// Where host keys without an SSHFP record are pinned.
+	KnownHosts *KnownHosts
 }
 
 func LoadSigner(path string) (ssh.Signer, error) {
@@ -85,7 +129,7 @@ func dialSSH(ctx context.Context, dev config.SSHDevice, auth SSHAuth) (*ssh.Clie
 	cfg := &ssh.ClientConfig{
 		User:            user,
 		Auth:            methods,
-		HostKeyCallback: sshfpCallback(dev.SSHFP),
+		HostKeyCallback: auth.KnownHosts.callback(dev.SSHFP),
 		Timeout:         10 * time.Second,
 	}
 	addr := dev.Address
