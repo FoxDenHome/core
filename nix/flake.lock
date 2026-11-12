@@ -501,11 +501,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1794464330,
-        "narHash": "sha256-vfab1FEroiNfPAylmPuQ4M/p9RcdjsoVqVLs2q2tmXI=",
+        "lastModified": 1794511589,
+        "narHash": "sha256-k1duER1lyrHtKDNm6N3m100vk4uYPjsqrm7QBa8x7fI=",
         "ref": "refs/heads/main",
-        "rev": "3b89b6bfd509331d8db427485f358ab63d5e6fbf",
-        "revCount": 6,
+        "rev": "0518d5bc51c7559652a4a9bad4e44f1f3b9522bc",
+        "revCount": 7,
         "type": "git",
         "url": "https://git.foxden.network/FoxDen/SheetFox"
       },
