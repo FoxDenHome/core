@@ -51,6 +51,12 @@ let
             ./services/monitoring/prometheus/smartctl-exporter-describe.patch
           ];
         });
+        # cargo-setup-hook now forces system libs for every Rust build (AWS_LC_SYS_USE_SYSTEM,
+        # a sentinel JEMALLOC_OVERRIDE, ...), which breaks tuwunel's aws-lc-sys and its
+        # jevmalloc fork. Build them vendored, as before.
+        matrix-tuwunel = prev.matrix-tuwunel.overrideAttrs {
+          dontCargoUseSystemLibs = true;
+        };
         pythonPackagesExtensions = prev.pythonPackagesExtensions ++ [
           (pyFinal: pyPrev: {
             # Only the TypeError wording differs ("Expected str, got int" vs "must be str")
