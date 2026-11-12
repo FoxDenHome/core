@@ -17,20 +17,12 @@
       "enabled": false
     },
     {
+      "description": "One rule for both: executionMode branch only runs the tasks of the first upgrade in a branch, so a grouped vpn+packetfox bump must regenerate both hashes",
       "matchManagers": ["gomod"],
-      "matchFileNames": ["vpn/**"],
+      "matchFileNames": ["vpn/**", "packetfox/**"],
       "postUpgradeTasks": {
         "commands": [
-          "/repo/tools/auto-nix-hash vpn/vendor-hash.txt ./nix#nixosConfigurations.islandfox.pkgs.foxden-vpn.goModules"
-        ],
-        "executionMode": "branch"
-      }
-    },
-    {
-      "matchManagers": ["gomod"],
-      "matchFileNames": ["packetfox/**"],
-      "postUpgradeTasks": {
-        "commands": [
+          "/repo/tools/auto-nix-hash vpn/vendor-hash.txt ./nix#nixosConfigurations.islandfox.pkgs.foxden-vpn.goModules",
           "/repo/tools/auto-nix-hash packetfox/vendor-hash.txt ./nix#nixosConfigurations.islandfox.pkgs.packetfox.goModules"
         ],
         "executionMode": "branch"
