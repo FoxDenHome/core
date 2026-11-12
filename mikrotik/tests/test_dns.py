@@ -62,7 +62,15 @@ class TestDnsHelpers(unittest.TestCase):
     def test_mtik_process_simple_types(self) -> None:
         self.assertEqual(
             dns.mtik_process(raw("host", "A", "10.2.0.1")),
-            [{"type": "A", "address": "10.2.0.1", "ttl": "1h", "name": f"host.{ZONE}"}],
+            [
+                {
+                    "type": "A",
+                    "address": "10.2.0.1",
+                    "ttl": "1h",
+                    "name": f"host.{ZONE}",
+                    "match-subdomain": "false",
+                }
+            ],
         )
         self.assertEqual(
             dns.mtik_process(raw("@", "mx", "mail.example.com.", priority=10)),
@@ -73,6 +81,7 @@ class TestDnsHelpers(unittest.TestCase):
                     "mx-exchange": "mail.example.com",
                     "ttl": "1h",
                     "name": ZONE,
+                    "match-subdomain": "false",
                 }
             ],
         )
@@ -96,6 +105,7 @@ class TestDnsHelpers(unittest.TestCase):
                     "srv-target": "sip.example.com",
                     "ttl": "1h",
                     "name": f"_sip._tcp.{ZONE}",
+                    "match-subdomain": "false",
                 }
             ],
         )
@@ -115,12 +125,14 @@ class TestDnsHelpers(unittest.TestCase):
                     "address": "10.2.0.1",
                     "ttl": "1m",
                     "name": f"alias.{ZONE}",
+                    "match-subdomain": "false",
                 },
                 {
                     "type": "AAAA",
                     "address": "fd2c::1",
                     "ttl": "1m",
                     "name": f"alias.{ZONE}",
+                    "match-subdomain": "false",
                 },
             ],
         )
@@ -135,6 +147,7 @@ class TestDnsHelpers(unittest.TestCase):
                     "cname": "external.example.com",
                     "ttl": "1h",
                     "name": f"alias.{ZONE}",
+                    "match-subdomain": "false",
                 }
             ],
         )
@@ -151,7 +164,6 @@ class TestRefreshDns(unittest.TestCase):
         records: list[dict[str, Any]],
         router: FakeRouter,
         other: dict[str, list[dict[str, Any]]] | None = None,
-        subdomain_hosts: list[str] | None = None,
     ) -> None:
         path = path_join(self.tmp.name, "dns.json")
         with open(path, "w") as f:
@@ -159,11 +171,10 @@ class TestRefreshDns(unittest.TestCase):
         with (
             patch.object(dns, "check_output", return_value=path.encode()),
             patch.object(dns, "ROUTERS", [router]),
-            patch.object(dns, "INTERNAL_SUBDOMAIN_HOSTS", subdomain_hosts or []),
         ):
             quiet(dns.refresh_dns)
 
-    def test_subdomain_hosts(self) -> None:
+    def test_wildcard_records(self) -> None:
         other_zone = "example.es"
 
         def rec(name: str, rectype: str, value: str) -> dict[str, Any]:
@@ -171,35 +182,55 @@ class TestRefreshDns(unittest.TestCase):
 
         router = FakeRouter()
         self.run_dns(
-            [],
+            [
+                raw("*.ext", "CNAME", "elsewhere.example.com."),
+                raw("*.txt", "TXT", "hello"),
+            ],
             router,
             other={
                 other_zone: [
                     rec("tunnel", "A", "10.2.11.43"),
                     rec("tunnel", "AAAA", "fd2c:f4cb:63be:2::b2b"),
+                    rec("*.tunnel", "CNAME", f"tunnel.{other_zone}."),
                     {**rec("@", "MX", "mail.example.com."), "priority": 10},
                 ]
             },
-            subdomain_hosts=[f"tunnel.{other_zone}"],
         )
-        added = [
-            r
-            for r in router.resources[STATIC].rows
-            if r["name"] == f"tunnel.{other_zone}"
-        ]
+        rows = router.resources[STATIC].rows
+
+        def named(name: str) -> list[dict[str, Any]]:
+            return [r for r in rows if r["name"] == name]
+
+        # The wildcard CNAME flattens onto tunnel's own addresses, which then
+        # also answer for every name below it.
         self.assertEqual(
-            sorted((r["type"], r["address"], r["match-subdomain"]) for r in added),
+            sorted(
+                (r["type"], r["address"], r["match-subdomain"])
+                for r in named(f"tunnel.{other_zone}")
+            ),
             [
                 ("A", "10.2.11.43", "true"),
                 ("AAAA", "fd2c:f4cb:63be:2::b2b", "true"),
             ],
         )
-        names = {r["name"] for r in router.resources[STATIC].rows}
+        # Targets without internal addresses stay a CNAME.
+        self.assertEqual(
+            [
+                (r["type"], r["cname"], r["match-subdomain"])
+                for r in named(f"ext.{ZONE}")
+            ],
+            [("CNAME", "elsewhere.example.com", "true")],
+        )
+        self.assertEqual(
+            [
+                (r["type"], r["text"], r["match-subdomain"])
+                for r in named(f"txt.{ZONE}")
+            ],
+            [("TXT", "hello", "true")],
+        )
+        self.assertFalse(any(r["name"].startswith("*") for r in rows))
         # Every non-excluded zone is served, not just foxden.network.
-        self.assertIn(other_zone, names)
-
-        with self.assertRaises(RuntimeError):
-            self.run_dns([], FakeRouter(), subdomain_hosts=["missing.example.es"])
+        self.assertIn(other_zone, {r["name"] for r in rows})
 
     def test_excluded_zones(self) -> None:
         router = FakeRouter()
@@ -272,6 +303,33 @@ class TestRefreshDns(unittest.TestCase):
         self.assertEqual(
             forwarders.rows[0]["dns-servers"], "54.187.61.200,169.55.51.86"
         )
+
+    def test_match_subdomain_turned_off(self) -> None:
+        a_record = {"type": "A", "name": f"host.{ZONE}", "address": "10.2.0.1"}
+        router = FakeRouter(
+            {
+                STATIC: FakeResource(
+                    [
+                        # No longer a wildcard
+                        {**a_record, "ttl": "1h", "match-subdomain": "true"},
+                        # API left the field out: RouterOS default, no update
+                        {
+                            "type": "A",
+                            "name": f"other.{ZONE}",
+                            "address": "10.2.0.2",
+                            "ttl": "1h",
+                        },
+                    ]
+                ),
+            }
+        )
+        self.run_dns(
+            [raw("host", "A", "10.2.0.1"), raw("other", "A", "10.2.0.2")], router
+        )
+        static = router.resources[STATIC]
+        self.assertIn(("set", "*1"), static.ops)
+        self.assertEqual(static.rows[0]["match-subdomain"], "false")
+        self.assertNotIn(("set", "*2"), static.ops)
 
 
 if __name__ == "__main__":

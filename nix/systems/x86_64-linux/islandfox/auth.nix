@@ -98,7 +98,10 @@ in
     # on a forwarded port range.
     tunnel = mkVlanHost 2 {
       dns = {
-        fqdns = [ "tunnel.f0x.es" ];
+        fqdns = [
+          "tunnel.f0x.es"
+          "*.tunnel.f0x.es"
+        ];
         dynDns = true;
       };
       webservice.enable = true;

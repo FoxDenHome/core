@@ -142,9 +142,10 @@ in
             };
           };
 
+          # foxIngress spells a wildcard *.<name> as _.<name>
           hosts = lib.attrsets.listToAttrs (
-            map (name: {
-              inherit name;
+            map (fqdn: {
+              name = if lib.hasPrefix "*." fqdn then "_.${lib.removePrefix "*." fqdn}" else fqdn;
               value = {
                 inherit (iface) gateway;
                 inherit template;

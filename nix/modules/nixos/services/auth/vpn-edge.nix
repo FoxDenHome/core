@@ -10,7 +10,8 @@ let
 
   svcConfig = config.foxDen.services.vpn-edge;
 
-  # Tunnels get names directly below the host's first FQDN.
+  # Tunnels get names directly below the host's first FQDN; the host also
+  # needs *.<that FQDN> in its fqdns for DNS and foxIngress.
   domain = services.getFirstFQDN config svcConfig;
   host = foxDenLib.hosts.getByName config svcConfig.host;
   ifaceName = lib.head (lib.attrNames host.interfaces);
@@ -105,12 +106,6 @@ in
         };
         foxDen.dns.records = [
           {
-            fqdn = "*.${domain}";
-            type = "CNAME";
-            value = "${domain}.";
-            horizon = "external";
-          }
-          {
             fqdn = "_acme-challenge.${domain}";
             type = "TXT";
             value = "acme";
@@ -122,13 +117,6 @@ in
 
         # Ports 80/443 direct and 81/444 with PROXY v2, like nginx elsewhere.
         foxDen.hosts.hosts.${svcConfig.host}.webservice.enable = true;
-
-        # The host's FQDN gets a foxIngress template from webservice.enable;
-        # every name below it goes there too.
-        foxDen.foxIngress.hosts."_.${domain}" = {
-          inherit (host.interfaces.${ifaceName}) gateway;
-          template = "${config.networking.hostName}-${svcConfig.host}-${ifaceName}";
-        };
 
         systemd.services.foxden-vpn-edge = {
           confinement.packages = [

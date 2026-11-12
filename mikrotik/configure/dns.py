@@ -61,12 +61,11 @@ EXCLUDED_ZONES = {
     "candy-girl.net",
 }
 
-# Hosts whose internal addresses also answer for every name below them, so LAN
-# clients do not get the prefix-translated public IPv6 address.
-# tunnel.f0x.es is foxden-vpn-edge (*.tunnel.f0x.es).
-INTERNAL_SUBDOMAIN_HOSTS = [
-    "tunnel.f0x.es",
-]
+WILDCARD_PREFIX = "*."
+
+# What RouterOS assumes for static DNS fields a row (or the API) leaves out.
+# Records set these explicitly so a router row that differs gets updated.
+STATIC_DNS_DEFAULTS = {"match-subdomain": "false"}
 
 
 def mtik_key(record: dict[str, Any]) -> str:
@@ -91,6 +90,17 @@ def find_record(name: str, rectype: str) -> dict | None:
 
 def mtik_process(record_raw: dict[str, Any]) -> list[dict[str, Any]]:
     rec_type = record_raw["type"].upper()
+    name = resolve_record_name(record_raw)
+    # RouterOS has no wildcard names: *.<name> becomes <name> with
+    # match-subdomain, which answers for <name> itself and everything below.
+    wildcard = name.startswith(WILDCARD_PREFIX)
+    if wildcard:
+        name = name.removeprefix(WILDCARD_PREFIX)
+        # A CNAME on <name> would shadow <name>'s own records, so point straight
+        # at the target's addresses where we know them.
+        if rec_type == "CNAME":
+            rec_type = "ALIAS"
+
     records = MTIK_RECORD_TYPE_HANDLERS[rec_type](record_raw)
 
     if not isinstance(records, list):
@@ -101,7 +111,8 @@ def mtik_process(record_raw: dict[str, Any]) -> list[dict[str, Any]]:
             record["type"] = rec_type
         if "ttl" not in record:
             record["ttl"] = format_mtik_duration(record_raw["ttl"])
-        record["name"] = resolve_record_name(record_raw)
+        record["name"] = name
+        record["match-subdomain"] = "true" if wildcard else "false"
 
     return records
 
@@ -192,11 +203,10 @@ def refresh_dns():
             dict[str, list[Any]], json_load(file)["records"]["internal"]
         )
 
-    mikrotik_records = []
+    # Keyed by mtik_key: a wildcard flattened onto <name>'s own addresses
+    # merges into <name>'s record and turns on match-subdomain there.
+    mikrotik_records_map: dict[str, dict[str, Any]] = {}
     mikrotik_forwarders = []
-
-    subdomain_hosts = set(INTERNAL_SUBDOMAIN_HOSTS)
-    found_subdomain_hosts = set()
 
     for zone, zone_records in INTERNAL_RECORDS.items():
         if zone in EXCLUDED_ZONES:
@@ -208,21 +218,14 @@ def refresh_dns():
                 continue
 
             for record in mtik_process(record_raw):
-                if record["name"] in subdomain_hosts and record["type"] in (
-                    "A",
-                    "AAAA",
-                ):
-                    record["match-subdomain"] = "true"
-                    found_subdomain_hosts.add(record["name"])
-                mikrotik_records.append(record)
+                key = mtik_key(record)
+                existing = mikrotik_records_map.get(key)
+                if existing is None:
+                    mikrotik_records_map[key] = record
+                elif record["match-subdomain"] == "true":
+                    existing["match-subdomain"] = "true"
 
-    missing_subdomain_hosts = subdomain_hosts - found_subdomain_hosts
-    if missing_subdomain_hosts:
-        raise RuntimeError(
-            f"No internal A or AAAA record for {sorted(missing_subdomain_hosts)}"
-        )
-
-    mikrotik_records += FIXED_RECORDS
+    mikrotik_records = list(mikrotik_records_map.values()) + FIXED_RECORDS
     mikrotik_forwarders += FIXED_FORWARDERS
 
     for router in ROUTERS:
@@ -285,7 +288,9 @@ def refresh_dns():
             if key in existing_static_dns_map:
                 existing_entry = existing_static_dns_map[key]
                 for attr, val in record.items():
-                    existing_val = existing_entry.get(attr)
+                    existing_val = existing_entry.get(
+                        attr, STATIC_DNS_DEFAULTS.get(attr)
+                    )
                     if existing_val != val:
                         print(
                             f"Updating DNS entry {record} due to changed attribute {attr}: {existing_val} -> {val}"

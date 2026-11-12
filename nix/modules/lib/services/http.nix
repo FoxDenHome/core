@@ -18,9 +18,12 @@ let
       baseUrlPrefix = if svcConfig.tls.enable then "https://" else "http://";
       baseUrls = nixpkgs.lib.lists.uniqueStrings (
         nixpkgs.lib.flatten (
-          map (iface: (map (dns: "${baseUrlPrefix}${dns}") iface.dns.fqdns)) (
-            nixpkgs.lib.attrsets.attrValues host.interfaces
-          )
+          map (
+            iface:
+            map (dns: "${baseUrlPrefix}${dns}") (
+              nixpkgs.lib.filter (dns: !nixpkgs.lib.hasPrefix "*." dns) iface.dns.fqdns
+            )
+          ) (nixpkgs.lib.attrsets.attrValues host.interfaces)
         )
       );
 
