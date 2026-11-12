@@ -908,7 +908,11 @@ def make_internal_basics(
     basics.settings("/ip/settings", **{"rp-filter": "loose", "tcp-syncookies": TRUE})
     basics.settings(
         "/ipv6/settings",
-        **{"accept-redirects": "no", "accept-router-advertisements": "yes", "accept-router-advertisements-on": "zone-wan"},
+        **{
+            "accept-redirects": "no",
+            "accept-router-advertisements": "yes",
+            "accept-router-advertisements-on": "zone-wan",
+        },
     )
     basics.settings(
         "/ip/neighbor/discovery-settings",
@@ -1149,16 +1153,17 @@ def make_redfox_basics(plan: dict[str, Any]) -> MTikBasics:
         ],
         prune=_prune_all,
     )
-    basics.table("/interface/list", ("name",), [
-        {"name": "customer"},
-        {"name": "zone-wan"}
-    ], prune=_prune_all)
+    basics.table(
+        "/interface/list",
+        ("name",),
+        [{"name": "customer"}, {"name": "zone-wan"}],
+        prune=_prune_all,
+    )
     basics.table(
         "/interface/list/member",
         ("interface", "list"),
-        [{"interface": f"6to4-{name}", "list": "customer"} for name, _ in routers] + [
-            {"interface": "wan", "list": "zone-wan"}
-        ],
+        [{"interface": f"6to4-{name}", "list": "customer"} for name, _ in routers]
+        + [{"interface": "wan", "list": "zone-wan"}],
         prune=_not_veth,
     )
     basics.table(
@@ -1329,7 +1334,11 @@ def make_redfox_basics(plan: dict[str, Any]) -> MTikBasics:
     basics.settings("/ip/settings", **{"tcp-syncookies": TRUE})
     basics.settings(
         "/ipv6/settings",
-        **{"accept-redirects": "no", "accept-router-advertisements": "yes", "accept-router-advertisements-on": "zone-wan"},
+        **{
+            "accept-redirects": "no",
+            "accept-router-advertisements": "yes",
+            "accept-router-advertisements-on": "zone-wan",
+        },
     )
     basics.settings("/ip/dns", servers="108.61.10.10", **{"cache-size": "65536"})
     basics.settings(
