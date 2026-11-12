@@ -16,7 +16,6 @@ makemkv
 mstflint
 numbat-bin
 starsector
-affine
 uxplay
 https://git.foxden.network/FoxDen/backupmgr
 openssh-hpn
