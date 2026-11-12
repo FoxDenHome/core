@@ -9,7 +9,7 @@ require (
 	github.com/godbus/dbus/v5 v5.2.4
 	github.com/quic-go/quic-go v0.65.0
 	github.com/vishvananda/netlink v1.3.1
-	golang.org/x/crypto v0.58.0
+	golang.org/x/crypto v0.59.0
 	golang.org/x/net v0.62.0
 	golang.org/x/oauth2 v0.38.0
 	golang.org/x/sys v0.50.0
