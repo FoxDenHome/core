@@ -154,6 +154,13 @@
         flake-utils.follows = "flake-utils";
       };
     };
+    sheetfox = {
+      url = "git+https://git.foxden.network/FoxDen/SheetFox";
+      inputs = {
+        nixpkgs.follows = "nixpkgs";
+        flake-utils.follows = "flake-utils";
+      };
+    };
 
     spaceage-api = {
       url = "git+https://git.foxden.network/SpaceAge/space_age_api";

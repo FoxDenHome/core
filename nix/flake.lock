@@ -478,6 +478,7 @@
         "oauth-jit-radius": "oauth-jit-radius",
         "pyproject-build-systems": "pyproject-build-systems",
         "pyproject-nix": "pyproject-nix",
+        "sheetfox": "sheetfox",
         "sops-nix": "sops-nix",
         "spaceage-api": "spaceage-api",
         "spaceage-starlord": "spaceage-starlord",
@@ -488,6 +489,29 @@
         "tapemgr": "tapemgr",
         "uds-proxy": "uds-proxy",
         "uv2nix": "uv2nix"
+      }
+    },
+    "sheetfox": {
+      "inputs": {
+        "flake-utils": [
+          "flake-utils"
+        ],
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1794463096,
+        "narHash": "sha256-wCReFni83U/e0sslHECsiVzgKNPQ3P5dLLMA2vztHa8=",
+        "ref": "refs/heads/main",
+        "rev": "b2cce0c6a6685db7ba360ff6f570770e83b28246",
+        "revCount": 5,
+        "type": "git",
+        "url": "https://git.foxden.network/FoxDen/SheetFox"
+      },
+      "original": {
+        "type": "git",
+        "url": "https://git.foxden.network/FoxDen/SheetFox"
       }
     },
     "sops-nix": {
