@@ -1,5 +1,10 @@
 { foxDenLib, nixpkgs, ... }:
 let
+  # edns0: glibc otherwise asks without EDNS, which caps UDP answers at
+  # 512 bytes. RouterOS pads answers with cached root NS records and
+  # sends them oversized without the TC bit, so such lookups time out.
+  options = "--add-host=host.docker.internal:host-gateway --dns-option=edns0";
+
   mkNamed = (
     ctName:
     {
@@ -49,6 +54,7 @@ let
                 "LD_LIBRARY_PATH" = "";
                 "LD_PRELOAD" = "";
               };
+              extraOptions = options;
 
               podman = {
                 user = ctName;
@@ -118,7 +124,7 @@ let
 in
 {
   inherit (foxDenLib.services) mkOptions;
-  mkNamed = mkNamed;
+  inherit mkNamed options;
   make = inputs: mkNamed inputs.name inputs;
 
   nixosModule =

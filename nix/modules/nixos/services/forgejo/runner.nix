@@ -115,13 +115,10 @@ let
       actions_cache_url_override = "";
     };
     container = {
+      inherit (foxDenLib.services.oci) options;
       network = "";
       enable_ipv6 = true;
       privileged = true;
-      # edns0: glibc otherwise asks without EDNS, which caps UDP answers at
-      # 512 bytes. RouterOS pads answers with cached root NS records and
-      # sends them oversized without the TC bit, so such lookups time out.
-      options = "--add-host=host.docker.internal:host-gateway --dns-option=edns0";
       workdir_parent = "";
       valid_volumes = [ ];
       docker_host = "-";
