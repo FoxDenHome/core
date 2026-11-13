@@ -1,7 +1,7 @@
 { pkgs, ... }:
 {
   services.kanidm = {
-    package = pkgs.kanidmWithSecretProvisioning_1_11;
+    package = pkgs.kanidmWithSecretProvisioning_1_12;
 
     client.enable = true;
     client.settings = {
