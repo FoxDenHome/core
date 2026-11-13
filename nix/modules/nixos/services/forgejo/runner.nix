@@ -115,7 +115,7 @@ let
       actions_cache_url_override = "";
     };
     container = {
-      inherit (foxDenLib.services.oci) options;
+      options = lib.concatStringsSep " " foxDenLib.services.oci.options;
       network = "";
       enable_ipv6 = true;
       privileged = true;
