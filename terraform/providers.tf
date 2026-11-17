@@ -16,7 +16,7 @@ terraform {
     }
     fastly = {
       source  = "fastly/fastly"
-      version = "~> 10.2.0"
+      version = "~> 10.3.0"
     }
     cloudns = {
       source  = "ClouDNS/cloudns"
