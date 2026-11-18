@@ -31,13 +31,15 @@ in
       {
         systemd.services.anisette = {
           serviceConfig = {
-            DynamicUser = true;
-            Type = "simple";
-            Environment = [ "HOME=${dataDir}" ];
             ExecStartPre = [ "${cmdline} --skip-server-startup" ];
             ExecStart = [ cmdline ];
+
+            DynamicUser = true;
+            Type = "simple";
+
             WorkingDirectory = dataDir;
             StateDirectory = "anisette";
+            RuntimeDirectory = "anisette";
           };
 
           wantedBy = [ "multi-user.target" ];
