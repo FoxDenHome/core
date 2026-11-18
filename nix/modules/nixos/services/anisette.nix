@@ -8,7 +8,9 @@
 let
   services = foxDenLib.services;
   svcConfig = config.foxDen.services.anisette;
-  cmdline = "${pkgs.anisette-v3-server}/bin/anisette-v3-server --host 127.0.0.1 --adi-path /var/lib/anisette";
+
+  dataDir = "/var/lib/anisette";
+  cmdline = "${pkgs.anisette-v3-server}/bin/anisette-v3-server --host 127.0.0.1 --adi-path ${dataDir}";
 in
 {
   options.foxDen.services.anisette = services.http.mkOptions {
@@ -31,9 +33,10 @@ in
           serviceConfig = {
             DynamicUser = true;
             Type = "simple";
+            Environment = [ "HOME=${dataDir}" ];
             ExecStartPre = [ "${cmdline} --skip-server-startup" ];
             ExecStart = [ cmdline ];
-            WorkingDirectory = "/var/lib/anisette";
+            WorkingDirectory = dataDir;
             StateDirectory = "anisette";
           };
 
