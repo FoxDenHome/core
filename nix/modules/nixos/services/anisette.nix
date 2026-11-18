@@ -37,6 +37,7 @@ in
             DynamicUser = true;
             Type = "simple";
 
+            Environment = [ "RUNTIME_DIRECTORY=/run/anisette" ];
             WorkingDirectory = dataDir;
             StateDirectory = "anisette";
             RuntimeDirectory = "anisette";
