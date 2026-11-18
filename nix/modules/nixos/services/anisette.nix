@@ -33,6 +33,7 @@ in
             Type = "simple";
             ExecStartPre = [ "${cmdline} --skip-server-startup" ];
             ExecStart = [ cmdline ];
+            WorkingDirectory = "/var/lib/anisette";
             StateDirectory = "anisette";
           };
 
