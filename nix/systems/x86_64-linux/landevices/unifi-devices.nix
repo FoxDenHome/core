@@ -217,7 +217,7 @@
         dns = {
           fqdns = [ "switch-dori-office.foxden.network" ];
         };
-        mac = "60:22:32:39:77:9C";
+        mac = "a4:f8:ff:7e:f3:f3";
         addresses = [
           "10.1.10.5/16"
         ];
