@@ -64,10 +64,13 @@ in
       set -euo pipefail
       # No set -x: trace lines would interleave with the journal output below.
 
-      # Print the journal of nixos-update starting at $1 until that run ends.
-      # Exits non-zero if the run failed.
+      # Print the nixos-update journal entries selected by the journalctl
+      # arguments in "$@" until a run ends. Exits non-zero if the run failed.
+      # The selection must not include the end of an earlier run, so it is
+      # never a wall clock --since (second granularity lets a run that ended
+      # in the same second match).
       follow_run() {
-        journalctl --unit nixos-update --since="$1" --no-hostname -f |
+        journalctl --no-hostname --follow --no-tail "$@" |
           awk '/: nixos-update.service: Deactivated successfully/ { print; exit; }; /: nixos-update.service: Failed with result/ { print; exit 1; }; { print; }'
       }
 
@@ -75,21 +78,36 @@ in
       # an update that may predate the newest commit. Wait for it to finish first,
       # showing its output meanwhile.
       while true; do
-        state="$(systemctl show --property=ActiveState --value nixos-update)"
+        # One call, so the state and invocation belong to the same run.
+        state=""
+        invocation=""
+        while IFS='=' read -r key value; do
+          case "$key" in
+            ActiveState) state="$value" ;;
+            InvocationID) invocation="$value" ;;
+          esac
+        done < <(systemctl show --property=ActiveState,InvocationID nixos-update)
         case "$state" in
           active | activating | deactivating | reloading | refreshing)
             echo "nixos-update is $state, showing its output until it finishes..."
-            follow_run "$(systemctl show --timestamp=unix --property=InactiveExitTimestamp --value nixos-update)" || :
-            echo "Previous nixos-update finished, starting a new one..."
+            if [ -n "$invocation" ]; then
+              # Only this run's entries: its own output (_SYSTEMD_INVOCATION_ID)
+              # and PID 1's messages about it (INVOCATION_ID).
+              follow_run "_SYSTEMD_INVOCATION_ID=$invocation" + "INVOCATION_ID=$invocation" || :
+              echo "Previous nixos-update finished, starting a new one..."
+            else
+              sleep 1
+            fi
             ;;
           *)
             break
             ;;
         esac
       done
-      since="@$(date +%s)"
+      # Everything logged after this cursor belongs to the run started below.
+      cursor="$(journalctl --quiet --lines=0 --show-cursor | sed -n 's/^-- cursor: //p')"
       systemctl --no-block start nixos-update
-      follow_run "$since"
+      follow_run --unit nixos-update --after-cursor="$cursor"
     '';
 
     users.groups.maintainers = { };
