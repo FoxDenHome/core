@@ -52,7 +52,24 @@ in
           "aarch64-linux"
         ];
       };
-      kernelPackages = lib.mkDefault pkgs.linuxPackages_zen;
+      # Pinned to the 7.2 series of the zen kernel
+      kernelPackages = lib.mkDefault (
+        pkgs.linuxPackagesFor (
+          pkgs.linux_zen.override {
+            argsOverride = rec {
+              version = "7.2.15";
+              suffix = "zen1";
+              modDirVersion = lib.versions.pad 3 "${version}-${suffix}";
+              src = pkgs.fetchFromGitHub {
+                owner = "zen-kernel";
+                repo = "zen-kernel";
+                rev = "v${version}-${suffix}";
+                sha256 = "11w65vp17rhbilhlxrxzzp764is8ic66rrz9vvrn05cvl85rw755";
+              };
+            };
+          }
+        )
+      );
       kernelParams = [
         "iommu=pt"
         "intel_iommu=on"
