@@ -71,25 +71,6 @@ let
       (
         final: prev:
         lib.optionalAttrs nixPkgConfig.rocmSupport {
-          # TODO: Remove once nixpkgs ce71e9daad ("rocmPackages.aotriton: fix build with Triton 3.9")
-          # reaches nixos-unstable; 0.12b fails to compile its flash kernels with Triton 3.9
-          rocmPackages = prev.rocmPackages.overrideScope (
-            rFinal: rPrev: {
-              aotriton = rPrev.aotriton.overrideAttrs (old: {
-                patches = (old.patches or [ ]) ++ [
-                  (final.fetchpatch2 {
-                    name = "triton-3.9-composed-tensors.patch";
-                    url = "https://github.com/ROCm/aotriton/commit/ab24ced82e999dfaf05dfee46f6da50ca2c0561f.patch?full_index=1";
-                    hash = "sha256-t4wwbEuuM0RPpyIvY3QaQAXHkCbSXA41tx0SxVgjn9o=";
-                    postFetch = ''
-                      substituteInPlace $out \
-                        --replace-fail 'modules/flash/kernel/composed_tensors.py' 'tritonsrc/composed_tensors.py'
-                    '';
-                  })
-                ];
-              });
-            }
-          );
           pythonPackagesExtensions = prev.pythonPackagesExtensions ++ [
             (pyFinal: pyPrev: {
               # The python wheel only ships providers_shared, so the MIGraphX EP silently falls back to CPU
