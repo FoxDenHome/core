@@ -31,9 +31,10 @@ type serverOptions struct {
 	NVMeTempWarn float64 `json:"nvme_temp_warn"`
 	NVMeTempCrit float64 `json:"nvme_temp_crit"`
 	// ShowDisks draws the disks that aren't behind a front bay on the
-	// faceplate, SSDs and HDDs in separate groups. Meant for servers whose bay
-	// layout is unknown, like rented ones; otherwise they only show in the
-	// details as internal disks.
+	// faceplate, SSDs and HDDs in separate groups (after the bays, if any).
+	// Meant for servers whose bay layout is unknown, like rented ones, or
+	// whose internal disks are worth seeing at a glance; otherwise they only
+	// show in the details as internal disks.
 	ShowDisks bool `json:"show_disks"`
 }
 
@@ -324,9 +325,11 @@ func (s *server) Poll(ctx context.Context) (rack.State, error) {
 
 		// Disks not behind a front bay (NVMe, boot drives, servers without
 		// bays), split by type since their position says nothing.
-		shown := s.opts.ShowDisks && s.opts.Bays == nil
+		// show_disks draws them on the faceplate anyway; next to front bays
+		// they keep the "Internal" label.
+		shown := s.opts.ShowDisks
 		prefix := "Internal "
-		if shown {
+		if shown && s.opts.Bays == nil {
 			prefix = ""
 		}
 		ssd := rack.Group{ID: "ssd", Kind: rack.KindBay, Label: prefix + "SSDs", Rows: 1, Internal: !shown}
@@ -346,6 +349,11 @@ func (s *server) Poll(ctx context.Context) (rack.State, error) {
 		}
 		for _, g := range []rack.Group{ssd, hdd} {
 			if len(g.Slots) > 0 {
+				if s.opts.Bays != nil {
+					// Next to the bays, stack them so the faceplate
+					// doesn't grow wider.
+					g.Rows = min(len(g.Slots), s.opts.Bays.Rows)
+				}
 				st.Faceplate = append(st.Faceplate, g)
 			}
 		}

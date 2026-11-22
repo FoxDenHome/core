@@ -75,7 +75,7 @@ If a bay lights up in the wrong place when you check with the identify LED, reor
 
 Disks that don't sit behind a front bay, like NVMe drives, boot disks and every disk of a server without `bays`, are listed as **Internal SSDs** and **Internal HDDs** in the details panel. They count toward the device's status but aren't drawn on the rack.
 
-A server without `bays` can set `"show_disks": true` to draw them on its faceplate anyway, as separate SSD and HDD groups. This suits machines whose bay layout is unknown, like icefox at OVH.
+A server can set `"show_disks": true` to draw them on its faceplate anyway, as separate SSD and HDD groups after the bays. This suits machines whose bay layout is unknown, like icefox at OVH, or internal disks worth seeing at a glance, like the NVMe drives in bengalfox and islandfox.
 
 Most SMART error counters flag at any non-zero value. CRC errors, reallocated sectors, SAS grown defects and NVMe media errors are lifetime counts where an old value is normal, so these only warn when they **increase** while the dashboard is running. The baseline is kept in memory, so after a restart the dashboard takes the current values as the new baseline.
 

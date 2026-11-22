@@ -43,6 +43,9 @@
       "module": "supermicro-cse826",
       "u": 16,
       "address": "bengalfox.foxden.network",
+      "options": {
+        "show_disks": true
+      },
       "power": [
         {
           "device": "pdu-rack",
@@ -78,6 +81,9 @@
           "id": "islandfox",
           "module": "mini-pc",
           "address": "islandfox.foxden.network",
+          "options": {
+            "show_disks": true
+          },
           "width": 2,
           "power": [
             {
