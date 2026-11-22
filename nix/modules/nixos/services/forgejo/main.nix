@@ -84,6 +84,53 @@ in
         inherit svcConfig pkgs config;
         name = "http-forgejo";
         target = "fastcgi_pass 127.0.0.1:3000;";
+        # Forgejo lacks Gitea's REQUIRE_SIGNIN_VIEW = expensive, so emulate it: anonymous
+        # public clients get sent to the login page for the routes Gitea deems expensive
+        # (routers/common/blockexpensive.go). Botnets solve Anubis once per IP, so it alone
+        # doesn't keep them off these git-heavy pages.
+        extraConfig =
+          { defaultTarget, ... }:
+          ''
+            location ~ ^/(?!(?:user|login|api|admin|explore|org|notifications|assets|avatars|repo-avatars|attachments|-|\.well-known|\.within\.website)/)[^/]+/[^/]+/(?:(?:archive|blame|commit|commits|compare|src|wiki|activity|rss/branch)/|issues|pulls|graph) {
+              auth_request /.foxden/forgejo-signed-in;
+              ${pkgs.foxden-http-errors.passthru.nginxErrorPages (
+                lib.filter (code: code != "401") (lib.attrNames pkgs.foxden-http-errors.passthru.httpStateMap)
+              )}
+              error_page 401 = @forgejo_login;
+              ${defaultTarget}
+            }
+
+            location @forgejo_login {
+              # This server sits behind Anubis on plain 127.0.0.1:9898
+              absolute_redirect off;
+              return 303 /user/login?redirect_to=$request_uri;
+            }
+
+            # 200 with a session (cheap unread notification count), 303 to /user/login without
+            location = /.foxden/forgejo-signed-in {
+              internal;
+              if ($foxden_anubis_bypass) {
+                return 204;
+              }
+              fastcgi_pass 127.0.0.1:3000;
+              fastcgi_pass_request_body off;
+              fastcgi_param REQUEST_METHOD GET;
+              fastcgi_param REQUEST_URI /notifications/new;
+              fastcgi_param QUERY_STRING "";
+              fastcgi_param CONTENT_LENGTH "";
+              fastcgi_param SERVER_PROTOCOL $server_protocol;
+              fastcgi_param REMOTE_ADDR $remote_addr;
+              fastcgi_param REMOTE_PORT $remote_port;
+              fastcgi_param SERVER_NAME $server_name;
+              fastcgi_param SERVER_PORT $server_port;
+              fastcgi_intercept_errors on;
+              error_page 301 302 303 307 308 = @forgejo_signed_out;
+            }
+
+            location @forgejo_signed_out {
+              return 401;
+            }
+          '';
       }).config
       {
         foxDen.services.forgejo.oAuth.overrideService = true;
@@ -97,6 +144,60 @@ in
           bypassRoutes = [
             "~ ^/[^/]+/[^/]+/(info/refs|git-upload-pack|git-receive-pack|info/lfs/)"
             "/api/"
+          ];
+          # Anubis' default thresholds, one notch harder. Plain browsers land in moderate-suspicion,
+          # whose stock difficulty 2 the 11/19 botnet solved for ~260k IPs.
+          thresholds = [
+            {
+              name = "minimal-suspicion";
+              expression = "weight <= 0";
+              action = "ALLOW";
+            }
+            {
+              name = "mild-suspicion";
+              expression.all = [
+                "weight > 0"
+                "weight < 10"
+              ];
+              action = "CHALLENGE";
+              challenge = {
+                algorithm = "metarefresh";
+                difficulty = 1;
+              };
+            }
+            {
+              name = "moderate-suspicion";
+              expression.all = [
+                "weight >= 10"
+                "weight < 20"
+              ];
+              action = "CHALLENGE";
+              challenge = {
+                algorithm = "fast";
+                difficulty = 4;
+              };
+            }
+            {
+              name = "mild-proof-of-work";
+              expression.all = [
+                "weight >= 20"
+                "weight < 30"
+              ];
+              action = "CHALLENGE";
+              challenge = {
+                algorithm = "fast";
+                difficulty = 5;
+              };
+            }
+            {
+              name = "extreme-suspicion";
+              expression = "weight >= 30";
+              action = "CHALLENGE";
+              challenge = {
+                algorithm = "fast";
+                difficulty = 6;
+              };
+            }
           ];
         };
 
@@ -166,6 +267,10 @@ in
               ENABLE_AUTO_REGISTRATION = true;
               OPENID_CONNECT_SCOPES = "openid email profile ssh_publickeys groups_name";
               REGISTER_EMAIL_CONFIRM = false;
+            };
+            repository = {
+              # Archive generation was the most expensive request the 11/19 scrapers made (~2s each)
+              DISABLE_DOWNLOAD_SOURCE_ARCHIVES = true;
             };
             "repository.pull-request" = {
               DEFAULT_MERGE_STYLE = "squash";

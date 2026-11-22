@@ -393,6 +393,11 @@ in
           });
           default = null;
         };
+        thresholds = nixpkgs.lib.mkOption {
+          type = nullOr (listOf attrs);
+          description = "Replaces Anubis' weight thresholds (and their challenge difficulties), keeping its default bot rules";
+          default = null;
+        };
         default = nixpkgs.lib.mkEnableOption "Enable Anubis by default on all routes";
         bypassRoutes = nixpkgs.lib.mkOption {
           type = listOf str;
@@ -649,6 +654,12 @@ in
               ) svcConfig.anubis.bypassNetworks}
             }
 
+            # 1 for the same internal clients, usable by extraConfig in the inner server (after realip)
+            geo $foxden_anubis_bypass {
+              default 0;
+              ${nixpkgs.lib.concatMapStringsSep "\n  " (net: "${net} 1;") svcConfig.anubis.bypassNetworks}
+            }
+
             server {
               server_name ${builtins.concatStringsSep " " hostMatchers};
               ${anubisListener ""}
@@ -869,7 +880,12 @@ in
                       botPolicyPresets.${svcConfig.anubis.botPolicy};
                 in
                 # null keeps Anubis' built-in default policy
-                nixpkgs.lib.mkIf (botPolicy != null) botPolicy;
+                nixpkgs.lib.mkMerge [
+                  (nixpkgs.lib.mkIf (botPolicy != null) botPolicy)
+                  (nixpkgs.lib.mkIf (svcConfig.anubis.thresholds != null) {
+                    inherit (svcConfig.anubis) thresholds;
+                  })
+                ];
             };
 
             systemd.services."anubis-${name}" = nixpkgs.lib.mkIf svcConfig.anubis.enable {
