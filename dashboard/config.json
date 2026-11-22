@@ -252,7 +252,10 @@
         {
           "id": "icefox",
           "module": "server",
-          "address": "icefox.foxden.network"
+          "address": "icefox.foxden.network",
+          "options": {
+            "show_disks": true
+          }
         }
       ]
     }

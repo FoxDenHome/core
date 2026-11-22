@@ -30,6 +30,11 @@ type serverOptions struct {
 	// lowered to the drive's own reported limits when those are stricter.
 	NVMeTempWarn float64 `json:"nvme_temp_warn"`
 	NVMeTempCrit float64 `json:"nvme_temp_crit"`
+	// ShowDisks draws the disks that aren't behind a front bay on the
+	// faceplate, SSDs and HDDs in separate groups. Meant for servers whose bay
+	// layout is unknown, like rented ones; otherwise they only show in the
+	// details as internal disks.
+	ShowDisks bool `json:"show_disks"`
 }
 
 // bayOptions describe the drive bays on the front. Slots lists, for each bay
@@ -63,7 +68,7 @@ type server struct {
 func init() {
 	register(Spec{
 		Name:        "server",
-		Description: "Linux server with node_exporter and optional smartctl_exporter. Options: node_exporter, smart_exporter, bays {rows, cols, slots, labels}, disk_temp_warn/crit, nvme_temp_warn/crit.",
+		Description: "Linux server with node_exporter and optional smartctl_exporter. Options: node_exporter, smart_exporter, bays {rows, cols, slots, labels}, show_disks, disk_temp_warn/crit, nvme_temp_warn/crit.",
 		Height:      1,
 		New:         newServer(serverOptions{}),
 	})
@@ -317,8 +322,15 @@ func (s *server) Poll(ctx context.Context) (rack.State, error) {
 			summary = append(summary, fmt.Sprintf("%d/%d bays", populated, len(bays.Slots)))
 		}
 
-		// Disks not behind a front bay (NVMe, boot drives, servers without bays).
-		internal := rack.Group{ID: "internal", Kind: rack.KindBay, Label: "Internal disks", Rows: 1, Internal: true}
+		// Disks not behind a front bay (NVMe, boot drives, servers without
+		// bays), split by type since their position says nothing.
+		shown := s.opts.ShowDisks && s.opts.Bays == nil
+		prefix := "Internal "
+		if shown {
+			prefix = ""
+		}
+		ssd := rack.Group{ID: "ssd", Kind: rack.KindBay, Label: prefix + "SSDs", Rows: 1, Internal: !shown}
+		hdd := rack.Group{ID: "hdd", Kind: rack.KindBay, Label: prefix + "HDDs", Rows: 1, Internal: !shown}
 		for i := range disks {
 			d := &disks[i]
 			if used[d.dev] {
@@ -326,10 +338,24 @@ func (s *server) Poll(ctx context.Context) (rack.State, error) {
 			}
 			slot := rack.Slot{ID: d.dev, Label: d.dev}
 			s.fillDisk(&slot, d, smart, "")
-			internal.Slots = append(internal.Slots, slot)
+			if d.rotational {
+				hdd.Slots = append(hdd.Slots, slot)
+			} else {
+				ssd.Slots = append(ssd.Slots, slot)
+			}
 		}
-		if len(internal.Slots) > 0 {
-			st.Faceplate = append(st.Faceplate, internal)
+		for _, g := range []rack.Group{ssd, hdd} {
+			if len(g.Slots) > 0 {
+				st.Faceplate = append(st.Faceplate, g)
+			}
+		}
+		if shown {
+			if n := len(hdd.Slots); n > 0 {
+				summary = append(summary, fmt.Sprintf("%d HDD", n))
+			}
+			if n := len(ssd.Slots); n > 0 {
+				summary = append(summary, fmt.Sprintf("%d SSD", n))
+			}
 		}
 	}
 
