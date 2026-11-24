@@ -8,7 +8,7 @@ in
       enable = true;
       host = "github-runner";
       url = "https://github.com/ConventionCatCorp";
-      count = 20;
+      count = 8;
       runnerGroup = "FoxDen";
       playwright.enable = true;
     };
