@@ -34,6 +34,22 @@ let
   entrypoint = pkgs.writeText "github-runner-entrypoint.sh" ''
     set -euo pipefail
 
+    # Docker in a cgroup namespace: runc enables every controller in the root's
+    # subtree_control, but the kernel refuses domain ones (memory, io) while the
+    # root holds processes and accepts only the threaded ones. That turns the root
+    # into a threaded domain and every --memory container fails with "cannot enter
+    # cgroupv2 /sys/fs/cgroup/docker ... it is in an invalid state". Move everything
+    # into /init first, like docker:dind's entrypoint does.
+    sudo sh -c '
+      mkdir -p /sys/fs/cgroup/init
+      for _ in 1 2 3 4 5; do
+        xargs -rn1 < /sys/fs/cgroup/cgroup.procs > /sys/fs/cgroup/init/cgroup.procs 2>/dev/null || :
+        sed -e "s/ / +/g" -e "s/^/+/" < /sys/fs/cgroup/cgroup.controllers \
+          > /sys/fs/cgroup/cgroup.subtree_control 2>/dev/null && exit 0
+      done
+      echo "Could not enable cgroup controllers for nested containers" >&2
+    '
+
     start-docker
 
     cache=/cache
