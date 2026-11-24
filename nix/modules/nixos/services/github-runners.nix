@@ -18,6 +18,37 @@ let
       [ "github-runner-${name}" ]
     else
       map (n: "github-runner-${name}-${toString n}") (lib.range 1 cfg.count);
+
+  # Roughly what jobs expect from GitHub's hosted images. Upstream already
+  # adds bashInteractive, coreutils, git, gnutar, gzip and nix.
+  defaultPackages = with pkgs; [
+    bzip2
+    curl
+    diffutils
+    file
+    findutils
+    gawk
+    gcc
+    gnugrep
+    gnumake
+    gnused
+    jq
+    nodejs
+    openssh
+    patch
+    procps
+    python3
+    rsync
+    unzip
+    wget
+    which
+    xz
+    yq-go
+    zip
+    zstd
+  ];
+
+  playwrightBrowsers = pkgs.playwright-driver.browsers;
 in
 {
   options.foxDen.services.github-runners = lib.mkOption {
@@ -53,10 +84,29 @@ in
             default = true;
             description = "Re-register with a clean state after every job.";
           };
+          packages = lib.mkOption {
+            type = lib.types.listOf lib.types.package;
+            default = defaultPackages;
+            defaultText = lib.literalMD "a common set (curl, findutils, jq, nodejs, python3, gcc, …)";
+            description = ''
+              Packages on PATH and inside the confinement chroot for jobs.
+              Set this to replace the common set; use `extraPackages` to add to it.
+            '';
+          };
           extraPackages = lib.mkOption {
             type = lib.types.listOf lib.types.package;
             default = [ ];
-            description = "Packages on PATH and inside the confinement chroot for jobs.";
+            description = "Packages added on top of `packages`.";
+          };
+          playwright.enable = lib.mkEnableOption ''
+            Playwright browsers from nixpkgs (`playwright-driver.browsers`, Playwright
+            ${pkgs.playwright-driver.version}). Downloaded browsers don't run on NixOS,
+            so jobs must use a matching `playwright` / `@playwright/test` version
+          '';
+          extraEnvironment = lib.mkOption {
+            type = lib.types.attrsOf lib.types.str;
+            default = { };
+            description = "Extra environment variables for the runner and its jobs.";
           };
           serviceOverrides = lib.mkOption {
             type = lib.types.attrs;
@@ -90,18 +140,14 @@ in
       tokenFile = config.sops.secrets."github-runner-${name}".path;
       replace = true;
       extraPackages =
-        (with pkgs; [
-          curl
-          findutils
-          gawk
-          gnugrep
-          gnused
-          jq
-          unzip
-          xz
-          zstd
-        ])
-        ++ cfg.extraPackages;
+        cfg.packages ++ cfg.extraPackages ++ lib.optional cfg.playwright.enable playwrightBrowsers;
+      extraEnvironment =
+        lib.optionalAttrs cfg.playwright.enable {
+          PLAYWRIGHT_BROWSERS_PATH = "${playwrightBrowsers}";
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD = "1";
+          PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS = "true";
+        }
+        // cfg.extraEnvironment;
 
       serviceOverrides = lib.mkMerge [
         {
@@ -124,14 +170,16 @@ in
       lib.flatten (
         lib.mapAttrsToList (
           name: cfg:
-          map (
-            unit:
+          map (unit: [
             (services.make {
               name = unit;
               svcConfig = cfg;
               inherit pkgs config;
             }).config.systemd.services
-          ) (unitNames name cfg)
+            # Confinement only binds the closure of the Exec* lines, not
+            # `path`, so without this nothing on PATH exists in the chroot.
+            { ${unit}.confinement.packages = config.systemd.services.${unit}.path; }
+          ]) (unitNames name cfg)
         ) enabledRunners
       )
     );

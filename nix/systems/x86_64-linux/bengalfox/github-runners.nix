@@ -10,6 +10,7 @@ in
       url = "https://github.com/ConventionCatCorp";
       count = 20;
       runnerGroup = "FoxDen";
+      playwright.enable = true;
     };
   };
 
