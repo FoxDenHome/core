@@ -152,7 +152,6 @@ let
         "/usr/bin/env"
         # Bound into the runner containers
         "${entrypoint}:/entrypoint.sh"
-        "${config.sops.secrets."github-runner-${name}".path}:/token"
       ];
       PrivateUsers = false; # Podman rootless need subuid/subgid
       ProtectKernelTunables = false; # Otherwise podman can't remount /proc
@@ -232,6 +231,8 @@ in
         owner = userName name;
         group = userName name;
         mode = "0400";
+        # The podman service copies it at start (LoadCredential)
+        restartUnits = [ "podman-${userName name}.service" ];
       }
     ) enabledRunners;
 
@@ -322,7 +323,7 @@ in
                   "--privileged"
                   # Paths as seen by the podman service
                   "--volume=${stateDir name}/cache:/cache:U"
-                  "--volume=/token:/run/github-runner-token:ro"
+                  "--volume=/run/credentials/${podmanUnit}.service/token:/run/github-runner-token:ro"
                   "--volume=/entrypoint.sh:/entrypoint.sh:ro"
                 ]
                 ++ foxDenLib.services.oci.options
@@ -370,6 +371,10 @@ in
                 {
                   serviceConfig = {
                     Type = "exec";
+                    # A copy, not a bind: sops-nix replaces /run/secrets.d on every
+                    # activation, which would drop a bind of the secret file and break
+                    # every runner container started after a deploy.
+                    LoadCredential = "token:${config.sops.secrets."github-runner-${name}".path}";
                     ExecStartPre = [
                       # Runtime state outlives the service's netns; start as if after a reboot.
                       "-${pkgs.findutils}/bin/find /run/user -mindepth 1 -delete"
