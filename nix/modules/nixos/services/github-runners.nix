@@ -10,53 +10,167 @@ let
   services = foxDenLib.services;
   enabledRunners = lib.filterAttrs (_: cfg: cfg.enable) config.foxDen.services.github-runners;
 
-  # Unit names upstream's github-runner/service.nix creates for an entry
-  # (we don't use its `orgs` fan-out): bare for count == 1, else suffixed -<n>.
-  unitNames =
-    name: cfg:
-    if cfg.count == 1 then
-      [ "github-runner-${name}" ]
-    else
-      map (n: "github-runner-${name}-${toString n}") (lib.range 1 cfg.count);
-
-  # Roughly what jobs expect from GitHub's hosted images. Upstream already
-  # adds bashInteractive, coreutils, git, gnutar, gzip and nix.
-  defaultPackages = with pkgs; [
-    bzip2
-    curl
-    diffutils
-    file
+  packages = with pkgs; [
+    bash
+    catatonit
+    cni-plugins
+    coreutils
     findutils
-    gawk
-    gcc
-    gnugrep
-    gnumake
-    gnused
-    jq
-    nodejs
-    openssh
-    patch
-    procps
-    python3
-    rsync
-    unzip
-    wget
-    which
-    xz
-    yq-go
-    zip
-    zstd
+    podman
+    shadow
   ];
 
-  playwrightBrowsers = pkgs.playwright-driver.browsers;
+  runnerArch =
+    {
+      x86_64-linux = "x64";
+      aarch64-linux = "arm64";
+    }
+    .${pkgs.stdenv.hostPlatform.system};
+
+  # Runs in the job image (FoxDen/runner-image) as its `runner` user, which
+  # has passwordless sudo and real Docker via start-docker. The image has no
+  # actions runner, so this fetches the latest release into a cache shared by
+  # all instances. GitHub stops giving jobs to outdated runners anyway.
+  entrypoint = pkgs.writeText "github-runner-entrypoint.sh" ''
+    set -euo pipefail
+
+    start-docker
+
+    cache=/cache
+    version="$(curl -fsSI https://github.com/actions/runner/releases/latest \
+      | tr -d '\r' | sed -n 's|^location: .*/tag/v\([0-9.]*\)$|\1|Ip' || true)"
+    if [ -n "$version" ]; then
+      tarball="$cache/actions-runner-linux-${runnerArch}-$version.tar.gz"
+      if [ ! -f "$tarball" ]; then
+        curl -fsSL -o "$tarball.$HOSTNAME" \
+          "https://github.com/actions/runner/releases/download/v$version/actions-runner-linux-${runnerArch}-$version.tar.gz"
+        mv "$tarball.$HOSTNAME" "$tarball"
+      fi
+      find "$cache" -maxdepth 1 -name 'actions-runner-*' ! -name "''${tarball##*/}" -mmin +60 -delete || true
+    else
+      echo 'Could not look up the latest actions runner, using the newest cached one'
+      tarball="$(ls -1t "$cache"/actions-runner-linux-${runnerArch}-*.tar.gz | head -n1)"
+    fi
+
+    mkdir -p "$HOME/actions-runner"
+    cd "$HOME/actions-runner"
+    tar -xzf "$tarball"
+
+    if ! ldconfig -p | grep -q libicuuc; then
+      export DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1
+    fi
+
+    token="$(sudo cat /run/github-runner-token)"
+    args=(
+      --unattended
+      --replace
+      --url "$RUNNER_URL"
+      --name "$RUNNER_NAME"
+      --work _work
+    )
+    if [[ "$token" == ghp_* || "$token" == github_pat_* ]]; then
+      args+=(--pat "$token")
+    else
+      args+=(--token "$token")
+    fi
+    unset token
+    if [ -n "''${RUNNER_LABELS:-}" ]; then
+      args+=(--labels "$RUNNER_LABELS")
+    fi
+    if [ -n "''${RUNNER_GROUP:-}" ]; then
+      args+=(--runnergroup "$RUNNER_GROUP")
+    fi
+    if [ "''${RUNNER_EPHEMERAL:-}" = 1 ]; then
+      args+=(--ephemeral)
+    fi
+
+    ./config.sh "''${args[@]}"
+    unset args RUNNER_URL RUNNER_NAME RUNNER_LABELS RUNNER_GROUP RUNNER_EPHEMERAL
+    exec ./run.sh
+  '';
+
+  # /etc/containers entries are symlinks into /etc/static, which confinement hides,
+  # so bind each one from its store path. Follows the nixpkgs layout (*.conf.d etc.).
+  containersEtcBinds = lib.mapAttrsToList (_: entry: "${entry.source}:/etc/${entry.target}") (
+    lib.filterAttrs (
+      name: entry: entry.enable && lib.hasPrefix "containers/" name
+    ) config.environment.etc
+  );
+
+  userName = name: "github-runner-${name}";
+  stateDir = name: "/var/lib/${userName name}";
+  podmanUrl = name: "unix://${stateDir name}/podman.sock";
+  podmanRemote = name: "${pkgs.podman}/bin/podman --url ${podmanUrl name}";
+
+  # Same unit names as upstream's github-runner module used before:
+  # bare for count == 1, else suffixed -<n>.
+  instances =
+    name: cfg:
+    if cfg.count == 1 then
+      [
+        {
+          unit = "github-runner-${name}";
+          runnerName = "${hostName}-${name}";
+        }
+      ]
+    else
+      map (n: {
+        unit = "github-runner-${name}-${toString n}";
+        runnerName = "${hostName}-${name}-${toString n}";
+      }) (lib.range 1 cfg.count);
+
+  commonServiceConfig = name: {
+    User = userName name;
+    Group = userName name;
+    WorkingDirectory = stateDir name;
+    StateDirectory = userName name;
+    PrivateTmp = true;
+    Nice = 5;
+  };
+
+  # Rootless podman, set up like the Forgejo runner's (forgejo/runner.nix).
+  podmanServiceBase = name: {
+    confinement.packages = packages;
+    path = [ "/run/wrappers" ] ++ packages;
+
+    after = [ "network.target" ];
+    wants = [ "network.target" ];
+
+    serviceConfig = commonServiceConfig name // {
+      Delegate = "cpu cpuset io memory pids";
+      BindPaths = [
+        "/run/user-podman-${userName name}:/run/user"
+      ];
+      BindReadOnlyPaths = containersEtcBinds ++ [
+        "/run/wrappers/bin/newgidmap"
+        "/run/wrappers/bin/newuidmap"
+        "/usr/bin/env"
+        # Bound into the runner containers
+        "${entrypoint}:/entrypoint.sh"
+        "${config.sops.secrets."github-runner-${name}".path}:/token"
+      ];
+      PrivateUsers = false; # Podman rootless need subuid/subgid
+      ProtectKernelTunables = false; # Otherwise podman can't remount /proc
+      ProtectHostname = lib.mkOverride 30 false; # See above (uses mkForce, so we need even lower priority)
+      ProtectControlGroups = "private"; # Otherwise cgroups for limits don't work
+
+      # memfd_create yields ENOENT under qemu-binfmt in d-in-d; block it.
+      # Only alpine 3.23's apk uses it, and it falls back gracefully.
+      SystemCallFilter = [ "~memfd_create" ];
+      SystemCallErrorNumber = "EPERM";
+    };
+  };
 in
 {
   options.foxDen.services.github-runners = lib.mkOption {
     default = { };
     description = ''
-      GitHub Actions runners, built on nixpkgs' `services.github-runners`
-      and run through `services.make` (own netns, confinement).
-      Each entry reads its token from the sops secret `github-runner-<name>`.
+      GitHub Actions runners. Each instance runs the actions runner inside a
+      privileged rootless podman container of `image`, so jobs get real Docker
+      like the Forgejo runner's jobs do. A rootless podman API service per entry
+      runs the containers, and each instance is a unit driving one of them.
+      Each entry reads its token (registration token or PAT) from the sops
+      secret `github-runner-<name>`.
     '';
     type = lib.types.attrsOf (
       lib.types.submodule {
@@ -71,6 +185,14 @@ in
             default = 1;
             description = "Number of runner instances (each runs one job at a time).";
           };
+          image = lib.mkOption {
+            type = lib.types.str;
+            default = "git.foxden.network/foxden/runner-image:ubuntu-26.04";
+            description = ''
+              Image the runner and its jobs run in. Like FoxDen/runner-image, it must
+              have bash, curl, tar, passwordless sudo for its user and `start-docker`.
+            '';
+          };
           extraLabels = lib.mkOption {
             type = lib.types.listOf lib.types.str;
             default = [ ];
@@ -82,36 +204,12 @@ in
           ephemeral = lib.mkOption {
             type = lib.types.bool;
             default = true;
-            description = "Re-register with a clean state after every job.";
+            description = "Start a fresh container and re-register after every job.";
           };
-          packages = lib.mkOption {
-            type = lib.types.listOf lib.types.package;
-            default = defaultPackages;
-            defaultText = lib.literalMD "a common set (curl, findutils, jq, nodejs, python3, gcc, …)";
-            description = ''
-              Packages on PATH and inside the confinement chroot for jobs.
-              Set this to replace the common set; use `extraPackages` to add to it.
-            '';
-          };
-          extraPackages = lib.mkOption {
-            type = lib.types.listOf lib.types.package;
-            default = [ ];
-            description = "Packages added on top of `packages`.";
-          };
-          playwright.enable = lib.mkEnableOption ''
-            Playwright browsers from nixpkgs (`playwright-driver.browsers`, Playwright
-            ${pkgs.playwright-driver.version}). Downloaded browsers don't run on NixOS,
-            so jobs must use a matching `playwright` / `@playwright/test` version
-          '';
           extraEnvironment = lib.mkOption {
             type = lib.types.attrsOf lib.types.str;
             default = { };
             description = "Extra environment variables for the runner and its jobs.";
-          };
-          serviceOverrides = lib.mkOption {
-            type = lib.types.attrs;
-            default = { };
-            description = "Passed through to upstream's serviceOverrides.";
           };
         }
         // services.mkOptions {
@@ -124,71 +222,180 @@ in
   # Top-level keys must not depend on config, so each is built separately.
   config = {
     sops.secrets = lib.mapAttrs' (
-      name: _: lib.nameValuePair "github-runner-${name}" { }
+      name: _:
+      lib.nameValuePair "github-runner-${name}" {
+        owner = userName name;
+        group = userName name;
+        mode = "0400";
+      }
     ) enabledRunners;
 
-    services.github-runners = lib.mapAttrs (name: cfg: {
-      enable = true;
-      inherit (cfg)
-        url
-        count
-        extraLabels
-        runnerGroup
-        ephemeral
-        ;
-      name = "${hostName}-${name}";
-      tokenFile = config.sops.secrets."github-runner-${name}".path;
-      replace = true;
-      extraPackages =
-        cfg.packages ++ cfg.extraPackages ++ lib.optional cfg.playwright.enable playwrightBrowsers;
-      extraEnvironment =
-        lib.optionalAttrs cfg.playwright.enable {
-          PLAYWRIGHT_BROWSERS_PATH = "${playwrightBrowsers}";
-          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD = "1";
-          PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS = "true";
-        }
-        // cfg.extraEnvironment;
+    users.users = lib.mapAttrs' (
+      name: _:
+      lib.nameValuePair (userName name) {
+        isSystemUser = true;
+        group = userName name;
+        description = "GitHub Actions runner user";
+        autoSubUidGidRange = true;
+        home = stateDir name;
+      }
+    ) enabledRunners;
 
-      serviceOverrides = lib.mkMerge [
-        {
-          # Upstream sets Restart=no (or on-success when ephemeral);
-          # match the other foxDen services instead.
-          Restart = lib.mkForce "always";
-          # Ephemeral runners exit after every job, and NRestarts never resets
-          # on auto-restarts, so services.make's backoff would climb to 5m
-          # between jobs. Beat its mkForce.
-          RestartSteps = lib.mkIf cfg.ephemeral (lib.mkOverride 40 0);
-          # Scripts commonly use #!/usr/bin/env
-          BindReadOnlyPaths = [ "/usr/bin/env" ];
-        }
-        cfg.serviceOverrides
-      ];
-    }) enabledRunners;
+    users.groups = lib.mapAttrs' (name: _: lib.nameValuePair (userName name) { }) enabledRunners;
+
+    boot.kernelModules = lib.mkIf (enabledRunners != { }) [
+      "fuse"
+      "tun"
+      "tap"
+    ];
+
+    systemd.tmpfiles.rules = lib.flatten (
+      lib.mapAttrsToList (name: _: [
+        "d /run/user-podman-${userName name} 0700 ${userName name} ${userName name}"
+        "d ${stateDir name}/cache 0700 ${userName name} ${userName name}"
+      ]) enabledRunners
+    );
+
+    environment.persistence = lib.mkIf (enabledRunners != { }) {
+      "/nix/persist/github-runner" = {
+        hideMounts = true;
+        directories = lib.mapAttrsToList (name: _: {
+          directory = stateDir name;
+          user = userName name;
+          group = userName name;
+          mode = "u=rwx,g=,o=";
+        }) enabledRunners;
+      };
+    };
+
+    systemd.timers = lib.mapAttrs' (
+      name: _:
+      lib.nameValuePair "podman-${userName name}-prune" {
+        wantedBy = [ "timers.target" ];
+        timerConfig = {
+          OnCalendar = "weekly";
+          RandomizedDelaySec = "6h";
+          Persistent = true;
+        };
+      }
+    ) enabledRunners;
 
     # services.make only defines systemd.services.<unit>, so merge just that.
     systemd.services = lib.mkMerge (
       lib.flatten (
         lib.mapAttrsToList (
           name: cfg:
-          map (unit: [
-            (services.make {
-              name = unit;
-              svcConfig = cfg;
-              inherit pkgs config;
-            }).config.systemd.services
-            # Confinement only binds the closure of the Exec* lines, not
-            # `path`, so without this nothing on PATH exists in the chroot.
+          let
+            make =
+              unit: extra:
+              (services.make (
+                {
+                  name = unit;
+                  svcConfig = cfg;
+                  inherit pkgs config;
+                }
+                // extra
+              )).config.systemd.services;
+            podmanUnit = "podman-${userName name}";
+            podmanDeps = [ "${podmanUnit}.service" ];
+
+            mkInstance =
+              inst:
+              let
+                env = {
+                  RUNNER_URL = cfg.url;
+                  RUNNER_NAME = inst.runnerName;
+                  RUNNER_LABELS = lib.concatStringsSep "," cfg.extraLabels;
+                  RUNNER_GROUP = if cfg.runnerGroup == null then "" else cfg.runnerGroup;
+                  RUNNER_EPHEMERAL = if cfg.ephemeral then "1" else "0";
+                }
+                // cfg.extraEnvironment;
+                runArgs = [
+                  "run"
+                  "--rm"
+                  "--replace"
+                  "--name=${inst.unit}"
+                  "--hostname=${inst.unit}"
+                  "--pull=newer"
+                  "--privileged"
+                  # Paths as seen by the podman service
+                  "--volume=${stateDir name}/cache:/cache:U"
+                  "--volume=/token:/run/github-runner-token:ro"
+                  "--volume=/entrypoint.sh:/entrypoint.sh:ro"
+                ]
+                ++ foxDenLib.services.oci.options
+                ++ lib.mapAttrsToList (k: v: "--env=${k}=${v}") env
+                ++ [
+                  cfg.image
+                  "/entrypoint.sh"
+                ];
+              in
+              [
+                (make inst.unit { })
+                {
+                  ${inst.unit} = {
+                    after = podmanDeps;
+                    requires = podmanDeps;
+                    # Restarting podman kills the runner containers
+                    partOf = podmanDeps;
+
+                    serviceConfig = commonServiceConfig name // {
+                      ExecStart = "${podmanRemote name} ${lib.escapeShellArgs runArgs}";
+                      ExecStopPost = "-${podmanRemote name} rm --force --ignore --time 30 ${inst.unit}";
+                      # Ephemeral runners exit after every job, and NRestarts never resets
+                      # on auto-restarts, so services.make's backoff would climb to 5m
+                      # between jobs. Beat its mkForce.
+                      RestartSteps = lib.mkIf cfg.ephemeral (lib.mkOverride 40 0);
+                      TimeoutStopSec = "60s";
+                    };
+
+                    wantedBy = [ "multi-user.target" ];
+                  };
+                }
+              ];
+          in
+          [
+            (make podmanUnit {
+              devices = [
+                "/dev/net/tun"
+                "/dev/fuse"
+              ];
+            })
+            (make "${podmanUnit}-prune" { })
             {
-              ${unit} = {
-                confinement.packages = config.systemd.services.${unit}.path;
-                # The privileged (+) unconfigure ExecStartPre still runs in the
-                # chroot and copies the token from here. Upstream's
-                # InaccessiblePaths keeps hiding it from everything else (+
-                # skips sandboxing options, not RootDirectory or bind mounts).
-                serviceConfig.BindReadOnlyPaths = [ config.sops.secrets."github-runner-${name}".path ];
-              };
+              ${podmanUnit} = lib.mkMerge [
+                (podmanServiceBase name)
+                {
+                  serviceConfig = {
+                    Type = "exec";
+                    ExecStartPre = [
+                      # Runtime state outlives the service's netns; start as if after a reboot.
+                      "-${pkgs.findutils}/bin/find /run/user -mindepth 1 -delete"
+                      "${pkgs.podman}/bin/podman --log-level=info system migrate"
+                      "-${pkgs.podman}/bin/podman container prune --force"
+                    ];
+                    ExecStart = "${pkgs.podman}/bin/podman --log-level=info system service --time=0 ${podmanUrl name}";
+                    ExecStop = "${pkgs.podman}/bin/podman stop --all --time 30";
+                    TimeoutStopSec = "60s";
+                  };
+                  wantedBy = [ "multi-user.target" ];
+                }
+              ];
+
+              "${podmanUnit}-prune" = lib.mkMerge [
+                (podmanServiceBase name)
+                {
+                  serviceConfig = {
+                    Type = "oneshot";
+                    ExecStart = "${pkgs.podman}/bin/podman system prune --all --force --volumes --filter until=${toString (7 * 24)}h";
+                    Restart = "no";
+                    RemainAfterExit = false;
+                  };
+                }
+              ];
             }
-          ]) (unitNames name cfg)
+          ]
+          ++ lib.concatMap mkInstance (instances name cfg)
         ) enabledRunners
       )
     );
