@@ -95,6 +95,8 @@ function apply(r: NginxHTTPRequest, ctx: RequestContext, infos: FileInfo[]): voi
     }
 
     Object.assign(ctx, BASE_CTX);
+    // Only carry an explicitly requested sort along on links, so default URLs stay clean
+    ctx.sortQuery = r.variables.arg_sort ? `sort=${sort}&order=${isAscending ? 'asc' : 'desc'}` : '';
     if (isAscending) {
         ctx[`sort_${sort}_next`] = 'desc';
     }

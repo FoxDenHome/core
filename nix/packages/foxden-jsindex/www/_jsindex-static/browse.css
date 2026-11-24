@@ -127,3 +127,351 @@ th.numeric-cell a span.text {
   padding-left: 4pt;
   padding-right: 0;
 }
+
+/* View toggle and grid sort bar */
+.view-toggle,
+.grid-sort {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5em;
+  margin-bottom: 1.25em;
+}
+.view-toggle a,
+.grid-sort a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2em;
+  padding: 0 0.75em;
+  border: 1px solid #500050;
+  border-radius: 3px;
+  background-color: #160016;
+  text-decoration: none;
+}
+.view-toggle a:visited,
+.grid-sort a:visited {
+  color: fuchsia;
+}
+.view-toggle a:hover,
+.grid-sort a:hover {
+  border-color: fuchsia;
+  color: white;
+}
+.view-toggle a.active {
+  background-color: #500050;
+  border-color: fuchsia;
+  color: white;
+}
+.grid-sort a span.text {
+  text-decoration: none;
+}
+.grid-sort a span.icon-small:not(.icon-arrow-up):not(.icon-arrow-down) {
+  display: none;
+}
+.grid-sort a span.icon-small {
+  width: 14pt;
+  height: 14pt;
+  margin-left: 2pt;
+}
+
+/* Grid */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 1em;
+}
+.tile {
+  position: relative;
+  border: 1px solid #500050;
+  border-radius: 4px;
+  background-color: #160016;
+  overflow: hidden;
+}
+.tile:hover,
+.tile:focus-within {
+  border-color: fuchsia;
+}
+a.tile-link {
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+}
+.tile-thumb {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 1;
+  background-color: #0a000a;
+  overflow: hidden;
+}
+.tile-thumb img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+span.icon-large {
+  width: 64pt;
+  height: 64pt;
+}
+.tile-video .tile-thumb::after {
+  content: "\25B6";
+  position: absolute;
+  bottom: 0.4em;
+  left: 0.4em;
+  padding: 0.15em 0.5em;
+  border-radius: 3px;
+  background-color: rgba(0, 0, 0, 0.75);
+  color: white;
+  font-size: 0.8em;
+}
+.tile-name {
+  padding: 0.5em 0.6em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: center;
+  font-size: 0.9em;
+}
+a.tile-link:hover .tile-name {
+  color: white;
+}
+.tile-actions {
+  position: absolute;
+  top: 0.3em;
+  right: 0.3em;
+  border-radius: 3px;
+  background-color: rgba(0, 0, 0, 0.75);
+  line-height: 0;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.tile-actions:empty {
+  display: none;
+}
+.tile:hover .tile-actions,
+.tile:focus-within .tile-actions {
+  opacity: 1;
+}
+@media (hover: none) {
+  .tile-actions {
+    opacity: 1;
+  }
+}
+@media (max-width: 600px) {
+  body {
+    padding: 1em;
+  }
+  .grid {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 0.6em;
+  }
+}
+
+/* Dialogs and form controls */
+dialog {
+  color: fuchsia;
+}
+dialog button,
+dialog input {
+  font: inherit;
+}
+dialog button {
+  min-height: 2.2em;
+  padding: 0 0.9em;
+  border: 1px solid #500050;
+  border-radius: 3px;
+  background-color: black;
+  color: fuchsia;
+  cursor: pointer;
+}
+dialog button:hover {
+  border-color: fuchsia;
+  color: white;
+}
+dialog button:focus-visible,
+dialog input:focus-visible {
+  outline: 2px solid fuchsia;
+  outline-offset: 1px;
+}
+dialog button.primary {
+  border-color: fuchsia;
+  background-color: #500050;
+  color: white;
+}
+dialog button.primary:hover {
+  background-color: #700070;
+}
+dialog button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.share-dialog {
+  width: min(30em, calc(100vw - 2em));
+  box-sizing: border-box;
+  padding: 1.5em;
+  border: 1px solid purple;
+  border-radius: 4px;
+  background-color: #160016;
+  box-shadow: 0 0 2.5em rgba(255, 0, 255, 0.2);
+}
+.share-dialog::backdrop {
+  background-color: rgba(0, 0, 0, 0.75);
+}
+.share-dialog h2 {
+  margin-top: 0;
+  font-size: 1.25em;
+  overflow-wrap: anywhere;
+}
+.share-dialog label {
+  display: block;
+  margin: 0.9em 0 0.35em;
+}
+.share-dialog label.checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  cursor: pointer;
+}
+.share-dialog label.checkbox input {
+  accent-color: fuchsia;
+  width: 1.1em;
+  height: 1.1em;
+}
+.share-dialog [hidden] {
+  display: none;
+}
+.share-dialog input[type="text"],
+.share-dialog input[type="datetime-local"] {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.5em 0.6em;
+  border: 1px solid #500050;
+  border-radius: 3px;
+  background-color: black;
+  color: white;
+  color-scheme: dark;
+}
+.share-dialog input[aria-invalid="true"] {
+  border-color: #ff4d6d;
+}
+.share-dialog .presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4em;
+  margin-top: 0.6em;
+}
+.share-dialog .presets button {
+  min-height: 1.9em;
+  padding: 0 0.7em;
+  font-size: 0.9em;
+}
+.share-dialog .presets button.selected {
+  border-color: fuchsia;
+  background-color: #500050;
+  color: white;
+}
+.share-dialog .hint {
+  min-height: 1.3em;
+  margin: 0.8em 0 0;
+  color: #e080e0;
+  font-size: 0.9em;
+}
+.share-dialog .hint.error {
+  color: #ff4d6d;
+}
+.share-dialog .share-url-row {
+  display: flex;
+  gap: 0.5em;
+}
+.share-dialog .dialog-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5em;
+  margin-top: 1.5em;
+}
+
+/* Lightbox */
+.lightbox {
+  width: 100vw;
+  height: 100vh;
+  max-width: 100vw;
+  max-height: 100vh;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background-color: rgba(0, 0, 0, 0.94);
+  overflow: hidden;
+}
+.lightbox::backdrop {
+  background-color: black;
+}
+.lightbox-stage {
+  position: absolute;
+  inset: 0 0 3em 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1em;
+  box-sizing: border-box;
+}
+.lightbox-stage img,
+.lightbox-stage video {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+.lightbox button {
+  background-color: rgba(22, 0, 22, 0.8);
+}
+.lightbox-nav {
+  position: absolute;
+  top: calc(50% - 1.5em);
+  width: 2.2em;
+  height: 2.2em;
+  padding: 0;
+  font-size: 1.6em;
+  line-height: 1;
+}
+.lightbox-prev {
+  left: 0.5em;
+}
+.lightbox-next {
+  right: 0.5em;
+}
+.lightbox-close {
+  position: absolute;
+  top: 0.75em;
+  right: 0.75em;
+  width: 2.4em;
+  padding: 0;
+}
+.lightbox-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  gap: 1em;
+  height: 3em;
+  padding: 0 1em;
+  border-top: 1px solid #500050;
+  background-color: #160016;
+}
+.lightbox-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.lightbox-count {
+  color: #e080e0;
+  font-size: 0.9em;
+}
+.lightbox-error {
+  color: #e080e0;
+  text-align: center;
+}

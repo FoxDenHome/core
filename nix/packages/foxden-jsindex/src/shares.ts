@@ -180,7 +180,13 @@ async function view(r: NginxHTTPRequest): Promise<void> {
     return;
   }
 
+  const wantsThumb = !!r.args.thumb && r.variables.jsindex_thumbs === 'true';
+
   if (pathPrefix.charAt(pathPrefix.length - 1) !== '/') {
+    if (wantsThumb) {
+      await files.thumbRaw(r, pathPrefix);
+      return;
+    }
     await r.internalRedirect(`/_jsindex-static/_share${pathPrefix}`);
     return;
   }
@@ -193,6 +199,10 @@ async function view(r: NginxHTTPRequest): Promise<void> {
     return;
   }
 
+  if (wantsThumb) {
+    await files.thumbRaw(r, target);
+    return;
+  }
   await r.internalRedirect(`/_jsindex-static/_share${target}`);
 }
 
