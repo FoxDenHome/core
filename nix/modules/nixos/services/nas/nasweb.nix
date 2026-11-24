@@ -64,7 +64,7 @@ in
 
             root /data;
 
-            location /guest/ {
+            location /pub/ {
               satisfy any;
               allow 0.0.0.0/0;
               allow ::0/0;
