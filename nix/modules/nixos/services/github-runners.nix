@@ -123,7 +123,12 @@ let
     User = userName name;
     Group = userName name;
     WorkingDirectory = stateDir name;
-    StateDirectory = userName name;
+    # The cache comes from StateDirectory, not tmpfiles: stateDir is an
+    # impermanence bind mount that hides anything tmpfiles made beneath it.
+    StateDirectory = [
+      (userName name)
+      "${userName name}/cache"
+    ];
     PrivateTmp = true;
     Nice = 5;
   };
@@ -249,12 +254,9 @@ in
       "tap"
     ];
 
-    systemd.tmpfiles.rules = lib.flatten (
-      lib.mapAttrsToList (name: _: [
-        "d /run/user-podman-${userName name} 0700 ${userName name} ${userName name}"
-        "d ${stateDir name}/cache 0700 ${userName name} ${userName name}"
-      ]) enabledRunners
-    );
+    systemd.tmpfiles.rules = lib.mapAttrsToList (
+      name: _: "d /run/user-podman-${userName name} 0700 ${userName name} ${userName name}"
+    ) enabledRunners;
 
     environment.persistence = lib.mkIf (enabledRunners != { }) {
       "/nix/persist/github-runner" = {
