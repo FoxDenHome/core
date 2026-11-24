@@ -178,7 +178,16 @@ in
             }).config.systemd.services
             # Confinement only binds the closure of the Exec* lines, not
             # `path`, so without this nothing on PATH exists in the chroot.
-            { ${unit}.confinement.packages = config.systemd.services.${unit}.path; }
+            {
+              ${unit} = {
+                confinement.packages = config.systemd.services.${unit}.path;
+                # The privileged (+) unconfigure ExecStartPre still runs in the
+                # chroot and copies the token from here. Upstream's
+                # InaccessiblePaths keeps hiding it from everything else (+
+                # skips sandboxing options, not RootDirectory or bind mounts).
+                serviceConfig.BindReadOnlyPaths = [ config.sops.secrets."github-runner-${name}".path ];
+              };
+            }
           ]) (unitNames name cfg)
         ) enabledRunners
       )
