@@ -64,11 +64,10 @@ in
 
             root /data;
 
-            location ~ ^/guest/.*[^/]$ {
+            location /guest/ {
               satisfy any;
               allow 0.0.0.0/0;
               allow ::0/0;
-              index index.html;
             }
 
             include ${pkgs.foxden-jsindex}/lib/node_modules/foxden-jsindex/nginx.conf;
