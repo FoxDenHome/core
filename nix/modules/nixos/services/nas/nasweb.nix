@@ -29,7 +29,7 @@ in
 
   config = lib.mkIf svcConfig.enable (
     lib.mkMerge [
-      (services.http.make rec {
+      (services.http.make {
         inherit svcConfig pkgs config;
         name = "nasweb";
         modules = [
@@ -68,7 +68,10 @@ in
               satisfy any;
               allow 0.0.0.0/0;
               allow ::0/0;
-              ${target}
+              include ${pkgs.foxden-jsindex}/lib/node_modules/foxden-jsindex/nginx-location.conf;
+              if ($arg_thumb != "") {
+                js_content files.thumb;
+              }
             }
 
             include ${pkgs.foxden-jsindex}/lib/node_modules/foxden-jsindex/nginx.conf;
