@@ -112,6 +112,8 @@ The router user: on `router`, `router-backup` and `redfox` (users aren't managed
 
 The generated password is thrown away. A user with an SSH key can't log in to SSH with a password, and the address list covers SSH, API and WinBox alike. Make the key with `ssh-keygen -t ed25519 -N '' -C foxden-ci -f foxden-ci` and store `foxden-ci` (the private half) as `MIKROTIK_SSH_KEY`. `configure.py` uses it the same way it uses your own admin login: over SSH it gives the temporary API user `foxden-core-configure` a random password, uses it for the run and disables it afterwards. The rsync of container files also goes over SSH.
 
+The runners reach the routers' SSH and API, and the foxMail DKIM keys, through the router forward rules in `nix/systems/x86_64-linux/landevices/ci-firewall.nix`. Only the router that is their gateway is reachable without them. Since `configure.py` is what installs these rules, a change to them needs one run by hand before CI can use it.
+
 The routers' SSH host keys are pinned in `mikrotik/known_hosts`. Update that file if a router is reinstalled.
 
 ## TODO: Not-yet automated update cycles
