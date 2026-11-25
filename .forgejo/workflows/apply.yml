@@ -113,8 +113,21 @@ jobs:
           install -d -m 700 ~/.ssh
           install -m 600 /dev/null ~/.ssh/foxden-ci
           printf '%s\n' "$MIKROTIK_SSH_KEY" > ~/.ssh/foxden-ci
+          # foxden-ci may only log in from the runners' addresses, so the
+          # routers must see those. Over IPv6 the runners pick a SLAAC source
+          # address, and a router reached through the other one (the runners'
+          # gateway) sees it masquerade. So IPv4 only, and the routers at
+          # their address on the runners' VLAN (6). HostKeyAlias keeps the
+          # known_hosts entries matching.
           cat > ~/.ssh/config <<EOF
+          Host router.foxden.network
+            HostName 10.6.1.1
+            HostKeyAlias router.foxden.network
+          Host router-backup.foxden.network
+            HostName 10.6.1.2
+            HostKeyAlias router-backup.foxden.network
           Host router.foxden.network router-backup.foxden.network redfox.foxden.network
+            AddressFamily inet
             User foxden-ci
             IdentityFile ~/.ssh/foxden-ci
             IdentitiesOnly yes
