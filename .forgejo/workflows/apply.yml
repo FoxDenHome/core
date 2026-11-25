@@ -1,0 +1,131 @@
+# Continuous deployment of everything that isn't a NixOS host (deploy.yml does
+# those): the dashboard image, public DNS (dns/), the CDN (cdn/) and the
+# routers (mikrotik/), in that order. The routers come last because they read
+# the DynamicURL keys and ACME zones from ClouDNS and pull the dashboard image.
+#
+# The reconcilers are idempotent and all of them run on every push that
+# matches. Deciding per reconciler from the push's diff would lose changes
+# when a queued run is superseded by a newer one. The dashboard image is
+# content-addressed instead: it's only rebuilt when no image is tagged with the
+# git tree of dashboard/.
+#
+# Setup (secrets, router user, sops key): README.md, "Continuous deployment".
+name: Apply
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - '.forgejo/workflows/apply.yml'
+      - 'cdn/**'
+      - 'dashboard/**'
+      - 'dns/**'
+      - 'mikrotik/**'
+      - 'nix/**'
+      - '!**/*.md'
+      - '!**/tests/**'
+      - '!dns/acme-subusers.sh'
+      - '!mikrotik/backup.sh'
+      - '!mikrotik/foxden-wireguard.conf'
+
+# Never cancel a run halfway through reconfiguring the routers
+concurrency:
+  group: apply
+  cancel-in-progress: false
+
+enable-openid-connect: true
+
+jobs:
+  dashboard:
+    runs-on: ${{ vars.MANAGED_RUNNER_TAG || 'ubuntu-26.04' }}
+    steps:
+      - id: jwt
+        run: get-actions-jwt
+      - uses: https://data.forgejo.org/actions/checkout@v7
+      - id: image
+        name: Find the image of this dashboard/
+        run: echo "tag=tree-$(git rev-parse HEAD:dashboard)" >> "$GITHUB_OUTPUT"
+      - run: start-docker
+      - name: Log in to Docker Registry
+        uses: https://data.forgejo.org/docker/login-action@v4
+        with:
+          registry: git.foxden.network
+          username: forgejo
+          password: ${{ steps.jwt.outputs.jwt }}
+      - id: exists
+        name: Check whether it was built already
+        run: |
+          if docker buildx imagetools inspect 'git.foxden.network/foxden/dashboard:${{ steps.image.outputs.tag }}' > /dev/null 2>&1; then
+            echo 'Already built, skipping'
+            echo built=true >> "$GITHUB_OUTPUT"
+          else
+            echo built=false >> "$GITHUB_OUTPUT"
+          fi
+      # Tested by dashboard.yml in the PR
+      - name: Build and push container image
+        if: ${{ steps.exists.outputs.built != 'true' }}
+        uses: https://data.forgejo.org/docker/build-push-action@v7
+        with:
+          context: dashboard
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: |
+            git.foxden.network/foxden/dashboard:latest
+            git.foxden.network/foxden/dashboard:${{ steps.image.outputs.tag }}
+
+  apply:
+    needs: dashboard
+    runs-on: ubuntu-26.04
+    env:
+      # Nix, uv and the Nix substituters come pre-configured in the runner image
+      NIX_CONFIG: access-tokens = github.com=${{ secrets.EXT_GITHUB_TOKEN }}
+    steps:
+      - uses: https://data.forgejo.org/actions/checkout@v7
+      - name: Install sops and rsync
+        run: |
+          for pkg in sops rsync; do
+            echo "$(nix build --no-link --print-out-paths --inputs-from ./nix "nixpkgs#$pkg")/bin" >> "$GITHUB_PATH"
+          done
+
+      - name: Public DNS (ClouDNS, OVH reverses)
+        working-directory: dns
+        env:
+          CLOUDNS_AUTH_ID: ${{ secrets.CLOUDNS_AUTH_ID }}
+          CLOUDNS_PASSWORD: ${{ secrets.CLOUDNS_PASSWORD }}
+          OVH_ENDPOINT: ${{ vars.OVH_ENDPOINT || 'ovh-us' }}
+          OVH_APPLICATION_KEY: ${{ secrets.OVH_APPLICATION_KEY }}
+          OVH_APPLICATION_SECRET: ${{ secrets.OVH_APPLICATION_SECRET }}
+          OVH_CONSUMER_KEY: ${{ secrets.OVH_CONSUMER_KEY }}
+        run: ./dns.py apply --yes
+
+      - name: CDN (Fastly)
+        working-directory: cdn
+        env:
+          FASTLY_API_KEY: ${{ secrets.FASTLY_API_KEY }}
+        run: ./cdn.py apply --yes
+
+      - name: Set up SSH to the routers
+        env:
+          MIKROTIK_SSH_KEY: ${{ secrets.MIKROTIK_SSH_KEY }}
+        run: |
+          install -d -m 700 ~/.ssh
+          install -m 600 /dev/null ~/.ssh/foxden-ci
+          printf '%s\n' "$MIKROTIK_SSH_KEY" > ~/.ssh/foxden-ci
+          cat > ~/.ssh/config <<EOF
+          Host router.foxden.network router-backup.foxden.network redfox.foxden.network
+            User foxden-ci
+            IdentityFile ~/.ssh/foxden-ci
+            IdentitiesOnly yes
+            UserKnownHostsFile $GITHUB_WORKSPACE/mikrotik/known_hosts
+            StrictHostKeyChecking yes
+          EOF
+      - name: Routers (MikroTik)
+        working-directory: mikrotik
+        env:
+          # dns.py dynamic-keys and acme-zones
+          CLOUDNS_AUTH_ID: ${{ secrets.CLOUDNS_AUTH_ID }}
+          CLOUDNS_PASSWORD: ${{ secrets.CLOUDNS_PASSWORD }}
+          SOPS_AGE_KEY: ${{ secrets.MIKROTIK_SOPS_AGE_KEY }}
+        run: ./configure.py

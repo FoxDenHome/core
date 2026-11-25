@@ -9,10 +9,16 @@ on:
     paths:
       - '.forgejo/workflows/packetfox.yml'
       - 'packetfox/**'
+      - '!packetfox/README.md'
+      # Pins the sharkd the session test runs
+      - 'nix/flake.lock'
   push:
     paths:
       - '.forgejo/workflows/packetfox.yml'
       - 'packetfox/**'
+      - '!packetfox/README.md'
+      # Pins the sharkd the session test runs
+      - 'nix/flake.lock'
     branches:
       - main
 

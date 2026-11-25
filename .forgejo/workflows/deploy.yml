@@ -1,10 +1,21 @@
+name: Deploy
+
 on:
   push:
     paths:
       - '.forgejo/workflows/deploy.yml'
       - 'nix/**'
-      - 'vpn/**'
-      - 'packetfox/**'
+      # The sources nix/packages/{foxden-vpn,packetfox} build from
+      - 'packetfox/cmd/**'
+      - 'packetfox/go.mod'
+      - 'packetfox/go.sum'
+      - 'packetfox/internal/**'
+      - 'packetfox/vendor-hash.txt'
+      - 'vpn/cmd/**'
+      - 'vpn/go.mod'
+      - 'vpn/go.sum'
+      - 'vpn/internal/**'
+      - 'vpn/vendor-hash.txt'
     branches:
       - main
 

@@ -1,7 +1,10 @@
 keys:
   - &admin_doridian_keepassxc age1m27t2k0tyh23rt6925m8dacvkmz559deht2yelun9s7h3scsfa4q6hdjcl
+  # MIKROTIK_SOPS_AGE_KEY of .forgejo/workflows/apply.yml
+  - &ci_foxden_core_apply age1taq0cxgnufhca3g9wtjmfa7rzma93pty2d60tg6qr0tudnyzn3ys03jvea
 creation_rules:
   - path_regex: '^mikrotik/secrets/'
     key_groups:
       - age:
         - *admin_doridian_keepassxc
+        - *ci_foxden_core_apply

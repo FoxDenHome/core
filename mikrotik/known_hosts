@@ -1,0 +1,3 @@
+router.foxden.network ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINuHB5BubfcxjKbZVSY2TzG/xSKRFi+StDQRmgkIkP4s
+router-backup.foxden.network ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDTruz7STorMTR5x8uDSbUQlctsGW50xRPgFoAmjOtkW
+redfox.foxden.network ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICi3fMMXK+GbUHf1eIKId1MeD3uR1W3qCk1bQDxvEAtv
