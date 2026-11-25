@@ -1,9 +1,9 @@
 import unittest
 from typing import Any
 
-from dnssync import sync
-from dnssync.desired import DynamicRecord, Zone
-from dnssync.records import LiveRecord, Record
+from dnssync.cloudns import sync
+from dnssync.cloudns.desired import DynamicRecord, Zone
+from dnssync.cloudns.records import LiveRecord, Record
 
 
 def live(id: str, type: str, host: str, value: str, ttl: int = 3600, **extra: Any):

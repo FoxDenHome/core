@@ -1,8 +1,8 @@
 import unittest
 from typing import Any
 
-from dnssync import desired
-from dnssync.records import Record
+from dnssync.cloudns import desired
+from dnssync.cloudns.records import Record
 
 
 def rec(name: str, type: str, value: str, ttl: int = 3600, **extra: Any):

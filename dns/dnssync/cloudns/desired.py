@@ -3,14 +3,11 @@
 import json
 import re
 from dataclasses import dataclass, field
-from pathlib import Path
-from subprocess import check_output
 from typing import Any
 from urllib.request import urlopen
 
-from dnssync.records import VALID_TTLS, Record
-
-NIX_DIR = Path(__file__).resolve().parent.parent.parent / "nix"
+from dnssync import nix
+from dnssync.cloudns.records import VALID_TTLS, Record
 
 # ACME DNS-01: every dynamic TXT record _acme-challenge.<name> becomes a CNAME
 # to _acme-challenge.<name>.<group>.acme.foxden.network. Each group is a zone of
@@ -54,12 +51,7 @@ class Zone:
 
 
 def load_dns_json() -> dict[str, Any]:
-    path = check_output(
-        ["nix", "build", f"{NIX_DIR}#dns.json", "--no-link", "--print-out-paths"],
-        text=True,
-    ).strip()
-    with open(path) as f:
-        return json.load(f)
+    return nix.load_json("dns.json")
 
 
 def load_dkim() -> dict[str, str]:

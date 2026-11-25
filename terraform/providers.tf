@@ -2,17 +2,9 @@ terraform {
   required_version = "~> 1.10"
 
   required_providers {
-    external = {
-      source  = "hashicorp/external"
-      version = "~> 2.4.0"
-    }
     random = {
       source  = "hashicorp/random"
       version = "3.9.1"
-    }
-    ovh = {
-      source  = "ovh/ovh"
-      version = "~> 2.25.0"
     }
     fastly = {
       source  = "fastly/fastly"

@@ -15,9 +15,9 @@ _cloudns_cache: dict[str, Any] = {}
 
 
 def load_cloudns(command: str) -> Any:
-    """JSON output of ../cloudns/cloudns.py <command>"""
+    """JSON output of ../dns/dns.py <command>"""
     if command not in _cloudns_cache:
-        output = check_output([mtik_path("../cloudns/cloudns.py"), command])
+        output = check_output([mtik_path("../dns/dns.py"), command])
         _cloudns_cache[command] = json_loads(output)
     return _cloudns_cache[command]
 

@@ -6,9 +6,9 @@ from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from typing import Any
 
-from dnssync.api import Client
-from dnssync.desired import Zone
-from dnssync.records import LiveRecord, Record
+from dnssync.cloudns.api import Client
+from dnssync.cloudns.desired import Zone
+from dnssync.cloudns.records import LiveRecord, Record
 
 # Change kinds, in the order they are applied
 CREATE_ZONE = "create-zone"
