@@ -71,7 +71,7 @@ in
     acme.enable = lib.mkEnableOption ''
       a Let's Encrypt certificate for the BMC's web UI. DNS-01 goes through
       _acme-challenge.<hostName>.<hostZone>, a CNAME into its own ClouDNS zone
-      (tofu output acme_zones). The ipmiconfig-acme secret holds the API
+      (dns/dns.py acme-zones). The ipmiconfig-acme secret holds the API
       sub-user that may write that zone as CLOUDNS_SUB_AUTH_ID=<id> and
       CLOUDNS_AUTH_PASSWORD=<password>
     '';

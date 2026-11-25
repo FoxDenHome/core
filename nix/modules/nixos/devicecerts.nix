@@ -19,7 +19,7 @@ in
       Let's Encrypt certificates for the web UIs of UPS/ATS network cards and
       NetCmdr KVM switches.
       DNS-01 goes through _acme-challenge.<fqdn>, a CNAME into the ClouDNS zone
-      devicecerts-<hostName>.acme.foxden.network (tofu output acme_zones). The
+      devicecerts-<hostName>.acme.foxden.network (dns/dns.py acme-zones). The
       devicecerts-acme secret holds the API sub-user that may write that zone
       as CLOUDNS_SUB_AUTH_ID=<id> and CLOUDNS_AUTH_PASSWORD=<password>. The cards log in to oauth-jit-radius (which has to run
       on this host) as the static RADIUS user devicecerts, whose password is

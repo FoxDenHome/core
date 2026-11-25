@@ -4,7 +4,6 @@ on:
   pull_request:
   push:
     paths-ignore:
-      - terraform/.terraform.lock.hcl
       - mikrotik/uv.lock
       - nix/flake.lock
     branches:
@@ -29,14 +28,3 @@ jobs:
       - name: Lint python
         run: |
           uv run --project mikrotik ruff check
-
-      - uses: https://github.com/terraform-linters/setup-tflint@v6
-        name: Setup TFLint
-        with:
-          tflint_version: v0.66.0
-
-      - name: Init TFLint
-        run: tflint --init
-
-      - name: Run TFLint
-        run: tflint -c "${PWD}/terraform/.tflint.hcl" --recursive -f compact

@@ -91,7 +91,7 @@ in
       }).config
       {
         # Wildcard certificates need DNS-01. _acme-challenge.<domain> is a
-        # CNAME into its own ClouDNS zone (tofu output acme_zones); this secret
+        # CNAME into its own ClouDNS zone (dns/dns.py acme-zones); this secret
         # holds the API sub-user that may write that zone as
         # CLOUDNS_SUB_AUTH_ID=<id> and CLOUDNS_AUTH_PASSWORD=<password>.
         sops.secrets.foxden-vpn-edge-acme = config.lib.foxDen.sops.mkIfAvailable { };

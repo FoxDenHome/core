@@ -1,6 +1,6 @@
 { ... }:
 let
-  # Fastly's TLS configuration CNAME (terraform/foxden-cdn.tf checks it)
+  # Fastly's TLS CNAME (cdn/cdn.py checks it)
   target = "x.sni.global.fastly.net.";
   mkRecord = fqdn: type: {
     inherit fqdn type;

@@ -139,7 +139,7 @@ Nix: `pkgs.foxden-vpn` (`nix/packages/foxden-vpn`) contains `foxden-vpnd` (daemo
 
 ## One-time server setup
 
-1. **Fastly:** `terraform apply` in `terraform/`. This creates the `vpn_peers` dictionary and the VCL that serves it. Terraform only owns the dictionary; its items belong to the portal.
+1. **Fastly:** `cdn/cdn.py apply`. This creates the `vpn_peers` dictionary and the VCL that serves it. `cdn/` only owns the dictionary; its items belong to the portal.
 2. **RouterOS user**, on both `router` and `router-backup`. The password must be the same on both. `sensitive` is needed to read the `wg-vpn` private key for sealing blobs, and `address` restricts logins to the portal host.
 
    ```
