@@ -61,9 +61,9 @@
         {
             "name": "AutoDeconstruct",
             "enabled": true,
-            "sha1": "360f16278fa71c2e7f13b1a052418d95ef0638a9",
-            "url": "https://mods.factorio.com/download/AutoDeconstruct/6a6aaca5a4738e589774902d",
-            "version": "1.1.2"
+            "sha1": "aa651c698bfd1b554c74c309f2f97be7caaaa28b",
+            "url": "https://mods.factorio.com/download/AutoDeconstruct/6b0594159fc93cd83eadda90",
+            "version": "1.1.4"
         },
         {
             "name": "bullet-trails",

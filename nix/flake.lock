@@ -57,11 +57,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1795200659,
-        "narHash": "sha256-ZJUctn6aWan3ncyRlJNuoAaD12zyE/GhEonLzWXsNoc=",
+        "lastModified": 1795636338,
+        "narHash": "sha256-OxXKyZEE+9yqERQpBPrl+A6OWsUapJ6YlX6fW1DWFOc=",
         "owner": "Doridian",
         "repo": "DarkSignsOnline",
-        "rev": "a592282aa268a8459e17a0396f85d573476e5886",
+        "rev": "9aa1a489c17f06afb0b566ed308e2ecdbdaa2962",
         "type": "github"
       },
       "original": {
@@ -80,11 +80,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1795470463,
-        "narHash": "sha256-3dSlL5GUZl1NNzOFL+v1UjxQl6O01R4uZUPARrtqOas=",
+        "lastModified": 1795558810,
+        "narHash": "sha256-+vg/T3NJoS0zfTxkyxFe5tkJds/lWOcaRLLvg+KoPZg=",
         "ref": "refs/heads/main",
-        "rev": "d553ff7e6451d4c62d82bc992c68fbef00b0ac7d",
-        "revCount": 824,
+        "rev": "ae45e5d2518e4798e1f034a21e27f29a85785419",
+        "revCount": 825,
         "type": "git",
         "url": "https://git.foxden.network/FoxDen/e621dumper"
       },
@@ -103,11 +103,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1795470462,
-        "narHash": "sha256-1Esi4T4zvRHR04ELmeyAOWNtgF08LOdpjUnJHeBXhRU=",
+        "lastModified": 1795558845,
+        "narHash": "sha256-/fXOkvBm6SBD1MZpVZVk4LMTcTIqvlL0wvVz4C59Tw0=",
         "ref": "refs/heads/main",
-        "rev": "99d8f7df7992d11318b46a55c74985532e746932",
-        "revCount": 870,
+        "rev": "9c7ab903b05946e4e0eacc49ef9e4701ff74c44e",
+        "revCount": 871,
         "type": "git",
         "url": "https://git.foxden.network/FoxDen/fadumper"
       },
@@ -168,11 +168,11 @@
         "nixpkgs-acme": "nixpkgs-acme"
       },
       "locked": {
-        "lastModified": 1795470616,
-        "narHash": "sha256-fl3WEPH68QKzXf+vraO9MKuNNh2A0wXGT6NelTUaAko=",
+        "lastModified": 1795558848,
+        "narHash": "sha256-voSs+dlP3GI3Jb5WTecQvRZkE3jkwvBs2MD5UhauJDI=",
         "ref": "refs/heads/main",
-        "rev": "8a58e356c19e93b8cb300b7662b3b89b7a63adfa",
-        "revCount": 4273,
+        "rev": "f4a301714208c0f16289b657171c1dbdcc5d5053",
+        "revCount": 4276,
         "type": "git",
         "url": "https://git.foxden.network/foxCaves/foxCaves"
       },
@@ -266,11 +266,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1795366757,
-        "narHash": "sha256-Tp4Kh4R7ID1f2mMCDlb2PiFQ/DZZsnXB2u2juWN+TT4=",
+        "lastModified": 1795618997,
+        "narHash": "sha256-d9Osol//t6hqeo1xlspsYMbhTJK507h6t0EmPyF5Db0=",
         "owner": "nix-community",
         "repo": "home-manager",
-        "rev": "3b8140d21fa0a70b1b38c2ed29853dfe686234a6",
+        "rev": "6a13737c0ed27c7c285f59e3be423ed972aa605f",
         "type": "github"
       },
       "original": {
@@ -312,11 +312,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1795393103,
-        "narHash": "sha256-TeZnuA1z4YDFxUHF1J9/yeGzh8xsYNw/mFzTY51xqnw=",
+        "lastModified": 1795559903,
+        "narHash": "sha256-QE7K07g9WW1wM+0JaV9MNKLtbMSYoDvqqF7B/2ywzhs=",
         "ref": "refs/heads/main",
-        "rev": "90a1dd54a782c9c4af2fed735ecb530260520757",
-        "revCount": 74,
+        "rev": "58a05d9a81c856dd1c1d654a9fc18317a93aefd2",
+        "revCount": 77,
         "type": "git",
         "url": "https://git.foxden.network/FoxDen/NetCmdr"
       },
@@ -501,11 +501,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1795471302,
-        "narHash": "sha256-Fhf+vcu7Z6Atld/rZEKaA0YCvddtGGuXO02CnSB8OWY=",
+        "lastModified": 1795558827,
+        "narHash": "sha256-m8+KGBZA2YS1zyfZ6D2Sb/d2umy/4D2evjq3arVyC5Y=",
         "ref": "refs/heads/main",
-        "rev": "45dd11da4b0c91323b0a23ad8aaa74ecfddf98de",
-        "revCount": 17,
+        "rev": "c7ae99d4317e6327e382c491478d697abd637bfa",
+        "revCount": 21,
         "type": "git",
         "url": "https://git.foxden.network/FoxDen/SheetFox"
       },
@@ -521,11 +521,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1794866654,
-        "narHash": "sha256-Y28AMB8lyKjASdJ0BVsR2AqR1cUsVuo8RVVpzHoECho=",
+        "lastModified": 1795471345,
+        "narHash": "sha256-2p8/wnENYHU2Z79Ir/rpq+V1sMI9mSD6xGAlvlbVBUY=",
         "owner": "Mic92",
         "repo": "sops-nix",
-        "rev": "7c637afdccdf9bcf35c4a2d67b58a77c1fd843a4",
+        "rev": "d5abe5e53200ad48254e8e6bd95e6cef94e66577",
         "type": "github"
       },
       "original": {
