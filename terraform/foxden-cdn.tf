@@ -61,12 +61,10 @@ resource "fastly_tls_subscription" "cdn_foxden" {
   depends_on = [fastly_domain.cdn_foxden]
 }
 
-resource "cloudns_dns_record" "cdn_foxden" {
-  for_each = local.domains
-
-  zone  = module.cloudns_domain["foxden.network"].zone
-  type  = each.key == "foxden.network" ? "ALIAS" : "CNAME"
-  name  = each.key == "foxden.network" ? "" : trimsuffix(each.key, ".foxden.network")
-  ttl   = 300
-  value = trimsuffix(local.cname_record, ".")
+# The records pointing at it are in nix (nix/systems/x86_64-linux/landevices/fastly-cdn.nix)
+check "cdn_foxden_dns" {
+  assert {
+    condition     = trimsuffix(local.cname_record, ".") == "x.sni.global.fastly.net"
+    error_message = "Fastly's TLS CNAME is now ${local.cname_record}, update fastly-cdn.nix"
+  }
 }

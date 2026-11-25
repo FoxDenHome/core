@@ -1,40 +1,6 @@
 # This file is maintained automatically by "tofu init".
 # Manual edits may be lost in future updates.
 
-provider "registry.opentofu.org/cloudns/cloudns" {
-  version     = "1.4.1"
-  constraints = "~> 1.3"
-  hashes = [
-    "h1:/H5Jcnk9Acln8uj4Q4F8eZ8K3FcwkvLK29ikVKMfRhM=",
-    "h1:1iNwGwEYB/7aQOKlpi2HNHKuMwt3xeefGHJhfD7aplE=",
-    "h1:1mknPJTDGjvKx/Z+iHuT5Dp/nCJKdx4HZoiSO4gb1/o=",
-    "h1:3CdoZzVad50hsdHxGA+ObmMsC/j/X3uv44CIihCvwdw=",
-    "h1:9tccd6W3LKrRbXvbVi7E0uUd2vThSXnlQk6Zvq/RWLc=",
-    "h1:T7aW0CuFhb4xEuPEP1+4Iade1WtOIOXAP+486wmWNUc=",
-    "h1:ZB0AotjG5IlYIWazdLx2w9U13vUyY11bNV4a4MtpYzA=",
-    "h1:bClk97Ul0U+DN/TMLOlsihkdhCmQ254x8CP5bDTOp3I=",
-    "h1:cYPPsbUqq/m1+dGkT3ae9InJWhS4iVwr6n8ITeAISoY=",
-    "h1:msQpHceQDD/59XtoSKNZiyon+8LFQfMKmOJyyq/RDYQ=",
-    "h1:uZIWSQ3M5cJ2HQeXIRE+l05Zp9772hDl/Gi4/gsUL9o=",
-    "h1:wIcqo12gLCwUfVp6H0IS7V2H9BQSO1nmQLwAAfI13QM=",
-    "h1:woABL31k8aiuCa7/DQBQ8+V3i8pUC7cPtMzmW1neplM=",
-    "zh:06f8dadd2817c4ef766a031afa66cabb75b2ea56a90b992b21423920535605a7",
-    "zh:0c625f7f1c690f22af7e392f87bc31ac4e089a29a8f1835221bd04dbee830830",
-    "zh:1a59b04bc561cb3bb0f859c238c97398af1c5ba0df554e1681a63726364e0240",
-    "zh:2b2082c6c724d17c7305b879da3c7e44a55702b98af1db799a1ff49441b13722",
-    "zh:3728c59d6d62ccb86335459bf221cf66ec58613b314416f389fa3c87ab66853b",
-    "zh:3b6a67ea333c4bfd3e34d148d50d32535da80517b04125e4bc67a8ebc5a92100",
-    "zh:484b81b1e2fda825e86880638d16507aafc803fc48030d464e50678ca42b67fe",
-    "zh:90c1b2e224b01a8cc2ca23b700cdf7b1636b822da155b85fd209612e4bb591b7",
-    "zh:c2262589cc9a5b2cd1612291a7c33b703eeffb8c4b40e90acf68b3bf0573f705",
-    "zh:dd1b9edc97334a91f226a0f112a80828f45442302244e6dac4a942ec9b6278f7",
-    "zh:ee42814d21c28b2f1218299cbcab95888f11badea0025727df1d3aae2becb8c9",
-    "zh:f3c0088880da7cd0ece6829e02bb728c307860981dd78800354943912404d4f9",
-    "zh:fbd1fee2c9df3aa19cf8851ce134dea6e45ea01cb85695c1726670c285797e25",
-    "zh:fe35d5d135bb7b8c0881502b2004bf8d6bcaf99d073e7c590e44830bad213300",
-  ]
-}
-
 provider "registry.opentofu.org/fastly/fastly" {
   version     = "10.4.0"
   constraints = "~> 10.4.0"

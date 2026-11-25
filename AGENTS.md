@@ -8,7 +8,8 @@ Monorepo controlling the FoxDen homelab. Four independent subprojects, all drive
 
 - `nix/` — NixOS configs for all Linux hosts (bengalfox, islandfox, icefox, …), plus flake outputs (`dns`, `dhcp`, `firewall`, `foxIngress`, `foxMail`, `ipReverses`, …) that the other subprojects consume.
 - `mikrotik/` — Python (uv) tool that pushes the generated config to the RouterOS routers (`router`, `router-backup`, `redfox`) over the RouterOS API.
-- `terraform/` — Public DNS (ClouDNS), DKIM, reverse DNS and the Fastly CDN. The `*.sh` scripts are `external` data sources that `nix build` the flake JSON outputs.
+- `cloudns/` — Stateless reconciler (plain Python, stdlib only) that makes the public DNS zones at ClouDNS match the flake output `dns.json`, plus the routers' DKIM keys. It also hands `mikrotik/` the DynamicURL keys (`dynamic-keys`) and ACME zones (`acme-zones`).
+- `terraform/` — Reverse DNS (OVH) and the Fastly CDN. The `*.sh` scripts are `external` data sources that `nix build` the flake JSON outputs.
 - `vpn/` — Go WireGuard client daemon/tray (`foxden-vpnd`), self-service portal and expose edge. See `vpn/README.md` for the design. Packaged into nix as `nix/packages/foxden-vpn`.
 - `packetfox/` — PacketFox (`pfox`, https://pfox.foxden.network): captures on the routers (mangle `sniff-tzsp`), UniFi APs and NixOS hosts (`pfox-agent`) at once and follows packets across them, in a Wireshark-like UI backed by `sharkd`. See `packetfox/README.md`. Packaged into nix as `nix/packages/packetfox`.
 
@@ -29,6 +30,11 @@ uv run python -m unittest tests.test_dns           # single module; append .Clas
 ./configure.py                                     # APPLIES config to the live routers
 ./backup.sh [mirror_dir]                           # pull RouterOS backups/exports
 
+# ClouDNS (run from cloudns/; needs CLOUDNS_AUTH_ID, CLOUDNS_PASSWORD)
+./cloudns.py plan                                  # diff ClouDNS against nix
+./cloudns.py apply                                 # APPLIES it (asks first)
+python3 -m unittest                                # tests
+
 # Terraform
 tflint -c "$PWD/terraform/.tflint.hcl" --recursive -f compact   # from repo root (CI)
 terraform/tf.sh plan                                           # tofu wrapper: state backend tunnel + passphrase
@@ -44,7 +50,7 @@ make test       # go vet + go test; SHARKD=<path> adds the sharkd end-to-end tes
 ./update-all.sh   # flake update + factorio mod list + mikrotik configure
 ```
 
-CI (`.forgejo/workflows/lint.yml`) runs nixfmt, ruff and tflint. `main` is protected and changes land through PRs on Forgejo. Open them from a branch pushed to `origin` (e.g. `git push origin HEAD:<branch>` then `fj pr create --head <branch> --base main`), not with AGit (`refs/for/main/...`): Forgejo treats AGit PRs as fork PRs and withholds secrets (like `EXT_GITHUB_TOKEN`) from their CI runs. Merges to `main` touching `nix/**` trigger `deploy.yml`, which SSHes into each host as `nixpush`. The hosts then run `nixos-rebuild switch` against `git+https://git.foxden.network/FoxDen/core?dir=nix#<hostname>`, so **merging to main deploys to production**.
+CI (`.forgejo/workflows/lint.yml`) runs nixfmt, ruff (over `mikrotik/` and `cloudns/`) and tflint. `main` is protected and changes land through PRs on Forgejo. Open them from a branch pushed to `origin` (e.g. `git push origin HEAD:<branch>` then `fj pr create --head <branch> --base main`), not with AGit (`refs/for/main/...`): Forgejo treats AGit PRs as fork PRs and withholds secrets (like `EXT_GITHUB_TOKEN`) from their CI runs. Merges to `main` touching `nix/**` trigger `deploy.yml`, which SSHes into each host as `nixpush`. The hosts then run `nixos-rebuild switch` against `git+https://git.foxden.network/FoxDen/core?dir=nix#<hostname>`, so **merging to main deploys to production**.
 
 ## Nix architecture
 
@@ -54,7 +60,7 @@ CI (`.forgejo/workflows/lint.yml`) runs nixfmt, ruff and tflint. `main` is prote
 - **NixOS modules**: every `.nix` under `modules/nixos/` is imported into **every** host. Modules declare `options.foxDen.*` and gate their config behind `enable`.
 - **Library (`foxDenLib`)**: every file under `modules/lib/` is imported with the flake inputs and merged into a nested attrset by path (`modules/lib/services/http.nix` → `foxDenLib.services.http`, and a `main.nix` maps to its directory). A lib file may also export `nixosModule`, which is added to every host. `foxDenLib`, all flake inputs, `hostName` and `systemArch` are available as module arguments.
 - **Packages**: each `packages/<name>/package.nix` is merged into `pkgs`, along with the `packages` of every flake input (`modules/nixos/packages.nix`).
-- **Cross-host global config**: `modules/lib/global/*` builds `dns`, `dhcp`, `firewall`, `kanidm`, `kerberos`, `foxIngress`, `foxMail` and similar from *all* `nixosConfigurations`. The results are passed back into each host as `specialArgs` and exported as flake outputs for mikrotik/terraform. A change on one host can therefore change DNS, DHCP or firewall output for the routers and for other hosts.
+- **Cross-host global config**: `modules/lib/global/*` builds `dns`, `dhcp`, `firewall`, `kanidm`, `kerberos`, `foxIngress`, `foxMail` and similar from *all* `nixosConfigurations`. The results are passed back into each host as `specialArgs` and exported as flake outputs for mikrotik/cloudns/terraform. A change on one host can therefore change DNS, DHCP or firewall output for the routers and for other hosts.
 
 Typical service pattern (see `systems/x86_64-linux/islandfox/rmfakecloud.nix` + `modules/nixos/services/rmfakecloud.nix`):
 - The service module defines `options.foxDen.services.<name>` via `foxDenLib.services.http.mkOptions` and builds its config with `services.make` / `services.http.make`. These run the service in its own network namespace attached to a "host".
@@ -72,6 +78,7 @@ Typical service pattern (see `systems/x86_64-linux/islandfox/rmfakecloud.nix` + 
 - Never use `/var/run`; always use `/run`.
 - `mikrotik/` manages nearly all RouterOS config. `configure/basics.py` handles interfaces, VLANs, VRRP, addresses, DHCP servers, routing and system settings, using the addressing plan in `nix/modules/lib/routers.nix` (flake output `routers.json`). Users, passwords, certificates and WireGuard keys/peers are set by hand. Basics prunes rows it doesn't know in the tables it owns, so add new router config there rather than by hand.
 - PacketFox creates and removes RouterOS rows commented `pfox` (mangle, filter, address list `pfox`) while capturing; `configure/firewall.py` skips them. Don't use that comment for anything else.
+- `cloudns/cloudns.py apply` deletes every record in a public zone that nix doesn't declare, except apex NS records and the contents of the ACME zones. Declare new public records in nix (`foxDen.dns.records`, horizon `external` or `*`), never in the ClouDNS panel. Records whose value someone else keeps (`dynDns` A/AAAA) keep their live value. Zones are never deleted.
 - Public zones are delegated to the vanity nameservers `ns1.doridian.net`, `ns2.doridian.de`, `ns3.foxden.network` and `ns4.f0x.es` (`foxDen.dns.authorities` in `nix/systems/x86_64-linux/landevices/domains.nix`), which are ALIASes to ClouDNS's pns41-44, with glue at the registrars. Never enable DNSSEC on them: the routers override names in these zones for the LAN.
-- ACME DNS-01 goes through dynamic TXT records (`dynDns = true`). At ClouDNS each becomes a CNAME into a zone `<acmeGroup>.acme.foxden.network` (tofu output `acme_zones`), and whoever requests the certificate writes it as an API sub-user delegated only that zone. The Terraform provider can't manage sub-users, so `terraform/acme-subusers.sh` does: it gives each zone a sub-user `acme-<zone label>` and writes its credentials into the sops secret that uses them (its `targets` table; add a row when adding an ACME consumer). It is idempotent, `--rotate` renews every password, and zones not managed here (bambu-x1) get a 0600 file under `$XDG_RUNTIME_DIR` instead.
+- ACME DNS-01 goes through dynamic TXT records (`dynDns = true`). At ClouDNS each becomes a CNAME into a zone `<acmeGroup>.acme.foxden.network` (`cloudns/cloudns.py acme-zones`), and whoever requests the certificate writes it as an API sub-user delegated only that zone. `cloudns/acme-subusers.sh` makes the sub-users: it gives each zone a sub-user `acme-<zone label>` and writes its credentials into the sops secret that uses them (its `targets` table; add a row when adding an ACME consumer). It is idempotent, `--rotate` renews every password, and zones not managed here (bambu-x1) get a 0600 file under `$XDG_RUNTIME_DIR` instead.
 - The `vpn/` Go vendor hash lives in `vpn/vendor-hash.txt`. Renovate regenerates it on Go dep bumps; after changing deps by hand, run `../maid/tools/auto-nix-hash vpn/vendor-hash.txt './nix#nixosConfigurations.islandfox.pkgs.foxden-vpn.goModules'` from the repo root (FoxDen/maid checked out alongside core).

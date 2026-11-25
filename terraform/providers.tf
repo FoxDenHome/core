@@ -18,10 +18,6 @@ terraform {
       source  = "fastly/fastly"
       version = "~> 10.4.0"
     }
-    cloudns = {
-      source  = "ClouDNS/cloudns"
-      version = "~> 1.3"
-    }
   }
 
   # Connection comes from PG_CONN_STR, set up by tf.sh
@@ -53,5 +49,3 @@ variable "state_passphrase" {
   type      = string
   sensitive = true
 }
-
-provider "cloudns" {}

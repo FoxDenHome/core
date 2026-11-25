@@ -11,31 +11,25 @@ TEMPLATE = mtik_path(f"files/dyndns/{MAIN_SCRIPT}.rsc")
 router_hosts = [router.host for router in ROUTERS]
 SPECIAL_HOSTS = router_hosts + [f"v4-{router}" for router in router_hosts]
 
-_tofu_outputs_value: dict[str, Any] | None = None
+_cloudns_cache: dict[str, Any] = {}
 
 
-def load_tofu_outputs() -> dict[str, Any]:
-    global _tofu_outputs_value
-    if _tofu_outputs_value is not None:
-        return _tofu_outputs_value
-
-    # tf.sh sets up access to the state backend on islandfox
-    output = check_output(
-        [mtik_path("../terraform/tf.sh"), "output", "-show-sensitive", "-json"]
-    ).decode("utf-8")
-    raw_output = json_loads(output)
-    _tofu_outputs_value = {key: value["value"] for key, value in raw_output.items()}
-    return _tofu_outputs_value
+def load_cloudns(command: str) -> Any:
+    """JSON output of ../cloudns/cloudns.py <command>"""
+    if command not in _cloudns_cache:
+        output = check_output([mtik_path("../cloudns/cloudns.py"), command])
+        _cloudns_cache[command] = json_loads(output)
+    return _cloudns_cache[command]
 
 
 def load_cloudns_hosts() -> dict[str, dict[str, Any]]:
     """fqdn => {ipv4, ipv6, ipv6_suffix}: ClouDNS dynamic URL keys"""
-    return load_tofu_outputs().get("cloudns_dynamic_keys") or {}
+    return load_cloudns("dynamic-keys")
 
 
 def load_acme_zones() -> dict[str, str]:
     """_acme-challenge.<name> => ClouDNS zone its TXT record goes into"""
-    return load_tofu_outputs().get("acme_zones") or {}
+    return load_cloudns("acme-zones")
 
 
 def update_line(indent: str, host: str, priv6addr: str | None = None) -> str | None:

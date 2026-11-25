@@ -167,17 +167,11 @@ Nix: `pkgs.foxden-vpn` (`nix/packages/foxden-vpn`) contains `foxden-vpnd` (daemo
 
 To set it up:
 
-1. `terraform/tf.sh apply`, which creates the CNAME, the ACME zone and the wildcard CNAME `*.tunnel.f0x.es` → `tunnel.f0x.es`.
-2. In the ClouDNS panel, add an API sub-user and delegate the zone `tunnel-f0x-es.acme.foxden.network` to it (see `tofu output acme_zones`).
-3. Add a `foxden-vpn-edge-acme` entry to `nix/secrets/islandfox.yaml` with that sub-user:
+1. `cloudns/cloudns.py apply`, which creates the CNAME, the ACME zone and the wildcard CNAME `*.tunnel.f0x.es` → `tunnel.f0x.es`.
+2. `cloudns/acme-subusers.sh`, which makes the API sub-user for `tunnel-f0x-es.acme.foxden.network` and writes it into the `foxden-vpn-edge-acme` entry of `nix/secrets/islandfox.yaml`.
 
-   ```
-   CLOUDNS_SUB_AUTH_ID=<id>
-   CLOUDNS_AUTH_PASSWORD=<password>
-   ```
-
-4. Run `mikrotik/configure.py`, which pushes the port forwards, foxIngress and dyndns. The dyndns script skips TXT records.
-5. Deploy islandfox.
+3. Run `mikrotik/configure.py`, which pushes the port forwards, foxIngress and dyndns. The dyndns script skips TXT records.
+4. Deploy islandfox.
 
 ### Existing peers
 

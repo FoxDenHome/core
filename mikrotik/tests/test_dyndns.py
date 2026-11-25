@@ -20,8 +20,8 @@ def make_router() -> MTikRouter:
     )
 
 
-OUTPUTS = {
-    "cloudns_dynamic_keys": {
+CLOUDNS = {
+    "dynamic-keys": {
         ROUTER_HOST: {"ipv4": "c4", "ipv6": "c6", "ipv6_suffix": "::99"},
         f"v4-{ROUTER_HOST}": {"ipv4": "cv4", "ipv6": None, "ipv6_suffix": None},
         "alpha.foxden.network": {"ipv4": "a4", "ipv6": "a6", "ipv6_suffix": "::a"},
@@ -38,7 +38,7 @@ OUTPUTS = {
 
 class TestDyndns(unittest.TestCase):
     def setUp(self) -> None:
-        patcher = patch.object(dyndns, "_tofu_outputs_value", OUTPUTS)
+        patcher = patch.object(dyndns, "_cloudns_cache", CLOUDNS)
         patcher.start()
         self.addCleanup(patcher.stop)
 
@@ -61,7 +61,7 @@ class TestDyndns(unittest.TestCase):
         self.assertEqual(script.schedule, "5m")
         self.assertNotIn("# HOSTS #", script.source)
         self.assertNotIn("# SPECIAL HOSTS #", script.source)
-        # The router's own suffix wins over the one from terraform
+        # The router's own suffix wins over the one from nix
         self.assertIn(
             f'$dyndnsUpdate host="{ROUTER_HOST}" key4="c4" key6="c6" priv6addr="::1" ip6addr=$ip6addr ipaddr=$ipaddr\n',
             script.source,

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Gives every ACME zone (tofu output acme_zones) a ClouDNS API sub-user that
+# Gives every ACME zone (./cloudns.py acme-zones) a ClouDNS API sub-user that
 # may edit only that zone, and writes its credentials into the sops secret of
 # whoever requests the certificates. The ClouDNS provider can't manage
 # sub-users, so this talks to the API directly.
@@ -10,7 +10,7 @@ set -euo pipefail
 # A sub-user whose secret is missing or stale gets a new password. --rotate
 # gives every sub-user a new password.
 #
-# Needs CLOUDNS_AUTH_ID and CLOUDNS_PASSWORD (the main API user), like tofu.
+# Needs CLOUDNS_AUTH_ID and CLOUDNS_PASSWORD (the main API user), like cloudns.py.
 
 cd "$(dirname "$(readlink -f "$0")")"
 
@@ -92,7 +92,7 @@ store() {
 	esac
 }
 
-mapfile -t zones < <(./tf.sh output -json acme_zones | jq -r '[.[]] | unique | .[]')
+mapfile -t zones < <(./cloudns.py acme-zones | jq -r '[.[]] | unique | .[]')
 
 # Usernames are the zone's first label: acme-<label>
 subusers="$(api list-sub-users -d page=1 -d rows-per-page=100 |

@@ -102,7 +102,7 @@ def load_secrets() -> tuple[tuple[str, str], ...]:
 def load_acme_dns_zone() -> tuple[tuple[str, str], ...]:
     zone = load_acme_zones().get(ACME_TXT_HOST)
     if zone is None:
-        # The dashboard serves plain HTTP only until terraform has made the zone
+        # The dashboard serves plain HTTP only while nix has no ACME record for it
         print(f"### WARNING: No ACME zone for {ACME_TXT_HOST}, HTTPS stays off")
         return ()
     return (("ACME_DNS_ZONE", zone),)
