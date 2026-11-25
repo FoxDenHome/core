@@ -65,5 +65,6 @@
       homepod-living-room = mkHost "homepod-living-room" "AC:BC:B5:D0:56:AE" 23;
       homepod-wizzy-office = mkHost "homepod-wizzy-office" "14:14:7D:46:20:44" 24;
       withings-scale = mkHost "withings-scale" "00:24:E4:7E:2C:FE" 25;
+      microwave = mkHost "microwave" "34:55:E5:B3:1F:B9" 26;
     };
 }
