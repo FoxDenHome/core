@@ -83,12 +83,6 @@ jobs:
       NIX_CONFIG: access-tokens = github.com=${{ secrets.EXT_GITHUB_TOKEN }}
     steps:
       - uses: https://data.forgejo.org/actions/checkout@v7
-      - name: Install sops and rsync
-        run: |
-          for pkg in sops rsync; do
-            echo "$(nix build --no-link --print-out-paths --inputs-from ./nix "nixpkgs#$pkg")/bin" >> "$GITHUB_PATH"
-          done
-
       - name: Public DNS (ClouDNS, OVH reverses)
         working-directory: dns
         env:
