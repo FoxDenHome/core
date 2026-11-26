@@ -31,8 +31,18 @@ let
   # has passwordless sudo and real Docker via start-docker. The image has no
   # actions runner, so this fetches the latest release into a cache shared by
   # all instances. GitHub stops giving jobs to outdated runners anyway.
+  #
+  # Every job gets a fresh dockerd, so it would pull its service images anew.
+  # Images of the repositories in RUNNER_CACHED_IMAGES are kept in the cache
+  # instead: loaded before the runner registers, and saved again after a job
+  # that pulled a different image of that repository (a new digest or tag).
   entrypoint = pkgs.writeText "github-runner-entrypoint.sh" ''
     set -euo pipefail
+
+    read -ra cachedRepos <<<"''${RUNNER_CACHED_IMAGES:-}"
+    cacheFile() {
+      printf '%s/%s.tar' "$imageCache" "$(printf '%s' "$1" | tr '/:' '__')"
+    }
 
     # Docker in a cgroup namespace: runc enables every controller in the root's
     # subtree_control, but the kernel refuses domain ones (memory, io) while the
@@ -68,6 +78,28 @@ let
       tarball="$(ls -1t "$cache"/actions-runner-linux-${runnerArch}-*.tar.gz | head -n1)"
     fi
 
+    imageCache="$cache/images"
+    mkdir -p "$imageCache"
+    find "$imageCache" -maxdepth 1 -name '*.tmp.*' -mmin +60 -delete || true
+    declare -A wantedFiles=()
+    for repo in "''${cachedRepos[@]}"; do
+      file="$(cacheFile "$repo")"
+      wantedFiles["$file"]=1
+      if [ -f "$file" ]; then
+        echo "Loading cached images of $repo"
+        if ! docker load --quiet --input "$file"; then
+          echo "Could not load $file, dropping it"
+          rm -f "$file"
+        fi
+      fi
+    done
+    for file in "$imageCache"/*.tar; do
+      if [ -f "$file" ] && [ -z "''${wantedFiles[$file]:-}" ]; then
+        rm -f "$file"
+      fi
+    done
+    imagesBefore="$(docker image ls --all --no-trunc --format '{{.ID}}')"
+
     mkdir -p "$HOME/actions-runner"
     cd "$HOME/actions-runner"
     tar -xzf "$tarball"
@@ -101,8 +133,43 @@ let
     fi
 
     ./config.sh "''${args[@]}"
-    unset args RUNNER_URL RUNNER_NAME RUNNER_LABELS RUNNER_GROUP RUNNER_EPHEMERAL
-    exec ./run.sh
+    unset args RUNNER_URL RUNNER_NAME RUNNER_LABELS RUNNER_GROUP RUNNER_EPHEMERAL RUNNER_CACHED_IMAGES
+
+    # Not exec'd, to save images once an ephemeral runner exits after its job.
+    # This shell is PID 1, so pass on the stop signal.
+    stopping=
+    ./run.sh &
+    runner=$!
+    trap 'stopping=1; kill -TERM "$runner" 2>/dev/null || :' TERM INT
+    status=0
+    while kill -0 "$runner" 2>/dev/null; do
+      wait "$runner" || status=$?
+    done
+    if [ -n "$stopping" ]; then
+      exit "$status"
+    fi
+
+    for repo in "''${cachedRepos[@]}"; do
+      refs=()
+      while read -r ref id; do
+        if [ "''${ref%:*}" != "$repo" ] || [ "''${ref##*:}" = '<none>' ] ||
+          grep -qxF "$id" <<<"$imagesBefore"; then
+          continue
+        fi
+        refs+=("$ref")
+      done < <(docker image ls --no-trunc --format '{{.Repository}}:{{.Tag}} {{.ID}}' || :)
+      if [ ''${#refs[@]} -eq 0 ]; then
+        continue
+      fi
+      file="$(cacheFile "$repo")"
+      echo "Caching ''${refs[*]}"
+      if docker save --output "$file.tmp.$HOSTNAME" "''${refs[@]}"; then
+        mv "$file.tmp.$HOSTNAME" "$file"
+      else
+        rm -f "$file.tmp.$HOSTNAME"
+      fi
+    done
+    exit "$status"
   '';
 
   # /etc/containers entries are symlinks into /etc/static, which confinement hides,
@@ -226,6 +293,21 @@ in
             default = true;
             description = "Start a fresh container and re-register after every job.";
           };
+          cachedImages = lib.mkOption {
+            type = lib.types.listOf lib.types.str;
+            default = [ ];
+            example = [
+              "gcr.io/concat-cloud/cockroachdb-single-node"
+              "valkey/valkey"
+            ];
+            description = ''
+              Image repositories (no tag, named as `docker image ls` shows them, so
+              Docker Hub ones without `docker.io/`) whose images are kept between jobs.
+              The runner loads them before it registers, so a job's pull only checks
+              the manifest. After a job pulls a different image of one, it replaces
+              the cached one. Only useful with `ephemeral`.
+            '';
+          };
           extraEnvironment = lib.mkOption {
             type = lib.types.attrsOf lib.types.str;
             default = { };
@@ -327,6 +409,7 @@ in
                   RUNNER_LABELS = lib.concatStringsSep "," cfg.extraLabels;
                   RUNNER_GROUP = if cfg.runnerGroup == null then "" else cfg.runnerGroup;
                   RUNNER_EPHEMERAL = if cfg.ephemeral then "1" else "0";
+                  RUNNER_CACHED_IMAGES = lib.concatStringsSep " " cfg.cachedImages;
                 }
                 // cfg.extraEnvironment;
                 runArgs = [

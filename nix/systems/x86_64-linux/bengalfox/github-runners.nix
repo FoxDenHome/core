@@ -10,6 +10,11 @@ in
       url = "https://github.com/ConventionCatCorp";
       count = 8;
       runnerGroup = "FoxDen";
+      # Service images of ConCat's build.yml
+      cachedImages = [
+        "gcr.io/concat-cloud/cockroachdb-single-node"
+        "valkey/valkey"
+      ];
     };
   };
 
