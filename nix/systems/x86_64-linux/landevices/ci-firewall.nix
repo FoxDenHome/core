@@ -55,6 +55,26 @@ let
       ];
       ports = [ 9002 ];
     }
+    # The deploy jobs of FoxDen/ntpi and FoxDen/crossfox SSH in as abflash
+    # to flash the image they just built
+    {
+      name = "ntpi";
+      comment = "ci-deploy-ntpi";
+      addresses = [
+        "10.2.1.123"
+        "fd2c:f4cb:63be:2::17b"
+      ];
+      ports = [ 22 ];
+    }
+    {
+      name = "crossfox";
+      comment = "ci-deploy-crossfox";
+      addresses = [
+        "10.5.10.3"
+        "fd2c:f4cb:63be:5::a03"
+      ];
+      ports = [ 22 ];
+    }
   ];
 in
 {
@@ -72,7 +92,7 @@ in
             action = "accept";
             protocol = "tcp";
             dstport = port;
-            comment = "ci-apply-${target.name}";
+            comment = target.comment or "ci-apply-${target.name}";
             inherit source destination;
           }) target.ports
         ) target.addresses
