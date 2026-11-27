@@ -12,11 +12,6 @@
       "enabled": false
     },
     {
-      "matchDepTypes": ["requires-python"],
-      "matchPaths": ["nix/packages/carvera-controller/**"],
-      "enabled": false
-    },
-    {
       "description": "One rule for both: executionMode branch only runs the tasks of the first upgrade in a branch, so a grouped vpn+packetfox bump must regenerate both hashes",
       "matchManagers": ["gomod"],
       "matchFileNames": ["vpn/**", "packetfox/**"],

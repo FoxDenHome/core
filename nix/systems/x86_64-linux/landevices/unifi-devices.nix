@@ -210,10 +210,7 @@
           "10.1.10.14/16"
         ];
       };
-      switch-dori-office = {
-        ssh = true;
-      }
-      // (mkIntf {
+      switch-dori-office = mkIntf {
         dns = {
           fqdns = [ "switch-dori-office.foxden.network" ];
         };
@@ -221,7 +218,7 @@
         addresses = [
           "10.1.10.5/16"
         ];
-      });
+      };
       switch-dori-office-agg = {
         ssh = true;
       }

@@ -118,7 +118,7 @@ The routers' SSH host keys are pinned in `mikrotik/known_hosts`. Update that fil
 
 ## TODO: Not-yet automated update cycles
 
-- Every GitHub release artifact download where upstream does not have a digest (likely big files, currently carvera-controller and njs/acme.js)
+- Every GitHub release artifact download where upstream does not have a digest (likely big files, currently njs/acme.js)
 - ZFS Linux kernel lag-behind
 - Kanidm version in nix
 - Anything RouterOS
