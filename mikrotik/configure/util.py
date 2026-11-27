@@ -8,7 +8,7 @@ from routeros_api import RouterOsApiPool
 
 MTIK_DIR = realpath(dirname(__file__) + "/../")
 NIX_DIR = realpath(dirname(__file__) + "/../../nix/")
-VLAN_NAMES = ["", "mgmt", "lan", "dmz", "labnet", "security", "hypervisor", "retro"]
+VLAN_NAMES = ["", "mgmt", "lan", "unused3", "lab", "security", "hypervisor", "retro"]
 
 
 def mtik_path(path: str) -> str:
