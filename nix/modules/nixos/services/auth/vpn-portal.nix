@@ -34,6 +34,9 @@ let
       service_id = svcConfig.fastlyServiceId;
       dictionary = "vpn_peers";
     };
+    # The router VLANs offered to devices, in display order: every one with a
+    # gateway VIP, whose vrrp-<name>-gateway(6) addresses serve DNS.
+    vpn.networks = map (vlan: vlan.name) (lib.filter (vlan: vlan.vips != [ ]) foxDenLib.routers.vlans);
     # Shares are handed to devices with their configuration.
     vpn.smb = kerberos.smbServers;
     # For the tray's Servers menu: SSH, web UIs and KVM consoles, and where

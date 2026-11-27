@@ -48,14 +48,20 @@ class TestUtil(unittest.TestCase):
         self.assertEqual(format_mtik_duration(86405), "1d5s")
 
     def test_get_ipv4_netname(self) -> None:
-        self.assertEqual(get_ipv4_netname("10.1.0.5"), "mgmt")
-        self.assertEqual(get_ipv4_netname("10.2.10.5"), "lan")
-        self.assertEqual(get_ipv4_netname("10.7.0.1"), "retro")
-        self.assertEqual(get_ipv4_netname("100.68.41.9"), "cghmn")
-        with self.assertRaises(ValueError):
-            get_ipv4_netname("192.168.1.1")
-        with self.assertRaises(ValueError):
-            get_ipv4_netname("100.68.42.1")
+        vlans = [
+            {"name": "mgmt", "ipv4": {"network": "10.1.0.0/16"}},
+            {"name": "lan", "ipv4": {"network": "10.2.0.0/16"}},
+            {"name": "retro", "ipv4": {"network": "10.7.0.0/16"}},
+            {"name": "cghmn", "ipv4": {"network": "100.68.41.0/24"}},
+            {"name": "wolnet", "ipv4": None},
+        ]
+        self.assertEqual(get_ipv4_netname("10.1.0.5", vlans), "mgmt")
+        self.assertEqual(get_ipv4_netname("10.2.10.5/32", vlans), "lan")
+        self.assertEqual(get_ipv4_netname("10.7.0.1", vlans), "retro")
+        self.assertEqual(get_ipv4_netname("100.68.41.9", vlans), "cghmn")
+        for ip in ("192.168.1.1", "100.68.42.1", "10.3.0.1"):
+            with self.assertRaises(ValueError):
+                get_ipv4_netname(ip, vlans)
 
     def test_connection_requires_ensure_user(self) -> None:
         router = MTikRouter(

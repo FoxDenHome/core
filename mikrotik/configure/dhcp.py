@@ -9,6 +9,7 @@ from configure.util import (
     format_mtik_bool,
     format_weird_mtik_ip,
     get_ipv4_netname,
+    load_plan,
     parse_mtik_bool,
 )
 
@@ -31,7 +32,9 @@ IGNORE_CHANGES = {
 }
 
 
-def refresh_dhcp_router(dhcp_leases: list[dict[str, Any]], router: MTikRouter) -> None:
+def refresh_dhcp_router(
+    dhcp_leases: list[dict[str, Any]], vlans: list[dict[str, Any]], router: MTikRouter
+) -> None:
     print(f"## {router.host}")
     connection = router.connection()
     api = connection.get_api()
@@ -45,7 +48,7 @@ def refresh_dhcp_router(dhcp_leases: list[dict[str, Any]], router: MTikRouter) -
         if "ipv4" not in lease:
             raise ValueError(f"Lease {lease} has no IPv4 address")
 
-        netname = get_ipv4_netname(lease["ipv4"])
+        netname = get_ipv4_netname(lease["ipv4"], vlans)
 
         attribs = {
             "address": format_weird_mtik_ip(lease["ipv4"]),
@@ -124,8 +127,9 @@ def refresh_dhcp() -> None:
     )
     with open(result, "r") as file:
         dhcp_leases = json_load(file)
+    vlans = load_plan()["vlans"]
 
     for router in ROUTERS:
         if router.horizon != "internal":
             continue
-        refresh_dhcp_router(dhcp_leases, router)
+        refresh_dhcp_router(dhcp_leases, vlans, router)

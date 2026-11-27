@@ -4,6 +4,7 @@ from configure.dhcp import refresh_dhcp_router
 from tests.fakes import FakeResource, FakeRouter, quiet
 
 LEASES = "/ip/dhcp-server/lease"
+VLANS = [{"name": "lan", "ipv4": {"network": "10.2.0.0/16"}}]
 
 
 def lease(name: str, ipv4: str, mac: str) -> dict[str, str]:
@@ -24,7 +25,7 @@ def mtik(comment: str, address: str, mac: str, **extra: str) -> dict[str, str]:
 
 def run(desired: list[dict[str, str]], deployed: list[dict[str, str]]) -> FakeResource:
     res = FakeResource(deployed)
-    quiet(refresh_dhcp_router, desired, FakeRouter({LEASES: res}))
+    quiet(refresh_dhcp_router, desired, VLANS, FakeRouter({LEASES: res}))
     return res
 
 
@@ -80,7 +81,7 @@ class TestRefreshDhcpRouter(unittest.TestCase):
 
     def test_ignores_leases_on_other_servers(self) -> None:
         deployed = [
-            mtik("host", "10.2.10.5", "AA:BB:CC:DD:EE:FF", server="dhcp-dmz"),
+            mtik("host", "10.2.10.5", "AA:BB:CC:DD:EE:FF", server="dhcp-lab"),
         ]
         res = run([lease("host", "10.2.10.5", "aa:bb:cc:dd:ee:ff")], deployed)
         self.assertEqual(len(res.rows), 1)

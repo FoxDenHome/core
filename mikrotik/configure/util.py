@@ -1,26 +1,47 @@
 from dataclasses import dataclass, field
-from ipaddress import IPv4Address, IPv6Address
+from ipaddress import IPv4Address, IPv6Address, ip_interface, ip_network
+from json import load as json_load
 from os.path import dirname, join, realpath
 from subprocess import check_call, check_output
+from typing import Any
 from uuid import uuid4
 
 from routeros_api import RouterOsApiPool
 
 MTIK_DIR = realpath(dirname(__file__) + "/../")
 NIX_DIR = realpath(dirname(__file__) + "/../../nix/")
-VLAN_NAMES = ["", "mgmt", "lan", "unused3", "lab", "security", "hypervisor", "retro"]
 
 
 def mtik_path(path: str) -> str:
     return join(MTIK_DIR, path)
 
 
-def get_ipv4_netname(ip: str) -> str:
-    parts = ip.split(".")
-    if parts[0] == "10":
-        return VLAN_NAMES[int(parts[1])]
-    if parts[0] == "100" and parts[1] == "68" and parts[2] == "41":
-        return "cghmn"
+def load_plan() -> dict[str, Any]:
+    """The routers' addressing plan (nix/modules/lib/routers.nix)."""
+    result = (
+        check_output(
+            [
+                "nix",
+                "build",
+                f"{NIX_DIR}#routers.json",
+                "--no-link",
+                "--print-out-paths",
+            ]
+        )
+        .strip()
+        .decode("utf-8")
+    )
+    with open(result, "r") as file:
+        return json_load(file)
+
+
+def get_ipv4_netname(ip: str, vlans: list[dict[str, Any]]) -> str:
+    """The name of the plan VLAN whose IPv4 network holds ip."""
+    addr = ip_interface(ip).ip
+    for vlan in vlans:
+        ipv4 = vlan["ipv4"]
+        if ipv4 is not None and addr in ip_network(ipv4["network"]):
+            return vlan["name"]
     raise ValueError(f"Unknown net for IP {ip}")
 
 

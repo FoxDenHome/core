@@ -121,10 +121,6 @@ let
       ntp6 = [ "${ula}:2::17b" ];
     })
     (mkPlanVlan {
-      name = "unused3";
-      id = 3;
-    })
-    (mkPlanVlan {
       name = "lab";
       id = 4;
     })

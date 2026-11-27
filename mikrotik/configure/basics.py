@@ -1,7 +1,6 @@
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from ipaddress import IPv6Address, ip_interface, ip_network
-from json import load as json_load
 from json import loads as json_loads
 from subprocess import check_output
 from typing import Any
@@ -10,12 +9,12 @@ from configure.firewall import _sync_firewall_table
 from configure.foxmail import CONTAINER as FOXMAIL_CONTAINER
 from configure.util import (
     CONTAINER_HOST,
-    NIX_DIR,
     ROUTERS,
     MTikFirewallRule,
     MTikRouter,
     format_mtik_bool,
     format_weird_mtik_ip,
+    load_plan,
     mtik_path,
     parse_mtik_bool,
 )
@@ -1352,24 +1351,6 @@ def make_redfox_basics(plan: dict[str, Any]) -> MTikBasics:
 
     basics.firewall = _redfox_firewall()
     return basics
-
-
-def load_plan() -> dict[str, Any]:
-    result = (
-        check_output(
-            [
-                "nix",
-                "build",
-                f"{NIX_DIR}#routers.json",
-                "--no-link",
-                "--print-out-paths",
-            ]
-        )
-        .strip()
-        .decode("utf-8")
-    )
-    with open(result, "r") as file:
-        return json_load(file)
 
 
 def load_snmp_community() -> str:
